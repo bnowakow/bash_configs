@@ -1,0 +1,1 @@
+/Users/sup/.bash_profile
