@@ -1,0 +1,32 @@
+[user]
+	name = Bartek Nowakowski
+	email = bartek@bnowakowski.pl
+[core]
+	excludesfile = /home/USER_NAME/.gitexcludes
+	autocrlf = input
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+[mergetool "sourcetree"]
+	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[alias]
+	st = status
+    ci = commit
+    cia = commit -a
+    br = branch
+    co = checkout
+    df = diff
+    ds = diff --staged
+    lg = log -p
+    lol = log --graph --decorate --pretty=oneline --abbrev-commit
+    lola = log --graph --decorate --pretty=oneline --abbrev-commit --all --date=local
+    ls = ls-files
+    unstage = reset HEAD
+    # Show files ignored by git:
+    ign = ls-files -o -i --exclude-standard
+	today = !git log --since=midnight --author=\"$(git config user.name)\" --oneline
+	todayall = !git log --since=midnight --oneline
+    apply-gitignore = !git ls-files -ci --exclude-standard -z | xargs -0r git rm --cached
+[push]
+	default = simple
