@@ -20,9 +20,6 @@ export MAVEN_OPTS="-Xmx1536m -XX:MaxPermSize=512m"
 
 #clear
 
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm" # This loads RVM into a shell session
-PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
-
 PATH="/usr/local/bin:/usr/local/sbin:/usr/local/mysql/bin:$PATH"
 PATH="/usr/local/mysql/bin:$PATH" # mysql path
 
@@ -67,7 +64,6 @@ colorsdisplay (){
 
 # begin rvm display (if you don't want to use the rvm prompt display just comment out these lines in this section)
 #if [ -d "$HOME/.rvm" ]; then
-#	[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm" # Load RVM function (http://beginrescueend.com/workflow/prompt/)
 #	[[ -r "$HOME/.rvm/scripts/completion" ]] && . "$HOME/.rvm/scripts/completion" # Load RVM completion (http://beginrescueend.com/workflow/completion/)
 #	PS1="${COLOR_BRIGHT_BLACK}[${COLOR_NC}${COLOR_BRIGHT_PURPLE}rvm -> \$(~/.rvm/bin/rvm-prompt)${COLOR_NC}${COLOR_BRIGHT_BLACK}]\n"
 #fi
@@ -142,7 +138,6 @@ alias serve="python -m SimpleHTTPServer"
 alias xcode5="sudo xcode-select --switch /Applications/Xcode5-DP5.app/Contents/Developer/"
 alias xcode4="sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer/"
 
-
 # allows you to save bookmarks to folders
 #  cd ~/src/git
 #  save git
@@ -211,7 +206,9 @@ git config --global alias.today '!git log --since=midnight --author="$(git confi
 export PATH="/usr/local/heroku/bin:$PATH"
 
 source ~/.profile
-export GEM_HOME="$HOME/.gem/ruby/2.0.0"
+
+#  * WARNING: you have GEM_HOME="/Users/sup/.gem/ruby/2.0.0" this is conflicting with RVM, make sure to:      unset GEM_HOME
+#export GEM_HOME="$HOME/.gem/ruby/2.0.0"
 
 export EDITOR="mate -wl1"
 
@@ -236,3 +233,6 @@ function manp() { man -t $1 | open -f -a Preview; }
 
 # Pebble SDK
 export PATH="/Users/sup/pebble-dev/PebbleSDK-current/bin:$PATH"
+if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
+
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
