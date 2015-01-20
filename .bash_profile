@@ -72,6 +72,13 @@ colorsdisplay (){
 # begin git display (if you don't want to use the git prompt display just comment lines in this section)
 # \W$(__git_ps1 " (%s)")
 # Turn on git tab completion if the file exists (get it here: https://github.com/git/git/blob/master/contrib/completion/git-completion.bash)
+git_prompt_exists=$(ls -l ~/.git-prompt.sh);
+if [ $? -eq 1 ];
+then
+	echo ".git-prompt.sh does not exist. Downloading."
+	curl -o ~/.git-prompt.sh \
+	    https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh;
+fi
 source ~/.git-prompt.sh
 GIT_COMPLETION=/Library/Developer/CommandLineTools/usr/share/git-core/git-completion.bash
 if [ -f $GIT_COMPLETION ]; then
@@ -236,3 +243,8 @@ export PATH="/Users/sup/pebble-dev/PebbleSDK-current/bin:$PATH"
 if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
 
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+
+# http://stackoverflow.com/questions/19352976/npm-modules-wont-install-globally-without-sudo
+# npm config set prefix ~/npm
+
+export PATH="$PATH:$HOME/npm/bin"
