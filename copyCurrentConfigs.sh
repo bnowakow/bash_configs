@@ -2,3 +2,5 @@
 
 cp ~/.bash_profile .
 cp ~/.gitconfig .
+cp ~/.screenrc .
+
