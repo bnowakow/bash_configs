@@ -217,7 +217,12 @@ source ~/.profile
 #  * WARNING: you have GEM_HOME="/Users/sup/.gem/ruby/2.0.0" this is conflicting with RVM, make sure to:      unset GEM_HOME
 #export GEM_HOME="$HOME/.gem/ruby/2.0.0"
 
-export EDITOR="mate -wl1"
+mate_path=$(which mate)
+if [ $? -eq 0 ]; then
+	export EDITOR="mate -wl1"
+else
+	export EDITOR="vim"
+fi
 
 function setjdk() {  
   if [ $# -ne 0 ]; then  
