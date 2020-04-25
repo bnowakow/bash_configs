@@ -14,3 +14,6 @@ au BufWrite /private/etc/pw.* set nowritebackup nobackup
 let skip_defaults_vim=1
 
 syntax on
+
+" indents
+set ts=4 sw=4 sts=4 et
