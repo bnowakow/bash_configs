@@ -1,10 +1,6 @@
 # This is Git's per-user configuration file.
 [user]
-# Please adapt and uncomment the following lines:
-#	name = Bartek Nowakowski
-#	email = bartek@bnowakowski.pl
-[user]
-	name = Bartek Nowakowski
+	name = Bartek Dobrowolski-Nowakowski
 	email = bartek@bnowakowski.pl
 [gpg]
 	program = /usr/local/bin/krgpg
