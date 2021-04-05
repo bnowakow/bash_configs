@@ -1,7 +1,7 @@
 #!/bin/bash
 
 number_of_backpus_to_keep=10
-backup_path=etc-backup
+backup_path=/home/sup/code/bash_configs/etc-backup
 
 mkdir -p $backup_path
 ls -1t $backup_path/*.tar.gz | tail -n +$number_of_backpus_to_keep | xargs rm;
