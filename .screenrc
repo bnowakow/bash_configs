@@ -106,7 +106,7 @@ defnonblock 5
 # screen -t mail 8 mutt
 # screen -t daemon 9 tail -f /var/log/daemon.log
 
-shell -bash
+shell -zsh
 
 caption always "%?%{ Wk}%-Lw%?%{Rk}%n*%f %t%?(%u)%?%?%{Wk}%+Lw%? %{Rk}%=%c %{rk}%d/%M/%Y"
 hardstatus string "%{+b Rk}(%{-b g}$LOGNAME@%H%{+b R}) (%{-b g}%C %a%{+b R}) %{-b g} %n %t %h"
