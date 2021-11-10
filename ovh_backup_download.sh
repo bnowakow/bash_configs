@@ -5,8 +5,7 @@ remote_dir=/backup
 local_dir="/Users/sup/code/ovh/backup"
 remote_file_name="sup*"
 remote_file_name="*.tar"
-remote_file_name="*.zip"
-number_of_backpus_to_keep=3
+number_of_backpus_to_keep=10
 
 mkdir -p "$local_dir"
 remote_path="$remote_dir/$remote_file_name";
