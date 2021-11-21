@@ -31,7 +31,9 @@ function mkcd() { mkdir -p "$@" && cd "$_"; }
 export EDITOR=vim
 export BUNDLEEDITOR="/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"
 export CLICOLOR=1
-export GREP_OPTIONS='--color=auto' GREP_COLOR='1;32'
+unset GREP_OPTIONS;
+export GREP_COLOR='1;32'
+alias grep='grep --color=auto'
 
 alias ll='ls -Ghlas'
 alias ..='cd ..'
