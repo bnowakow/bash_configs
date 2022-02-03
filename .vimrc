@@ -17,6 +17,7 @@ syntax on
 
 " indents
 set ts=4 sw=4 sts=4 et
+" for Makefile I need tabs, "set noexpandtab", then do a tab: https://stackoverflow.com/a/69096538
 
 " from https://stackoverflow.com/a/774599
 " Uncomment the following to have Vim jump to the last position when                                                       
