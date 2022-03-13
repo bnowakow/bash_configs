@@ -2,9 +2,9 @@
 
 
 remote_user="root"
-remote_host="192.168.1.47"
+remote_host="192.168.1.56"
 remote_dir="/etc/pve/qemu-server"
-remote_file_name="*.conf"
+remote_file_name="*.conf*"
 
 local_dir="/mnt/MargokPool/archive/Documents/proxmox"
 
