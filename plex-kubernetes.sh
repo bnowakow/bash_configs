@@ -15,7 +15,6 @@ pod_health_check_script_path=$(sudo k3s kubectl describe pod $pod_name -n $pod_n
 
 #echo "${green}describe pod${reset}"
 #sudo k3s kubectl describe pod $pod_name -n $pod_namespace | less
-#echo
 
 #echo "${green}console inside pod${reset}"
 #sudo k3s kubectl exec -n $pod_namespace -it $pod_name -- bash
@@ -28,16 +27,31 @@ pod_health_check_script_path=$(sudo k3s kubectl describe pod $pod_name -n $pod_n
 #sudo k3s kubectl exec -n $pod_namespace -it $pod_name -- bash -c "time $pod_health_check_script_path; echo $?"
 #echo
 
+echo "${green}free memory${reset}"
+free -h | head -n2
+echo
+
+echo "${green}inode-nr${reset}"
+cat /proc/sys/fs/inode-nr
+echo
+
 echo "${green}manual health check from host${reset}"
 time curl -ksf http://$pod_ip:32400/identity; echo $?
 echo
 
-echo "${green}show system events${reset}"
-sudo k3s kubectl get events
-echo
+#echo "${green}show system events${reset}"
+#sudo k3s kubectl get events
+#echo
 
-echo "${green}show namespace events${reset}"
-sudo k3s kubectl get events --namespace=$pod_namespace
+#echo "${green}show namespace events${reset}"
+#sudo k3s kubectl get events --namespace=$pod_namespace
+#echo
+
+echo "${green}show pod events from describe${reset}"
+describe_events_grep_line_mumber=$(sudo k3s kubectl describe pod $pod_name -n $pod_namespace | grep -n Events | cut -d : -f 1)
+describe_total_line_length=$(sudo k3s kubectl describe pod $pod_name -n $pod_namespace | wc -l)
+number_to_tail=$(($describe_total_line_length-$describe_events_grep_line_mumber+1))
+sudo k3s kubectl describe pod $pod_name -n $pod_namespace | tail -n $number_to_tail
 echo
 
 #echo "${green}current logs${reset}"
