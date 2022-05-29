@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# when backup errors during, doesn't finish and can't start new one: https://forum.vestacp.com/viewtopic.php?f=10&t=16357
+
 remote_host=ovh.bnowakowski.pl
 remote_dir="/backup"
 remote_file_name="*.tar"
