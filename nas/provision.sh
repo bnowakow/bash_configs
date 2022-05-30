@@ -3,8 +3,7 @@
 sudo chmod +x /bin/apt /bin/apt-key /bin/apt-get /bin/apt-cache /bin/apt-config
 
 sudo apt update
-sudo apt install -y screen vim vagrant wget gnupg2 hddtemp ncdu elinks jdupes hfsprogs libicu-dev bzip2 cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev clang git libattr1-dev libfsapfs-utils
-
+sudo apt install -y screen vim vagrant wget gnupg2 hddtemp ncdu elinks jdupes hfsprogs libicu-dev bzip2 cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev clang git libattr1-dev libfsapfs-utils libicu-dev bzip2 cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev clang git libattr1-dev
 
 wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
 sudo echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian bullseye contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
@@ -31,4 +30,7 @@ if ! crontab -l | grep ovh_backup_download; then
     { crontab -l; echo '02 05 * * * /mnt/MargokPool/home/sup/code/bash_configs/proxmox_backup_download.sh'; } | crontab -
     { crontab -l; echo '02 15 * * * /mnt/MargokPool/home/sup/code/bash_configs/ovh_backup_download.sh'; } | crontab -
 fi
+
+# https://linuxnewbieguide.org/how-to-mount-macos-apfs-disk-volumes-in-linux/
+sudo cp /mnt/MargokPool/home/sup/code/apfs-fuse/build/apfs-* /usr/local/bin
 
