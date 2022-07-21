@@ -2,3 +2,6 @@ etc-backup
 .DS_Store
 *.swp
 
+nas/grub/grub.cfg
+nas/grub/grub-old.cfg
+
