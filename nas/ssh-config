@@ -1,0 +1,19 @@
+# Added by Krypton
+Host * !ovh.bnowakowski.pl
+	IdentityAgent ~/.kr/krd-agent.sock
+	ProxyCommand /usr/bin/krssh %h %p
+	IdentityFile ~/.ssh/id_krypton
+	IdentityFile ~/.ssh/id_ed25519
+	IdentityFile ~/.ssh/id_rsa
+	IdentityFile ~/.ssh/id_ecdsa
+	IdentityFile ~/.ssh/id_dsa
+
+Host ovh.bnowakowski.pl 
+	Hostname 146.59.13.67
+	IdentitiesOnly yes
+	IdentityFile ~/.ssh/id_rsa
+
+Host 192.168.1.47
+	Hostname 192.168.1.47
+	User root
+	IdentityFile ~/.ssh/id_rsa

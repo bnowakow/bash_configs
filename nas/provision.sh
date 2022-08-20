@@ -41,5 +41,6 @@ sudo add-apt-repository "deb http://kryptco.github.io/deb kryptco main" # non-Ka
 sudo apt-get update
 sudo apt-get install kr -y
 
-ssh-copy-id -i /mnt/MargokPool/home/sup/.ssh/id_rsa.pub ovh.bnowakowski.pl
+ssh-copy-id -i /mnt/MargokPool/home/sup/.ssh/id_rsa.pub -f sup@ovh.bnowakowski.pl
+cp ssh-config /mnt/MargokPool/home/sup/.ssh/config
 
