@@ -15,7 +15,7 @@ remote_path="$remote_dir/$remote_file_name";
 rsync --partial --progress --rsh=ssh -r $remote_user@$remote_host:$remote_path $local_dir;
 
 cd $local_dir
-tar -czvf proxmox_`date +"%Y-%m-%d_%H-%M"`.tar.gz $remote_file_name;
+tar -czvf proxmox.`date +"%Y-%m-%d_%H-%M"`.tar.gz $remote_file_name;
 rm $remote_file_name;
 
 let number_of_backpus_to_keep=$number_of_backpus_to_keep+1;
