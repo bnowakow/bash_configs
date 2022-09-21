@@ -44,3 +44,8 @@ sudo apt-get install kr -y
 ssh-copy-id -i /mnt/MargokPool/home/sup/.ssh/id_rsa.pub -f sup@ovh.bnowakowski.pl
 cp ssh-config /mnt/MargokPool/home/sup/.ssh/config
 
+sudo apt install zabbix-agent -y
+sudo usermod -a -G docker zabbix
+sudo cp /mnt/MargokPool/home/sup/code/zabbix-docker/zabbix_agentd.conf /etc/zabbix
+sudo service zabbix-agent restart
+
