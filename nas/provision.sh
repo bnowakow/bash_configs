@@ -44,8 +44,17 @@ sudo apt-get install kr -y
 ssh-copy-id -i /mnt/MargokPool/home/sup/.ssh/id_rsa.pub -f sup@ovh.bnowakowski.pl
 cp ssh-config /mnt/MargokPool/home/sup/.ssh/config
 
-sudo apt install zabbix-agent -y
+sudo apt install software-properties-common -y
+sudo add-apt-repository 'deb [arch=amd64] https://repo.zabbix.com/zabbix/6.2/debian/ bullseye main contrib non-free'
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 082AB56BA14FE591
+sudo apt update
+sudo apt install zabbix-agent2
+sudo cp /mnt/MargokPool/home/sup/code/zabbix-docker/zabbix_agent2.conf /etc/zabbix
+cd /etc/zabbix/zabbix_agent2.d
+sudo cp -r /mnt/MargokPool/home/sup/code/bash_configs .
+cd bash_configs
+sudo chown sup:sup -R .
+cd ../
 sudo usermod -a -G docker zabbix
-sudo cp /mnt/MargokPool/home/sup/code/zabbix-docker/zabbix_agentd.conf /etc/zabbix
-sudo service zabbix-agent restart
+sudo ./bash_configs/zabbix/update-zabbix-metadata.sh
 
