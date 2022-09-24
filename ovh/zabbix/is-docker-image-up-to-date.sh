@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if ! which docker; then
+    echo not-present,docker;
+    exit
+fi
+
 image_name="${1:-wordpress}"
 
 if ! echo $image_name | grep '/' > /dev/null; then
