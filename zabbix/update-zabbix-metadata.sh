@@ -1,6 +1,6 @@
 #!/bin/bash
 
 rm /etc/zabbix/zabbix_agentd.conf.d/zabbix*.conf
-find /etc/zabbix/zabbix_agentd.conf.d -name 'zabbix*.conf' | xargs -I{} cp {} /etc/zabbix/zabbix_agentd.conf.d
-service zabbix-agent restart
+find /etc/zabbix/zabbix_agent2.d -name 'zabbix*.conf' | xargs -I{} cp {} /etc/zabbix/zabbix_agent2.d/
+service zabbix-agent2 restart
 
