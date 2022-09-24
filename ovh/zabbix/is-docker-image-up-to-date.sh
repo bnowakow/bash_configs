@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if ! which docker; then
+if ! which docker > /dev/null; then
     echo not-present,docker;
     exit
 fi
