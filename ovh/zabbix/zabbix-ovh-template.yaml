@@ -1,6 +1,6 @@
 zabbix_export:
   version: '6.2'
-  date: '2022-09-20T15:45:46Z'
+  date: '2022-09-24T12:38:08Z'
   template_groups:
     -
       uuid: 7df96b18c230490a9a0a9e2307226338
@@ -15,29 +15,70 @@ zabbix_export:
           name: Templates
       items:
         -
+          uuid: f0f50c676e2049dab3f169e7bac4cdc0
+          name: 'Is apt up to date'
+          key: bnowakow.ovh.apt.is-apt-up-to-date
+          delay: 4h
+          trends: '0'
+          value_type: TEXT
+          tags:
+            -
+              tag: bnowakow
+          triggers:
+            -
+              uuid: fb6cd7c642de44ccbc0ddece46cb869a
+              expression: 'last(/bnowakow homelab - ovh/bnowakow.ovh.apt.is-apt-up-to-date)<>"true"'
+              name: 'apt is out of date'
+              priority: HIGH
+              manual_close: 'YES'
+              tags:
+                -
+                  tag: bnowakow
+        -
           uuid: 3255f8ae800c44908cedc216053f6de9
           name: 'Is docker image up to date - piwigo'
           key: 'bnowakow.ovh.docker.is-image-up-to-date[linuxserver/piwigo]'
-          delay: 12h
+          delay: 4h
           trends: '0'
           value_type: TEXT
+          tags:
+            -
+              tag: bnowakow
         -
           uuid: 248d28eb0bf14f249e980058cfd74b54
           name: 'Is docker image up to date - mariadb'
           key: 'bnowakow.ovh.docker.is-image-up-to-date[mariadb]'
-          delay: 12h
+          delay: 4h
           trends: '0'
           value_type: TEXT
+          tags:
+            -
+              tag: bnowakow
         -
           uuid: 426d52f2bef743dcbc24cda41e580595
           name: 'Is docker image up to date - wordpress'
           key: 'bnowakow.ovh.docker.is-image-up-to-date[wordpress]'
-          delay: 12h
+          delay: 4h
           trends: '0'
           value_type: TEXT
+          tags:
+            -
+              tag: bnowakow
+      tags:
+        -
+          tag: bnowakow
   triggers:
     -
       uuid: b0a2c9bedbef46e5a10802ae46021d9e
-      expression: 'last(/bnowakow homelab - ovh/bnowakow.ovh.docker.is-image-up-to-date[mariadb])<>"true" or last(/bnowakow homelab - ovh/bnowakow.ovh.docker.is-image-up-to-date[wordpress])<>"true" or last(/bnowakow homelab - ovh/bnowakow.ovh.docker.is-image-up-to-date[linuxserver/piwigo])<>"true"'
+      expression: |
+        (last(/bnowakow homelab - ovh/bnowakow.ovh.docker.is-image-up-to-date[mariadb])<>"true" and last(/bnowakow homelab - ovh/bnowakow.ovh.docker.is-image-up-to-date[mariadb])<>"not-present,docker") 
+        or 
+        (last(/bnowakow homelab - ovh/bnowakow.ovh.docker.is-image-up-to-date[wordpress])<>"true" and last(/bnowakow homelab - ovh/bnowakow.ovh.docker.is-image-up-to-date[wordpress])<>"not-present,docker") 
+        or 
+        (last(/bnowakow homelab - ovh/bnowakow.ovh.docker.is-image-up-to-date[linuxserver/piwigo])<>"true" and last(/bnowakow homelab - ovh/bnowakow.ovh.docker.is-image-up-to-date[linuxserver/piwigo])<>"not-present,docker")
       name: 'docker image out of date'
       priority: HIGH
+      manual_close: 'YES'
+      tags:
+        -
+          tag: bnowakow
