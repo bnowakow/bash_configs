@@ -28,7 +28,7 @@ sudo cp /mnt/MargokPool/home/sup/code/apfs-fuse/build/apfs-* /usr/local/bin
 
 if ! crontab -l | grep ovh_backup_download; then
     { crontab -l; echo '01 01 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/proxmox_backup_download.sh'; } | crontab -
-    { crontab -l; echo '15 01 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/ovh_backup_download.sh'; } | crontab -
+    { crontab -l; echo '01 06 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/ovh_backup_download.sh'; } | crontab -
 fi
 
 # user interactive - generate and copy ssh keys
