@@ -27,12 +27,14 @@ chsh -s $(which zsh)
 sudo cp /mnt/MargokPool/home/sup/code/apfs-fuse/build/apfs-* /usr/local/bin
 
 if ! crontab -l | grep ovh_backup_download; then
-    { crontab -l; echo '02 05 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/proxmox_backup_download.sh'; } | crontab -
-    { crontab -l; echo '02 15 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/ovh_backup_download.sh'; } | crontab -
+    { crontab -l; echo '01 01 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/proxmox_backup_download.sh'; } | crontab -
+    { crontab -l; echo '15 01 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/ovh_backup_download.sh'; } | crontab -
 fi
 
 # user interactive - generate and copy ssh keys
-ssh-keygen
+if [ ! -f ~/.ssh/id_rsa ]; then
+    ssh-keygen
+fi
 ssh-copy-id root@192.168.1.56
 
 sudo apt-get install software-properties-common dirmngr apt-transport-https -y
@@ -50,11 +52,23 @@ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 082AB56BA14FE5
 sudo apt update
 sudo apt install zabbix-agent2
 sudo cp /mnt/MargokPool/home/sup/code/zabbix-docker/zabbix_agent2.conf /etc/zabbix
+cd /mnt/MargokPool/home/sup/code/bash_configs
+git pull
 cd /etc/zabbix/zabbix_agent2.d
 sudo cp -r /mnt/MargokPool/home/sup/code/bash_configs .
 cd bash_configs
 sudo chown sup:sup -R .
+mkdir tmp-zabbix
+sudo chown zabbix:zabbix tmp-zabbix
 cd ../
 sudo usermod -a -G docker zabbix
+sudo mkdir -p /var/lib/zabbix/
+sudo chown zabbix:zabbix /var/lib/zabbix
 sudo ./bash_configs/zabbix/update-zabbix-metadata.sh
+# TODO add sudoers for zabbix
+# TODO add bash for zabbix account, run 
+# /etc/zabbix/zabbix_agent2.d/bash_configs/nas/zabbix/is-plex-running/1-install-depencencies.sh
+# /etc/zabbix/zabbix_agent2.d/bash_configs/nas/zabbix/is-plex-running/2-build.sh
+# and disable it back
 
+sudo apt-get install unison -y
