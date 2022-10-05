@@ -28,7 +28,8 @@ sudo cp /mnt/MargokPool/home/sup/code/apfs-fuse/build/apfs-* /usr/local/bin
 
 if ! crontab -l | grep ovh_backup_download; then
     { crontab -l; echo '01 01 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/proxmox_backup_download.sh'; } | crontab -
-    { crontab -l; echo '15 01 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/ovh_backup_download.sh'; } | crontab -
+    { crontab -l; echo '01 06 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/ovh_backup_download.sh'; } | crontab -
+    { crontab -l; echo '01 01 * * * /mnt/MargokPool/home/sup/code/zabbix-scripts/3-run.sh'; } | crontab -
 fi
 
 # user interactive - generate and copy ssh keys
@@ -66,6 +67,7 @@ sudo mkdir -p /var/lib/zabbix/
 sudo chown zabbix:zabbix /var/lib/zabbix
 sudo ./bash_configs/zabbix/update-zabbix-metadata.sh
 # TODO add sudoers for zabbix
+cat zabbix-sudoers | sudo tee -a /etc/sudoers
 # TODO add bash for zabbix account, run 
 # /etc/zabbix/zabbix_agent2.d/bash_configs/nas/zabbix/is-plex-running/1-install-depencencies.sh
 # /etc/zabbix/zabbix_agent2.d/bash_configs/nas/zabbix/is-plex-running/2-build.sh
