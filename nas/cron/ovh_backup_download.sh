@@ -6,7 +6,7 @@ remote_host=ovh.bnowakowski.pl
 remote_dir="/backup"
 remote_file_name="*.tar"
 
-local_dir="/mnt/MargokPool/archive/Documents/ovh"
+local_dir="/mnt/MargokPool/archive/Backups/ovh"
 
 number_of_backpus_to_keep=10
 
