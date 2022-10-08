@@ -1,0 +1,28 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "bnowakow/home-assistant"
+
+  # config.vm.box_check_update = false
+
+  config.vm.network "forwarded_port", guest: 8123, host: 8123
+
+  # TODO solve boot_timeout issue where vagrant can't ssh to booting machine
+  config.ssh.password="vagrant"
+
+  # config.vm.network "private_network", ip: "192.168.33.10"
+
+  #config.vm.network "public_network"
+
+  # config.vm.synced_folder "../data", "/vagrant_data"
+
+  config.vm.provider "virtualbox" do |vb|
+     vb.memory = "4024"
+  end
+
+  # config.vm.provision "shell", inline: <<-SHELL
+  #   apt-get update
+  #   apt-get install -y apache2
+  # SHELL
+end

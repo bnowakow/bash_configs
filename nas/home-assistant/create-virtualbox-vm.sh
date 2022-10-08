@@ -12,7 +12,7 @@ vboxmanage modifyvm $MACHINENAME --memory 4096 --cpus 2 --rtcuseutc on
 VBoxManage storagectl $MACHINENAME --name "SATA Controller" --add sata --controller IntelAhci
 
 #VBoxManage storageattach $MACHINENAME --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium  $dir/haos_ova-9.0.vdi
-VBoxManage storageattach $MACHINENAME --storagectl "SATA Controller" --port 0 --device 0 --type hdd --nonrotational on --discard on --medium $dir/haos_ova-9.0.vdi
+VBoxManage storageattach $MACHINENAME --storagectl "SATA Controller" --port 0 --device 0 --type hdd --nonrotational on --discard on --medium $dir/$MACHINENAME/haos_ova-9.0.vdi
 
 # https://www.home-assistant.io/installation/linux
 # https://www.virtualbox.org/manual/ch03.html
@@ -39,4 +39,12 @@ VBoxManage controlvm $MACHINENAME natpf1 "ssh-add-on,tcp,,22222,,22222"
 VBoxManage controlvm $MACHINENAME natpf1 "ssh,tcp,,2223,,22"
 
 
+# if doing vagrantbox do 1. create root and vagrant accounts 2. set advanced in user preferences 3. install SSH & Web Terminal add-on 4. turn it during boot and enable other switches 5. change username and password to vagrant in add-on configuration 6. start add-on
+ssh -v -i /mnt/MargokPool/home/sup/.ssh/id_rsa -p 22222 root@localhost
+ssh -v -i /mnt/MargokPool/home/sup/.ssh/id_rsa -p 2223 vagrant@localhost
+
 #vboxmanage controlvm home-assistant poweroff
+
+vagrant package --base=$MACHINENAME --output=$MACHINENAME.box
+vagrant box add --name=bnowakow/$MACHINENAME $MACHINENAME.box
+
