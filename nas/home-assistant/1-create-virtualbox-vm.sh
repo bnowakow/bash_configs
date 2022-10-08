@@ -4,7 +4,16 @@
 MACHINENAME=home-assistant
 dir=/mnt/MargokPool/home/sup/code/home-assistant-vagrant
 
+# https://github.com/home-assistant/operating-system/releases
+# TODO get latest vdi automatically, curling website doesn't work since there's a lot of assets and you need to ajax them
+rm *.vdi*
+wget https://github.com/home-assistant/operating-system/releases/download/9.2/haos_ova-9.2.vdi.zip
+unzip *vdi.zip
+vdi=$(ls *.vdi)
+
 VBoxManage createvm --name $MACHINENAME --ostype "Linux26_64" --register --basefolder $dir
+
+mv $vdi $MACHINENAME
 
 # https://computingforgeeks.com/manage-virtualbox-vms-from-command-line-using-vboxmanage/
 vboxmanage modifyvm $MACHINENAME --memory 4096 --cpus 2 --rtcuseutc on
@@ -12,7 +21,7 @@ vboxmanage modifyvm $MACHINENAME --memory 4096 --cpus 2 --rtcuseutc on
 VBoxManage storagectl $MACHINENAME --name "SATA Controller" --add sata --controller IntelAhci
 
 #VBoxManage storageattach $MACHINENAME --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium  $dir/haos_ova-9.0.vdi
-VBoxManage storageattach $MACHINENAME --storagectl "SATA Controller" --port 0 --device 0 --type hdd --nonrotational on --discard on --medium $dir/$MACHINENAME/haos_ova-9.0.vdi
+VBoxManage storageattach $MACHINENAME --storagectl "SATA Controller" --port 0 --device 0 --type hdd --nonrotational on --discard on --medium $dir/$MACHINENAME/$vdi
 
 # https://www.home-assistant.io/installation/linux
 # https://www.virtualbox.org/manual/ch03.html
@@ -28,8 +37,10 @@ VBoxManage modifyvm $MACHINENAME --nic1 nat
 VBoxManage modifyvm $MACHINENAME --audio oss --audiocontroller ac97
 
 # https://www.thomas-krenn.com/en/wiki/Headless_Mode_for_Virtual_Machines_of_VirtualBox
-VBoxHeadless -s $MACHINENAME
+VBoxHeadless -s $MACHINENAME &
 #VBoxHeadless --startvm $MACHINENAME
+# workaround for machine to boot
+sleep 10;
 
 # https://superuser.com/a/1558566
 # sudo lsof -i -P -n | grep LISTEN | grep 2223; https://www.cyberciti.biz/faq/unix-linux-check-if-port-is-in-use-command/
@@ -37,14 +48,4 @@ VBoxHeadless -s $MACHINENAME
 VBoxManage controlvm $MACHINENAME natpf1 "ha-web,tcp,,8123,,8123"
 VBoxManage controlvm $MACHINENAME natpf1 "ssh-add-on,tcp,,22222,,22222"
 VBoxManage controlvm $MACHINENAME natpf1 "ssh,tcp,,2223,,22"
-
-
-# if doing vagrantbox do 1. create root and vagrant accounts 2. set advanced in user preferences 3. install SSH & Web Terminal add-on 4. turn it during boot and enable other switches 5. change username and password to vagrant in add-on configuration 6. start add-on
-ssh -v -i /mnt/MargokPool/home/sup/.ssh/id_rsa -p 22222 root@localhost
-ssh -v -i /mnt/MargokPool/home/sup/.ssh/id_rsa -p 2223 vagrant@localhost
-
-#vboxmanage controlvm home-assistant poweroff
-
-vagrant package --base=$MACHINENAME --output=$MACHINENAME.box
-vagrant box add --name=bnowakow/$MACHINENAME $MACHINENAME.box
 
