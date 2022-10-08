@@ -54,10 +54,8 @@ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 082AB56BA14FE5
 sudo apt update
 sudo apt install zabbix-agent2
 sudo cp /mnt/MargokPool/home/sup/code/zabbix-docker/zabbix_agent2.conf /etc/zabbix
-cd /mnt/MargokPool/home/sup/code/bash_configs
-git pull
 cd /etc/zabbix/zabbix_agent2.d
-sudo cp -r /mnt/MargokPool/home/sup/code/bash_configs .
+sudo ln -sf /mnt/MargokPool/home/sup/code/bash_configs bash_configs
 cd bash_configs
 sudo chown sup:sup -R .
 mkdir tmp-zabbix
