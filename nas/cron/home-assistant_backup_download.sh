@@ -3,8 +3,8 @@
 remote_host=localhost
 remote_user=root
 remote_dir="/backup"
-remote_port=22222
 remote_file_name="*.tar"
+remote_port=$(cd /mnt/MargokPool/home/sup/code/bash_configs/nas/home-assistant; vagrant port --guest 22)
 
 local_dir="/mnt/MargokPool/archive/Backups/home-assistant"
 
@@ -16,6 +16,6 @@ rsync --partial --progress --rsh=ssh -r --remove-source-files -e "ssh -i $HOME/.
 
 number_of_backup_files=$(ls -d -1t $local_dir/* | wc -l);
 if [ $number_of_backup_files -gt $number_of_backpus_to_keep ]; then
-    ls -d -1t * | tail -n +$number_of_backpus_to_keep | xargs rm;
+    ls -d -1t $local_dir/* | tail -n +$number_of_backpus_to_keep | xargs rm;
 fi
 
