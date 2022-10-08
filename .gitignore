@@ -5,3 +5,5 @@ etc-backup
 nas/grub/grub.cfg
 nas/grub/grub-old.cfg
 
+nas/zabbix/is-plex-running/.password
+

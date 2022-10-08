@@ -3,10 +3,13 @@
 #plex = account.resource('margok').connect()
 
 from plexapi.server import PlexServer
+import traceback
+
 
 try:
     baseurl = 'http://192.168.1.49:32400'
-    token = ''
+    password_file = open(".password", "r")
+    token = password_file.readline().rstrip()
     plex = PlexServer(baseurl, token)
 
     #movies=[]
@@ -26,7 +29,9 @@ try:
     else:
         print('false,0 movies and tv shows')
 
-except:
-    print('false,exception')
+except Exception as e:
+    print('false,exception,')
+    print(e)
+    traceback.print_exc()
     
 
