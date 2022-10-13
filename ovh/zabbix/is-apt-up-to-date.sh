@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# https://askubuntu.com/a/510161
 sudo /bin/apt-get update > /dev/null 2> /dev/null
 if sudo /bin/apt-get --simulate upgrade | grep "0 upgraded" > /dev/null; then
     echo true

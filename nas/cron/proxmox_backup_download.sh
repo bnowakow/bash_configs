@@ -8,7 +8,7 @@ remote_file_name="*.conf*"
 
 local_dir="/mnt/MargokPool/archive/Backups/proxmox"
 
-number_of_backpus_to_keep=10
+number_of_backpus_to_keep=30
 
 mkdir -p "$local_dir"
 remote_path="$remote_dir/$remote_file_name";

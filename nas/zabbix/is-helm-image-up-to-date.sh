@@ -23,6 +23,7 @@ else
     version_current=$(helm search repo TrueCharts/$name --versions | head -2 | tail -1 | awk '{print $2}')
 fi
 
+# https://www.truenas.com/community/threads/install-helm-chart-via-command-line.97191/
 # https://github.com/k3s-io/k3s/issues/1126
 if sudo /bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep $name | awk '{print $9}' | sed 's/.*-//' | grep $version_current > /dev/null; then
     echo true;

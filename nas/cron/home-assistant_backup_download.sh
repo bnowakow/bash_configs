@@ -8,7 +8,7 @@ remote_port=$(cd /mnt/MargokPool/home/sup/code/bash_configs/nas/home-assistant; 
 
 local_dir="/mnt/MargokPool/archive/Backups/home-assistant"
 
-number_of_backpus_to_keep=10
+number_of_backpus_to_keep=30
 
 mkdir -p "$local_dir"
 remote_path="$remote_dir/$remote_file_name";
