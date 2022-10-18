@@ -73,3 +73,18 @@ cat zabbix-sudoers | sudo tee -a /etc/sudoers
 # and disable it back
 
 sudo apt-get install unison -y
+
+# https://www.zigbee2mqtt.io/advanced/remote-adapter/connect_to_a_remote_adapter.html
+# https://sourceforge.net/p/ser2net/discussion/90083/thread/df1050a576/
+# https://forums.raspberrypi.com/viewtopic.php?t=40216
+sudo apt-get install ser2net -y
+# TODO check if config already exists
+coordinator_port=$(sudo dmesg | grep 'ch341-uart converter now attached to' | tail -1 | sed 's/.*tty/tty/')
+cp ser2net.config.template ser2net.config
+sed -i "s/PORT/$coordinator_port/" ser2net.config
+cat ser2net.config | sudo tee -a /etc/ser2net.yaml
+rm ser2net.config
+sudo service ser2net restart
+
+
+
