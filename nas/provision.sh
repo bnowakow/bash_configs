@@ -53,7 +53,7 @@ sudo add-apt-repository 'deb [arch=amd64] https://repo.zabbix.com/zabbix/6.2/deb
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 082AB56BA14FE591
 sudo apt update
 sudo apt install zabbix-agent2
-sudo cp /mnt/MargokPool/home/sup/code/zabbix-docker/zabbix_agent2.conf /etc/zabbix
+sudo cp /mnt/MargokPool/home/sup/code/bash_configs/zabbix/zabbix_agent2.conf /etc/zabbix
 cd /etc/zabbix/zabbix_agent2.d
 sudo ln -sf /mnt/MargokPool/home/sup/code/bash_configs bash_configs
 cd bash_configs
