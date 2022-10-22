@@ -33,6 +33,9 @@ rsync --partial --progress --rsh=ssh -r $remote_user@$remote_host:$remote_dir $c
 remote_dir="/etc/apt/sources.list"
 rsync --partial --progress --rsh=ssh -r $remote_user@$remote_host:$remote_dir $current_backup_local_dir;
 
+remote_dir="/etc/sudoers"
+rsync --partial --progress --rsh=ssh -r $remote_user@$remote_host:$remote_dir $current_backup_local_dir
+
 cd $current_backup_local_dir
 tar -czvf proxmox.`date +"%Y-%m-%d_%H-%M"`.tar.gz *;
 mv *.tar.gz ../
