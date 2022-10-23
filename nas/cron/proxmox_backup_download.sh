@@ -16,12 +16,18 @@ mkdir -p "$current_backup_local_dir"
 remote_dir="/etc/pve/qemu-server"
 remote_file_name="*.conf*"
 remote_path="$remote_dir/$remote_file_name";
-rsync --partial --progress --rsh=ssh -r $remote_user@$remote_host:$remote_path $current_backup_local_dir;
+rsync --partial --progress --rsh=ssh -r $remote_user@$remote_host:$remote_path $current_backup_local_dir/qemu-server;
 
 # modprobe.d
 remote_dir="/etc/modprobe.d/"
 remote_path="$remote_dir/$remote_file_name";
-rsync --partial --progress --rsh=ssh -r $remote_user@$remote_host:$remote_path $current_backup_local_dir;
+rsync --partial --progress --rsh=ssh -r $remote_user@$remote_host:$remote_path $current_backup_local_dir/modprobe.d;
+
+remote_dir="/var/lib/vz/snippets"
+remote_file_name="*.sh"
+remote_path="$remote_dir/$remote_file_name";
+mkdir -p $current_backup_local_dir/snippets
+rsync --partial --progress --rsh=ssh -r $remote_user@$remote_host:$remote_path $current_backup_local_dir/snippets;
 
 
 remote_dir="/etc/default/grub"
