@@ -18,3 +18,10 @@ if [ $number_of_backup_files -gt $number_of_backpus_to_keep ]; then
     ls -d -1t $local_dir/* | tail -n +$number_of_backpus_to_keep | xargs rm;
 fi
 
+# rename backup files to include date
+cd $local_dir
+for file in $(ls -1 *tar | grep -v 'homeassistant_'); do
+    new_name=$(find . -maxdepth 1 -name $file -type f -printf "homeassistant_%TY-%Tm-%Td_%TT_%f\n";)
+    mv $file $new_name
+done
+
