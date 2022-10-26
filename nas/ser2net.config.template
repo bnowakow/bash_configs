@@ -1,0 +1,10 @@
+
+admin:
+  accepter: telnet,tcp,12345
+
+connection: &con01
+    accepter: tcp,20108
+    connector: serialdev,/dev/PORT,115200n81,local
+    options:
+      kickolduser: true
+

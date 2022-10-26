@@ -53,7 +53,7 @@ sudo add-apt-repository 'deb [arch=amd64] https://repo.zabbix.com/zabbix/6.2/deb
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 082AB56BA14FE591
 sudo apt update
 sudo apt install zabbix-agent2
-sudo cp /mnt/MargokPool/home/sup/code/zabbix-docker/zabbix_agent2.conf /etc/zabbix
+sudo cp /mnt/MargokPool/home/sup/code/bash_configs/zabbix/zabbix_agent2.conf /etc/zabbix
 cd /etc/zabbix/zabbix_agent2.d
 sudo ln -sf /mnt/MargokPool/home/sup/code/bash_configs bash_configs
 cd bash_configs
@@ -65,11 +65,21 @@ sudo usermod -a -G docker zabbix
 sudo mkdir -p /var/lib/zabbix/
 sudo chown zabbix:zabbix /var/lib/zabbix
 sudo ./bash_configs/zabbix/update-zabbix-metadata.sh
-# TODO add sudoers for zabbix
-cat zabbix-sudoers | sudo tee -a /etc/sudoers
-# TODO add bash for zabbix account, run 
-# /etc/zabbix/zabbix_agent2.d/bash_configs/nas/zabbix/is-plex-running/1-install-depencencies.sh
-# /etc/zabbix/zabbix_agent2.d/bash_configs/nas/zabbix/is-plex-running/2-build.sh
-# and disable it back
+sudo ./bash_configs/nas/zabbix-add-to-sudoers.sh
 
 sudo apt-get install unison -y
+
+# https://www.zigbee2mqtt.io/advanced/remote-adapter/connect_to_a_remote_adapter.html
+# https://sourceforge.net/p/ser2net/discussion/90083/thread/df1050a576/
+# https://forums.raspberrypi.com/viewtopic.php?t=40216
+sudo apt-get install ser2net -y
+# TODO check if config already exists
+coordinator_port=$(sudo dmesg | grep 'ch341-uart converter now attached to' | tail -1 | sed 's/.*tty/tty/')
+cp ser2net.config.template ser2net.config
+sed -i "s/PORT/$coordinator_port/" ser2net.config
+cat ser2net.config | sudo tee -a /etc/ser2net.yaml
+rm ser2net.config
+sudo service ser2net restart
+
+
+
