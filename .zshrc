@@ -77,3 +77,7 @@ export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/b
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# https://www.cyberciti.biz/faq/perl-warning-setting-locale-failed-in-debian-ubuntu/
+export LC_CTYPE=pl_PL.UTF-8
+export LC_ALL=pl_PL.UTF-8
