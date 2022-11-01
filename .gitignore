@@ -8,5 +8,5 @@ nas/grub/grub-old.cfg
 nas/zabbix/.home-assistant-token
 nas/zabbix/is-plex-running/.password
 
-nas/home-assistant/.vagrant
+home-assistant/.vagrant
 

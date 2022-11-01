@@ -4,5 +4,5 @@
 # as workaround turning off two plugins that causes most side effectcs in ssh terminal
 
 cd /mnt/MargokPool/home/sup/code/bash_configs/nas/home-assistant;
-vagrant ssh -c "if grep '^source /usr' .zshrc >/dev/null; then sed -i 's/^source\ \\//#source\ \\//' .zshrc; echo 'changed'; else echo 'change already in place'; fi"
+ssh root@homeassistant-proxmox.home  "if grep '^source /usr' .zshrc >/dev/null; then sed -i 's/^source\ \\//#source\ \\//' .zshrc; echo 'changed'; else echo 'change already in place'; fi"
 
