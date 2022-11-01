@@ -81,5 +81,9 @@ cat ser2net.config | sudo tee -a /etc/ser2net.yaml
 rm ser2net.config
 sudo service ser2net restart
 
-
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
+sudo add-apt-repository ppa:rmescandon/yq -y
+sudo sed -i -e 's|lunar|focal|g' /etc/apt/sources.list.d/rmescandon-ubuntu-yq-lunar.list
+sudo apt-get update #--allow-insecure-repositories
+sudo apt-get install yq -y 
 

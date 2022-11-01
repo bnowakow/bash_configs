@@ -9,4 +9,5 @@ nas/zabbix/.home-assistant-token
 nas/zabbix/is-plex-running/.password
 
 home-assistant/.vagrant
+home-assistant/zabbix/ha-addons.yaml
 
