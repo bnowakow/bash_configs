@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# setting english locale since we're greping a particular string
+export LC_ALL=en_US.UTF-8 
+
 # https://askubuntu.com/a/510161
 sudo /bin/apt-get update > /dev/null 2> /dev/null
 if sudo /bin/apt-get --simulate upgrade | grep "0 upgraded" > /dev/null; then
