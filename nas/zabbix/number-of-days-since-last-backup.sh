@@ -1,6 +1,6 @@
 #!/bin/bash
 
-backup_dir="${1:-ovh}"
+backup_dir="${1:-ovh-sup}"
 
 backup_prefix_dir="/mnt/MargokPool/archive/Backups";
 
