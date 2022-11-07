@@ -10,7 +10,7 @@ log_file=$(echo $log_file | tr -d '\r')
     #echo $log_file
 
 
-    log_line=$(sudo /usr/bin/su sup -c "cd /mnt/MargokPool/home/sup/code/crashplan-docker; vagrant ssh -c 'cd ~/docker-ubuntu-novnc-crashplan; docker exec crashplan grep SyncProgressStats /usr/local/crashplan/log/'$log_file' | tail -1'" 2>/dev/null);
+    log_line=$(sudo /usr/bin/su sup -c "cd /mnt/MargokPool/home/sup/code/crashplan-docker; vagrant ssh -c 'cd ~/docker-ubuntu-novnc-crashplan; docker exec crashplan grep SyncProgressStats /usr/local/crashplan/log/$log_file | tail -1'" 2>/dev/null);
 
     if [ ! "$log_line" = "" ]; then
         percent=$(echo $log_line | sed "s/.*total=[0-9]*..//" | sed "s/%.*/%/");
