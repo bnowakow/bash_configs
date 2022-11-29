@@ -1,27 +1,46 @@
 #!/bin/bash
 
-helm repo add TrueCharts https://charts.truecharts.org > /dev/null
-helm repo update > /dev/null
+name="${1:-duckdns}"
+
+#helm repo add TrueCharts https://charts.truecharts.org > /dev/null
+#helm repo update > /dev/null
 
 #helm pull TrueCharts/duckdns
 
-name="${1:-duckdns}"
+charts_repo_dir=/etc/zabbix/zabbix_agent2.d/bash_configs/charts-repo
+charts_repo_truenas_name=truenas
+charts_repo_truecharts_name=truecharts
+cd $charts_repo_dir
+
+clone_repo_if_doesnt_exist() {
+    repo_name=$1
+    # TODO check if pwd = $charts_repo_dir
+    if [ ! -d "$repo_name" ]; then
+        git clone https://github.com/$repo_name/charts.git 2> /dev/null;
+        mv charts $repo_name;
+        cd $repo_name;
+        git config pull.rebase false
+    fi
+}
+
 if [ $name = "plex" ]; then 
-    # TODO fixme workaound since plex is in official helm repo to which I don't have url to search repo
-    cd /etc/zabbix/zabbix_agent2.d/bash_configs
-    #mkdir tmp-zabbix; 
-    cd tmp-zabbix; 
-    git clone https://github.com/truenas/charts.git 2> /dev/null 
-    cd charts/charts/plex/
-    # if below wouldn't be updated check charts/plex/1.7.20/Chart.yaml instead
-    version_current=$(ls -d */ | sed 's/\///')
-    cd ../../../
-    rm -rf charts
-    #cd ../../../../
-    #rm -rf tmp-zabbix/
+    clone_repo_if_doesnt_exist $charts_repo_truenas_name
+    cd $charts_repo_truenas_name/charts/plex/
+    cd $(ls -d */)
 else
-    version_current=$(helm search repo TrueCharts/$name --versions | head -2 | tail -1 | awk '{print $2}')
+    if [ $name = "zabbix" ]; then
+        train="incubator";
+    else
+        train="stable";
+    fi
+    # below works well but TrueNas probably using Charts directly from repo
+    #version_current=$(helm search repo TrueCharts/$name --versions | head -2 | tail -1 | awk '{print $2}')
+    clone_repo_if_doesnt_exist $charts_repo_truecharts_name
+    cd $charts_repo_truecharts_name/charts/$train/$name
 fi
+
+git pull 2>/dev/null >/dev/null
+version_current=$(grep ^version Chart.yaml | sed 's/.*: //')
 
 # https://www.truenas.com/community/threads/install-helm-chart-via-command-line.97191/
 # https://github.com/k3s-io/k3s/issues/1126
