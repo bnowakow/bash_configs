@@ -2,19 +2,22 @@
 
 sudo chmod +x /bin/apt /bin/apt-key /bin/apt-get /bin/apt-cache /bin/apt-config
 
+sudo apt-get update
+sudo apt-get install -y software-properties-common
+
 curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
 sudo add-apt-repository "deb https://download.docker.com/linux/debian/ $(lsb_release -s -c) stable"
 
-sudo apt update
-sudo apt install -y screen vim vagrant wget gnupg2 hddtemp ncdu elinks jdupes hfsprogs libicu-dev bzip2 cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev clang git libattr1-dev libfsapfs-utils libicu-dev bzip2 cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev clang git libattr1-dev virtualenv python3-venv docker-compose-plugin
+sudo apt-get update
+sudo apt-get install -y screen vim vagrant wget gnupg2 hddtemp ncdu elinks jdupes hfsprogs libicu-dev bzip2 cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev clang git libattr1-dev libfsapfs-utils libicu-dev bzip2 cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev clang git libattr1-dev virtualenv python3-venv docker-compose-plugin
 
 wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
 sudo echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian bullseye contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
-sudo apt update
+sudo apt-get update
 sudo apt-cache madison linux-headers-truenas-amd64
-#sudo apt install -y linux-headers-truenas-amd64=5.10.70+truenas-1
-sudo apt install -y linux-headers-truenas-amd64
-sudo apt install -y virtualbox-6.1 dkms
+#sudo apt-get install -y linux-headers-truenas-amd64=5.10.70+truenas-1
+sudo apt-get install -y linux-headers-truenas-amd64
+sudo apt-get install -y virtualbox-6.1 dkms
 
 # https://computingforgeeks.com/how-to-install-latest-docker-compose-on-linux/
 curl -s https://api.github.com/repos/docker/compose/releases/latest | grep browser_download_url  | grep docker-compose-linux-x86_64 | cut -d '"' -f 4 | wget -qi -
@@ -48,11 +51,11 @@ sudo apt-get install kr -y
 ssh-copy-id -i /mnt/MargokPool/home/sup/.ssh/id_rsa.pub -f sup@ovh.bnowakowski.pl
 cp ssh-config /mnt/MargokPool/home/sup/.ssh/config
 
-sudo apt install software-properties-common -y
+sudo apt-get install software-properties-common -y
 sudo add-apt-repository 'deb [arch=amd64] https://repo.zabbix.com/zabbix/6.2/debian/ bullseye main contrib non-free'
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 082AB56BA14FE591
-sudo apt update
-sudo apt install zabbix-agent2
+sudo apt-get update
+sudo apt-get install zabbix-agent2
 sudo cp /mnt/MargokPool/home/sup/code/bash_configs/zabbix/zabbix_agent2.conf /etc/zabbix
 cd /etc/zabbix/zabbix_agent2.d
 sudo ln -sf /mnt/MargokPool/home/sup/code/bash_configs bash_configs
@@ -65,6 +68,7 @@ sudo usermod -a -G docker zabbix
 sudo mkdir -p /var/lib/zabbix/
 sudo chown zabbix:zabbix /var/lib/zabbix
 sudo ./bash_configs/zabbix/update-zabbix-metadata.sh
+# TODO check why zabbix-add-to-sudoers.sh isn't called
 sudo ./bash_configs/nas/zabbix-add-to-sudoers.sh
 
 sudo apt-get install unison -y
@@ -87,7 +91,7 @@ sudo sed -i -e 's|lunar|focal|g' /etc/apt/sources.list.d/rmescandon-ubuntu-yq-lu
 sudo apt-get update #--allow-insecure-repositories
 sudo apt-get install yq -y 
 
-sudo apt-get install default-jdk
+sudo apt-get install -y default-jdk
 curl -s https://get.sdkman.io | bash
 sdk install kotlin
 
