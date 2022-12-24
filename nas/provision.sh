@@ -61,7 +61,7 @@ cd /etc/zabbix/zabbix_agent2.d
 sudo ln -sf /mnt/MargokPool/home/sup/code/bash_configs bash_configs
 cd bash_configs
 sudo chown sup:sup -R .
-mkdir tmp-zabbix
+mkdir -p tmp-zabbix
 sudo chown zabbix:zabbix tmp-zabbix
 cd ../
 sudo usermod -a -G docker zabbix
