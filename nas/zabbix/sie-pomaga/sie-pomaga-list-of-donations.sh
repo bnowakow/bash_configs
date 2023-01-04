@@ -3,7 +3,7 @@
 next_page_url="/raczka-kuby?last_payment_id=&last_payment_time=&tabs=";
 stop_page_url='":null}}'
 
-rm sie-pomaga-list-of-donations.txt
+mv sie-pomaga-list-of-donations.txt sie-pomaga-list-of-donations.txt.old
 
 while true; do
 

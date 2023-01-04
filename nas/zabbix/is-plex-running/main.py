@@ -7,7 +7,7 @@ import traceback
 
 
 try:
-    baseurl = 'http://192.168.1.49:32400'
+    baseurl = 'http://nas.localdomain:32400'
     password_file = open(".password", "r")
     token = password_file.readline().rstrip()
     plex = PlexServer(baseurl, token)

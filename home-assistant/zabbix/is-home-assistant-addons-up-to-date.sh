@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cd /etc/zabbix/zabbix_agent2.d/bash_configs/home-assistant/zabbix
-ssh root@192.168.1.67 'docker exec hassio_cli ha addons' 2>/dev/null > ha-addons.yaml
+ssh root@homeassistant.localdomain 'docker exec hassio_cli ha addons' 2>/dev/null > ha-addons.yaml
 
 addons_not_up_to_date='';
 
