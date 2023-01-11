@@ -2,7 +2,7 @@
 
 
 remote_user="root"
-remote_host="192.168.1.56"
+remote_host="192.168.0.10"
 
 local_dir="/mnt/MargokPool/archive/Backups/proxmox"
 current_backup_local_dir="$local_dir/current"
@@ -11,6 +11,7 @@ number_of_backpus_to_keep=30
 
 mkdir -p "$current_backup_local_dir"
 
+# TODO verify if you actually downloaded files, check by chaning ip to wrong one
 
 # KVM configs
 remote_dir="/etc/pve/qemu-server"

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-remote_host=192.168.1.67
+remote_host=192.168.0.30
 remote_user=root
 remote_dir="/backup"
 remote_file_name="*.tar"
