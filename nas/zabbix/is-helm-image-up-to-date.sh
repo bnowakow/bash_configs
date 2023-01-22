@@ -48,9 +48,16 @@ version_local=$(sudo /bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s
 if sudo /bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep $name | awk '{print $9}' | sed 's/.*-//' | grep $version_current > /dev/null; then
     echo true;
 else
-    numerical_version_current=$(echo $version_current | sed 's/.*-//')
-    numerical_version_local=$(echo $version_local | sed 's/.*-//')
-    if [ $(echo -e "$numerical_version_local\n$numerical_version_current" | sort | head -1) = $numerical_version_local ]; then
+    # below is to address 1.9 vs 1.19 where string comparison needs 001.009 vs 001.019
+    numerical_version_current=""
+    for i in $(echo $version_current | sed 's/.*-//' | tr '.' ' '); do
+        numerical_version_current=$numerical_version_current.$(printf "%03d" $i);
+    done
+    numerical_version_local=""
+    for i in $(echo $version_local | sed 's/.*-//' | tr '.' ' '); do
+        numerical_version_local=$numerical_version_local.$(printf "%03d" $i);
+    done
+    if [ $(echo -e "$numerical_version_local\n$numerical_version_current" | sort | tail -1) = $numerical_version_local ]; then
         # local version is greater than current (repo is not keeping up with updates in helm)
         echo "true,newer";
     else
