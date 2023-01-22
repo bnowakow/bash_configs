@@ -41,12 +41,20 @@ fi
 
 git pull 2>/dev/null >/dev/null
 version_current=$(grep ^version Chart.yaml | sed 's/.*: //')
+version_local=$(sudo /bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep $name | awk '{print $9}')
 
 # https://www.truenas.com/community/threads/install-helm-chart-via-command-line.97191/
 # https://github.com/k3s-io/k3s/issues/1126
 if sudo /bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep $name | awk '{print $9}' | sed 's/.*-//' | grep $version_current > /dev/null; then
     echo true;
 else
-    echo false,$(sudo /bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep $name | awk '{print $9}'),$version_current;
+    numerical_version_current=$(echo $version_current | sed 's/.*-//')
+    numerical_version_local=$(echo $version_local | sed 's/.*-//')
+    if [ $(echo -e "$numerical_version_local\n$numerical_version_current" | sort | head -1) = $numerical_version_local ]; then
+        # local version is greater than current (repo is not keeping up with updates in helm)
+        echo "true,newer";
+    else
+        echo false,$version_local,$version_current;
+    fi
 fi
 
