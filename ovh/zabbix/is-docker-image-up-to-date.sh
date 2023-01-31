@@ -13,14 +13,51 @@ else
         image_namespace="";
 fi
 
-newest_dockerhub_tag=$(curl -L -s "https://registry.hub.docker.com/v2/repositories/$image_namespace$image_name/tags?page_size=1024" | jq '."results"[]["name"]' | egrep '^"[0-9]*\.[0-9]*\.[0-9]*"$' | head -1 | sed 's/\"//g');
+# https://stackoverflow.com/questions/16679369/count-occurrences-of-a-char-in-a-string-using-bash
+number_of_of_version_segments=$(curl -L -s "https://registry.hub.docker.com/v2/repositories/$image_namespace$image_name/tags?page_size=1024" | jq '."results"[]["name"]' | egrep '^"[0-9]*\.[0-9]*\.[0-9]*"$' | head -1 | awk -F"." '{print NF}')
 
-#echo "dockerhub:       $image_name:$newest_dockerhub_tag"
-#echo "localhost:       "$(docker ps --format '{{.Image}}' | grep $image_name)
+maximum_number_of_digits_in_version_segment=0
+# TODO working currently only for 3 version segments
+for version in $(curl -L -s "https://registry.hub.docker.com/v2/repositories/$image_namespace$image_name/tags?page_size=1024" | jq '."results"[]["name"]' | egrep '^"[0-9]*\.[0-9]*\.[0-9]*"$'); do
+    major=$(echo $version | sed 's/^\"//' | sed 's/\..*//');
+    minor=$(echo $version | sed 's/[^\.]*//' | sed 's/^.//' | sed 's/[^\.]*$//' | sed 's/\.$//');
+    patch=$(echo $version | sed 's/\"$//' | sed 's/.*\.//');
+    
+    version_segments=($major $minor $patch)
+    for version_segment in ${version_segments[@]}; do
+        version_segment_length=$(echo $version_segment | wc -c)
+        ((version_segment_length--))
+        
+        if [ $version_segment_length -gt $maximum_number_of_digits_in_version_segment ]; then
+            maximum_number_of_digits_in_version_segment=$version_segment_length
+        fi
+    done
+done 
 
-if docker ps --format '{{.Image}}' | grep "$image_name:$newest_dockerhub_tag" > /dev/null; then
+# we have to do below for all results from dockerhub and local version :/
+# below is to address 1.9 vs 1.19 where string comparison needs 001.009 vs 001.019
+# TODO next haddcode for number of segments
+newest_numerical_version_current=".""$(printf "%0"$maximum_number_of_digits_in_version_segment"d" 0)"".""$(printf "%0"$maximum_number_of_digits_in_version_segment"d" 0)""."$(printf "%0"$maximum_number_of_digits_in_version_segment"d" 0)
+newest_version_current="0.0.0"
+for version_current in $(curl -L -s "https://registry.hub.docker.com/v2/repositories/$image_namespace$image_name/tags?page_size=1024" | jq '."results"[]["name"]' | egrep '^"[0-9]*\.[0-9]*\.[0-9]*"$' | sed 's/^\"//' | sed 's/\"$//'); do
+    numerical_version_current=""
+    for i in $(echo $version_current | sed 's/.*-//' | tr '.' ' '); do
+        numerical_version_current=$numerical_version_current.$(printf "%0"$maximum_number_of_digits_in_version_segment"d" $i);
+    done
+    
+    if [ $(echo -e "$newest_numerical_version_current\n$numerical_version_current" | sort | tail -1) = $numerical_version_current ]; then
+        # version_current is newer than newest_numerical_version_current
+        newest_numerical_version_current=$numerical_version_current
+        newest_version_current=$version_current
+    fi
+done
+
+#echo "dockerhub:        "$image_name:$newest_version_current
+#echo "localhost:        "$(docker ps --format '{{.Image}}' | grep $image_name)
+
+if docker ps --format '{{.Image}}' | grep "$image_name:$newest_version_current" > /dev/null; then
         echo true;
 else
-        echo false,$(docker ps --format '{{.Image}}' | grep $image_name),$newest_dockerhub_tag;
+        echo false,$(docker ps --format '{{.Image}}' | grep $image_name),$newest_version_current;
 fi
 
