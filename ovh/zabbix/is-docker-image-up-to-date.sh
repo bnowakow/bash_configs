@@ -18,27 +18,26 @@ number_of_of_version_segments=$(curl -L -s "https://registry.hub.docker.com/v2/r
 
 maximum_number_of_digits_in_version_segment=0
 # TODO working currently only for 3 version segments
-for version in $(curl -L -s "https://registry.hub.docker.com/v2/repositories/$image_namespace$image_name/tags?page_size=1024" | jq '."results"[]["name"]' | egrep '^"[0-9]*\.[0-9]*\.[0-9]*"$'); do
-    major=$(echo $version | sed 's/^\"//' | sed 's/\..*//');
-    minor=$(echo $version | sed 's/[^\.]*//' | sed 's/^.//' | sed 's/[^\.]*$//' | sed 's/\.$//');
-    patch=$(echo $version | sed 's/\"$//' | sed 's/.*\.//');
-    
-    version_segments=($major $minor $patch)
-    for version_segment in ${version_segments[@]}; do
-        version_segment_length=$(echo $version_segment | wc -c)
+for version_current in $(curl -L -s "https://registry.hub.docker.com/v2/repositories/$image_namespace$image_name/tags?page_size=1024" | jq '."results"[]["name"]' | egrep '^"[0-9]*\.[0-9]*\.[0-9]*"$' | sed 's/^\"//' | sed 's/\"$//'); do
+    for version_current_segment in $(echo $version_current | sed 's/.*-//' | tr '.' ' '); do
+        version_segment_length=$(echo $version_current_segment | wc -c)
         ((version_segment_length--))
-        
+
         if [ $version_segment_length -gt $maximum_number_of_digits_in_version_segment ]; then
             maximum_number_of_digits_in_version_segment=$version_segment_length
         fi
-    done
+    done  
 done 
 
 # we have to do below for all results from dockerhub and local version :/
 # below is to address 1.9 vs 1.19 where string comparison needs 001.009 vs 001.019
-# TODO next haddcode for number of segments
-newest_numerical_version_current=".""$(printf "%0"$maximum_number_of_digits_in_version_segment"d" 0)"".""$(printf "%0"$maximum_number_of_digits_in_version_segment"d" 0)""."$(printf "%0"$maximum_number_of_digits_in_version_segment"d" 0)
-newest_version_current="0.0.0"
+newest_numerical_version_current=""
+newest_version_current=""
+for (( i=0; i<$number_of_of_version_segments; i++ )); do
+    newest_numerical_version_current="$newest_numerical_version_current"".""$(printf "%0"$maximum_number_of_digits_in_version_segment"d" 0)"
+    newest_version_current=$newest_version_current".0"
+done
+newest_version_current=$(echo $newest_version_current | sed 's/^\.//')
 for version_current in $(curl -L -s "https://registry.hub.docker.com/v2/repositories/$image_namespace$image_name/tags?page_size=1024" | jq '."results"[]["name"]' | egrep '^"[0-9]*\.[0-9]*\.[0-9]*"$' | sed 's/^\"//' | sed 's/\"$//'); do
     numerical_version_current=""
     for i in $(echo $version_current | sed 's/.*-//' | tr '.' ' '); do
