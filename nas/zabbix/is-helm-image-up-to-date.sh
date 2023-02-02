@@ -39,7 +39,9 @@ else
     cd $charts_repo_truecharts_name/charts/$train/$name
 fi
 
-git pull 2>/dev/null >/dev/null
+#git reset --hard 2>/dev/null >/dev/null 
+#git clean -f -d -x 2>/dev/null >/dev/null
+git pull 2>/dev/null >/dev/null # &
 version_current=$(grep ^version Chart.yaml | sed 's/.*: //')
 version_local=$(sudo /bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep $name | awk '{print $9}')
 
