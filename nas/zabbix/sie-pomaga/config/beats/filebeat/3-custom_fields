@@ -1,0 +1,8 @@
+# TODO https://www.elastic.co/guide/en/elasticsearch/reference/current/script-processor.html
+
+# TODO check if files exists
+
+amount-as-double        Double      emit(Double.parseDouble(doc['json.data.amount'].value))
+
+# https://discuss.elastic.co/t/converting-a-string-date-to-a-date-field-using-scripted-fields-in-kibana/108952/4
+datetime-as-date        Date        emit(new SimpleDateFormat('yyyy-MM-dd HH:mm').parse(doc['json.data.datetime'].value).getTime())

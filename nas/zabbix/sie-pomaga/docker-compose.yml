@@ -1,0 +1,64 @@
+# https://blog.devgenius.io/elasticsearch-and-kibana-installation-using-docker-compose-886c4823495e
+
+version: '3.8'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    container_name: elasticsearch
+    volumes:
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - ${ES_PORT}:9200
+    restart: always
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+  kibana:
+    depends_on:
+      - elasticsearch
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    container_name: kibana
+    volumes:
+      - ./data/kibana:/usr/share/kibana/data
+    ports:
+     - ${KIBANA_PORT}:5601
+    restart: always
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+
+# https://github.com/xeraa/elastic-docker/blob/master/full_stack/docker-compose.yml
+  #Filebeat container
+  filebeat:
+    container_name: filebeat
+    hostname: filebeat
+    #user: root #To read the docker socket
+    image: "docker.elastic.co/beats/filebeat:${STACK_VERSION}"    
+    volumes:
+      #Mount the Filebeat configuration so users can make edits.
+      - ./config/beats/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      #Mount the prospectors directory. Users can in turn add propspectors to this directory and they will be dynamically loaded.
+      - ./config/beats/filebeat/prospectors.d/:/usr/share/filebeat/prospectors.d/
+      # Mount my app data
+      - ./:/usr/share/filebeat/sie-pomaga/
+      #Named volume fsdata. This is used to persist the registry file between restarts, so to avoid data duplication.
+      - ./data/filebeat:/usr/share/filebeat/data/
+    #networks: ['stack']
+    command: filebeat -e -strict.perms=false
+    restart: on-failure
+    depends_on:
+    #  elasticsearch: { condition: service_healthy }
+      - elasticsearch
+      - kibana
+
+#volumes:
+#  elasticsearch-data:
+#    driver: local
+#  kibana-data:
+#    driver: local
+#  filebeat-data:
+#    driver: local
+
