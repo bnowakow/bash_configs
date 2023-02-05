@@ -6,7 +6,7 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
     container_name: elasticsearch
     volumes:
-      - ./data/elasticsearch:/usr/share/elasticsearch/data
+      - elasticsearch-data:/usr/share/elasticsearch/data
     ports:
       - ${ES_PORT}:9200
     restart: always
@@ -23,7 +23,7 @@ services:
     image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
     container_name: kibana
     volumes:
-      - ./data/kibana:/usr/share/kibana/data
+      - kibana-data:/usr/share/kibana/data
     ports:
      - ${KIBANA_PORT}:5601
     restart: always
@@ -45,7 +45,7 @@ services:
       # Mount my app data
       - ./:/usr/share/filebeat/sie-pomaga/
       #Named volume fsdata. This is used to persist the registry file between restarts, so to avoid data duplication.
-      - ./data/filebeat:/usr/share/filebeat/data/
+      - filebeat-data:/usr/share/filebeat/data/
     #networks: ['stack']
     command: filebeat -e -strict.perms=false
     restart: on-failure
@@ -54,11 +54,11 @@ services:
       - elasticsearch
       - kibana
 
-#volumes:
-#  elasticsearch-data:
-#    driver: local
-#  kibana-data:
-#    driver: local
-#  filebeat-data:
-#    driver: local
+volumes:
+  elasticsearch-data:
+    driver: local
+  kibana-data:
+    driver: local
+  filebeat-data:
+    driver: local
 
