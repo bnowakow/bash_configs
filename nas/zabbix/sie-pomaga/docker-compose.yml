@@ -17,6 +17,7 @@ services:
       memlock:
         soft: -1
         hard: -1
+  
   kibana:
     depends_on:
       - elasticsearch
@@ -35,7 +36,6 @@ services:
   filebeat:
     container_name: filebeat
     hostname: filebeat
-    #user: root #To read the docker socket
     image: "docker.elastic.co/beats/filebeat:${STACK_VERSION}"    
     volumes:
       #Mount the Filebeat configuration so users can make edits.
@@ -46,11 +46,9 @@ services:
       - ./:/usr/share/filebeat/sie-pomaga/
       #Named volume fsdata. This is used to persist the registry file between restarts, so to avoid data duplication.
       - filebeat-data:/usr/share/filebeat/data/
-    #networks: ['stack']
     command: filebeat -e -strict.perms=false
-    restart: on-failure
+    restart: always
     depends_on:
-    #  elasticsearch: { condition: service_healthy }
       - elasticsearch
       - kibana
 

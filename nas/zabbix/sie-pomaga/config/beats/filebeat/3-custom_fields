@@ -2,7 +2,31 @@
 
 # TODO check if files exists
 
-amount-as-double        Double      emit(Double.parseDouble(doc['json.data.amount'].value))
+data.amount-as-double           Double      
+if (doc['json.data.amount'].size() == 0) {
+    emit(0.0)
+} else {
+    emit(Double.parseDouble(doc['json.data.amount'].value))
+}
+
+
+data.amount-as-double-scaled    Double
+if (doc['json.data.amount'].size() == 0) {
+    emit(0.0)
+} else {
+    emit(Double.parseDouble(doc['json.data.amount'].value)-47000)
+}    
+
 
 # https://discuss.elastic.co/t/converting-a-string-date-to-a-date-field-using-scripted-fields-in-kibana/108952/4
-datetime-as-date        Date        emit(new SimpleDateFormat('yyyy-MM-dd HH:mm').parse(doc['json.data.datetime'].value).getTime())
+data.datetime-as-date                       Date   
+if (doc['json.data.datetime'].size() == 0) {
+    emit(0)
+} else {
+    emit(new SimpleDateFormat('yyyy-MM-dd HH:mm').parse(doc['json.data.datetime'].value).getTime())
+}
+     
+
+
+
+
