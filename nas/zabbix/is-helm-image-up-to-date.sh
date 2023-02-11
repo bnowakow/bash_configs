@@ -59,6 +59,10 @@ else
     for i in $(echo $version_local | sed 's/.*-//' | tr '.' ' '); do
         numerical_version_local=$numerical_version_local.$(printf "%03d" $i);
     done
+    if [ "$numerical_version_local" = "" ]; then
+        echo "false,not-running"
+        exit
+    fi
     if [ $(echo -e "$numerical_version_local\n$numerical_version_current" | sort | tail -1) = $numerical_version_local ]; then
         # local version is greater than current (repo is not keeping up with updates in helm)
         echo "true,newer";

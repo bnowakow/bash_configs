@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# TODO export constants to separate file
+
 #disk_grep="2105";
 #column_number=6;
 
