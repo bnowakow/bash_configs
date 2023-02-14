@@ -19,6 +19,13 @@ sudo apt-cache madison linux-headers-truenas-amd64
 sudo apt-get install -y linux-headers-truenas-amd64
 sudo apt-get install -y virtualbox-6.1 dkms
 
+# https://github.com/cli/cli/blob/trunk/docs/install_linux.md
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+&& sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+&& echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+&& sudo apt update \
+&& sudo apt install gh -y
+
 # https://computingforgeeks.com/how-to-install-latest-docker-compose-on-linux/
 curl -s https://api.github.com/repos/docker/compose/releases/latest | grep browser_download_url  | grep docker-compose-linux-x86_64 | cut -d '"' -f 4 | wget -qi -
 chmod +x docker-compose-linux-x86_64

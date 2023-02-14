@@ -11,5 +11,5 @@ nas/zabbix/is-plex-running/.password
 home-assistant/.vagrant
 home-assistant/zabbix/ha-addons.yaml
 
-charts-repo
+repos
 
