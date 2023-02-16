@@ -42,6 +42,10 @@ fi
 #git reset --hard 2>/dev/null >/dev/null 
 #git clean -f -d -x 2>/dev/null >/dev/null
 git pull 2>/dev/null >/dev/null # &
+if [ $? -gt 0 ]; then 
+    echo false,git-pull-fail; 
+fi
+# TODO check git status -uno if branch is not behind origin, downside would be if it takes too long
 version_current=$(grep ^version Chart.yaml | sed 's/.*: //')
 version_local=$(sudo /bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep $name | awk '{print $9}')
 
