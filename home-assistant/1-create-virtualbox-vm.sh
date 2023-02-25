@@ -2,25 +2,25 @@
 
 # https://andreafortuna.org/2019/10/24/how-to-create-a-virtualbox-vm-from-command-line/
 MACHINENAME=home-assistant
-dir=/mnt/MargokPool/home/sup/code/home-assistant-vagrant
+dir=/mnt/MargokPool/home/sup/code/bash_configs/home-assistant
 
 # https://github.com/home-assistant/operating-system/releases
 # TODO get latest vdi automatically, curling website doesn't work since there's a lot of assets and you need to ajax them
 rm *.vdi*
-wget https://github.com/home-assistant/operating-system/releases/download/9.2/haos_ova-9.2.vdi.zip
+wget https://github.com/home-assistant/operating-system/releases/download/9.5/haos_ova-9.5.vdi.zip
 unzip *vdi.zip
 vdi=$(ls *.vdi)
 
 VBoxManage createvm --name $MACHINENAME --ostype "Linux26_64" --register --basefolder $dir
 
 mv $vdi $MACHINENAME
+rm *vdi.zip
 
 # https://computingforgeeks.com/manage-virtualbox-vms-from-command-line-using-vboxmanage/
 vboxmanage modifyvm $MACHINENAME --memory 4096 --cpus 2 --rtcuseutc on
 
 VBoxManage storagectl $MACHINENAME --name "SATA Controller" --add sata --controller IntelAhci
 
-#VBoxManage storageattach $MACHINENAME --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium  $dir/haos_ova-9.0.vdi
 VBoxManage storageattach $MACHINENAME --storagectl "SATA Controller" --port 0 --device 0 --type hdd --nonrotational on --discard on --medium $dir/$MACHINENAME/$vdi
 
 # https://www.home-assistant.io/installation/linux
@@ -28,8 +28,6 @@ VBoxManage storageattach $MACHINENAME --storagectl "SATA Controller" --port 0 --
 VBoxManage modifyvm $MACHINENAME --firmware efi
 
 # https://devminz.github.io/posts/devops/virtualbox-cli-vm-bridged-networking/
-#VBoxManage modifyvm vmtest --nic1 bridged --nictype1 82545EM --bridgeadapter1 vmtestbr1
-
 VBoxManage modifyvm $MACHINENAME --nic1 nat
 
 # TODO manual said 'Then go to “Audio” and choose “Intel HD Audio” as Audio Controller.' can't find it so added below instead
