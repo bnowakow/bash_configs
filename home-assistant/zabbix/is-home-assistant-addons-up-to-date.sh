@@ -1,7 +1,12 @@
 #!/bin/bash
 
+home_assistant_running_in_vagrant=true
+
+cd /mnt/MargokPool/home/sup/code/bash_configs/home-assistant/zabbix;
+source lib/ha-running-in-vagrant-on-in-proxmox.sh
+
 cd /etc/zabbix/zabbix_agent2.d/bash_configs/home-assistant/zabbix
-ssh root@homeassistant.localdomain 'docker exec hassio_cli ha addons' 2>/dev/null > ha-addons.yaml
+ssh root@$ssh_host $ssh_port 'docker exec hassio_cli ha addons' 2>/dev/null > ha-addons.yaml
 
 addons_not_up_to_date='';
 
