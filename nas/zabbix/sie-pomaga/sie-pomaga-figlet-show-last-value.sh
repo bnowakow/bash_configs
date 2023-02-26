@@ -1,12 +1,14 @@
 #!/bin/bash
 
-amount=$(jq .data.amount sie-pomaga-value-last.json)
-payments_count=$(jq .data.payments_count sie-pomaga-value-last.json)
-
-# fonts are from https://github.com/xero/figlet-fonts
 font="Doh.flf"
 
 while true; do
+
+    amount=$(jq .data.amount sie-pomaga-value-last.json)
+    payments_count=$(jq .data.payments_count sie-pomaga-value-last.json)
+
+    # fonts are from https://github.com/xero/figlet-fonts
+
     clear;
     date -r sie-pomaga-value-last.json | /usr/bin/figlet-figlet -w1000 -f "Nancyj.flf";
     # https://unix.stackexchange.com/a/113798
