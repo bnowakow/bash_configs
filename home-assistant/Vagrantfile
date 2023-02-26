@@ -46,6 +46,8 @@ Vagrant.configure("2") do |config|
   end
 
   # When restoring HA backup/snapshot: https://community.home-assistant.io/t/add-ons-not-working-properly-after-snapshot-restore/449796/18
+  # https://github.com/zigbee2mqtt/hassio-zigbee2mqtt#installation
+  # https://github.com/pschmitt/home-assistant-addons
 
   # config.vm.provision "shell", inline: <<-SHELL
   #   apt-get update
