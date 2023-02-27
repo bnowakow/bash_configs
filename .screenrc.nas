@@ -108,5 +108,59 @@ defnonblock 5
 
 shell -zsh
 
+# 0
+chdir /mnt/MargokPool/home/sup/code/medihunter-kasia
+screen -t medi-kasia
+
+# 1
+chdir /mnt/MargokPool/home/sup/code/medihunter-kuba
+screen -t medi-kuba
+
+# 2
+chdir /mnt/MargokPool/home/sup/code/crashplan-docker
+screen -t crashplan
+
+# 3
+chdir /mnt/MargokPool/home/sup/code/truetool
+screen -t truetool
+
+# 4
+chdir /etc/zabbix/zabbix_agent2.d/bash_configs/nas/zabbix
+screen -t zabbix1
+
+# 5
+chdir /etc/zabbix/zabbix_agent2.d/bash_configs/nas/zabbix
+screen -t zabbix2
+
+# 6
+chdir /mnt/MargokPool/home/sup/code/facebook-post-commenter
+screen -t facebook
+
+# 7
+chdir /mnt/MargokPool/home/sup/code/nordvpn-torrent
+screen -t torrent
+
+# 8
+chdir /mnt/MargokPool/home/sup/code/vagrant-basebox
+screen -t basebox
+
+# 9
+chdir /mnt/MargokPool/home/sup/code/bash_configs/home-assistant
+screen -t ha
+
+# 10
+chdir /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga
+screen -t kibana
+
+# 11
+chdir /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga
+screen -t figlet
+
+# 12
+chdir /mnt/MargokPool/home/sup/code/docker-mailserver
+screen -t mailserver
+
+chdir /mnt/MargokPool/archive/
+
 caption always "%?%{ Wk}%-Lw%?%{Rk}%n*%f %t%?(%u)%?%?%{Wk}%+Lw%? %{Rk}%=%c %{rk}%d/%M/%Y"
 hardstatus string "%{+b Rk}(%{-b g}$LOGNAME@%H%{+b R}) (%{-b g}%C %a%{+b R}) %{-b g} %n %t %h"
