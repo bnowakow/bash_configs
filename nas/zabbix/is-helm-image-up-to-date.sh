@@ -65,6 +65,16 @@ else
     done
     if [ "$numerical_version_local" = "" ]; then
         echo "false,not-running"
+        # https://discord.com/channels/830763548678291466/1051965552458993787/1052262549132935218
+        # in case of "Error: UPGRADE FAILED: another operation (install/upgrade/rollback) is in progress"
+        # 1: sudo k3s kubectl describe deploy -n ix-$NAME | grep helm-revision
+        # 2: sudo k3s kubectl get secrets -n ix-$NAME
+        # for every number in #2 that's higer than #1 do:
+        # sudo k3s kubectl delete secret -n ix-$NAME sh.helm.release.v1.$NAME.v$NUMBER
+        # Stop the app
+        # Start the app
+        # Edit the app and save without changes
+        # If all works, try to upgrade. If not. reinstall.
         exit
     fi
     if [ $(echo -e "$numerical_version_local\n$numerical_version_current" | sort | tail -1) = $numerical_version_local ]; then
