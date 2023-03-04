@@ -35,6 +35,9 @@ fi
 if [ "$repo_name" = "docker-mailserver" ]; then
     branch="aeonus"
 fi
+if [ "$repo_name" = "truenas-charts" ] || [ "$repo_name" = "truecharts-charts" ]; then
+    branch="master"
+fi
 
 # merge master to my branch
 # https://docs.github.com/en/rest/branches/branches?apiVersion=2022-11-28#merge-a-branch
@@ -47,6 +50,12 @@ if [ "$repo_name" = "medihunter" ]; then
 fi
 if [ "$repo_name" = "docker-ubuntu-novnc-crashplan" ]; then
     dir="crashplan-docker"
+fi
+if [ "$repo_name" = "truecharts-charts" ]; then
+    dir="bash_configs/repos/truecharts"
+fi
+if [ "$repo_name" = "truenas-charts" ]; then
+    dir="bash_configs/repos/truenas"
 fi
 
 sha_upstream=$(gh api -H "Accept: application/vnd.github+json" /repos/bnowakow/$repo_name/branches | jq "map(select(.name == \"$branch\"))" | jq .[0].commit.sha | sed 's/"//g')
