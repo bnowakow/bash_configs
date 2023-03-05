@@ -6,7 +6,7 @@
 repo_name="${1:-medihunter}"
 
 source_branch="master"
-if [ "$repo_name" = "truetool" ]; then
+if [ "$repo_name" = "truetool" ] || [ "$repo_name" = "homer" ]; then
     source_branch="main"
 fi
 
