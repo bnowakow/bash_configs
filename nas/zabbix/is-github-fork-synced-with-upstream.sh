@@ -16,15 +16,6 @@ master_merge_upstream=$(gh api --method POST -H "Accept: application/vnd.github+
 # "Successfully fetched and fast-forwarded from upstream Frederic-Boulanger-UPS:master."
 # "This branch is not behind the upstream Frederic-Boulanger-UPS:master."
 
-if [ "$repo_name" = "universal-trakt-scrobbler" ]; then
-    if echo $master_merge_upstream | grep "This branch is not behind the upstream" > /dev/null; then
-        echo true;
-    else
-        echo false;
-    fi
-    exit
-fi
-
 branch="bnowakow"
 if [ "$repo_name" = "docker-ubuntu-novnc-crashplan" ]; then
     branch="crashplan"
