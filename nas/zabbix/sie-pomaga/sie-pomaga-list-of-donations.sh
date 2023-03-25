@@ -5,7 +5,7 @@ stop_page_url='":null}}'
 
 cd /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga;
 
-mv sie-pomaga-list-of-donations.txt sie-pomaga-list-of-donations.txt.old
+mv sie-pomaga-list-of-donations.txt sie-pomaga-list-of-donations.old.txt
 
 while true; do
 

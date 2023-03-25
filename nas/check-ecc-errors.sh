@@ -12,6 +12,10 @@
 #sudo ./check-ecc_check-pudget
 #echo
 
+# https://superuser.com/a/893963
+sudo inxi -m -xxx
+echo
+
 # https://serverfault.com/a/1067167
 echo "Below should return ecc and errordetection=multi-bit-ecc"
 sudo lshw -class memory|grep ecc
@@ -24,6 +28,10 @@ sudo dmidecode --type memory | grep "Error Correction Type"
 
 echo "Total should be bigger than Data"
 sudo dmidecode --type memory | grep Width
+echo
+
+# https://www.setphaserstostun.org/posts/monitoring-ecc-memory-on-linux-with-rasdaemon/
+sudo ras-mc-ctl --error-count
 echo
 
 #edac-util --status

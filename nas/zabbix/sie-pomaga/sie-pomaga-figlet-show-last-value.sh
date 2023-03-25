@@ -14,6 +14,6 @@ while true; do
     # https://unix.stackexchange.com/a/113798
     echo $amount PLN | sed ':a;s/\B[0-9]\{3\}\>/\ \ &/;ta' | /usr/bin/figlet-figlet -w1000 -f $font
     echo $payments_count osob | sed ':a;s/\B[0-9]\{3\}\>/\ \ &/;ta' | /usr/bin/figlet-figlet -w1000 -f $font
-    sleep 60;
+    sleep 30;
 done
 
