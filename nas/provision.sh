@@ -43,6 +43,9 @@ if ! crontab -l | grep ovh_backup_download; then
     { crontab -l; echo '0  *  * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/git-pull.sh'; } | crontab -
     { crontab -l; echo '01 13 * * * /mnt/MargokPool/home/sup/code/zabbix-scripts/3-run.sh'; } | crontab -
 fi
+if ! sudo crontab -l | grep truetool; then
+    { sudo crontab -l; echo '10 *  * * * /mnt/MargokPool/home/sup/code/truetool/single-run.sh'; } | sudo crontab -
+fi
 
 # user interactive - generate and copy ssh keys
 if [ ! -f ~/.ssh/id_rsa ]; then
