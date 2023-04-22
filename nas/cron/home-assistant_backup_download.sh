@@ -28,7 +28,7 @@ fi
 # rename backup files to include date
 cd $local_dir
 for file in $(ls -1 *tar | grep -v 'homeassistant_'); do
-    new_name=$(find . -maxdepth 1 -name $file -type f -printf "homeassistant_%TY-%Tm-%Td_%TT_%f\n";)
+    new_name=$(find . -maxdepth 1 -name $file -type f -printf "homeassistant_%TY-%Tm-%Td_%TH-%TM_%f\n";)
     mv $file $new_name
 done
 

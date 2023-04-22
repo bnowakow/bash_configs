@@ -15,11 +15,6 @@ Vagrant.configure("2") do |config|
 
 # was in basebox
 
-#  config.vm.provision "connect to nfs with manual workaround - /var/lib/docker", type: "shell", inline: <<-SHELL
-#    mkdir -p /var/lib/docker;
-#    mount -vvv -o vers=3 10.0.2.2:/mnt/MargokPool/home/sup/code/crashplan-docker/data/var_lib_docker /var/lib/docker
-#  SHELL
-
   config.vm.provision "install docker", type: "shell", inline: <<-SHELL
     # should be enough
     apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin

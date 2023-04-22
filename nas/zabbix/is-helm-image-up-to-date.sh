@@ -31,6 +31,8 @@ else
     # todo detect train automatically, via find?
     if [ $name = "zabbix" ] || [ $name = "plextraktsync" ]; then
         train="incubator";
+    elif [ $name = "traefik" ]; then
+        train="enterprise";
     else
         train="stable";
     fi
@@ -48,7 +50,8 @@ fi
 #fi
 # TODO check git status -uno if branch is not behind origin, downside would be if it takes too long
 version_current=$(grep ^version Chart.yaml | sed 's/.*: //')
-version_local=$(sudo /bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep $name | awk '{print $9}')
+# TODO for external-service we run multiple of the same helm but we check version of only first one
+version_local=$(sudo /bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep $name- | head -1 | awk '{print $9}')
 
 # https://www.truenas.com/community/threads/install-helm-chart-via-command-line.97191/
 # https://github.com/k3s-io/k3s/issues/1126

@@ -1,5 +1,5 @@
 # Added by Krypton
-Host * !ovh.bnowakowski.pl
+Host * !ovh.bnowakowski.pl !github.com
 	IdentityAgent ~/.kr/krd-agent.sock
 	ProxyCommand /usr/bin/krssh %h %p
 	IdentityFile ~/.ssh/id_krypton

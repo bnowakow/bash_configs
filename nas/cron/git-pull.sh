@@ -3,7 +3,6 @@
 # possible conflicts while pulling: crashplan, docker-mailserver (docker-compose, Makefile), homer (config), medihunter, zabbix-scripts (.gitignore)
 
 dirs=("/mnt/MargokPool/home/sup/code/docker-jdupes-gui" \
-    "/mnt/MargokPool/home/sup/code/truetool" \
     "/mnt/MargokPool/home/sup/code/bash_configs/repos/truecharts" \
     "/mnt/MargokPool/home/sup/code/bash_configs/repos/truenas" \
     "/mnt/MargokPool/home/sup/code/docker-mailserver" \
