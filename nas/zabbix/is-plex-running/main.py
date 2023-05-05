@@ -13,7 +13,7 @@ try:
     plex = PlexServer(baseurl, token)
 
     #movies=[]
-    movies=plex.library.section('Films').search()
+    movies=plex.library.section('Movies').search()
     #print(len(movies));
     #for video in movies:
     #    print(video.title)

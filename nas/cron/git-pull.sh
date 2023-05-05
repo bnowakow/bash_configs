@@ -7,6 +7,7 @@ dirs=("/mnt/MargokPool/home/sup/code/docker-jdupes-gui" \
     "/mnt/MargokPool/home/sup/code/bash_configs/repos/truenas" \
     "/mnt/MargokPool/home/sup/code/docker-mailserver" \
     "/mnt/MargokPool/home/sup/code/universal-trakt-scrobbler" \
+    "/mnt/MargokPool/home/sup/code/homer"
 )
 
 for dir in ${dirs[@]}; do

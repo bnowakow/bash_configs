@@ -23,24 +23,18 @@ clone_repo_if_doesnt_exist() {
     fi
 }
 
-if [ $name = "plex" ]; then 
-    clone_repo_if_doesnt_exist $charts_repo_truenas_name
-    cd $charts_repo_truenas_name/charts/plex/
-    cd $(ls -d */)
+# todo detect train automatically, via find?
+if [ $name = "zabbix" ] || [ $name = "plextraktsync" ]; then
+    train="incubator";
+elif [ $name = "traefik" ]; then
+    train="enterprise";
 else
-    # todo detect train automatically, via find?
-    if [ $name = "zabbix" ] || [ $name = "plextraktsync" ]; then
-        train="incubator";
-    elif [ $name = "traefik" ]; then
-        train="enterprise";
-    else
-        train="stable";
-    fi
-    # below works well but TrueNas probably using Charts directly from repo
-    #version_current=$(helm search repo TrueCharts/$name --versions | head -2 | tail -1 | awk '{print $2}')
-    clone_repo_if_doesnt_exist $charts_repo_truecharts_name
-    cd $charts_repo_truecharts_name/charts/$train/$name
+    train="stable";
 fi
+# below works well but TrueNas probably using Charts directly from repo
+#version_current=$(helm search repo TrueCharts/$name --versions | head -2 | tail -1 | awk '{print $2}')
+clone_repo_if_doesnt_exist $charts_repo_truecharts_name
+cd $charts_repo_truecharts_name/charts/$train/$name
 
 #git reset --hard 2>/dev/null >/dev/null 
 #git clean -f -d -x 2>/dev/null >/dev/null
