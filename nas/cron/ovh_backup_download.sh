@@ -25,5 +25,25 @@ for user_name in "${user_names[@]}"; do
     if [ $number_of_backup_files -gt $number_of_backpus_to_keep ]; then
         ls -d -1t $local_dir/$user_name* | tail -n +$number_of_backpus_to_keep | xargs rm;
     fi
+
+    # rotate backup for crashplan (it holds only 1 backup out of 10 to not send too much data)
+    local_one_file_backup_dir="$local_dir_prefix/ovh-one_file_backup-$user_name"
+    mkdir -p $local_one_file_backup_dir;
+    one_file_backup_needs_to_be_copied=0;
+    if [ $(ls -d -1t $local_one_file_backup_dir/* | wc -l) -gt 0 ]; then
+        # backup for crashplan already exists
+        current_one_file_backup=$(ls -d -1t $local_one_file_backup_dir/* | head -n 1 | sed 's/.*\///')
+        if [ $(find $local_dir -name $current_one_file_backup | wc -l) -eq 0  ]; then
+            rm $local_one_file_backup_dir/*;
+            one_file_backup_needs_to_be_copied=1
+        fi
+    else
+        # backup for crashplan doesn't exist
+        one_file_backup_needs_to_be_copied=1
+    fi
+
+    if [ $one_file_backup_needs_to_be_copied -eq 1 ]; then
+        cp $(ls -d -1t $local_dir/$user_name* | head -n1) $local_one_file_backup_dir
+    fi
 done
 
