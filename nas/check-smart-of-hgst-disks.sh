@@ -23,6 +23,9 @@ for disk in /dev/sd*; do
     sudo smartctl -a $disk | grep UDMA_CRC_Error_Count
     sudo smartctl -a $disk | grep self-assessment
     #sudo smartctl -a $disk | grep Celsius | sed 's/[^-]*//'
-    
+ 
+    #sudo hdparm -tTv $disk | grep Timing # with cache
+    sudo hdparm -tv $disk | grep Timing
+   
     echo
 done

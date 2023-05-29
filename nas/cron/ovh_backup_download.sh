@@ -7,7 +7,7 @@ remote_dir="/backup"
 
 local_dir_prefix="/mnt/MargokPool/archive/Backups"
 
-number_of_backpus_to_keep=10
+number_of_backpus_to_keep=30
 let number_of_backpus_to_keep=$number_of_backpus_to_keep+1;
 
 user_names=( sup admin );
@@ -27,7 +27,7 @@ for user_name in "${user_names[@]}"; do
     fi
 
     # rotate backup for crashplan (it holds only 1 backup out of 10 to not send too much data)
-    local_one_file_backup_dir="$local_dir_prefix/ovh-one_file_backup-$user_name"
+    local_one_file_backup_dir="$local_dir_prefix/one_file_backup/ovh-$user_name"
     mkdir -p $local_one_file_backup_dir;
     one_file_backup_needs_to_be_copied=0;
     if [ $(ls -d -1t $local_one_file_backup_dir/* | wc -l) -gt 0 ]; then

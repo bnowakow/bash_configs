@@ -20,5 +20,6 @@ for dir in ${dirs[@]}; do
     fi
     git status | grep branch
     # TODO check if there was a merge conflict
+    echo;
 done
 

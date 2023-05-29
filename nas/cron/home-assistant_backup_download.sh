@@ -12,7 +12,9 @@ remote_user=root
 remote_dir="/backup"
 remote_file_name="*.tar"
 
-local_dir="/mnt/MargokPool/archive/Backups/home-assistant"
+local_dir_prefix="/mnt/MargokPool/archive/Backups"
+local_dir_suffix="home-assistant"
+local_dir="$local_dir_prefix/$local_dir_suffix"
 
 number_of_backpus_to_keep=30
 
@@ -32,3 +34,22 @@ for file in $(ls -1 *tar | grep -v 'homeassistant_'); do
     mv $file $new_name
 done
 
+# rotate backup for crashplan (it holds only 1 backup out of 10 to not send too much data)
+local_one_file_backup_dir="$local_dir_prefix/one_file_backup/$local_dir_suffix"
+mkdir -p $local_one_file_backup_dir;
+one_file_backup_needs_to_be_copied=0;
+if [ $(ls -d -1t $local_one_file_backup_dir/* | wc -l) -gt 0 ]; then
+    # backup for crashplan already exists
+    current_one_file_backup=$(ls -d -1t $local_one_file_backup_dir/* | head -n 1 | sed 's/.*\///')
+    if [ $(find $local_dir -name $current_one_file_backup | wc -l) -eq 0  ]; then
+        rm $local_one_file_backup_dir/*;
+        one_file_backup_needs_to_be_copied=1
+    fi
+else
+    # backup for crashplan doesn't exist
+    one_file_backup_needs_to_be_copied=1
+fi
+
+if [ $one_file_backup_needs_to_be_copied -eq 1 ]; then
+    cp $(ls -d -1t $local_dir/*tar | head -n1) $local_one_file_backup_dir
+fi
