@@ -11,7 +11,9 @@ curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
 sudo add-apt-repository "deb https://download.docker.com/linux/debian/ $(lsb_release -s -c) stable"
 
 sudo apt-get update
-sudo apt-get install -y screen vim vagrant wget gnupg2 hddtemp ncdu elinks jdupes hfsprogs libicu-dev bzip2 cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev clang git libattr1-dev libfsapfs-utils libicu-dev bzip2 cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev clang git libattr1-dev virtualenv python3-venv docker-compose-plugin dos2unix edac-utils inxi rasdaemon figlet
+sudo apt-get install -y screen vim vagrant wget gnupg2 hddtemp ncdu elinks jdupes hfsprogs libicu-dev bzip2 \
+    cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev clang git libattr1-dev libfsapfs-utils \
+    virtualenv python3-venv docker-compose-plugin dos2unix edac-utils inxi rasdaemon figlet ansible sshpass
 
 wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
 sudo echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian bullseye contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
@@ -53,6 +55,7 @@ fi
 # user interactive - generate and copy ssh keys
 if [ ! -f ~/.ssh/id_rsa ]; then
     ssh-keygen
+    ssh-keygen -t ed25519
 fi
 ssh-copy-id root@192.168.1.56
 
