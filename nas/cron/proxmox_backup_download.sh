@@ -1,7 +1,7 @@
 #!/bin/bash
 
 remote_user="root"
-remote_host="192.168.0.10"
+remote_host="192.168.0.70"
 
 local_dir="/mnt/MargokPool/archive/Backups/proxmox"
 current_backup_local_dir="$local_dir/current"
@@ -87,16 +87,16 @@ else
     echo copied $number_of_copied_files files from $remote_dir
 fi
 
-remote_dir="/etc/sudoers"
-rsync --partial --progress --rsh=ssh -r $remote_user@$remote_host:$remote_dir $current_backup_local_dir
-number_of_copied_files=$(find $current_backup_local_dir/sudoers -type f | wc -l)
-if [ $number_of_copied_files = 0 ]; then
-    echo copy of $remote_dir failed
-    rm -rf $current_backup_local_dir
-    exit
-else
-    echo copied $number_of_copied_files files from $remote_dir
-fi
+#remote_dir="/etc/sudoers"
+#rsync --partial --progress --rsh=ssh -r $remote_user@$remote_host:$remote_dir $current_backup_local_dir
+#number_of_copied_files=$(find $current_backup_local_dir/sudoers -type f | wc -l)
+#if [ $number_of_copied_files = 0 ]; then
+#    echo copy of $remote_dir failed
+#    rm -rf $current_backup_local_dir
+#    exit
+#else
+#    echo copied $number_of_copied_files files from $remote_dir
+#fi
 
 
 cd $current_backup_local_dir

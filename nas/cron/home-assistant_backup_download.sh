@@ -1,6 +1,6 @@
 #!/bin/bash
 
-home_assistant_running_in_vagrant=true
+home_assistant_running_in_vagrant=false
 
 cd /mnt/MargokPool/home/sup/code/bash_configs/home-assistant/zabbix;
 source lib/ha-running-in-vagrant-on-in-proxmox.sh
@@ -9,7 +9,7 @@ echo ssh_port=$ssh_port
 echo ssh_host=$ssh_host
 
 remote_user=root
-remote_dir="/backup"
+remote_dir="/usr/share/hassio/backup"
 remote_file_name="*.tar"
 
 local_dir_prefix="/mnt/MargokPool/archive/Backups"
