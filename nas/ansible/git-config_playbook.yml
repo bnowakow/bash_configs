@@ -1,0 +1,27 @@
+---
+- hosts: all
+  become: no
+
+  tasks:
+    - name: setup git name
+      git_config:
+        name: user.name
+        scope: global
+        value: "Bartek Dobrowolski-Nowakowski"
+    - name: setup git user email
+      git_config:
+        name: user.email
+        scope: global
+        value: dobrowolski.nowakowski@gmail.com
+    - name: Ensure server is present in known_hosts file
+      known_hosts:
+        name: "github.com"
+        state: present
+        key: "{{ lookup('pipe', 'ssh-keyscan github.com') }}"
+        hash_host: true
+    - name: clone bash_configs repository
+      git:
+        repo: git@github.com:bnowakow/bash_configs.git
+        dest: ~/code/bash_configs/
+        clone: yes
+        update: yes

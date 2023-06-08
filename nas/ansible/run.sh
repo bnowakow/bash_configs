@@ -10,4 +10,6 @@ ansible-inventory -i inventory/proxmox-vms.yml --list
 ansible -m ping all -i inventory/proxmox-vms.yml
 
 ansible-playbook zabbix-agent2_playbook.yml -i inventory/proxmox-vms.yml -K
+ansible-playbook git-config_playbook.yml -i inventory/proxmox-vms.yml
+
 
