@@ -1,0 +1,3 @@
+[submodule "nas/ansible/roles/zabbix_agent2"]
+	path = nas/ansible/roles/zabbix_agent2
+	url = https://github.com/Revenni/zabbix_agent2.git

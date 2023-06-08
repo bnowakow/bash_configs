@@ -1,5 +1,5 @@
 # Added by Krypton
-Host * !ovh.bnowakowski.pl !github.com
+Host * !ovh.bnowakowski.pl !github.com !192.168.0.230 !192.168.0.240 !192.168.0.70
 	IdentityAgent ~/.kr/krd-agent.sock
 	ProxyCommand /usr/bin/krssh %h %p
 	IdentityFile ~/.ssh/id_krypton
@@ -13,7 +13,13 @@ Host ovh.bnowakowski.pl
 	IdentitiesOnly yes
 	IdentityFile ~/.ssh/id_rsa
 
-Host 192.168.1.47
-	Hostname 192.168.1.47
-	User root
-	IdentityFile ~/.ssh/id_rsa
+Host 192.168.0.230 192.168.0.240
+    IdentitiesOnly yes
+    IdentityFile ~/.ssh/id_ecdsa
+
+Host 192.168.0.70
+    Hostname 192.168.0.70
+    IdentitiesOnly yes
+    IdentityFile ~/.ssh/id_ecdsa
+
+

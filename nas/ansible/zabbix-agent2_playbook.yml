@@ -1,0 +1,8 @@
+- hosts: all
+  become: true
+  become_method: sudo
+  roles:
+    - role: revenni.zabbix_agent2
+      vars:
+        zabbix_version: 6.2
+      tags: zabbix_agent2
