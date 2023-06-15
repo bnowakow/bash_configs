@@ -6,3 +6,21 @@
       vars:
         zabbix_version: 6.2
       tags: zabbix_agent2
+    
+  tasks:
+    - name: Creating a symlink
+      ansible.builtin.file:
+        src: "/home/sup/code/bash_configs"
+        dest: "/etc/zabbix/zabbix_agent2.d/bash_configs"
+        state: link
+    - name: copy zabbix-agent2 config 
+      copy:
+        src: /etc/zabbix/zabbix_agent2.d/bash_configs/zabbix/zabbix_agent2.conf
+        dest: /etc/zabbix
+    - name: add zabbix to sudoers # TODO below won't update if sudoers entry already exists
+      shell: if ! grep ZABBIX_CMD /etc/sudoers; then cd /etc/zabbix/zabbix_agent2.d/bash_configs/nas/; ./zabbix-add-to-sudoers.sh; fi
+    - name: chown dirs to zabbix
+      shell: usermod -a -G sup zabbix
+    # TODO add /bin/bash to zabbix user
+    - name: Update zabbix-agent2 configs
+      shell: /etc/zabbix/zabbix_agent2.d/bash_configs/zabbix/update-zabbix-metadata.sh

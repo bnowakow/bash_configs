@@ -1,0 +1,15 @@
+- hosts: all
+    
+  tasks:
+    - name: Add authorized key from id_ecdsa.pub file
+      authorized_key:
+        user: sup
+        state: present
+        key: "{{ lookup('file', '/mnt/MargokPool/home/sup/.ssh/id_ecdsa.pub') }}"
+    - name: install packages
+      apt:
+        name: vim, git, screen, nfs-common, software-properties-common, dirmngr, apt-transport-https
+        state: present
+      become: true  
+
+   

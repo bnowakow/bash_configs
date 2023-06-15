@@ -1,4 +1,8 @@
 all:
   hosts:
-    192.168.0.230:
-    192.168.0.240:
+    192.168.0.210: # transmission
+    192.168.0.220: # kibana
+    192.168.0.230: # home-assistant
+    192.168.0.240: # crashplan
+    192.168.0.70: # proxmox
+        #ansible_user: root
