@@ -1,6 +1,6 @@
 
 # TODO replace below with one that allows only
 # /usr/bin/su sup -c 'cd /mnt/MargokPool/home/sup/code/nordvpn-torrent; vagrant ssh -c "if service transmission-daemon status | grep Active | grep running> /dev/null; then echo true; else echo false; fi" 2>/dev/null'
-Cmnd_Alias ZABBIX_CMD=/bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml,/usr/bin/su,/bin/apt-get update, /bin/apt-get --simulate upgrade,/usr/bin/ha,/usr/local/crashplan/bin/service.sh
+Cmnd_Alias ZABBIX_CMD=/bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml, /usr/bin/su,/bin/apt-get update, /bin/apt-get --simulate upgrade, /usr/sbin/service, /usr/bin/ha, /usr/local/crashplan/bin/service.sh
 zabbix ALL=NOPASSWD: ZABBIX_CMD
 
