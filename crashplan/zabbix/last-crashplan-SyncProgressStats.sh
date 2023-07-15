@@ -9,7 +9,7 @@ for log_file in `ls -1t /usr/local/crashplan/log | grep $log_file_name_prefix`; 
 
     #echo $log_file
 
-    log_line=$(grep SyncProgressStats /usr/local/crashplan/log/$log_file | grep -v Binary\ file | tail -1);
+    log_line=$(grep SyncProgressStats /usr/local/crashplan/log/$log_file 2>/dev/null | grep -v Binary\ file | tail -1);
 
     if [ ! "$log_line" = "" ]; then
         percent=$(echo $log_line | sed "s/.*total=[0-9]*..//" | sed "s/%.*/%/");

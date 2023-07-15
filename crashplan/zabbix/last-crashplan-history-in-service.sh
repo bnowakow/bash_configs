@@ -9,7 +9,7 @@ for log_file in `ls -1t /usr/local/crashplan/log | grep $log_file_name_prefix`; 
 
     #echo log_file=$log_file # DEBUG
 
-    log_line=$(grep history /usr/local/crashplan/log/$log_file | grep -v Binary\ file | tail -1);
+    log_line=$(grep history /usr/local/crashplan/log/$log_file 2>/dev/null | grep -v Binary\ file | tail -1);
 
     #echo -e "\t"log_line=$log_line # DEBUG
 

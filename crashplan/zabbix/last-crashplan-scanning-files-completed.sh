@@ -9,7 +9,7 @@ for log_file in `ls -1t /usr/local/crashplan/log | grep $log_file_name_prefix`; 
 
     #echo $log_file; # DEBUG
 
-    log_line=$(grep files\ completed /usr/local/crashplan/log/$log_file | grep HISTORY | tail -1);
+    log_line=$(grep files\ completed /usr/local/crashplan/log/$log_file 2>/dev/null| grep HISTORY | tail -1);
     
     if [ ! "$log_line" = "" ]; then
         stats=$(echo $log_line | sed "s/^.*completed in//" | sed "s/.found.*//");
