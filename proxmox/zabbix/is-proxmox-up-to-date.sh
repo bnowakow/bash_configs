@@ -4,7 +4,7 @@
 # https://www.youtube.com/watch?v=NHAUugksnvA
 
 local_version=$(pveversion -v | grep proxmox-ve | sed 's/proxmox-ve: //' | sed 's/ .running.*'//)
-current_version=$(curl https://www.proxmox.com/en/downloads/category/iso-images-pve 2>/dev/null| grep '\.iso' | head -1 | sed 's/.*proxmox-ve_//' | sed 's/.iso.*//')
+current_version=$(curl https://www.proxmox.com/en/downloads/proxmox-virtual-environment/iso 2>/dev/null| grep '\.iso' | head -1 | sed 's/.*proxmox-ve_//' | sed 's/.iso.*//' | sed 's/-/\./')
 
 if [ "$local_version" = "$current_version" ]; then
     echo true
