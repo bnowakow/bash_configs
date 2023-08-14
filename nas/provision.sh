@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo chmod +x /bin/apt /bin/apt-key /bin/apt-get /bin/apt-cache /bin/apt-config
+sudo chmod +x /bin/apt /bin/apt-key /bin/apt-get /bin/apt-cache /bin/apt-config /usr/bin/dpkg
 
 sudo ~/code/bash_configs/nas/change-iptables-bridge-docker-settings.sh
 
@@ -118,5 +118,7 @@ cd ~/code/bash_configs/nas/zabbix
 sudo chown sup:zabbix sie-pomaga
 sudo chown sup:zabbix sie-pomaga/*
 cd ~/code/bash_configs/home-assistant/zabbix
+sudo chown sup:zabbix *
+cd ~/code/bash_configs/nas/zabbix/is-plex-running
 sudo chown sup:zabbix *
 

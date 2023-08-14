@@ -21,5 +21,5 @@ ansible -m ping all -i inventory/proxmox-vms.yml
 
 ansible-playbook git-config_playbook.yml -i inventory/proxmox-vms.yml
 ansible-playbook zabbix-agent2_playbook.yml -i inventory/proxmox-vms.yml -K
-
+echo "[VM]      before it's not in ansible set /bin/bash for zabbix account and create its user directrory"
 

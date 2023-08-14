@@ -3,7 +3,7 @@
 remote_user="root"
 remote_host="192.168.0.70"
 
-local_dir="/mnt/MargokPool/archive/Backups/proxmox"
+local_dir="/mnt/MargokPool/archive/Backups/proxmox/config"
 current_backup_local_dir="$local_dir/current"
 
 number_of_backpus_to_keep=30
