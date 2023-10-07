@@ -1,0 +1,1 @@
+{"data-root": "/mnt/MargokPool/ix-applications/docker", "exec-opts": ["native.cgroupdriver=cgroupfs"], "iptables": false, "bridge": "none", "storage-driver": "overlay2", "runtimes": {"nvidia": {"path": "/usr/bin/nvidia-container-runtime", "runtimeArgs": []}}, "default-runtime": "nvidia"}

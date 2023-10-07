@@ -46,8 +46,8 @@ filebeat.inputs:
   # Paths that should be crawled and fetched. Glob based paths.
   paths:
     #- /var/log/*.log
-    - /usr/share/filebeat/sie-pomaga/*txt
-    #- /usr/share/filebeat/sie-pomaga/sie-pomaga-values.txt
+    #- /usr/share/filebeat/sie-pomaga/*txt
+    - /usr/share/filebeat/sie-pomaga/sie-pomaga-values.txt
     #- /usr/share/filebeat/sie-pomaga/sie-pomaga-list-of-donations-SINGLE-ARRAY.txt
     #- /usr/share/filebeat/sie-pomaga/sie-pomaga-value-SINGLE-ARRAY.txt
     #- c:\programdata\elasticsearch\logs\*
