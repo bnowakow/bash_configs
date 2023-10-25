@@ -9,7 +9,7 @@ nordvpn set autoconnect on Czech_Republic p2p
     nordvpn whitelist add port 111       # nfs
     nordvpn whitelist add port 2049  # nfs
     nordvpn whitelist add port 33333 # rpcbind https://serverfault.com/a/823236
-    nordvpn whitelist add port $(mount -vvv /mnt/PlexPool/plex 2>&1 | grep UDP | sed 's/.*port\ //') # TODO set static port
+    nordvpn whitelist add port $(timeout 10 mount -vvv /mnt/PlexPool/plex 2>&1 | grep TCP | sed 's/.*port\ //' | tail -1) # TODO set static port
     nordvpn whitelist add port 10050 # zabbix-agent2
     nordvpn set protocol tcp
     #nordvpn set technology nordlynx
