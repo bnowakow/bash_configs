@@ -1,6 +1,6 @@
 [Unit]
 
-Description=Your Script Name here
+Description=NordVPN and Transmission starup scripts
 
 After=default.target
 

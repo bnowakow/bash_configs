@@ -1,0 +1,13 @@
+[Unit]
+
+Description=OVH Home-Assistant SSH Tunnel
+
+After=default.target
+
+[Service]
+
+ExecStart=/home/sup/code/bash_configs/home-assistant/keep-ssh-tunnel-running.sh
+
+[Install]
+
+WantedBy=default.target
