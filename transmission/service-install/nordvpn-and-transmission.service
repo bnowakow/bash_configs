@@ -1,0 +1,13 @@
+[Unit]
+
+Description=Your Script Name here
+
+After=default.target
+
+[Service]
+
+ExecStart=/home/sup/code/bash_configs/transmission/startup.sh
+
+[Install]
+
+WantedBy=default.target

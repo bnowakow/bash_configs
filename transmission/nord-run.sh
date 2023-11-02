@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export HOME=/home/sup
+
 nordvpn login --token "$(cat .nord_token)"
 nordvpn set autoconnect on Czech_Republic p2p
 
