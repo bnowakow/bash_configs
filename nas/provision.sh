@@ -1,19 +1,37 @@
 #!/bin/bash
 
+# TODO check two key add that require's user's input
+
 sudo chmod +x /bin/apt /bin/apt-key /bin/apt-get /bin/apt-cache /bin/apt-config /usr/bin/dpkg
 
-sudo ~/code/bash_configs/nas/change-iptables-bridge-docker-settings.sh
+#sudo ~/code/bash_configs/nas/change-iptables-bridge-docker-settings.sh
 
 sudo apt-get update
 sudo apt-get install -y software-properties-common
 
-curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
-sudo add-apt-repository "deb https://download.docker.com/linux/debian/ $(lsb_release -s -c) stable"
-
+# https://docs.docker.com/engine/install/debian/
+# Add Docker's official GPG key:
 sudo apt-get update
-sudo apt-get install -y screen vim vagrant wget gnupg2 hddtemp ncdu elinks jdupes hfsprogs libicu-dev bzip2 \
+sudo apt-get install -y ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+
+# TODO after cobia upgrade missing: hddtemp 
+sudo apt-get update
+sudo apt-get install -y screen vim vagrant wget gnupg2 ncdu elinks jdupes hfsprogs libicu-dev bzip2 \
     cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev clang git libattr1-dev libfsapfs-utils \
-    virtualenv python3-venv docker-compose-plugin dos2unix edac-utils inxi rasdaemon figlet ansible sshpass \
+    virtualenv python3-venv python3-pip dos2unix edac-utils inxi rasdaemon figlet ansible sshpass \
     bc
 
 wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
@@ -29,12 +47,7 @@ curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo 
 && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
 && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
 && sudo apt update \
-&& sudo apt install gh -y
-
-# https://computingforgeeks.com/how-to-install-latest-docker-compose-on-linux/
-curl -s https://api.github.com/repos/docker/compose/releases/latest | grep browser_download_url  | grep docker-compose-linux-x86_64 | cut -d '"' -f 4 | wget -qi -
-chmod +x docker-compose-linux-x86_64
-sudo mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
+; sudo apt install gh -y
 
 chsh -s $(which zsh)
 

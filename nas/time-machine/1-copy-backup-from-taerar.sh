@@ -1,5 +1,7 @@
 #!/bin/bash -x
 
+echo run as root user, not from sudo
+
 # todo check return codes of mounting, maybe rsync
 source lib/mount_apfs.sh
 sudo ls -la $mount_path_tm
