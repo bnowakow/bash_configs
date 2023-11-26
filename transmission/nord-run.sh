@@ -2,6 +2,8 @@
 
 export HOME=/home/sup
 
+# TODO check if .nord_token exists and if not output error
+
 nordvpn login --token "$(cat .nord_token)"
 nordvpn set autoconnect on Czech_Republic p2p
 
