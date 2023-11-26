@@ -9,7 +9,6 @@
 echo "[VM]      on first use for a given host do:"
 echo "[VM]      apt update; apt install sudo;"
 echo "[VM]      usermod -a -G sudo sup"
-echo "[host]    update ~/.ssh/config to include new ip of VM"
 echo "press enter when done"
 read;
 
@@ -18,7 +17,7 @@ read;
 # TODO install kr
 echo "[VM]      on first use for a given host do:"
 echo "[VM]      install kr and kr pair"
-echo "open kr on iPhone"
+echo "open kr on iPhone and remove last known hosts to github on kr app"
 echo "press enter when done"
 read;
 
@@ -31,6 +30,7 @@ ansible -m ping all -i inventory/proxmox-vms.yml
 ansible-playbook git-config_playbook.yml -i inventory/proxmox-vms.yml
 ansible-playbook zabbix-agent2_playbook.yml -i inventory/proxmox-vms.yml -K
 echo "[VM]      before it's not in ansible set /bin/bash for zabbix account and create its user directrory and chown it to zabbix"
+echo "[VM]      run ~/code/bash_configs/zabbix/update-zabbix-metadata.sh"
 echo "press enter when done"
 read;
 
