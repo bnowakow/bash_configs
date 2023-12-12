@@ -17,6 +17,7 @@ read;
 # TODO install kr
 echo "[VM]      on first use for a given host do:"
 echo "[VM]      install kr and kr pair"
+echo "[host]    check if you can ssh to vm since known_hosts might have a conflict if reworking previously existing machine"
 echo "open kr on iPhone and remove last known hosts to github on kr app"
 echo "press enter when done"
 read;

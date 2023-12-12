@@ -39,19 +39,19 @@ else
     echo copied $number_of_copied_files files from $remote_dir
 fi
 
-remote_dir="/var/lib/vz/snippets"
-remote_file_name="*.sh"
-remote_path="$remote_dir/$remote_file_name";
-mkdir -p $current_backup_local_dir/snippets
-rsync --partial --progress --rsh=ssh -r $remote_user@$remote_host:$remote_path $current_backup_local_dir/snippets;
-number_of_copied_files=$(find $current_backup_local_dir/snippets -type f -name "$remote_file_name" | wc -l)
-if [ $number_of_copied_files = 0 ]; then
-    echo copy of $remote_dir failed
-    rm -rf $current_backup_local_dir
-    exit
-else
-    echo copied $number_of_copied_files files from $remote_dir
-fi
+#remote_dir="/var/lib/vz/snippets"
+#remote_file_name="*.sh"
+#remote_path="$remote_dir/$remote_file_name";
+#mkdir -p $current_backup_local_dir/snippets
+#rsync --partial --progress --rsh=ssh -r $remote_user@$remote_host:$remote_path $current_backup_local_dir/snippets;
+#number_of_copied_files=$(find $current_backup_local_dir/snippets -type f -name "$remote_file_name" | wc -l)
+#if [ $number_of_copied_files = 0 ]; then
+#    echo copy of $remote_dir failed
+#    rm -rf $current_backup_local_dir
+#    exit
+#else
+#    echo copied $number_of_copied_files files from $remote_dir
+#fi
 
 remote_dir="/etc/default/grub"
 rsync --partial --progress --rsh=ssh -r $remote_user@$remote_host:$remote_dir $current_backup_local_dir;

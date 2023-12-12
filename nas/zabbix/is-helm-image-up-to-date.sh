@@ -24,7 +24,7 @@ clone_repo_if_doesnt_exist() {
 }
 
 # todo detect train automatically, via find?
-if [ $name = "zabbix" ] || [ $name = "plextraktsync" ]; then
+if [ $name = "zabbix" ]; then
     train="incubator";
 elif [ $name = "traefik" ]; then
     train="enterprise";
