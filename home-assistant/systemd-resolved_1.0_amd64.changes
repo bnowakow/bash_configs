@@ -1,0 +1,25 @@
+Format: 1.8
+Date: Mon, 27 Nov 2023 12:18:52 +0100
+Source: systemd-resolved
+Binary: systemd-resolved
+Architecture: all
+Version: 1.0
+Distribution: unstable
+Urgency: low
+Maintainer: Equivs Dummy Package Generator <sup@home-assistant.localdomain>
+Changed-By: Equivs Dummy Package Generator <sup@home-assistant.localdomain>
+Description:
+ systemd-resolved - <short description; defaults to some wise words>
+Changes:
+ systemd-resolved (1.0) unstable; urgency=low
+ .
+   * First version
+Checksums-Sha1:
+ 01b9f920b3dfb7ade6d83aa637cb4621010ab56e 2204 systemd-resolved_1.0_all.deb
+ ad9b3492b0e3c8dbb4922bc64319f99c40570e49 4871 systemd-resolved_1.0_amd64.buildinfo
+Checksums-Sha256:
+ ddb92257693aec6a0abd117918ca7b14d200ace4c79f72fe4e0ff8888122d77f 2204 systemd-resolved_1.0_all.deb
+ 304b754fcbccc6c344ee4084deab3a43759df31bfee3623d6354ead9b2b205a0 4871 systemd-resolved_1.0_amd64.buildinfo
+Files:
+ 28a97ef406497240aef40e31d0ecc205 2204 misc optional systemd-resolved_1.0_all.deb
+ 9a0cf56f6215a36af1a80e24bc4af5d4 4871 misc optional systemd-resolved_1.0_amd64.buildinfo
