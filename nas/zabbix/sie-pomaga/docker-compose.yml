@@ -52,6 +52,21 @@ services:
       - elasticsearch
       - kibana
 
+# https://github.com/deviantony/docker-elk/blob/main/docker-compose.yml
+  logstash:
+    image: "docker.elastic.co/logstash/logstash:${STACK_VERSION}"
+    volumes:
+      - ./config/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
+      - ./config/logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
+    ports:
+      - 5044:5044
+      - 50000:50000/tcp
+      - 50000:50000/udp
+      - 9600:9600
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
 volumes:
   elasticsearch-data:
     driver: local
