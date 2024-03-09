@@ -1,0 +1,25 @@
+# TODO https://www.elastic.co/guide/en/elasticsearch/reference/current/script-processor.html
+
+# TODO check if files exists
+
+data.amount-as-double           Double      
+if (doc['json.data.amount'].value == null || doc['json.data.amount'].size() == 0) {
+    emit(0.0)
+} else {
+    if (doc['json.data.amount'].value instanceof Long) {
+        emit(doc['json.data.amount'].value)
+    } else {
+        emit(Double.parseDouble(doc['json.data.amount'].value))
+    }
+}
+
+# https://discuss.elastic.co/t/converting-a-string-date-to-a-date-field-using-scripted-fields-in-kibana/108952/4
+data.datetime-as-date           Date   
+if (doc['json.data.datetime'].value ==null || doc['json.data.datetime'].size() == 0) {
+    emit(0)
+} else {
+    emit(new SimpleDateFormat('yyyy-MM-dd HH:mm').parse(doc['json.data.datetime'].value).getTime())
+}
+ 
+
+

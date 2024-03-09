@@ -1,0 +1,47 @@
+Vagrant.configure("2") do |config|
+  # for some reason ssh key auth doesn't work on 22.04, using 20.04 instead
+  #config.vm.box = "ubuntu/jammy64"
+  config.vm.box = "bnowakow/nordvpn-torrent"
+ 
+  config.vm.network "private_network", ip: "192.168.10.149"
+  config.vm.network :forwarded_port, guest: 5601, host: 5601, auto_correct: true
+
+  config.vm.provider "virtualbox" do |vb|
+    # https://gist.github.com/shengslogar/979b79a4a1bfd4840f391119e7341efe
+    vb.memory = 4048
+    vb.cpus = 4
+    vb.customize ["modifyvm", :id, "--cpuexecutioncap", "40"]
+  end
+
+# was in basebox
+
+  config.vm.provision "install docker", type: "shell", inline: <<-SHELL
+    # should be enough
+    apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+    # https://docs.docker.com/engine/install/linux-postinstall/
+    usermod -aG docker vagrant
+  SHELL
+
+# /was in basebox
+
+  config.vm.provision "connect to nfs with manual workaround", type: "shell", inline: <<-SHELL
+    if [ ! -d "/mnt/MargokPool/home/sup" ]; then
+        mkdir -p /mnt/MargokPool/home/sup
+    fi
+    if [ $(mount | grep "/mnt/MargokPool/home/sup" | wc -l) -gt 0 ]; then 
+        umount /mnt/MargokPool/home/sup
+    fi
+    mount -vvv -o vers=3 10.0.2.2:/mnt/MargokPool/home/sup /mnt/MargokPool/home/sup
+  SHELL
+
+  #config.vm.provision "file", source: ".", destination: "~/"
+
+# TODO add shared dir for volume to be presisted
+  config.vm.provision "configure transmission gui", type: "shell", inline: <<-SHELL
+    cd /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga/
+    docker compose pull
+    docker compose up -d
+  SHELL
+    
+end

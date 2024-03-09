@@ -1,0 +1,6 @@
+data/
+.vagrant/
+
+sie-pomaga*.txt
+sie-pomaga*.json
+
