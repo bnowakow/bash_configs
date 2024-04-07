@@ -13,3 +13,5 @@ home-assistant/zabbix/ha-addons.yaml
 
 repos
 
+.home-assistant-token
+
