@@ -2,6 +2,11 @@
 
 # TODO check two key add that require's user's input
 
+# https://www.truenas.com/docs/scale/scaletutorials/systemsettings/advanced/developermode/#:~:text=To%20enable%20developer%20mode%2C%20log,install%2Ddev%2Dtools%20command.&text=Running%20install%2Ddev%2Dtools%20removes,for%20development%20environments%20on%20TrueNAS.
+# https://www.truenas.com/community/threads/no-more-apt.116340/
+sudo install-dev-tools
+sudo /usr/local/libexec/disable-rootfs-protection
+
 sudo chmod +x /bin/apt /bin/apt-key /bin/apt-get /bin/apt-cache /bin/apt-config /usr/bin/dpkg
 
 #sudo ~/code/bash_configs/nas/change-iptables-bridge-docker-settings.sh
@@ -32,22 +37,23 @@ sudo apt-get update
 sudo apt-get install -y screen vim vagrant wget gnupg2 ncdu elinks jdupes hfsprogs libicu-dev bzip2 \
     cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev clang git libattr1-dev libfsapfs-utils \
     virtualenv python3-venv python3-pip dos2unix edac-utils inxi rasdaemon figlet ansible sshpass \
-    bc
+    bc hfsprogs nvidia-smi python3-full lshw
 
-wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
-sudo echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian bullseye contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
-sudo apt-get update
-sudo apt-cache madison linux-headers-truenas-amd64
+# disable for dragonfish
+#wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
+#sudo echo "deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian bullseye contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
+#sudo apt-get update
+#sudo apt-cache madison linux-headers-truenas-amd64
 #sudo apt-get install -y linux-headers-truenas-amd64=5.10.70+truenas-1
-sudo apt-get install -y linux-headers-truenas-amd64
-sudo apt-get install -y virtualbox-6.1 dkms
+#sudo apt-get install -y linux-headers-truenas-amd64
+#sudo apt-get install -y virtualbox-6.1 dkms
 
 # https://github.com/cli/cli/blob/trunk/docs/install_linux.md
 curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
 && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
 && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-&& sudo apt update \
-; sudo apt install gh -y
+&& sudo apt-get update \
+; sudo apt-get install gh -y
 
 chsh -s $(which zsh)
 
@@ -71,6 +77,8 @@ if [ ! -f ~/.ssh/id_rsa ]; then
     ssh-keygen
     ssh-keygen -t ed25519
 fi
+
+# TODO check if needed
 ssh-copy-id root@192.168.1.56
 
 sudo apt-get install software-properties-common dirmngr apt-transport-https -y
@@ -146,4 +154,24 @@ sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22
 curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg
 sudo apt-get update
 sudo apt-get install -y 1password 1password-cli
+
+echo;
+echo manual steps:;
+echo chage zabbix user id and group id to 990;
+echo "press enter when done"
+read;
+
+sudo chown -R zabbix:zabbix /var/log/zabbix
+sudo chown -R zabbix:zabbix /var/run/zabbix
+sudo chown sup:zabbix -R /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga
+sudo chown -R zabbix:zabbix /mnt/MargokPool/home/zabbix
+
+cd /mnt/MargokPool/home/sup/code/bash_configs/nas
+source bin/activate
+pip install gpustat
+
+# https://www.truenas.com/community/threads/how-to-edit-grub_cmdline_linux_default.95245/
+# https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/power_management_guide/aspm
+# https://forum.proxmox.com/threads/amd-pstate-driver-steps-and-discussion.118873/
+sudo midclt call system.advanced.update '{"kernel_extra_options":  "amd_pstate=passive pcie_aspm=force cpufreq.default_governor=powersave"}'
 
