@@ -37,7 +37,7 @@ sudo apt-get update
 sudo apt-get install -y screen vim vagrant wget gnupg2 ncdu elinks jdupes hfsprogs libicu-dev bzip2 \
     cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev clang git libattr1-dev libfsapfs-utils \
     virtualenv python3-venv python3-pip dos2unix edac-utils inxi rasdaemon figlet ansible sshpass \
-    bc hfsprogs nvidia-smi python3-full lshw
+    bc hfsprogs nvidia-smi python3-full lshw vim-runtime
 
 # disable for dragonfish
 #wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
@@ -139,6 +139,7 @@ yes | sdk install kotlin
 cd ~/code/bash_configs/nas/zabbix
 sudo chown sup:zabbix sie-pomaga
 sudo chown sup:zabbix sie-pomaga/*
+sudo chmod 774 sie-pomaga
 cd ~/code/bash_configs/home-assistant/zabbix
 sudo chown sup:zabbix *
 cd ~/code/bash_configs/nas/zabbix/is-plex-running
