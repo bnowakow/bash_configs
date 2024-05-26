@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# TODO DEBUG
+#echo DISABLED FOR DEBUG
+#exit 1
+
 # https://stackoverflow.com/a/18216122
 if [ "$EUID" -ne 0 ]; then 
 	echo "Please run as root"
