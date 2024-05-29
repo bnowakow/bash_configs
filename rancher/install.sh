@@ -11,7 +11,7 @@
 
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.28.9+k3s1" sh -s - server 
 
-# sh -s - server --datastore-endpoint="<DATASTORE_ENDPOINT>"
+# args that failed: sh -s - server --datastore-endpoint="<DATASTORE_ENDPOINT>"
 
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.28.9+k3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
 
@@ -30,6 +30,13 @@ echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.
 sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list   # helps tools such as command-not-found to work correctly
 sudo apt-get update
 sudo apt-get install -y kubectl
+
+# https://helm.sh/docs/intro/install/
+curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+sudo apt-get install apt-transport-https --yes
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+sudo apt-get update
+sudo apt-get install helm
 
 # https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/install-upgrade-on-a-kubernetes-cluster#kubernetes-cluster
 # https://github.com/cert-manager/cert-manager/releases/tag/v1.14.5
