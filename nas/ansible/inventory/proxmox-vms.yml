@@ -4,5 +4,7 @@ all:
     192.168.0.220: # kibana
     192.168.0.230: # home-assistant
     192.168.0.240: # crashplan
-    192.168.0.70: # proxmox
+    192.168.0.70:  # proxmox2
+        #ansible_user: root
+    192.168.0.110: # proxmox3
         #ansible_user: root
