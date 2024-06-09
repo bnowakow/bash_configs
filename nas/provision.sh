@@ -33,6 +33,7 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 
 
 # TODO after cobia upgrade missing: hddtemp 
+# TODO figure out which package from below tries to install linux-image-amd64 that fails becuse of RO /boot in dragonfish and prevents rest of packages to be configured by apt
 sudo apt-get update
 sudo apt-get install -y screen vim vagrant wget gnupg2 ncdu elinks jdupes hfsprogs libicu-dev bzip2 \
     cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev clang git libattr1-dev libfsapfs-utils \

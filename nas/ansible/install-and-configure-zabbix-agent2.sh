@@ -29,6 +29,8 @@ ansible -m ping all -i inventory/proxmox-vms.yml
 
 
 ansible-playbook git-config_playbook.yml -i inventory/proxmox-vms.yml
+# TODO https://askubuntu.com/questions/13065/how-do-i-fix-the-gpg-error-no-pubkey
+echo "add to playbook sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D913219AB5333005 before installing zabbix"
 ansible-playbook zabbix-agent2_playbook.yml -i inventory/proxmox-vms.yml -K
 echo "[VM]      before it's not in ansible set /bin/bash for zabbix account and create its user directrory and chown it to zabbix"
 echo "[VM]      run ~/code/bash_configs/zabbix/update-zabbix-metadata.sh"
