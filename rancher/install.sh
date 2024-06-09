@@ -41,6 +41,7 @@ sudo apt-get install -y helm
 # https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/install-upgrade-on-a-kubernetes-cluster#kubernetes-cluster
 # https://github.com/cert-manager/cert-manager/releases/tag/v1.14.5
 helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
+helm repo update
 #kubectl delete namespace cattle-system
 kubectl create namespace cattle-system
 kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.14.5/cert-manager.crds.yaml
