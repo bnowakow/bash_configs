@@ -39,6 +39,7 @@ sudo apt-get install -y screen vim vagrant wget gnupg2 ncdu elinks jdupes hfspro
     cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev clang git libattr1-dev libfsapfs-utils \
     virtualenv python3-venv python3-pip dos2unix edac-utils inxi rasdaemon figlet ansible sshpass \
     bc hfsprogs nvidia-smi python3-full lshw vim-runtime
+sudo apt-get remove -y linux-image-amd64
 
 # disable for dragonfish
 #wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
@@ -176,4 +177,6 @@ pip install gpustat
 # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/power_management_guide/aspm
 # https://forum.proxmox.com/threads/amd-pstate-driver-steps-and-discussion.118873/
 sudo midclt call system.advanced.update '{"kernel_extra_options":  "amd_pstate=passive pcie_aspm=force cpufreq.default_governor=powersave"}'
+
+sudo mkdir -p /run/screen; sudo chmod 777 /run/screen
 

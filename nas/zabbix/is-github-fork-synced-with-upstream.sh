@@ -23,9 +23,6 @@ fi
 if [ "$repo_name" = "docker-jdupes-gui" ]; then
     branch="rw_ro"
 fi
-if [ "$repo_name" = "docker-mailserver" ]; then
-    branch="aeonus"
-fi
 if [ "$repo_name" = "truenas-charts" ] || [ "$repo_name" = "truecharts-charts" ]; then
     branch="master"
 fi
