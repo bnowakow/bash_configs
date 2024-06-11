@@ -1,0 +1,7 @@
+customVolumeMounts: |
+  - name: "plex-nfs"
+    mountPath: "/mnt/PlexPool/plex"
+customVolumes: |
+  - name: "plex-nfs"
+    persistentVolumeClaim:
+      claimName: "sonar-plex-nfs"
