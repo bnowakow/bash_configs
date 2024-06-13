@@ -17,7 +17,8 @@ kubectl --namespace default port-forward $POD_NAME $external_port:$CONTAINER_POR
 
 external_port=8989
 port_number=0
-POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/instance=sonarr" -o jsonpath="{.items[0].metadata.name}")
+item_number=1
+POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/instance=sonarr" -o jsonpath="{.items[$item_number].metadata.name}")
 CONTAINER_PORT=$(kubectl get pod --namespace default $POD_NAME -o jsonpath="{.spec.containers[0].ports[$port_number].containerPort}")
 kubectl --namespace default port-forward $POD_NAME $external_port:$CONTAINER_PORT --address='0.0.0.0' 
 #&#

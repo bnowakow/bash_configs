@@ -1,0 +1,10 @@
+persistence:
+  plex-nfs-persistence:
+    enabled: true
+    path: /mnt/PlexPool/plex
+    server: 192.168.0.20
+    type: nfs
+    targetSelector:
+      main:
+        main:
+          mountPath: /mnt/PlexPool/plex
