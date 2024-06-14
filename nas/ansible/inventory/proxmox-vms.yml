@@ -1,10 +1,10 @@
 all:
   hosts:
-    192.168.0.210: # transmission
-    192.168.0.220: # kibana
-    192.168.0.230: # home-assistant
-    192.168.0.240: # crashplan
-    192.168.0.70:  # proxmox2
+    transmission.localdomain.bnowakowski.pl:
+    kibana.localdomain.bnowakowski.pl:
+    home-assistant.localdomain.bnowakowski.pl:
+    crashplan.localdomain.bnowakowski.pl:
+    proxmox2.localdomain.bnowakowski.pl:
         #ansible_user: root
-    192.168.0.110: # proxmox3
+    proxmox3.localdomain.bnowakowski.pl:
         #ansible_user: root
