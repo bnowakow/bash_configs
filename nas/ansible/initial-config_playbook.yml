@@ -8,7 +8,7 @@
         key: "{{ lookup('file', '/mnt/MargokPool/home/sup/.ssh/id_ecdsa.pub') }}"
     - name: install packages
       apt:
-        name: vim, git, screen, nfs-common, software-properties-common, dirmngr, apt-transport-https
+        name: vim, git, screen, nfs-common, software-properties-common, dirmngr, apt-transport-https, zsh
         state: present
       become: true  
 
