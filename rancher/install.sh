@@ -7,13 +7,13 @@
 
 # https://ranchermanager.docs.rancher.com/how-to-guides/new-user-guides/kubernetes-cluster-setup/k3s-for-rancher
 # https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-8-3/
-# https://github.com/k3s-io/k3s/releases/tag/v1.28.9%2Bk3s1
+# https://github.com/k3s-io/k3s/releases/tag/v1.28.10%2Bk3s1
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.28.9+k3s1" sh -s - server 
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.28.10+k3s1" sh -s - server 
 
 # args that failed: sh -s - server --datastore-endpoint="<DATASTORE_ENDPOINT>"
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.28.9+k3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.28.10+k3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
 
 # https://stackoverflow.com/a/65755417
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
