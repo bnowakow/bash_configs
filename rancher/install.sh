@@ -44,13 +44,13 @@ helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
 helm repo update
 #kubectl delete namespace cattle-system
 kubectl create namespace cattle-system
-kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.14.5/cert-manager.crds.yaml
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
 helm install cert-manager jetstack/cert-manager \
   --namespace cert-manager \
   --create-namespace
 # no:  --set installCRDs=true
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.14.5/cert-manager.crds.yaml
 kubectl get pods --namespace cert-manager
 helm install rancher rancher-stable/rancher   --namespace cattle-system   --set hostname=rancher.localdomain.bnowakowski.pl   --set bootstrapPassword=admin
 kubectl -n cattle-system rollout status deploy/rancher # to check status of above
