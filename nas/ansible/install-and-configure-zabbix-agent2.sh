@@ -37,6 +37,8 @@ ansible-playbook zabbix-agent2_playbook.yml -i inventory/proxmox-vms.yml -K
 echo "[VM]              before it's not in ansible set /bin/bash for zabbix account and create its user directrory and chown it to zabbix"
 echo "[VM]              run ~/code/bash_configs/zabbix/update-zabbix-metadata.sh"
 echo '[VM][proxmox]     sudo run bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/post-pve-install.sh)"'
+echo "[VM]              follow https://github.com/sorin-ionescu/prezto"
+# TODO add apt upgrade and upgrade zprezto"
 echo "press enter when done"
 read;
 
