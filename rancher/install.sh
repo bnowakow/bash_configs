@@ -58,5 +58,6 @@ kubectl -n cattle-system get deploy rancher
 echo https://rancher.localdomain.bnowakowski.pl/dashboard/?setup=$(kubectl get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')
 
 echo https://github.com/zabbix-community/helm-zabbix.git
-echo https://charts.truecharts.org/
+#echo https://charts.truecharts.org/
+echo https://github.com/bnowakow/truecharts-charts.git
 
