@@ -1,0 +1,24 @@
+persistence:
+  cache:
+    enabled: true
+    mountPath: /cache
+    type: emptyDir
+  config:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/jellyfin
+    server: 192.168.0.20
+    type: nfs
+    mountPath: /config
+  transcode:
+    enabled: true
+    mountPath: /config/transcodes
+    type: emptyDir
+  plex-nfs-persistence:
+    enabled: true
+    path: /mnt/PlexPool/plex
+    server: 192.168.0.20
+    type: nfs
+    targetSelector:
+      main:
+        main:
+          mountPath: /mnt/PlexPool/plex
