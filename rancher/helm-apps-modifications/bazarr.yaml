@@ -1,0 +1,23 @@
+persistence:
+  config:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/bazarr
+    server: 192.168.0.20
+    type: nfs
+    targetSelector:
+      exportarr:
+        exportarr:
+          mountPath: /config
+          readOnly: true
+      main:
+        main:
+          mountPath: /config
+  plex-nfs-persistence:
+    enabled: true
+    path: /mnt/PlexPool/plex
+    server: 192.168.0.20
+    type: nfs
+    targetSelector:
+      main:
+        main:
+          mountPath: /mnt/PlexPool/plex

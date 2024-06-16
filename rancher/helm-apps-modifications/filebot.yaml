@@ -1,0 +1,19 @@
+persistence:
+  config:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/filebot/config
+    server: 192.168.0.20
+    type: nfs
+    mountPath: /config
+  output:
+    enabled: false
+    mountPath: /output
+  storage:
+    enabled: true
+    path: /mnt/PlexPool/plex
+    server: 192.168.0.20
+    type: nfs
+    mountPath: /storage
+  watch:
+    enabled: false
+    mountPath: /watch
