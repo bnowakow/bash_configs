@@ -6,7 +6,7 @@ persistence:
   config:
     enabled: true
     path: /mnt/MargokPool/archive/Data/rancher/jellyfin
-    server: 192.168.0.20
+    server: nas.localdomain.bnowakowski.pl
     type: nfs
     mountPath: /config
   transcode:
@@ -16,7 +16,7 @@ persistence:
   plex-nfs-persistence:
     enabled: true
     path: /mnt/PlexPool/plex
-    server: 192.168.0.20
+    server: nas.localdomain.bnowakowski.pl
     type: nfs
     targetSelector:
       main:
