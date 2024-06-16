@@ -1,0 +1,33 @@
+postgresql:
+  containerAnnotations: {}
+  containerLabels: {}
+  enabled: true
+  extraContainers: []
+  extraEnv: []
+  extraInitContainers: []
+  extraPodSpecs: {}
+  extraRuntimeParameters:
+    max_connections: 50
+  extraVolumeMounts: []
+  extraVolumes: []
+  image:
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+    repository: postgres
+    tag: 16
+  livenessProbe: {}
+  persistence:
+    enabled: true
+    existingClaimName: pvc-zabbix
+    storageSize: 5Gi
+  readinessProbe: {}
+  resources: {}
+  securityContext: {}
+  service:
+    annotations: {}
+    clusterIP: null
+    port: 5432
+    type: ClusterIP
+  startupProbe: {}
+  statefulSetAnnotations: {}
+  statefulSetLabels: {}

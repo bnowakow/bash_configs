@@ -1,0 +1,13 @@
+persistence:
+  config:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/adguardhome/config
+    server: 192.168.0.20
+    type: nfs
+    mountPath: /opt/adguardhome/conf
+  data:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/adguardhome/data
+    server: 192.168.0.20
+    type: nfs
+    mountPath: /opt/adguardhome/work

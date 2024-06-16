@@ -1,0 +1,7 @@
+persistence:
+  backup:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/jellystat
+    server: 192.168.0.20
+    type: nfs
+    mountPath: /app/backend/backup-data
