@@ -1,0 +1,15 @@
+persistence:
+  config:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/smokeping/config
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+    mountPath: /config
+  data:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/smokeping/data
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+    mountPath: /data
+  varrun:
+    enabled: false
