@@ -17,7 +17,7 @@ read;
 # TODO install nfs-common
 # TODO automate below
 echo "[VM]      on first use for a given host do:"
-echo "[VM]      install kr and kr pair: curl https://krypt.co/kr | sh && kr pair; kr sshconfig"
+echo "[VM]      install kr and kr pair: curl https://bnowakow.github.io/krypt/kr.sh | sh && kr pair; kr sshconfig"
 echo "[host]    check if you can ssh to vm since known_hosts might have a conflict if reworking previously existing machine"
 echo "[iPhone]  open kr on iPhone and remove last known hosts to github on kr app"
 echo "press enter when done"
@@ -36,7 +36,7 @@ ansible-playbook zabbix-agent2_playbook.yml -i inventory/proxmox-vms.yml -K
 # TODO automate below
 echo "[VM]              before it's not in ansible set /bin/bash for zabbix account and create its user directrory and chown it to zabbix"
 echo "[VM]              run ~/code/bash_configs/zabbix/update-zabbix-metadata.sh"
-echo '[VM][proxmox]     sudo run bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/post-pve-install.sh)"'
+echo '[VM][proxmox]     sudo bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/post-pve-install.sh)"'
 echo "[VM]              follow https://github.com/sorin-ionescu/prezto"
 # TODO add apt upgrade and upgrade zprezto"
 echo "press enter when done"

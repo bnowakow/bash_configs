@@ -8,3 +8,6 @@ all:
         #ansible_user: root
     proxmox3.localdomain.bnowakowski.pl:
         #ansible_user: root
+    proxmox4.localdomain.bnowakowski.pl:
+        #ansible_user: root
+
