@@ -1,7 +1,7 @@
 persistence:
   config:
     enabled: true
-    path: /mnt/MargokPool/archive/Data/rancher/sonarr
+    path: /mnt/MargokPool/archive/Data/rancher/bazarr
     server: nas.localdomain.bnowakowski.pl
     type: nfs
     targetSelector:

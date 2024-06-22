@@ -1,0 +1,24 @@
+persistence:
+  config:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/duckdns
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+    mountPath: /config
+
+workload:
+  main:
+    podSpec:
+      containers:
+        main:
+          env:
+            LOG_FILE: false
+            SUBDOMAINS: 'rancher-sup.duckdns.org'
+            TOKEN: '4dc224c6-79ee-4795-8bc6-2fbfe296c9d4'
+          probes:
+            liveness:
+              enabled: false
+            readiness:
+              enabled: false
+            startup:
+              enabled: false

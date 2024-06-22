@@ -1,0 +1,21 @@
+persistence:
+  config:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/proxmox-backup-server/config
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+    mountPath: /etc/proxmox-backup
+  lib:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/proxmox-backup-server/lib
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+    mountPath: /var/lib/proxmox-backup
+  log:
+    enabled: true
+    mountPath: /var/log/proxmox-backup
+    type: emptyDir
+  run:
+    enabled: true
+    mountPath: /run
+    type: emptyDir

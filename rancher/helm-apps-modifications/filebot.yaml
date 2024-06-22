@@ -1,0 +1,19 @@
+persistence:
+  config:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/filebot/config
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+    mountPath: /config
+  output:
+    enabled: false
+    mountPath: /output
+  storage:
+    enabled: true
+    path: /mnt/PlexPool/plex
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+    mountPath: /storage
+  watch:
+    enabled: false
+    mountPath: /watch

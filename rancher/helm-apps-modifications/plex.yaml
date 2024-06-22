@@ -1,17 +1,16 @@
 persistence:
   config:
     enabled: true
-    path: /mnt/MargokPool/archive/Data/rancher/sonarr
+    path: /mnt/MargokPool/archive/Data/rancher/plex
     server: nas.localdomain.bnowakowski.pl
     type: nfs
-    targetSelector:
-      exportarr:
-        exportarr:
-          mountPath: /config
-          readOnly: true
-      main:
-        main:
-          mountPath: /config
+    mountPath: /config
+  transcode:
+    enabled: true
+    medium: Memory
+    mountPath: /transcode
+    targetSelectAll: true
+    type: emptyDir
   plex-nfs-persistence:
     enabled: true
     path: /mnt/PlexPool/plex

@@ -1,7 +1,9 @@
 persistence:
   config:
     enabled: true
-    path: /mnt/MargokPool/archive/Data/rancher/flaresolverr
+    path: /mnt/MargokPool/archive/Data/rancher/lazylibrarian
     server: nas.localdomain.bnowakowski.pl
     type: nfs
     mountPath: /config
+  varrun:
+    enabled: true

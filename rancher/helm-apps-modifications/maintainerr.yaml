@@ -1,0 +1,7 @@
+persistence:
+  data:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/maintainerr
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+    mountPath: /opt/data

@@ -1,0 +1,7 @@
+persistence:
+  backup:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/jellystat
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+    mountPath: /app/backend/backup-data

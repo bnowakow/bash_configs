@@ -1,0 +1,13 @@
+persistence:
+  config:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/adguardhome/config
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+    mountPath: /opt/adguardhome/conf
+  data:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/adguardhome/data
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+    mountPath: /opt/adguardhome/work
