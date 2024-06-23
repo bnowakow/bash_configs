@@ -22,3 +22,13 @@ persistence:
       main:
         main:
           mountPath: /mnt/PlexPool/plex
+
+resources:
+  limits:
+    cpu: 24000m
+  requests:
+    cpu: 60m
+
+args:
+- -cpus
+- "2"

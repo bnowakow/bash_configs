@@ -8,8 +8,11 @@ name="${1:-duckdns}"
 #helm pull TrueCharts/duckdns
 
 charts_repo_dir=/etc/zabbix/zabbix_agent2.d/bash_configs/repos
-charts_repo_truenas_name=truenas
 charts_repo_truecharts_name=truecharts
+# TODO that would fail under zabbix user
+#mkdir -p $charts_repo_dir
+#chown sup:zabbix $charts_repo_dir
+# /TODO
 cd $charts_repo_dir
 
 clone_repo_if_doesnt_exist() {
@@ -24,9 +27,7 @@ clone_repo_if_doesnt_exist() {
 }
 
 # todo detect train automatically, via find?
-if [ $name = "zabbix" ]; then
-    train="incubator";
-elif [ $name = "traefik" ]; then
+if [ $name = "traefik" ]; then
     train="enterprise";
 else
     train="stable";
@@ -35,7 +36,6 @@ fi
 #version_current=$(helm search repo TrueCharts/$name --versions | head -2 | tail -1 | awk '{print $2}')
 clone_repo_if_doesnt_exist $charts_repo_truecharts_name
 cd $charts_repo_truecharts_name/charts/$train/$name
-
 #git reset --hard 2>/dev/null >/dev/null 
 #git clean -f -d -x 2>/dev/null >/dev/null
 #git pull 2>/dev/null >/dev/null # &
@@ -46,7 +46,6 @@ cd $charts_repo_truecharts_name/charts/$train/$name
 version_current=$(grep ^version Chart.yaml | sed 's/.*: //')
 # TODO for external-service we run multiple of the same helm but we check version of only first one
 version_local=$(sudo /bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep $name- | head -1 | awk '{print $9}')
-
 # https://www.truenas.com/community/threads/install-helm-chart-via-command-line.97191/
 # https://github.com/k3s-io/k3s/issues/1126
 if sudo /bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep $name | awk '{print $9}' | sed 's/.*-//' | grep $version_current > /dev/null; then
