@@ -19,6 +19,7 @@ clone_repo_if_doesnt_exist() {
     repo_name=$1
     # TODO check if pwd = $charts_repo_dir
     if [ ! -d "$repo_name" ]; then
+        # TODO needs to be changed to https://github.com/bnowakow/truecharts-charts.git since we need commons merged on bnowakow branch
         git clone https://github.com/$repo_name/charts.git 2> /dev/null;
         mv charts $repo_name;
         cd $repo_name;
