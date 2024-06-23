@@ -3,6 +3,7 @@
 # possible conflicts while pulling: crashplan, docker-mailserver (docker-compose, Makefile), homer (config), medihunter, zabbix-scripts (.gitignore)
 
 dirs=("/home/sup/code/bash_configs/repos/truecharts" \
+    "/home/sup/code/bash_configs/repos/zabbix" \
 )
 
 for dir in ${dirs[@]}; do
