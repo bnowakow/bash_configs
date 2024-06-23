@@ -8,33 +8,17 @@ name="${1:-duckdns}"
 #helm pull TrueCharts/duckdns
 
 charts_repo_dir=/etc/zabbix/zabbix_agent2.d/bash_configs/repos
-charts_repo_truecharts_name=truecharts
-# TODO that would fail under zabbix user
-#mkdir -p $charts_repo_dir
-#chown sup:zabbix $charts_repo_dir
-# /TODO
 cd $charts_repo_dir
 
-clone_repo_if_doesnt_exist() {
-    repo_name=$1
-    # TODO check if pwd = $charts_repo_dir
-    if [ ! -d "$repo_name" ]; then
-        # TODO needs to be changed to https://github.com/bnowakow/truecharts-charts.git since we need commons merged on bnowakow branch
-        git clone https://github.com/$repo_name/charts.git 2> /dev/null;
-        mv charts $repo_name;
-        cd $repo_name;
-        git config pull.rebase false
+for repo_dir in $(ls -1); do
+    # doing that per directory since then I could set priority of directories when one chart would be in two repos
+    # side effect it helps when repo name is same as chart name (i.e. helm with one repo like zabbix)
+    if [ $(find $repo_dir/charts -name $name | wc -l) -gt 0 ] ; then
+        # TODO that would fail when find returns multiple results (i.e. common prefix)
+        echo $charts_repo_dir/$(find $repo_dir/charts -name $name)
+        exit 0
     fi
-}
+done
 
-# todo detect train automatically, via find?
-if [ $name = "traefik" ]; then
-    train="enterprise";
-else
-    train="stable";
-fi
-# below works well but TrueNas probably using Charts directly from repo
-#version_current=$(helm search repo TrueCharts/$name --versions | head -2 | tail -1 | awk '{print $2}')
-clone_repo_if_doesnt_exist $charts_repo_truecharts_name
-echo $charts_repo_dir/$charts_repo_truecharts_name/charts/$train/$name
+exit 1
 

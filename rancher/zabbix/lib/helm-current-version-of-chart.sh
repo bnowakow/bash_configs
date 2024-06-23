@@ -12,6 +12,6 @@ cd $chart_repo_dir
 #    echo false,git-pull-fail; 
 #fi
 # TODO check git status -uno if branch is not behind origin, downside would be if it takes too long
-version_current=$(grep ^version Chart.yaml | sed 's/.*: //')
+version_current=$(grep ^version Chart.yaml | sed 's/.*: //' | sed 's/\ .*//')
 echo $version_current
 
