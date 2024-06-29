@@ -6,9 +6,6 @@
 repo_name="${1:-medihunter}"
 
 source_branch="master"
-if [ "$repo_name" = "truetool" ] || [ "$repo_name" = "homer" ]; then
-    source_branch="main"
-fi
 
 # sync fork with upstream
 # https://docs.github.com/en/rest/branches/branches?apiVersion=2022-11-28#sync-a-fork-branch-with-the-upstream-repository
@@ -17,13 +14,10 @@ master_merge_upstream=$(gh api --method POST -H "Accept: application/vnd.github+
 # "This branch is not behind the upstream Frederic-Boulanger-UPS:master."
 
 branch="bnowakow"
-if [ "$repo_name" = "docker-ubuntu-novnc-crashplan" ]; then
-    branch="crashplan"
-fi
 if [ "$repo_name" = "docker-jdupes-gui" ]; then
     branch="rw_ro"
 fi
-if [ "$repo_name" = "truenas-charts" ] || [ "$repo_name" = "truecharts-charts" ]; then
+if [ "$repo_name" = "truecharts-charts" ]; then
     branch="master"
 fi
 
@@ -35,9 +29,6 @@ branch_merge_master=$(gh api --method POST -H "Accept: application/vnd.github+js
 dir=$repo_name
 if [ "$repo_name" = "medihunter" ]; then
     dir="medihunter-kasia"
-fi
-if [ "$repo_name" = "docker-ubuntu-novnc-crashplan" ]; then
-    dir="crashplan-docker"
 fi
 if [ "$repo_name" = "truecharts-charts" ]; then
     dir="bash_configs/repos/truecharts"

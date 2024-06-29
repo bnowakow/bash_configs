@@ -6,20 +6,20 @@
 #ansible-galaxy install revenni.zabbix_agent2
 
 # TODO automate below
-echo "[VM]          on first use for a given host do:"
-echo "[VM][proxmox] adduser sup"
-echo "[VM]          apt update; apt install sudo;"
-echo "[VM]          usermod -a -G sudo sup"
+echo "[VM]                      on first use for a given host do:"
+echo "[VM][proxmox][as root]    adduser sup"
+echo "[VM]                      apt update; apt install sudo;"
+echo "[VM]                      usermod -a -G sudo sup"
 echo "press enter when done"
 read;
 
 # https://www.cherryservers.com/blog/how-to-set-up-ansible-inventory-file
 # TODO install nfs-common
 # TODO automate below
-echo "[VM]      on first use for a given host do:"
-echo "[VM]      install kr and kr pair: curl https://bnowakow.github.io/krypt/kr.sh | sh && kr pair; kr sshconfig"
-echo "[host]    check if you can ssh to vm since known_hosts might have a conflict if reworking previously existing machine"
-echo "[iPhone]  open kr on iPhone and remove last known hosts to github on kr app"
+echo "[VM]              on first use for a given host do:"
+echo "[VM][as sup]      install kr and kr pair: curl https://bnowakow.github.io/krypt/kr.sh | sh && kr pair; kr sshconfig"
+echo "[host]            check if you can ssh to vm since known_hosts might have a conflict if reworking previously existing machine"
+echo "[iPhone]          open kr on iPhone and remove last known hosts to github on kr app"
 echo "press enter when done"
 read;
 

@@ -62,6 +62,7 @@ helm install cert-manager jetstack/cert-manager \
 kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.15.1/cert-manager.crds.yaml
 kubectl get pods --namespace cert-manager
 # https://cert-manager.io/docs/configuration/
+# https://cert-manager.io/docs/troubleshooting/acme/#2-troubleshooting-orders
 helm install rancher rancher-stable/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin
 kubectl -n cattle-system rollout status deploy/rancher # to check status of above
 kubectl -n cattle-system get deploy rancher
