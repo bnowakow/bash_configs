@@ -31,6 +31,14 @@ sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list   # helps tools such as c
 sudo apt-get update
 sudo apt-get install -y kubectl
 
+# https://cert-manager.io/v1.0-docs/usage/kubectl-plugin/
+# not every cert-manager release contains cli tool
+# https://github.com/cert-manager/cert-manager/releases/tag/v1.15.1
+curl -L -o kubectl-cert-manager.tar.gz https://github.com/cert-manager/cert-manager/releases/download/v1.14.7/kubectl-cert_manager-linux-amd64.tar.gz
+tar xzf kubectl-cert-manager.tar.gz
+sudo mv kubectl-cert_manager /usr/local/bin
+rm kubectl-cert-manager.tar.gz
+
 # https://helm.sh/docs/intro/install/
 curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
 sudo apt-get install apt-transport-https --yes
@@ -59,7 +67,20 @@ kubectl -n cattle-system rollout status deploy/rancher # to check status of abov
 kubectl -n cattle-system get deploy rancher
 echo https://proxmox3.localdomain.bnowakowski.pl/dashboard/?setup=$(kubectl get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')
 
+# below works only for http challenge, when rancher isn't reachable from internet we need to use method below it which uses existing DNS challenge configured
+## https://github.com/rancher/rancher/issues/32206#issuecomment-1555969372
+#helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=letsEncrypt --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com
+## https://gist.github.com/dmancloud/0474dbfedaa7e3793099f68e96cab88f
+#helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=letsEncrypt --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com --set letsEncrypt.ingress.class=traefik
+
+# https://github.com/rancher/rancher/issues/26850#issuecomment-1223301973
+# https://github.com/rancher/rancher/issues/26850#issuecomment-1234869006
+helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=secret --set ingress.extraAnnotations.'cert-manager\.io/cluster-issuer'=letsencrypt
+kubectl cert-manager renew -A --all 
+kubectl cert-manager renew tls-rancher-ingress -n cattle-system
+
 echo https://github.com/zabbix-community/helm-zabbix.git
 #echo https://charts.truecharts.org/
 echo https://github.com/bnowakow/truecharts-charts.git
+
 
