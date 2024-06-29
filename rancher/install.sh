@@ -7,13 +7,13 @@
 
 # https://ranchermanager.docs.rancher.com/how-to-guides/new-user-guides/kubernetes-cluster-setup/k3s-for-rancher
 # https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-8-4/
-# https://github.com/k3s-io/k3s/releases/tag/v1.28.10%2Bk3s1
+# https://github.com/k3s-io/k3s/releases/tag/v1.28.11%2Bk3s1
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.28.10+k3s1" sh -s - server 
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.28.11+k3s1" sh -s - server 
 
 # args that failed: sh -s - server --datastore-endpoint="<DATASTORE_ENDPOINT>"
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.28.10+k3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.28.11+k3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
 
 # https://stackoverflow.com/a/65755417
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
@@ -46,16 +46,18 @@ helm repo update
 kubectl create namespace cattle-system
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
+# https://github.com/cert-manager/cert-manager/releases
 helm install cert-manager jetstack/cert-manager \
   --namespace cert-manager \
-  --create-namespace
-# no:  --set installCRDs=true
-kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.14.5/cert-manager.crds.yaml
+  --create-namespace \
+  --version v1.15.1 --set startupapicheck.timeout=5m --set crds.enabled=true
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.15.1/cert-manager.crds.yaml
 kubectl get pods --namespace cert-manager
-helm install rancher rancher-stable/rancher   --namespace cattle-system   --set hostname=rancher.localdomain.bnowakowski.pl   --set bootstrapPassword=admin
+# https://cert-manager.io/docs/configuration/
+helm install rancher rancher-stable/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin
 kubectl -n cattle-system rollout status deploy/rancher # to check status of above
 kubectl -n cattle-system get deploy rancher
-echo https://rancher.localdomain.bnowakowski.pl/dashboard/?setup=$(kubectl get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')
+echo https://proxmox3.localdomain.bnowakowski.pl/dashboard/?setup=$(kubectl get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')
 
 echo https://github.com/zabbix-community/helm-zabbix.git
 #echo https://charts.truecharts.org/

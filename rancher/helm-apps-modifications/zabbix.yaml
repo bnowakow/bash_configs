@@ -18,7 +18,7 @@ postgresql:
   livenessProbe: {}
   persistence:
     enabled: true
-    existingClaimName: pvc-zabbix
+    existingClaimName: pvc-margok-nfs-zabbix
     storageSize: 5Gi
   readinessProbe: {}
   resources: {}
