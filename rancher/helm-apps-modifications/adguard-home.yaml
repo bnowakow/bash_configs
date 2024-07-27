@@ -1,3 +1,13 @@
+  dns-udp:
+    enabled: true
+    type: LoadBalancer
+    ports:
+      dns-udp:
+        enabled: true
+        port: 53
+        protocol: udp
+        targetPort: 53
+
 persistence:
   config:
     enabled: true

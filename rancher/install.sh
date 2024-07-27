@@ -6,7 +6,7 @@
 #/usr/local/bin/k3s-uninstall.sh
 
 # https://ranchermanager.docs.rancher.com/how-to-guides/new-user-guides/kubernetes-cluster-setup/k3s-for-rancher
-# https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-8-4/
+# https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-8-5/
 # https://github.com/k3s-io/k3s/releases/tag/v1.28.11%2Bk3s1
 
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.28.11+k3s1" sh -s - server 

@@ -1,0 +1,11 @@
+persistence:
+  subscriptions:
+    accessMode: ReadWriteOnce
+    enabled: true
+    size: 50Gi
+    existingClaim: pvc-margok-nfs-youtubedl-material-subscriptions
+  video:
+    accessMode: ReadWriteOnce
+    enabled: true
+    size: 50Gi
+    existingClaim: pvc-margok-nfs-youtubedl-material-video
