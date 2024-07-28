@@ -38,15 +38,16 @@ done
 local_one_file_backup_dir="$local_dir_prefix/one_file_backup/$local_dir_suffix"
 mkdir -p $local_one_file_backup_dir;
 one_file_backup_needs_to_be_copied=0;
-if [ $(ls -d -1t $local_one_file_backup_dir/* | wc -l) -gt 0 ]; then
-    # backup for crashplan already exists
+if [ $(ls -d -1t $local_one_file_backup_dir/* 2> /dev/null | wc -l) -gt 0 ]; then
+    # backup already exists
     current_one_file_backup=$(ls -d -1t $local_one_file_backup_dir/* | head -n 1 | sed 's/.*\///')
     if [ $(find $local_dir -name $current_one_file_backup | wc -l) -eq 0  ]; then
+        # $local_dir contains last 29 backups, if $current_one_file_backup is in that dir it means that it's no older than 29 days and we don't update it; if we don't find it, we'll update it
         rm $local_one_file_backup_dir/*;
         one_file_backup_needs_to_be_copied=1
     fi
 else
-    # backup for crashplan doesn't exist
+    # backup for doesn't exist
     one_file_backup_needs_to_be_copied=1
 fi
 
