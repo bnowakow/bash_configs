@@ -4,6 +4,9 @@
 
 dirs=("/home/sup/code/bash_configs/repos/truecharts" \
     "/home/sup/code/bash_configs/repos/zabbix" \
+    "/home/sup/code/bash_configs/repos/aa-YoutubeDL-Material/youtubedl-material" \
+    "/home/sup/code/bash_configs/repos/docker-mailserver-helm" \
+    "/home/sup/code/bash_configs/repos/partner-charts" \
 )
 
 for dir in ${dirs[@]}; do
