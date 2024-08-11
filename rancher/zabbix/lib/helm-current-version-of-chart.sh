@@ -1,6 +1,8 @@
 #!/bin/bash
 
 name="${1:-duckdns}"
+# TODO below is crap because it doesn't parse argument, it will just check if second argument is not empty
+do_not_update_helm="${2:-}"
 
 chart_repo_dir=$(/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-chart-repo-dir.sh $name) 
 
@@ -10,7 +12,9 @@ if [ "$chart_repo_dir" == "" ]; then
         # no results was find in helm repo
         exit 1
     else
-        helm repo update > /dev/null
+        if [ -z "${do_not_update_helm}" ]; then
+            helm repo update > /dev/null
+        fi
         # return only first result. elasticsearch is present in elastic helm repo and bitnami. adding zz-prefixes to get expected one as first. could be problematic in future
         echo $(/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-search-for-exact-chart.sh $name | awk '{print $2}' | head -n1)
         exit

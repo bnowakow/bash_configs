@@ -1,8 +1,9 @@
 #!/bin/bash
 
 name="${1:-duckdns}"
+# in $2 there could be do_not_update_helm it'ss crap because it doesn't parse argument it will just pass $2 whenever it's empty or set
 
-version_current=$(/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-current-version-of-chart.sh $name)
+version_current=$(/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-current-version-of-chart.sh $name $2)
 # TODO for external-service we run multiple of the same helm but we check version of only first one
 version_local=$(sudo /bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep $name- | head -1 | awk '{print $9}')
 # https://www.truenas.com/community/threads/install-helm-chart-via-command-line.97191/
