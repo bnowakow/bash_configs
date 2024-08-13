@@ -7,13 +7,13 @@
 
 # https://ranchermanager.docs.rancher.com/how-to-guides/new-user-guides/kubernetes-cluster-setup/k3s-for-rancher
 # https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-8-5/
-# https://github.com/k3s-io/k3s/releases/tag/v1.28.11%2Bk3s1
+# https://github.com/k3s-io/k3s/releases/tag/v1.30.3%2Bk3s1
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.28.11+k3s1" sh -s - server 
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.30.3+k3s1" sh -s - server 
 
 # args that failed: sh -s - server --datastore-endpoint="<DATASTORE_ENDPOINT>"
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.28.11+k3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.30.3+k3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
 
 # https://stackoverflow.com/a/65755417
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
@@ -33,7 +33,7 @@ sudo apt-get install -y kubectl
 
 # https://cert-manager.io/v1.0-docs/usage/kubectl-plugin/
 # not every cert-manager release contains cli tool
-# https://github.com/cert-manager/cert-manager/releases/tag/v1.15.1
+# https://github.com/cert-manager/cert-manager/releases/tag/v1.15.2
 curl -L -o kubectl-cert-manager.tar.gz https://github.com/cert-manager/cert-manager/releases/download/v1.14.7/kubectl-cert_manager-linux-amd64.tar.gz
 tar xzf kubectl-cert-manager.tar.gz
 sudo mv kubectl-cert_manager /usr/local/bin
@@ -58,8 +58,8 @@ helm repo update
 helm install cert-manager jetstack/cert-manager \
   --namespace cert-manager \
   --create-namespace \
-  --version v1.15.1 --set startupapicheck.timeout=5m --set crds.enabled=true
-kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.15.1/cert-manager.crds.yaml
+  --version v1.15.2 --set startupapicheck.timeout=5m --set crds.enabled=true
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.15.2/cert-manager.crds.yaml
 kubectl get pods --namespace cert-manager
 # https://cert-manager.io/docs/configuration/
 # https://cert-manager.io/docs/troubleshooting/acme/#2-troubleshooting-orders
@@ -76,7 +76,12 @@ echo https://proxmox3.localdomain.bnowakowski.pl/dashboard/?setup=$(kubectl get 
 
 # https://github.com/rancher/rancher/issues/26850#issuecomment-1223301973
 # https://github.com/rancher/rancher/issues/26850#issuecomment-1234869006
-helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=secret --set ingress.extraAnnotations.'cert-manager\.io/cluster-issuer'=letsencrypt
+helm repo update
+helm upgrade cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version v1.15.2 --set startupapicheck.timeout=5m --set crds.enabled=true
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.15.2/cert-manager.crds.yaml
+# until 2.9 isn't in stable we'll be using latest instead 
+#helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=secret --set ingress.extraAnnotations.'cert-manager\.io/cluster-issuer'=letsencrypt
+helm upgrade rancher rancher-latest/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=secret --set ingress.extraAnnotations.'cert-manager\.io/cluster-issuer'=letsencrypt
 kubectl cert-manager renew -A --all 
 kubectl cert-manager renew tls-rancher-ingress -n cattle-system
 
