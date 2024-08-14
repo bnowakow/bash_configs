@@ -19,13 +19,18 @@ for app in $list_of_non_system_apps; do
         rm -f values.yaml
         # below fails for postgresql and prometheus-operator since it doesn't have deployments, but it rancher it shows something :/
         #sudo kubectl get deploy -n $namespace $app -o yaml --kubeconfig /etc/rancher/k3s/k3s.yaml > values.yaml
-        exit # TODO debug
-        # TODO below will that fail with helm repo that will have empty $chart_repo_dir_or_helm_repo, check if all arguments are not empty
-        #sudo helm upgrade --kubeconfig /etc/rancher/k3s/k3s.yaml --history-max=5 --install=true --namespace=$namespace --timeout=10m0s --values=values.yaml --version=$current_version --wait=true $app $chart_repo_dir_or_helm_repo | head -n3
-        sudo helm upgrade --kubeconfig /etc/rancher/k3s/k3s.yaml --history-max=5 --install=true --namespace=$namespace --timeout=10m0s --version=$current_version --wait=true $app $chart_repo_dir_or_helm_repo | head -n3
-        #rm values.yaml
-        #mv values.yaml values-$app.yaml
-        exit # TODO debug
+        echo -e "\t"would you like to update y/N
+        read line;
+        if [ "$line" == "y" ]; then
+            echo -e "\t"updating
+            # TODO below will that fail with helm repo that will have empty $chart_repo_dir_or_helm_repo, check if all arguments are not empty
+            #sudo helm upgrade --kubeconfig /etc/rancher/k3s/k3s.yaml --history-max=5 --install=true --namespace=$namespace --timeout=10m0s --values=values.yaml --version=$current_version --wait=true $app $chart_repo_dir_or_helm_repo | head -n3
+            sudo helm upgrade --kubeconfig /etc/rancher/k3s/k3s.yaml --history-max=5 --install=true --namespace=$namespace --timeout=10m0s --version=$current_version --wait=true $app $chart_repo_dir_or_helm_repo | head -n3
+            #rm values.yaml
+            #mv values.yaml values-$app.yaml
+        else
+            echo "\t"skipping update
+        fi
     fi
     echo
 done
