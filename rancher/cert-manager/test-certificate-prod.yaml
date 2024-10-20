@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: letsencrypt-test-prod-1
+  namespace: cert-manager
+spec:
+  secretName: letstecrpty-test-prod-1
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+  commonName: 'le-test-prod.rancher.localdomain.bnowakowski.pl'
+  dnsNames:
+  - "le-test-prod.rancher.localdomain.bnowakowski.pl"

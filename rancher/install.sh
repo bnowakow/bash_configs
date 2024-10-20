@@ -6,14 +6,14 @@
 #/usr/local/bin/k3s-uninstall.sh
 
 # https://ranchermanager.docs.rancher.com/how-to-guides/new-user-guides/kubernetes-cluster-setup/k3s-for-rancher
-# https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-8-5/
+# https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-9-2/
 # https://github.com/k3s-io/k3s/releases/tag/v1.30.3%2Bk3s1
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.30.3+k3s1" sh -s - server 
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.30.5+k3s1" sh -s - server 
 
 # args that failed: sh -s - server --datastore-endpoint="<DATASTORE_ENDPOINT>"
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.30.3+k3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.30.5+k3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
 
 # https://stackoverflow.com/a/65755417
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
@@ -58,15 +58,20 @@ helm repo update
 helm install cert-manager jetstack/cert-manager \
   --namespace cert-manager \
   --create-namespace \
-  --version v1.15.2 --set startupapicheck.timeout=5m --set crds.enabled=true
+  --version v1.16.1 --set startupapicheck.timeout=5m --set crds.enabled=true
 kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.15.2/cert-manager.crds.yaml
 kubectl get pods --namespace cert-manager
 # https://cert-manager.io/docs/configuration/
 # https://cert-manager.io/docs/troubleshooting/acme/#2-troubleshooting-orders
-helm install rancher rancher-stable/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin
-kubectl -n cattle-system rollout status deploy/rancher # to check status of above
+# until 2.9 isn't in stable we'll be using latest instead
+#helm install rancher rancher-stable/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin
+helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin
+# to check status of above
+kubectl -n cattle-system rollout status deploy/rancher
 kubectl -n cattle-system get deploy rancher
 echo https://proxmox3.localdomain.bnowakowski.pl/dashboard/?setup=$(kubectl get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')
+
+./cert-manager/install.sh
 
 # below works only for http challenge, when rancher isn't reachable from internet we need to use method below it which uses existing DNS challenge configured
 ## https://github.com/rancher/rancher/issues/32206#issuecomment-1555969372
@@ -88,5 +93,8 @@ kubectl cert-manager renew tls-rancher-ingress -n cattle-system
 echo https://github.com/zabbix-community/helm-zabbix.git
 #echo https://charts.truecharts.org/
 echo https://github.com/bnowakow/truecharts-charts.git
-
-
+echo https://github.com/docker-mailserver/docker-mailserver-helm.git
+echo https://helm.elastic.co
+echo oci://registry-1.docker.io/bitnamicharts/postgresql
+echo https://helm-charts.mlohr.com/
+echo https://catalogicsoftware.github.io/cloudcasa-helmchart
