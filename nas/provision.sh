@@ -181,3 +181,5 @@ sudo midclt call system.advanced.update '{"kernel_extra_options":  "amd_pstate=p
 
 sudo mkdir -p /run/screen; sudo chmod 777 /run/screen
 
+sudo service docker start
+

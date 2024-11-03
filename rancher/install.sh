@@ -98,3 +98,6 @@ echo https://helm.elastic.co
 echo oci://registry-1.docker.io/bitnamicharts/postgresql
 echo https://helm-charts.mlohr.com/
 echo https://catalogicsoftware.github.io/cloudcasa-helmchart
+echo https://cloudnative-pg.github.io/charts
+echo https://prometheus-community.github.io/helm-charts
+
