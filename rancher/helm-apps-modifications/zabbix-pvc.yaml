@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    backup.velero.io/skipped-no-csi-pv: 'true'
+    catalogicsoftware.com/offload-restore-pvc-action-plugin: '1'
+    pv.kubernetes.io/bind-completed: 'yes'
+    pv.kubernetes.io/bound-by-controller: 'yes'
+  creationTimestamp: '2024-10-20T15:05:05Z'
+  finalizers:
+    - kubernetes.io/pvc-protection
+  labels:
+    velero.io/backup-name: 67008183a6f14fe8765dad19
+    velero.io/restore-name: 671b1efcf5bd13206c06a21a
+  managedFields:
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:spec:
+          f:accessModes: {}
+          f:resources:
+            f:requests:
+              .: {}
+              f:storage: {}
+          f:storageClassName: {}
+          f:volumeMode: {}
+      manager: rancher
+      operation: Update
+      time: '2024-06-28T12:19:26Z'
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:labels:
+            .: {}
+            f:velero.io/backup-name: {}
+            f:velero.io/restore-name: {}
+      manager: velero-server
+      operation: Update
+      time: '2024-10-25T05:01:22Z'
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:pv.kubernetes.io/bind-completed: {}
+            f:pv.kubernetes.io/bound-by-controller: {}
+        f:spec:
+          f:volumeName: {}
+      manager: k3s
+      operation: Update
+      time: '2024-10-25T17:49:50Z'
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:status:
+          f:accessModes: {}
+          f:capacity:
+            .: {}
+            f:storage: {}
+          f:phase: {}
+      manager: k3s
+      operation: Update
+      subresource: status
+      time: '2024-10-25T17:49:50Z'
+  name: pvc-margok-nfs-zabbix
+  namespace: apps-zabbix
+  resourceVersion: '876747'
+  uid: 0f54c87f-62ab-4830-97bd-91e3e5c1daba
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: ''
+  volumeMode: Filesystem
+  volumeName: pv-margok-nfs-zabbix
+status:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 10Gi
+  phase: Bound

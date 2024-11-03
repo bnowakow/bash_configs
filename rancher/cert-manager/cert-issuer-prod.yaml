@@ -1,14 +1,14 @@
 apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
+kind: Issuer
 metadata:
-  name: letsencrypt-stag
+  name: letsencrypt-issuer
 spec:
   acme:
     email: dobrowolski.nowakowski@gmail.com
-    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       # Secret resource that will be used to store the account's private key.
-      name: le-issuer-acct-key
+      name: le-prod-issuer-acct-key
     solvers:
     - dns01:
         cloudflare:
@@ -20,3 +20,4 @@ spec:
         dnsZones:
         - 'rancher.localdomain.bnowakowski.pl'
         - '*.rancher.localdomain.bnowakowski.pl'
+        - 'proxmox3.localdomain.bnowakowski.pl'

@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: letsencrypt-test-stag-1
+  namespace: cert-manager
+spec:
+  secretName: letstecrpty-test-stag-1
+  issuerRef:
+    name: letsencrypt-stag
+    kind: ClusterIssuer
+  commonName: 'le-test-stag.rancher.localdomain.bnowakowski.pl'
+  dnsNames:
+  - "le-test-stag.rancher.localdomain.bnowakowski.pl"
