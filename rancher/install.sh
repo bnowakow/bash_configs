@@ -9,7 +9,7 @@
 # https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-9-2/
 # https://github.com/k3s-io/k3s/releases/tag/v1.30.3%2Bk3s1
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.30.5+k3s1" sh -s - server 
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.30.5+k3s1" sh -s - server
 
 # args that failed: sh -s - server --datastore-endpoint="<DATASTORE_ENDPOINT>"
 
@@ -100,5 +100,7 @@ echo https://helm.elastic.co
 echo oci://registry-1.docker.io/bitnamicharts/postgresql
 echo https://helm-charts.mlohr.com/
 echo https://catalogicsoftware.github.io/cloudcasa-helmchart
-echo https://tzahi12345.github.io/YoutubeDL-Material/chart
+echo https://github.com/bnowakow/truecharts-charts.git
+echo https://cloudnative-pg.github.io/charts
+echo https://prometheus-community.github.io/helm-charts
 

@@ -1,0 +1,9 @@
+extraVolumeMounts:
+  - name: plex-nfs-persistence
+    mountPath: /mnt/PlexPool/plex
+extraVolume:
+  - name: plex-nfs-persistence
+    nfs:
+      path: /mnt/PlexPool/plex
+      server: nas.localdomain.bnowakowski.pl
+

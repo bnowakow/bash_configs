@@ -38,7 +38,7 @@ sudo apt-get update
 sudo apt-get install -y screen vim vagrant wget gnupg2 ncdu elinks jdupes hfsprogs libicu-dev bzip2 \
     cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev clang git libattr1-dev libfsapfs-utils \
     virtualenv python3-venv python3-pip dos2unix edac-utils inxi rasdaemon figlet ansible sshpass \
-    bc hfsprogs nvidia-smi python3-full lshw vim-runtime
+    bc hfsprogs nvidia-smi python3-full lshw vim-runtime unrar 
 sudo apt-get remove -y linux-image-amd64
 
 # disable for dragonfish
@@ -68,6 +68,7 @@ if ! crontab -l | grep ovh_backup_download; then
     { crontab -l; echo '01 06 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/ovh_backup_download.sh'; } | crontab -
     { crontab -l; echo '20 01 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/proxmox_vm_backups_rotate.sh'; } | crontab -
     { crontab -l; echo '*/10 * * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/git-pull.sh'; } | crontab -
+    { crontab -l; echo '* */1 * * * /mnt/MargokPool/home/sup/code/bash_configs/repos/truecharts/update.sh'; } | crontab -
 fi
 # truetool is depricated. using now heavy tool in truenas cron interface
 #if ! sudo crontab -l | grep truetool; then
@@ -179,4 +180,6 @@ pip install gpustat
 sudo midclt call system.advanced.update '{"kernel_extra_options":  "amd_pstate=passive pcie_aspm=force cpufreq.default_governor=powersave"}'
 
 sudo mkdir -p /run/screen; sudo chmod 777 /run/screen
+
+sudo service docker start
 
