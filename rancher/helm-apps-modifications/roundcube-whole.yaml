@@ -1,0 +1,138 @@
+config:
+  customPhpConfig: |
+    ## Configure custom memory limit for PHP
+    # memory_limit=128M
+  customPhpFpmConfig: |
+    ;pm.max_children=200
+    ;pm.status_path=/status
+  customRoundcubeConfig: |
+    /*
+     * Custom Roundcube Configuration values
+     * Check https://github.com/roundcube/roundcubemail/wiki/Configuration for available options.
+     */
+
+    // $config['skin_logo'] = "";
+    // $config['support_url'] = "https://roundcube.net/";
+  defaultLanguage: en_US
+  defaultSkin: elastic
+  desKey: null
+  plugins:
+    contextmenu:
+      composerPackage:
+        name: johndoh/contextmenu
+        version: '3.3'
+      enabled: false
+    managesieve:
+      config:
+        host: '%h:4190'
+        useTls: true
+      enabled: false
+  skins:
+    classic:
+      composerPackage:
+        name: roundcube/classic
+        version: 1.6.0
+      enabled: false
+    larry:
+      composerPackage:
+        name: roundcube/larry
+        version: 1.6.1
+      enabled: false
+  uploadMaxFilesize: 25M
+configMap:
+  additionalAnnotations: {}
+  additionalLabels: {}
+database:
+  instances: 2
+  source: external
+  storageClassName: null
+  volumeSize: 5Gi
+deployment:
+  additionalAnnotations: {}
+  additionalLabels: {}
+  affinity: {}
+  containers:
+    nginx:
+      image: nginx:1.25.4
+      imagePullPolicy: IfNotPresent
+  imagePullSecrets: null
+  initContainers: []
+  podAffinityPreset: ''
+  podAntiAffinityPreset: hard
+  port: 80
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+externalDatabase:
+  host: postgresql.apps-postgresql.svc.cluster.local
+  name: roundcube
+  password: XHjmADnKL3LKv3fofdPw
+  port: 5432
+  type: pgsql
+  user: roundcube
+image: roundcube/roundcubemail:{{ .Chart.AppVersion }}-fpm-alpine
+imagePullPolicy: IfNotPresent
+imap:
+  encryption: starttls
+  host: mailserver.rancher.localdomain.bnowakowski.pl
+  port: 143
+ingress:
+  additionalAnnotations: {}
+  additionalLabels: {}
+  class: nginx
+  enabled: true
+  host: roundcube-helm.rancher.localdomain.bnowakowski.pl
+  ingressClassName: null
+  path: /
+  tls:
+    secretName: null
+networkPolicy:
+  additionalAnnotations: {}
+  additionalLabels: {}
+  egress:
+    additionalRules: []
+    imap:
+      peers:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+    managesieve:
+      peers:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+    smtp:
+      peers:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+  enabled: false
+pdb:
+  additionalAnnotations: {}
+  additionalLabels: {}
+  enabled: true
+  maxUnavailable: ''
+  minAvailable: 1
+rbac:
+  create: false
+  rules: []
+secret:
+  additionalAnnotations: {}
+  additionalLabels: {}
+service:
+  additionalAnnotations: {}
+  additionalLabels: {}
+  ipFamilyPolicy: PreferDualStack
+  port: 80
+serviceAccount:
+  additionalAnnotations: {}
+  additionalLabels: {}
+  create: false
+  name: ''
+smtp:
+  encryption: ssltls
+  host: mailserver.rancher.localdomain.bnowakowski.pl
+  password: '%p'
+  port: 465
+  username: '%u'
+global:
+  cattle:
+    systemProjectId: p-92x2p
+

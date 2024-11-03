@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  creationTimestamp: '2024-10-25T17:49:38Z'
+  finalizers:
+    - kubernetes.io/pv-protection
+  managedFields:
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:status:
+          f:phase: {}
+      manager: k3s
+      operation: Update
+      subresource: status
+      time: '2024-10-25T17:49:38Z'
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:spec:
+          f:accessModes: {}
+          f:capacity:
+            .: {}
+            f:storage: {}
+          f:nfs:
+            .: {}
+            f:path: {}
+            f:server: {}
+          f:persistentVolumeReclaimPolicy: {}
+          f:volumeMode: {}
+      manager: rancher
+      operation: Update
+      time: '2024-10-25T17:49:38Z'
+  name: pv-margok-nfs-zabbix
+  resourceVersion: '876721'
+  uid: 12ebdf8b-1629-457b-b7c9-c746c8b6ce37
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 10Gi
+  nfs:
+    path: /mnt/MargokPool/archive/Data/rancher/zabbix
+    server: nas.localdomain.bnowakowski.pl
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+status:
+  lastPhaseTransitionTime: '2024-10-25T17:49:38Z'
+  phase: Available
+
