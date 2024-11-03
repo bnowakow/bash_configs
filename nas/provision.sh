@@ -31,12 +31,12 @@ sudo apt-get update
 
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-
 # TODO after cobia upgrade missing: hddtemp 
-# TODO figure out which package from below tries to install linux-image-amd64 that fails becuse of RO /boot in dragonfish and prevents rest of packages to be configured by apt
+# removed: vagrant clang
+# because it tries to install linux-image-amd64 and libc-i686 that fails becuse of RO /boot in dragonfish and prevents rest of packages to be configured by apt
 sudo apt-get update
-sudo apt-get install -y screen vim vagrant wget gnupg2 ncdu elinks jdupes hfsprogs libicu-dev bzip2 \
-    cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev clang git libattr1-dev libfsapfs-utils \
+sudo apt-get install -y screen vim  wget gnupg2 ncdu elinks jdupes hfsprogs libicu-dev bzip2 \
+    cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev git libattr1-dev libfsapfs-utils \
     virtualenv python3-venv python3-pip dos2unix edac-utils inxi rasdaemon figlet ansible sshpass \
     bc hfsprogs nvidia-smi python3-full lshw vim-runtime unrar 
 sudo apt-get remove -y linux-image-amd64
@@ -85,17 +85,17 @@ fi
 ssh-copy-id root@192.168.1.56
 
 sudo apt-get install software-properties-common dirmngr apt-transport-https -y
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C4A05888A1C4FA02E1566F859F2A29A569653940
-sudo add-apt-repository "deb http://kryptco.github.io/deb kryptco main" # non-Kali Linux only
+#sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C4A05888A1C4FA02E1566F859F2A29A569653940
+#sudo add-apt-repository "deb http://kryptco.github.io/deb kryptco main" # non-Kali Linux only
 sudo apt-get update
-sudo apt-get install kr -y
+#sudo apt-get install kr -y
 
 ssh-copy-id -i /mnt/MargokPool/home/sup/.ssh/id_rsa.pub -f sup@ovh.bnowakowski.pl
 cp ssh-config /mnt/MargokPool/home/sup/.ssh/config
 
 sudo apt-get install software-properties-common -y
-sudo add-apt-repository 'deb [arch=amd64] https://repo.zabbix.com/zabbix/6.2/debian/ bullseye main contrib non-free'
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 082AB56BA14FE591
+sudo add-apt-repository 'deb [arch=amd64] https://repo.zabbix.com/zabbix/7.0/debian/ bullseye main'
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv D913219AB5333005
 sudo apt-get update
 sudo apt-get install zabbix-agent2
 sudo cp /mnt/MargokPool/home/sup/code/bash_configs/zabbix/zabbix_agent2.conf /etc/zabbix
