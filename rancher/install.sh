@@ -9,7 +9,7 @@
 # https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-9-2/
 # https://github.com/k3s-io/k3s/releases/tag/v1.30.3%2Bk3s1
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.30.5+k3s1" sh -s - server 
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.30.5+k3s1" sh -s - server
 
 # args that failed: sh -s - server --datastore-endpoint="<DATASTORE_ENDPOINT>"
 
@@ -64,8 +64,8 @@ kubectl get pods --namespace cert-manager
 # https://cert-manager.io/docs/configuration/
 # https://cert-manager.io/docs/troubleshooting/acme/#2-troubleshooting-orders
 # until 2.9 isn't in stable we'll be using latest instead
-#helm install rancher rancher-stable/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin
-helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin
+helm install rancher rancher-stable/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin
+#helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin
 # to check status of above
 kubectl -n cattle-system rollout status deploy/rancher
 kubectl -n cattle-system get deploy rancher
@@ -85,19 +85,22 @@ helm repo update
 helm upgrade cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version v1.15.2 --set startupapicheck.timeout=5m --set crds.enabled=true
 kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.15.2/cert-manager.crds.yaml
 # until 2.9 isn't in stable we'll be using latest instead 
-#helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=secret --set ingress.extraAnnotations.'cert-manager\.io/cluster-issuer'=letsencrypt
-helm upgrade rancher rancher-latest/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=secret --set ingress.extraAnnotations.'cert-manager\.io/cluster-issuer'=letsencrypt
+helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=secret --set ingress.extraAnnotations.'cert-manager\.io/cluster-issuer'=letsencrypt
+#helm upgrade rancher rancher-latest/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=secret --set ingress.extraAnnotations.'cert-manager\.io/cluster-issuer'=letsencrypt
 kubectl cert-manager renew -A --all 
 kubectl cert-manager renew tls-rancher-ingress -n cattle-system
 
+kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/bundle.yaml
+
 echo https://github.com/zabbix-community/helm-zabbix.git
 #echo https://charts.truecharts.org/
-echo https://github.com/bnowakow/truecharts-charts.git
+#echo https://github.com/bnowakow/truecharts-charts.git
 echo https://github.com/docker-mailserver/docker-mailserver-helm.git
 echo https://helm.elastic.co
 echo oci://registry-1.docker.io/bitnamicharts/postgresql
 echo https://helm-charts.mlohr.com/
 echo https://catalogicsoftware.github.io/cloudcasa-helmchart
+echo https://github.com/bnowakow/truecharts-charts.git
 echo https://cloudnative-pg.github.io/charts
 echo https://prometheus-community.github.io/helm-charts
 
