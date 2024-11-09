@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # TODO check two key add that require's user's input
 
@@ -82,15 +82,19 @@ if [ ! -f ~/.ssh/id_rsa ]; then
 fi
 
 # TODO check if needed
-ssh-copy-id root@192.168.1.56
+# TODO check what was this IP previously
+#ssh-copy-id root@192.168.1.56
 
 sudo apt-get install software-properties-common dirmngr apt-transport-https -y
 #sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C4A05888A1C4FA02E1566F859F2A29A569653940
 #sudo add-apt-repository "deb http://kryptco.github.io/deb kryptco main" # non-Kali Linux only
-sudo apt-get update
+#sudo apt-get update
 #sudo apt-get install kr -y
 
-ssh-copy-id -i /mnt/MargokPool/home/sup/.ssh/id_rsa.pub -f sup@ovh.bnowakowski.pl
+date
+# TODO find out why below when ssh doesn't complete within timeout it says "Terminated", but hungs and doesn't move further
+#timeout 60 ssh-copy-id -i /mnt/MargokPool/home/sup/.ssh/id_rsa.pub -f sup@ovh.bnowakowski.pl
+date
 cp ssh-config /mnt/MargokPool/home/sup/.ssh/config
 
 sudo apt-get install software-properties-common -y
