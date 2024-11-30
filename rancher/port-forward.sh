@@ -2,6 +2,15 @@
 
 # kubectl get pods --show-labels
 
+external_port=9090
+item_number=0
+app_name="calibre"
+namespace="apps-$app_name"
+POD_NAME=$(kubectl get pods --namespace $namespace -l "app.kubernetes.io/instance=$app_name" -o jsonpath="{.items[$item_number].metadata.name}")
+kubectl --namespace $namespace port-forward $POD_NAME $external_port:$external_port --address='0.0.0.0'
+
+exit
+
 external_port=47102
 #port_number=0
 item_number=0

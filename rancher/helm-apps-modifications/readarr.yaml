@@ -1,0 +1,12 @@
+persistence:
+  plex-nfs-persistence:
+    enabled: true
+    path: /mnt/PlexPool/plex
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+    targetSelector:
+      main:
+        main:
+          mountPath: /mnt/PlexPool/plex
+
+
