@@ -22,6 +22,15 @@ persistence:
       main:
         main:
           mountPath: /mnt/PlexPool/plex
+  youtubedl-material-nfs-persistence:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/youtubedl-material/
+    server: nas.localdomain.bnowakowski.pl
+    targetSelector:
+      main:
+        main:
+          mountPath: /mnt/MargokPool/archive/Data/rancher/youtubedl-material/
+    type: nfs
 
 resources:
   limits:

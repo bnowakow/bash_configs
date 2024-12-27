@@ -1,9 +1,0 @@
-persistence:
-  subscriptions:
-    accessMode: ReadWriteOnce
-    enabled: false
-    size: 50Gi
-  video:
-    accessMode: ReadWriteOnce
-    enabled: false
-    size: 50Gi

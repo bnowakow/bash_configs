@@ -1,11 +1,17 @@
 persistence:
+  audio:
+    accessMode: ReadWriteOnce
+    enabled: true
+# not working with below uncommented :/
+#    size: 200Gi
+#    existingClaim: pvc-margok-nfs-youtubedl-material-audio
   subscriptions:
     accessMode: ReadWriteOnce
     enabled: true
-    size: 50Gi
+    size: 2000Gi
     existingClaim: pvc-margok-nfs-youtubedl-material-subscriptions
   video:
     accessMode: ReadWriteOnce
     enabled: true
-    size: 50Gi
+    size: 2000Gi
     existingClaim: pvc-margok-nfs-youtubedl-material-video

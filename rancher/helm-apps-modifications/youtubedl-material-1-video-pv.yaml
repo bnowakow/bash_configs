@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  creationTimestamp: '2024-12-25T15:37:21Z'
+  finalizers:
+    - kubernetes.io/pv-protection
+  managedFields:
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:status:
+          f:phase: {}
+      manager: k3s
+      operation: Update
+      subresource: status
+      time: '2024-12-25T15:37:21Z'
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:spec:
+          f:accessModes: {}
+          f:capacity:
+            .: {}
+            f:storage: {}
+          f:nfs:
+            .: {}
+            f:path: {}
+            f:server: {}
+          f:persistentVolumeReclaimPolicy: {}
+          f:volumeMode: {}
+      manager: rancher
+      operation: Update
+      time: '2024-12-25T15:37:21Z'
+  name: pv-margok-nfs-youtubedl-material-video
+  resourceVersion: '13588608'
+  uid: e26df6a1-cd0a-4f32-9abc-6ec08792b873
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 2000Gi
+  nfs:
+    path: /mnt/MargokPool/archive/Data/rancher/youtubedl-material/video
+    server: nas.localdomain.bnowakowski.pl
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+status:
+  lastPhaseTransitionTime: '2024-12-25T15:37:21Z'
+  phase: Available
+

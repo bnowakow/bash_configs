@@ -1,0 +1,54 @@
+daemonset:
+  affinity: {}
+  annotations: {}
+  enabled: true
+  envFrom: []
+  extraEnvs:
+    - name: ELASTICSEARCH_USERNAME
+      valueFrom:
+        secretKeyRef:
+          key: username
+          name: elasticsearch-master-credentials
+    - name: ELASTICSEARCH_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          key: password
+          name: elasticsearch-master-credentials
+  extraVolumeMounts:
+    - mountPath: /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga
+      name: sie-pomaga
+  extraVolumes:
+    - name: sie-pomaga
+      nfs:
+        path: /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga
+        server: nas.localdomain.bnowakowski.pl
+  filebeatConfig:
+    filebeat.yml: |
+      filebeat.inputs:
+      - type: filestream
+        processors:
+          - decode_json_fields:
+              fields: ["message"]
+              target: "json"
+        id: sie-pomaga-values.txt-filestream-id              
+        enabled: true
+        paths:
+          - /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga/sie-pomaga-values.txt
+        include_lines: ['.*']
+      - type: container
+        paths:
+          - /var/log/containers/*.log
+        processors:
+        - add_kubernetes_metadata:
+            host: ${NODE_NAME}
+            matchers:
+            - logs_path:
+                logs_path: "/var/log/containers/"
+
+      output.elasticsearch:
+        host: '${NODE_NAME}'
+        hosts: '["https://${ELASTICSEARCH_HOSTS:elasticsearch-master.apps-elastic.svc:9200}"]'
+        username: '${ELASTICSEARCH_USERNAME}'
+        password: '${ELASTICSEARCH_PASSWORD}'
+        protocol: https
+        ssl.certificate_authorities: ["/usr/share/filebeat/certs/ca.crt"]
