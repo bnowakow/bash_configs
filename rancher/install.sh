@@ -6,14 +6,14 @@
 #/usr/local/bin/k3s-uninstall.sh
 
 # https://ranchermanager.docs.rancher.com/how-to-guides/new-user-guides/kubernetes-cluster-setup/k3s-for-rancher
-# TODO for some reason 2.10 isn't yet availible in docs: https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-9-4/
-# https://github.com/k3s-io/k3s/releases/tag/v1.31.2%2Bk3s1
+# https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-10-1/
+# https://github.com/k3s-io/k3s/releases/tag/v1.31.4%2Bk3s1
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.31.2+k3s1" sh -s - server
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.31.4%2Bk3s1" sh -s - server
 
 # args that failed: sh -s - server --datastore-endpoint="<DATASTORE_ENDPOINT>"
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.31.2+k3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.31.4%2Bk3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
 
 # https://stackoverflow.com/a/65755417
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
@@ -47,7 +47,7 @@ sudo apt-get update
 sudo apt-get install -y helm
 
 # https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/install-upgrade-on-a-kubernetes-cluster#kubernetes-cluster
-# https://github.com/cert-manager/cert-manager/releases/tag/v1.14.5
+# https://github.com/cert-manager/cert-manager/releases/tag/v1.16.2
 helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
 helm repo update
 #kubectl delete namespace cattle-system
@@ -63,9 +63,8 @@ kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/relea
 kubectl get pods --namespace cert-manager
 # https://cert-manager.io/docs/configuration/
 # https://cert-manager.io/docs/troubleshooting/acme/#2-troubleshooting-orders
-# until 2.9 isn't in stable we'll be using latest instead
+#helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin # latest was used when only rancher 2.9 had oci support and it wasn't in stable
 helm install rancher rancher-stable/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin
-#helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin
 # to check status of above
 kubectl -n cattle-system rollout status deploy/rancher
 kubectl -n cattle-system get deploy rancher
@@ -84,9 +83,9 @@ echo https://proxmox3.localdomain.bnowakowski.pl/dashboard/?setup=$(kubectl get 
 helm repo update
 helm upgrade cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version v1.16.2 --set startupapicheck.timeout=5m --set crds.enabled=true
 kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.16.2/cert-manager.crds.yaml
-# until 2.9 isn't in stable we'll be using latest instead 
+#helm upgrade rancher rancher-latest/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=secret --set ingress.extraAnnotations.'cert-manager\.io/cluster-issuer'=letsencrypt # latest was used when only rancher 2.9 had oci support and it wasn't in stable
+# currently installed v2.10.1
 helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=secret --set ingress.extraAnnotations.'cert-manager\.io/cluster-issuer'=letsencrypt
-#helm upgrade rancher rancher-latest/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=secret --set ingress.extraAnnotations.'cert-manager\.io/cluster-issuer'=letsencrypt
 kubectl cert-manager renew -A --all 
 kubectl cert-manager renew tls-rancher-ingress -n cattle-system
 
