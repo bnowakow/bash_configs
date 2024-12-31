@@ -19,6 +19,10 @@ ls -lh $pvc_dir/backup/posgresql-dump
 
 
 # below was wip for automatic helm upgrade, it's far from finished
+# some resources that could be considered:
+# https://medium.com/@andrea.berlingieri42/upgrading-a-postgresql-bitnami-helm-release-11-to-15-2ca447b4580d
+# https://github.com/urbica/pg-migrate?tab=readme-ov-file
+
 #kubectl get -o yaml --namespace $pod_namespace pod $pod_name > postgresql-upgrade.yaml
 ## TODO postgresql-upgrade-modified.yaml was done manually
 ## diff postgresql-upgrade-orig.yaml postgresql-upgrade-modified.yaml

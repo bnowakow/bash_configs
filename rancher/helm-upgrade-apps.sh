@@ -16,7 +16,7 @@ for app in $list_of_non_system_apps; do
         current_version=$(./zabbix/lib/helm-current-version-of-chart.sh $app --do-not-update-helm)
         # didn't work for postgresql
         #namespace=$(/bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep [^-]$app | awk '{print $2}')
-        namespace=$(/bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep ^$app | awk '{print $2}')
+        namespace=$(/bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep "^$app\ " | awk '{print $2}')
         chart_repo_dir_or_helm_repo=$(/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-chart-repo-dir-or-helm-repo.sh $app)
         rm -f values.yaml
         # below fails for postgresql and prometheus-operator since it doesn't have deployments, but it rancher it shows something :/
