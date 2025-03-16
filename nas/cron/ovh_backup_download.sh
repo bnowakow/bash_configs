@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # when backup errors during, doesn't finish and can't start new one: https://forum.vestacp.com/viewtopic.php?f=10&t=16357
 
