@@ -20,3 +20,5 @@ spec:
         dnsZones:
         - 'rancher.localdomain.bnowakowski.pl'
         - '*.rancher.localdomain.bnowakowski.pl'
+        - 'rancher.tailscale.bnowakowski.pl'
+        - '*.rancher.tailscale.bnowakowski.pl'

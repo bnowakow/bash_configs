@@ -2,6 +2,18 @@
 
 # kubectl get pods --show-labels
 
+external_port=32400
+port_number=0
+item_number=0
+namespace="apps-plex"
+POD_NAME=$(kubectl get pods --namespace $namespace -l "app.kubernetes.io/instance=plex" -o jsonpath="{.items[$item_number].metadata.name}")
+#POD_NAME=plex
+CONTAINER_PORT=$(kubectl get pod --namespace $namespace $POD_NAME -o jsonpath="{.spec.containers[0].ports[$port_number].containerPort}")
+#CONTAINER_PORT=$external_port
+kubectl --namespace $namespace port-forward $POD_NAME $external_port:$CONTAINER_PORT --address='0.0.0.0' &
+
+exit
+
 external_port=9090
 item_number=0
 app_name="calibre"
@@ -38,14 +50,6 @@ PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" kubectl krew install relay
 PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" kubectl krew update
 PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" kubectl krew upgrade
 PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" kubectl relay --namespace $namespace $POD_NAME $external_port:$CONTAINER_PORT@udp --address='0.0.0.0' &
-
-external_port=32400
-port_number=0
-item_number=0
-namespace="apps-plex"
-POD_NAME=$(kubectl get pods --namespace $namespace -l "app.kubernetes.io/instance=plex" -o jsonpath="{.items[$item_number].metadata.name}")
-CONTAINER_PORT=$(kubectl get pod --namespace $namespace $POD_NAME -o jsonpath="{.spec.containers[0].ports[$port_number].containerPort}")
-kubectl --namespace $namespace port-forward $POD_NAME $external_port:$CONTAINER_PORT --address='0.0.0.0' &
 
 exit
 
