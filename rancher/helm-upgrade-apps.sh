@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 sudo su zabbix -c "/home/sup/code/bash_configs/rancher/cron/git-pull.sh"
 helm repo update
@@ -28,7 +28,8 @@ for app in $list_of_non_system_apps; do
             # TODO below will that fail with helm repo that will have empty $chart_repo_dir_or_helm_repo, check if all arguments are not empty
             #sudo helm upgrade --kubeconfig /etc/rancher/k3s/k3s.yaml --history-max=5 --install=true --namespace=$namespace --timeout=10m0s --values=values.yaml --version=$current_version --wait=true $app $chart_repo_dir_or_helm_repo | head -n3
             sudo helm upgrade --kubeconfig /etc/rancher/k3s/k3s.yaml --history-max=5 --install=true --namespace=$namespace --timeout=10m0s --version=$current_version --wait=true $app $chart_repo_dir_or_helm_repo | head -n3
-            #rm values.yaml
+            # for prometheus-operator additional helm dependency build was needed
+	    #rm values.yaml
             #mv values.yaml values-$app.yaml
         else
             echo "\t"skipping update

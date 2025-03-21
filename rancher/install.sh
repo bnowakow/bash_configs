@@ -91,6 +91,32 @@ kubectl cert-manager renew tls-rancher-ingress -n cattle-system
 
 kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/bundle.yaml
 
+kubectl create namespace longhorn-system
+# https://longhorn.io/docs/1.8.1/deploy/install/#installing-open-iscsi
+modprobe iscsi_tcp
+kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.8.1/deploy/prerequisite/longhorn-iscsi-installation.yaml
+# check status of above
+kubectl -n longhorn-system get pod | grep longhorn-iscsi-installation
+# TODO take id from above
+kubectl -n longhorn-system logs longhorn-iscsi-installation-pzb7r -c iscsi-installation
+# https://longhorn.io/docs/1.8.1/deploy/install/#installing-nfsv4-client
+kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.8.1/deploy/prerequisite/longhorn-nfs-installation.yaml
+# check status of above
+kubectl -n longhorn-system get pod | grep longhorn-nfs-installation
+# TODO take id from above
+kubectl -n longhorn-system logs longhorn-nfs-installation-t2v9v -c nfs-installation
+# https://longhorn.io/docs/1.8.1/deploy/install/#installing-open-iscsi
+apt-get install cryptsetup
+modprobe dm_crypt
+# https://longhorn.io/docs/1.8.1/deploy/install/#using-the-environment-check-script
+curl -sSfL https://raw.githubusercontent.com/longhorn/longhorn/v1.8.1/scripts/environment_check.sh | bash
+# https://longhorn.io/docs/1.8.1/deploy/install/#using-the-longhorn-command-line-tool
+curl -sSfL -o longhornctl https://github.com/longhorn/cli/releases/download/v1.8.1/longhornctl-linux-amd64
+chmod +x longhornctl
+./longhornctl check preflight
+./longhornctl install preflight
+
+
 echo https://github.com/zabbix-community/helm-zabbix.git
 #echo https://charts.truecharts.org/
 #echo https://github.com/bnowakow/truecharts-charts.git
