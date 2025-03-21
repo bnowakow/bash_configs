@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # when backup errors during, doesn't finish and can't start new one: https://forum.vestacp.com/viewtopic.php?f=10&t=16357
 
@@ -18,7 +18,8 @@ for user_name in "${user_names[@]}"; do
     mkdir -p "$local_dir"
     
     # download new backup
-    rsync --partial --progress --rsh=ssh -r --remove-source-files -e "ssh -i $HOME/.ssh/id_rsa" $remote_host:$remote_path $local_dir;
+    # -e "ssh -i $HOME/.ssh/id_rsa"
+    rsync --partial --progress --rsh=ssh -r --remove-source-files $remote_host:$remote_path $local_dir;
 
     # rotate old backups
     number_of_backup_files=$(ls -d -1t $local_dir/$user_name* | wc -l);

@@ -37,8 +37,10 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 sudo apt-get update
 sudo apt-get install -y screen vim  wget gnupg2 ncdu elinks jdupes hfsprogs libicu-dev bzip2 \
     cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev git libattr1-dev libfsapfs-utils \
-    virtualenv python3-venv python3-pip dos2unix edac-utils inxi rasdaemon figlet ansible sshpass \
-    bc hfsprogs nvidia-smi python3-full lshw vim-runtime unrar 
+    dos2unix edac-utils inxi rasdaemon figlet ansible sshpass \
+    bc hfsprogs nvidia-smi lshw vim-runtime unrar 
+# TODO python breaks on .2 truenas
+# sudo apt-get install -y virtualenv python3-venv python3-pip python3-full
 sudo apt-get remove -y linux-image-amd64
 
 # disable for dragonfish
