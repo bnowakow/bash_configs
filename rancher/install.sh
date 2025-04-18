@@ -51,7 +51,6 @@ sudo apt-get install -y helm
 helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
 helm repo update
 #kubectl delete namespace cattle-system
-kubectl create namespace cattle-system
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
 # https://github.com/cert-manager/cert-manager/releases
@@ -63,7 +62,8 @@ kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/relea
 kubectl get pods --namespace cert-manager
 # https://cert-manager.io/docs/configuration/
 # https://cert-manager.io/docs/troubleshooting/acme/#2-troubleshooting-orders
-#helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin # latest was used when only rancher 2.9 had oci support and it wasn't in stable
+# latest was used when only rancher 2.9 had oci support and it wasn't in stable
+kubectl create namespace cattle-system
 helm install rancher rancher-stable/rancher --namespace cattle-system --set hostname=proxmox3.localdomain.bnowakowski.pl --set bootstrapPassword=admin
 # to check status of above
 kubectl -n cattle-system rollout status deploy/rancher
@@ -115,6 +115,8 @@ curl -sSfL -o longhornctl https://github.com/longhorn/cli/releases/download/v1.8
 chmod +x longhornctl
 ./longhornctl check preflight
 ./longhornctl install preflight
+# https://longhorn.io/docs/1.8.1/nodes-and-volumes/volumes/create-volumes/
+kubectl create -f https://raw.githubusercontent.com/longhorn/longhorn/v1.8.1/examples/storageclass.yaml
 
 
 echo https://github.com/zabbix-community/helm-zabbix.git
