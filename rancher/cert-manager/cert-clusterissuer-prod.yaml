@@ -21,6 +21,9 @@ spec:
         - 'rancher.localdomain.bnowakowski.pl'
         - '*.rancher.localdomain.bnowakowski.pl'
         - 'proxmox3.localdomain.bnowakowski.pl'
+        - 'proxmox4.localdomain.bnowakowski.pl'
         - 'rancher.tailscale.bnowakowski.pl'
         - '*.rancher.tailscale.bnowakowski.pl'
         - 'proxmox3.tailscale.bnowakowski.pl'
+        - 'proxmox4.tailscale.bnowakowski.pl'
+
