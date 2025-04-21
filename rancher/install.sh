@@ -65,20 +65,20 @@ kubectl get pods --namespace cert-manager
 # https://cert-manager.io/docs/configuration/
 # https://cert-manager.io/docs/troubleshooting/acme/#2-troubleshooting-orders
 # latest was used when only rancher 2.9 had oci support and it wasn't in stable
-helm install rancher rancher-stable/rancher --namespace cattle-system --create-namespace --set hostname=$(hostname).localdomain.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=letsEncrypt --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com
+helm install rancher rancher-stable/rancher --namespace cattle-system --create-namespace --set hostname=$(hostname).tailscale.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=letsEncrypt --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com
 ./cert-manager/install.sh
 # to check status of above helm install
 kubectl -n cattle-system rollout status deploy/rancher
 kubectl -n cattle-system get deploy rancher
-echo https://$(hostname).localdomain.bnowakowski.pl/dashboard/?setup=$(kubectl get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')
+echo https://$(hostname).tailscale.bnowakowski.pl/dashboard/?setup=$(kubectl get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')
 
 # below works only for http challenge, when rancher isn't reachable from internet we need to use method below it which uses existing DNS challenge configured
 ## https://github.com/rancher/rancher/issues/32206#issuecomment-1555969372
-#helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=$(hostname).localdomain.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=letsEncrypt --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com
+#helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=$(hostname).tailscale.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=letsEncrypt --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com
 ## https://gist.github.com/dmancloud/0474dbfedaa7e3793099f68e96cab88f
-#helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=$(hostname).localdomain.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=letsEncrypt --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com --set letsEncrypt.ingress.class=traefik
+#helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=$(hostname).tailscale.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=letsEncrypt --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com --set letsEncrypt.ingress.class=traefik
 
-#helm upgrade rancher rancher-latest/rancher --namespace cattle-system --set hostname=$(hostname).localdomain.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=secret --set ingress.extraAnnotations.'cert-manager\.io/cluster-issuer'=letsencrypt # latest was used when only rancher 2.9 had oci support and it wasn't in stable
+#helm upgrade rancher rancher-latest/rancher --namespace cattle-system --set hostname=$(hostname).tailscale.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=secret --set ingress.extraAnnotations.'cert-manager\.io/cluster-issuer'=letsencrypt # latest was used when only rancher 2.9 had oci support and it wasn't in stable
 # currently installed v2.10.1
 kubectl cert-manager renew -A --all 
 kubectl cert-manager renew tls-rancher-ingress -n cattle-system
@@ -87,7 +87,7 @@ kubectl -n cattle-system describe ingress
 
 # https://github.com/harvester/harvester/issues/7489
 # TODO replace token to get from secret or other wayh automatically (have to create cluster first though)
-curl -fL https://proxmox3.localdomain.bnowakowski.pl/system-agent-install.sh | sudo CATTLE_AGENT_STRICT_VERIFY=false sh -s - --server https://proxmox3.localdomain.bnowakowski.pl --label 'cattle.io/os=linux' --token fbvm4tqlkk277d6snpfkss995nbxgpg4mxks2ljbv7c6h26b8xknb4 --etcd --controlplane --worker 
+curl -fL https://proxmox3.tailscale.bnowakowski.pl/system-agent-install.sh | sudo CATTLE_AGENT_STRICT_VERIFY=false sh -s - --server https://proxmox3.tailscale.bnowakowski.pl --label 'cattle.io/os=linux' --token fbvm4tqlkk277d6snpfkss995nbxgpg4mxks2ljbv7c6h26b8xknb4 --etcd --controlplane --worker 
 
 
 kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/bundle.yaml
