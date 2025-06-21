@@ -3,7 +3,7 @@
 sudo su zabbix -c "/home/sup/code/bash_configs/rancher/cron/git-pull.sh"
 helm repo update
 
-list_of_non_system_apps=$(/bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep -v 'cattle-' | grep -v 'kube-system' | grep -v 'cert-manager' | grep -v 'NAME' | awk '{print $1}')
+list_of_non_system_apps=$(/bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep -v 'cattle-' | grep -v 'kube-system' | grep -v 'cert-manager' | grep -v 'NAME' | grep -v 'cloudnative-pg' | grep -v 'longhorn-crd' | grep -v 'shinobi' | grep -v 'youtubedl-material' | awk '{print $1}')
 
 for app in $list_of_non_system_apps; do
     # (bnowakow branch must be merged with master, pushed and refreshed in rancher to be availible)";
@@ -21,6 +21,20 @@ for app in $list_of_non_system_apps; do
         rm -f values.yaml
         # below fails for postgresql and prometheus-operator since it doesn't have deployments, but it rancher it shows something :/
         #sudo kubectl get deploy -n $namespace $app -o yaml --kubeconfig /etc/rancher/k3s/k3s.yaml > values.yaml
+        # below assumes that each application is run in separate namespace! 
+        # TODO this is not true eg. for apps-postgresql where it has pgadmin and postgresql
+        if kubectl get ingress -n $namespace 2>&1 | grep -q "No resources found"; then
+            ingress_exist=0;
+        else
+            ingress_exist=1;
+        fi
+        echo -e "\tingress_exist=$ingress_exist"
+        if [ "$ingress_exist" == "1" ]; then
+            url=$(kubectl get ingress -n $namespace |awk '{print $3 }' | tail -1 | sed -e 's/,.*//')
+            http_code=$(curl -L -s -o /dev/null -w "%{http_code}" "https://$url/")
+            echo -e "\thttp-code=$http_code url=$url"
+            http_code="before-update"
+        fi
         echo -e "\t"would you like to update y/N
         read line;
         if [ "$line" == "y" ]; then
@@ -31,6 +45,11 @@ for app in $list_of_non_system_apps; do
             # for prometheus-operator additional helm dependency build was needed
 	    #rm values.yaml
             #mv values.yaml values-$app.yaml
+            if [ "$ingress_exist" == "1" ]; then
+                http_code=$(curl -L -s -o /dev/null -w "%{http_code}" "https://$url/")
+                echo -e "\thttp-code=$http_code"
+                http_code="after-update"
+            fi
         else
             echo "\t"skipping update
         fi

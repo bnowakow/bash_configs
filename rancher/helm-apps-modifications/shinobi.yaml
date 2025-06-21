@@ -1,0 +1,6 @@
+  videos:
+    enabled: true
+    mountPath: /home/Shinobi/videos
+    accessMode: ReadWriteOnce
+    existingClaim: pvc-margok-nfs-shinobi-videos
+    size: 2000Gi
