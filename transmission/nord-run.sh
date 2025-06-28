@@ -4,6 +4,8 @@ export HOME=/home/sup
 
 # TODO check if .nord_token exists and if not output error
 
+# TODO they now asks for analytics permission on first login. check if below would be enough or we would we need to add echo "n" | nordvpn login (...)?
+nordvpn set analytics off
 nordvpn login --token "$(cat .nord_token)"
 nordvpn set autoconnect on Czech_Republic p2p
 nordvpn set lan-discovery enabled
