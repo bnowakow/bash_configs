@@ -74,12 +74,14 @@ echo https://$(hostname).tailscale.bnowakowski.pl/dashboard/?setup=$(kubectl get
 
 # below works only for http challenge, when rancher isn't reachable from internet we need to use method below it which uses existing DNS challenge configured
 ## https://github.com/rancher/rancher/issues/32206#issuecomment-1555969372
-#helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=$(hostname).tailscale.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=letsEncrypt --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com
+# used previously, don't use now: #helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=$(hostname).tailscale.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=letsEncrypt --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com
 ## https://gist.github.com/dmancloud/0474dbfedaa7e3793099f68e96cab88f
-#helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=$(hostname).tailscale.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=letsEncrypt --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com --set letsEncrypt.ingress.class=traefik
+# used previously, don't use now: #helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=$(hostname).tailscale.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=letsEncrypt --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com --set letsEncrypt.ingress.class=traefik
 
-#helm upgrade rancher rancher-latest/rancher --namespace cattle-system --set hostname=$(hostname).tailscale.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=secret --set ingress.extraAnnotations.'cert-manager\.io/cluster-issuer'=letsencrypt # latest was used when only rancher 2.9 had oci support and it wasn't in stable
+# below uses DNS01 challenge since rancher isn't reachable from the internet
+# latest was used when only rancher 2.9 had oci support and it wasn't in stable
 # currently installed v2.10.1
+helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=$(hostname).tailscale.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=secret --set ingress.extraAnnotations.'cert-manager\.io/cluster-issuer'=letsencrypt
 kubectl cert-manager renew -A --all 
 kubectl cert-manager renew tls-rancher-ingress -n cattle-system
 # https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/install-upgrade-on-a-kubernetes-cluster/troubleshooting
@@ -119,6 +121,20 @@ chmod +x longhornctl
 # https://longhorn.io/docs/1.8.1/nodes-and-volumes/volumes/create-volumes/
 kubectl create -f https://raw.githubusercontent.com/longhorn/longhorn/v1.8.1/examples/storageclass.yaml
 
+
+# for Intel integrated GPU passthrough e.g. for jellyfin transcoding hardware acceleration
+# https://jonathangazeley.com/2025/02/11/intel-gpu-acceleration-on-kubernetes/
+# https://github.com/kubernetes-sigs/node-feature-discovery
+echo https://kubernetes-sigs.github.io/node-feature-discovery/charts
+# add above repo to rancher and install node-feature-discovery chart in rancher
+kubectl apply -k "https://github.com/kubernetes-sigs/node-feature-discovery/deployment/overlays/default?ref=v0.17.3"
+# verify that labes has been added:
+kubectl get no $(hostname) -o json | jq .metadata.labels | grep intel
+echo https://intel.github.io/helm-charts/
+# add above repo to rancher and install intel-device-plugins-operator chart in rancher
+# add above repo to rancher and install intel-device-plugins-gpu chart in rancher, make sure that nodeSelector: intel.feature.node.kubernetes.io/gpu: 'true'
+# verify:
+kubectl get no $(hostname) -o json | jq .status.capacity | grep gpu.intel.com
 
 echo https://github.com/zabbix-community/helm-zabbix.git
 #echo https://charts.truecharts.org/

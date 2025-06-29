@@ -3,7 +3,7 @@
 sudo su zabbix -c "/home/sup/code/bash_configs/rancher/cron/git-pull.sh"
 helm repo update
 
-list_of_non_system_apps=$(/bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep -v 'cattle-' | grep -v 'kube-system' | grep -v 'cert-manager' | grep -v 'NAME' | grep -v 'cloudnative-pg' | grep -v 'longhorn-crd' | grep -v 'shinobi' | grep -v 'youtubedl-material' | awk '{print $1}')
+list_of_non_system_apps=$(/bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep -v 'cattle-' | grep -v 'kube-system' | grep -v 'cert-manager' | grep -v 'NAME' | grep -v 'cloudnative-pg' | grep -v 'longhorn-crd' | grep -v 'shinobi' | grep -v 'youtubedl-material' | grep -v 'intel-device-plugins-operator' | grep -v 'node-feature-discovery' | awk '{print $1}')
 
 for app in $list_of_non_system_apps; do
     # (bnowakow branch must be merged with master, pushed and refreshed in rancher to be availible)";
@@ -33,6 +33,10 @@ for app in $list_of_non_system_apps; do
             url=$(kubectl get ingress -n $namespace |awk '{print $3 }' | tail -1 | sed -e 's/,.*//')
             http_code=$(curl -L -s -o /dev/null -w "%{http_code}" "https://$url/")
             echo -e "\thttp-code=$http_code url=$url"
+            if [ "$http_code" != 200 ]; then
+                echo "non-200 http-code";
+                exit
+            fi
             http_code="before-update"
         fi
         echo -e "\t"would you like to update y/N

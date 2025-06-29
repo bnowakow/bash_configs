@@ -1,0 +1,17 @@
+allocationPolicy: none
+enableMonitoring: true
+image:
+  hub: intel
+  tag: ''
+initImage:
+  enable: false
+  hub: intel
+  tag: ''
+logLevel: 2
+name: gpudeviceplugin
+nodeFeatureRule: true
+nodeSelector:
+  intel.feature.node.kubernetes.io/gpu: 'true'
+resourceManager: false
+sharedDevNum: 1
+tolerations: []
