@@ -1,9 +1,6 @@
 persistence:
   config:
     enabled: true
-    path: /mnt/MargokPool/archive/Data/rancher/plex
-    server: nas.localdomain.bnowakowski.pl
-    type: nfs
     mountPath: /config
   transcode:
     enabled: true
@@ -15,8 +12,17 @@ persistence:
     enabled: true
     path: /mnt/PlexPool/plex
     server: nas.localdomain.bnowakowski.pl
-    type: nfs
     targetSelector:
       main:
         main:
           mountPath: /mnt/PlexPool/plex
+    type: nfs
+  youtubedl-material-nfs-persistence:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/youtubedl-material/
+    server: nas.localdomain.bnowakowski.pl
+    targetSelector:
+      main:
+        main:
+          mountPath: /mnt/MargokPool/archive/Data/rancher/youtubedl-material/
+    type: nfs

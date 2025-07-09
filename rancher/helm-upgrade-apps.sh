@@ -1,5 +1,10 @@
 #!/bin/bash 
 
+# https://stackoverflow.com/a/5947802
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
 sudo su zabbix -c "/home/sup/code/bash_configs/rancher/cron/git-pull.sh"
 helm repo update
 
@@ -32,12 +37,17 @@ for app in $list_of_non_system_apps; do
         if [ "$ingress_exist" == "1" ]; then
             url=$(kubectl get ingress -n $namespace |awk '{print $3 }' | tail -1 | sed -e 's/,.*//')
             http_code=$(curl -L -s -o /dev/null -w "%{http_code}" "https://$url/")
-            echo -e "\thttp-code=$http_code url=$url"
             if [ "$http_code" != 200 ]; then
-                echo "non-200 http-code";
+                echo -e "\t${RED}http-code=$http_code${NC} url=$url"
+                echo -e "${RED}non-200 http-code${NC}";
                 exit
+            else
+                echo -e "\t${GREEN}http-code=$http_code${NC} url=$url"
             fi
             http_code="before-update"
+        else
+            # TODO if ingress doesn't exist check healthcheck?
+            echo -e "\tno ingress, healthcheck not yet checked"
         fi
         echo -e "\t"would you like to update y/N
         read line;
@@ -51,7 +61,12 @@ for app in $list_of_non_system_apps; do
             #mv values.yaml values-$app.yaml
             if [ "$ingress_exist" == "1" ]; then
                 http_code=$(curl -L -s -o /dev/null -w "%{http_code}" "https://$url/")
-                echo -e "\thttp-code=$http_code"
+                if [ "$http_code" != 200 ]; then
+                    echo -e "\t${RED}http-code-after-update=$http_code${NC}"
+                    exit
+                else
+                    echo -e "\t${GREEN}http-code-after-update=$http_code${NC}"
+                fi
                 http_code="after-update"
             fi
         else
