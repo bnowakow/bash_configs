@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # TODO make sure running as root
 
