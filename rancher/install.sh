@@ -9,14 +9,14 @@ export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 #/usr/local/bin/k3s-uninstall.sh
 
 # https://ranchermanager.docs.rancher.com/how-to-guides/new-user-guides/kubernetes-cluster-setup/k3s-for-rancher
-# https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-10-1/
-# https://github.com/k3s-io/k3s/releases/tag/v1.31.4%2Bk3s1
+# https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-11-4/
+# https://github.com/k3s-io/k3s/releases/tag/v1.32.7%2Bk3s1
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.31.4%2Bk3s1" sh -s - server
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.7%2Bk3s1" sh -s - server
 
 # args that failed: sh -s - server --datastore-endpoint="<DATASTORE_ENDPOINT>"
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.31.4%2Bk3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.7%2Bk3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
 
 # https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
 ##curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -61,6 +61,12 @@ helm install cert-manager jetstack/cert-manager \
   --create-namespace \
   --version v1.16.2 --set startupapicheck.timeout=5m --set crds.enabled=true
 kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.16.2/cert-manager.crds.yaml
+kubectl get pods --namespace cert-manager
+helm upgrade cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --version v1.18.2 --set startupapicheck.timeout=5m --set crds.enabled=true
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.18.2/cert-manager.crds.yaml
 kubectl get pods --namespace cert-manager
 # https://cert-manager.io/docs/configuration/
 # https://cert-manager.io/docs/troubleshooting/acme/#2-troubleshooting-orders
