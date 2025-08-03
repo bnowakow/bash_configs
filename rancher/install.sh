@@ -8,7 +8,7 @@ curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION="v1.32.6+rke2r1" sh -
 systemctl enable rke2-server.service
 systemctl start rke2-server.service
 journalctl -u rke2-server -f
-
+export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
 
 
 # https://stackoverflow.com/a/65755417
@@ -25,7 +25,16 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.6%2Bk3s1" sh -s - serv
 
 # args that failed: sh -s - server --datastore-endpoint="<DATASTORE_ENDPOINT>"
 
+# first node
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.6%2Bk3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
+first_node_host=proxmox3.tailscale.bnowakowski.pl
+cp /home/sup/code/bash_configs/rancher/config.yaml /etc/rancher/k3s/config.yaml 
+chmod 644 /etc/rancher/k3s/config.yaml
+systemctl stop k3s
+systemctl start k3s
+# next nodes
+k3s_token=$(ssh sup@$first_node_host "sudo -S cat /var/lib/rancher/k3s/server/node-token")
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.6%2Bk3s1" sh -s - server --server https://$first_node_host:6443 --token $k3s_token
 
 # https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
 ##curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
