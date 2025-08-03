@@ -2,6 +2,15 @@
 
 # TODO check if root
 
+# /usr/local/bin/rke2-uninstall.sh
+# https://docs.rke2.io/install/quickstart
+curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION="v1.32.6+rke2r1" sh -
+systemctl enable rke2-server.service
+systemctl start rke2-server.service
+journalctl -u rke2-server -f
+
+
+
 # https://stackoverflow.com/a/65755417
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
@@ -12,11 +21,11 @@ export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 # https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-11-4/
 # https://github.com/k3s-io/k3s/releases/tag/v1.32.7%2Bk3s1
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.7%2Bk3s1" sh -s - server
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.6%2Bk3s1" sh -s - server
 
 # args that failed: sh -s - server --datastore-endpoint="<DATASTORE_ENDPOINT>"
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.7%2Bk3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.6%2Bk3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
 
 # https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
 ##curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
@@ -95,8 +104,7 @@ kubectl -n cattle-system describe ingress
 
 # https://github.com/harvester/harvester/issues/7489
 # TODO replace token to get from secret or other wayh automatically (have to create cluster first though)
-curl -fL https://proxmox3.tailscale.bnowakowski.pl/system-agent-install.sh | sudo CATTLE_AGENT_STRICT_VERIFY=false sh -s - --server https://proxmox3.tailscale.bnowakowski.pl --label 'cattle.io/os=linux' --token fbvm4tqlkk277d6snpfkss995nbxgpg4mxks2ljbv7c6h26b8xknb4 --etcd --controlplane --worker 
-
+curl -fL https://proxmox3.tailscale.bnowakowski.pl/system-agent-install.sh | CATTLE_AGENT_STRICT_VERIFY=false sh -s - --server https://proxmox3.tailscale.bnowakowski.pl --label 'cattle.io/os=linux' --token TODO_REPLACE_TOKEN --etcd --controlplane --worker
 
 kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/bundle.yaml
 
