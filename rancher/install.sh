@@ -2,15 +2,6 @@
 
 # TODO check if root
 
-# /usr/local/bin/rke2-uninstall.sh
-# https://docs.rke2.io/install/quickstart
-curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION="v1.32.6+rke2r1" sh -
-systemctl enable rke2-server.service
-systemctl start rke2-server.service
-journalctl -u rke2-server -f
-export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
-
-
 # https://stackoverflow.com/a/65755417
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
@@ -26,13 +17,13 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.6%2Bk3s1" sh -s - serv
 # args that failed: sh -s - server --datastore-endpoint="<DATASTORE_ENDPOINT>"
 
 # first node
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.6%2Bk3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
-first_node_host=proxmox3.tailscale.bnowakowski.pl
+#curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.6%2Bk3s1" sh -s - server --token "$(cat /var/lib/rancher/k3s/server/token)"
 cp /home/sup/code/bash_configs/rancher/config.yaml /etc/rancher/k3s/config.yaml 
 chmod 644 /etc/rancher/k3s/config.yaml
 systemctl stop k3s
 systemctl start k3s
 # next nodes
+first_node_host=proxmox3.tailscale.bnowakowski.pl
 k3s_token=$(ssh sup@$first_node_host "sudo -S cat /var/lib/rancher/k3s/server/node-token")
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.6%2Bk3s1" sh -s - server --server https://$first_node_host:6443 --token $k3s_token
 
@@ -110,10 +101,6 @@ kubectl cert-manager renew -A --all
 kubectl cert-manager renew tls-rancher-ingress -n cattle-system
 # https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/install-upgrade-on-a-kubernetes-cluster/troubleshooting
 kubectl -n cattle-system describe ingress
-
-# https://github.com/harvester/harvester/issues/7489
-# TODO replace token to get from secret or other wayh automatically (have to create cluster first though)
-curl -fL https://proxmox3.tailscale.bnowakowski.pl/system-agent-install.sh | CATTLE_AGENT_STRICT_VERIFY=false sh -s - --server https://proxmox3.tailscale.bnowakowski.pl --label 'cattle.io/os=linux' --token TODO_REPLACE_TOKEN --etcd --controlplane --worker
 
 kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/bundle.yaml
 
