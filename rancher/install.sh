@@ -66,13 +66,7 @@ kubectl cert-manager renew tls-rancher-ingress -n cattle-system
 # https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/install-upgrade-on-a-kubernetes-cluster/troubleshooting
 kubectl -n cattle-system describe ingress
 
-kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/bundle.yaml
-
 echo https://catalogicsoftware.github.io/cloudcasa-helmchart
 echo https://github.com/bnowakow/truecharts-charts.git
 echo https://prometheus-community.github.io/helm-charts
-
-echo on restore of shinobi:
-echo 1. create pv, create pvc
-echo 2. restore shinobi without pvc being overriden
 

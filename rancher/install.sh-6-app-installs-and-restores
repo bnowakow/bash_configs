@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# elasticsearch install
+# 1. install elasticsearch, yaml: replicas: 1
+# 2. install kibana
+# 3. install filebeat, yaml: extraVolumeMounts, extraVolumes, filebeatConfig in daemonset (removing /var/log/containers/, checking if host is elasticsearch-master), filebeatConfig in deployment (removing /usr/share/filebeat/logs/filebeat)
+
+# shinobi restore
+# 1. create pv, create pvc
+# 2. restore shinobi without pvc being overriden
+
+# prometheus-operator install
+kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/bundle.yaml
+

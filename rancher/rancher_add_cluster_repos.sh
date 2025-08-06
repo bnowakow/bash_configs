@@ -43,6 +43,7 @@ add_rancher_repo "elastic" "https://helm.elastic.co"
 add_rancher_repo "bitnamicharts-postgresql" "oci://registry-1.docker.io/bitnamicharts/postgresql"
 add_rancher_repo "mlohr-roundcube" "https://helm-charts.mlohr.com/"
 add_rancher_repo "cloudnative-pg" "https://cloudnative-pg.github.io/charts"
+add_rancher_repo "cloudcasa-vendor" "https://catalogicsoftware.github.io/cloudcasa-helmchart"
 
 # TODO meshcommander
 # TODO shinobi

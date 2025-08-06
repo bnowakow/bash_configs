@@ -1,0 +1,2 @@
+kibanaConfig:
+  server.publicBaseUrl: https://kibana.rancher.tailscale.bnowakowski.pl/
