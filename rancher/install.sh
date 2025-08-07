@@ -13,7 +13,7 @@ export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 # https://github.com/k3s-io/k3s/releases/tag/v1.32.7%2Bk3s1
 
 # first node
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.6%2Bk3s1" sh -s - server
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.7%2Bk3s1" sh -s - server
 # TODO currently installed without datastore: sh -s - server --datastore-endpoint="<DATASTORE_ENDPOINT>"
 cp /home/sup/code/bash_configs/rancher/config.yaml /etc/rancher/k3s/config.yaml 
 chmod 644 /etc/rancher/k3s/config.yaml
@@ -23,7 +23,7 @@ systemctl start k3s
 # next nodes
 first_node_host=proxmox3.tailscale.bnowakowski.pl
 k3s_token=$(ssh sup@$first_node_host "sudo -S cat /var/lib/rancher/k3s/server/node-token")
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.6%2Bk3s1" sh -s - server --server https://$first_node_host:6443 --token $k3s_token
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.7%2Bk3s1" sh -s - server --server https://$first_node_host:6443 --token $k3s_token
 
 # https://cert-manager.io/v1.0-docs/usage/kubectl-plugin/
 # not every cert-manager release contains cli tool
@@ -41,7 +41,6 @@ helm repo update
 # https://github.com/rancher/rancher/issues/26850#issuecomment-1223301973
 # https://github.com/rancher/rancher/issues/26850#issuecomment-1234869006
 # replace `helm upgrade` with `helm install` on first try
-kubectl get pods --namespace cert-manager
 helm upgrade cert-manager jetstack/cert-manager \
   --namespace cert-manager \
   --create-namespace \
@@ -66,7 +65,9 @@ kubectl cert-manager renew tls-rancher-ingress -n cattle-system
 # https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/install-upgrade-on-a-kubernetes-cluster/troubleshooting
 kubectl -n cattle-system describe ingress
 
-echo https://catalogicsoftware.github.io/cloudcasa-helmchart
+# to check cloudcasa pods
+kubectl get pods -n cloudcasa-io
+
 echo https://github.com/bnowakow/truecharts-charts.git
 echo https://prometheus-community.github.io/helm-charts
 
