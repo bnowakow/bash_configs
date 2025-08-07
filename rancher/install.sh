@@ -21,6 +21,7 @@ systemctl stop k3s
 systemctl start k3s
 
 # next nodes
+# TODO curretnly domain isn't issued also for localdomain so as workaround stick with tailscale
 first_node_host=proxmox3.tailscale.bnowakowski.pl
 k3s_token=$(ssh sup@$first_node_host "sudo -S cat /var/lib/rancher/k3s/server/node-token")
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.7%2Bk3s1" sh -s - server --server https://$first_node_host:6443 --token $k3s_token
