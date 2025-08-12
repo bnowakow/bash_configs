@@ -32,6 +32,7 @@ else
 
     file_path=Chart.yaml
     if [ -f $file_path ]; then 
+        helm dependency build . > /dev/null 2>&1
         echo $(grep ^version $file_path | sed 's/.*: //' | sed 's/\ .*//')
         exit
     fi

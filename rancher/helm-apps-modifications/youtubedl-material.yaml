@@ -1,0 +1,25 @@
+persistence:
+  appdata:
+    enabled: true
+    mountPath: /app/appdata
+  audio:
+    enabled: true
+    mountPath: /app/audio
+    path: /mnt/MargokPool/archive/Data/rancher/youtubedl-material/audio
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+  subscriptions:
+    enabled: true
+    mountPath: /app/subscriptions
+    path: /mnt/MargokPool/archive/Data/rancher/youtubedl-material/subscriptions
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+  users:
+    enabled: true
+    mountPath: /app/users
+  video:
+    enabled: true
+    mountPath: /app/video
+    path: /mnt/MargokPool/archive/Data/rancher/youtubedl-material/video
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs

@@ -11,6 +11,8 @@ metadata:
 spec:
   url: $repo_url
 EOF
+helm repo add $repo_name $repo_url
+#helm pull $repo_url 
 }
 
 add_rancher_repo_git() {
@@ -37,12 +39,12 @@ for true_chart_repo_name in sonarr radarr bazarr jellyfin jellyseerr prowlarr pl
     add_rancher_repo "truecharts-$true_chart_repo_name" "oci://tccr.io/truecharts/$true_chart_repo_name"
 done
 
-add_rancher_repo "zabbix-community" "https://zabbix-community.github.io/helm-zabbix"
-add_rancher_repo "docker-mailserver" "https://docker-mailserver.github.io/docker-mailserver-helm/"
-add_rancher_repo "elastic" "https://helm.elastic.co"
-add_rancher_repo "bitnamicharts-postgresql" "oci://registry-1.docker.io/bitnamicharts/postgresql"
-add_rancher_repo "mlohr-roundcube" "https://helm-charts.mlohr.com/"
-add_rancher_repo "cloudnative-pg" "https://cloudnative-pg.github.io/charts"
+add_rancher_repo "zabbix-community" "https://zabbix-community.github.io/helm-zabbix" # https://github.com/zabbix-community/helm-zabbix.git
+add_rancher_repo "docker-mailserver" "https://docker-mailserver.github.io/docker-mailserver-helm/" # https://github.com/docker-mailserver/docker-mailserver-helm.git
+add_rancher_repo "elastic" "https://helm.elastic.co" # https://github.com/elastic/cloud-on-k8s/tree/main/deploy/eck-stack/charts
+add_rancher_repo "bitnamicharts-postgresql" "oci://registry-1.docker.io/bitnamicharts/postgresql" # https://github.com/bitnami/charts
+add_rancher_repo "mlohr-roundcube" "https://helm-charts.mlohr.com/" # https://gitlab.com/MatthiasLohr/roundcube-helm-chart
+add_rancher_repo "cloudnative-pg" "https://cloudnative-pg.github.io/charts" # https://github.com/cloudnative-pg/charts
 add_rancher_repo "cloudcasa-vendor" "https://catalogicsoftware.github.io/cloudcasa-helmchart"
 
 # TODO meshcommander
