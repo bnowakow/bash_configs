@@ -109,8 +109,8 @@ cd /etc/zabbix/zabbix_agent2.d
 sudo ln -sf /mnt/MargokPool/home/sup/code/bash_configs bash_configs
 cd bash_configs
 sudo chown sup:sup -R .
-mkdir -p charts-repo
-sudo chown zabbix:zabbix charts-repo
+mkdir -p repos
+sudo chown zabbix:zabbix repos
 cd ../
 sudo usermod -a -G docker zabbix
 sudo mkdir -p /var/lib/zabbix/

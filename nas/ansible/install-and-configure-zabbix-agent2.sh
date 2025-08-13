@@ -16,10 +16,9 @@ read;
 # https://www.cherryservers.com/blog/how-to-set-up-ansible-inventory-file
 # TODO install nfs-common
 # TODO automate below
-echo "[VM]              on first use for a given host do:"
-echo "[VM][as sup]      install kr and kr pair: curl https://bnowakow.github.io/krypt/kr.sh | sh && kr pair; kr sshconfig"
-echo "[host]            check if you can ssh to vm since known_hosts might have a conflict if reworking previously existing machine"
-echo "[iPhone]          open kr on iPhone and remove last known hosts to github on kr app"
+echo "[VM]                      on first use for a given host do:"
+echo "[VM][as sup]              mkdir ~/.ssh"
+echo "[ansible_host e.g. nas]   scp ~/.ssh/id_ecdsa ~/.ssh/id_ecdsa.pub ~/.ssh/id_rsa ~/.ssh/id_rsa.pub sup@VMHOSTNAME:~/.ssh"
 echo "press enter when done"
 read;
 
@@ -38,6 +37,9 @@ echo "[VM]              before it's not in ansible set /bin/bash for zabbix acco
 echo "[VM]              run ~/code/bash_configs/zabbix/update-zabbix-metadata.sh"
 echo '[VM][proxmox]     sudo bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/post-pve-install.sh)"'
 echo "[VM]              follow https://github.com/sorin-ionescu/prezto"
+echo "[VM]              cd /etc/zabbix/zabbix_agent2.d; sudo ln -sf ~/code/bash_configs bash_configs"; cd bash_configs; mkdir -p repos; sudo chown zabbix:zabbix repos; cd zabbix; sudo ./update-zabbix-metadata.sh
+echo "[VM]              cd /home; chmod 775 sup" #for zabbix to have access to bash_configs
+echo "[VM]              cd /home/sup/code/bash_configs/nas; sudo ./zabbix-add-to-sudoers.sh
 # TODO add apt upgrade and upgrade zprezto"
 echo "press enter when done"
 read;
