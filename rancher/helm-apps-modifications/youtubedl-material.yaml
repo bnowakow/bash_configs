@@ -23,3 +23,11 @@ persistence:
     path: /mnt/MargokPool/archive/Data/rancher/youtubedl-material/video
     server: nas.localdomain.bnowakowski.pl
     type: nfs
+resources:
+  limits:
+    cpu: 200m
+    memory: 14Gi
+  requests:
+    cpu: 60m
+    memory: 4Gi
+

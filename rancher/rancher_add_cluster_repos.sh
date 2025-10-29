@@ -36,7 +36,7 @@ for true_chart_repo_name in sonarr radarr bazarr jellyfin jellyseerr prowlarr pl
     adguard-home jellystat duckdns filebot maintainerr plextraktsync proxmox-backup-server scrutiny smokeping \
     youtubedl-material cloudnative-pg prometheus-operator nginx-proxy-manager authelia pgadmin scrypted recyclarr readarr \
     calibre; do
-    add_rancher_repo "truecharts-$true_chart_repo_name" "oci://tccr.io/truecharts/$true_chart_repo_name"
+    add_rancher_repo "truecharts-$true_chart_repo_name" "oci://oci.trueforge.org/truecharts/$true_chart_repo_name"
 done
 
 add_rancher_repo "zabbix-community" "https://zabbix-community.github.io/helm-zabbix" # https://github.com/zabbix-community/helm-zabbix.git
