@@ -9,11 +9,11 @@ export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 #/usr/local/bin/k3s-uninstall.sh
 
 # https://ranchermanager.docs.rancher.com/how-to-guides/new-user-guides/kubernetes-cluster-setup/k3s-for-rancher
-# https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-11-4/
-# https://github.com/k3s-io/k3s/releases/tag/v1.32.7%2Bk3s1
+# https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-12-3/
+# https://github.com/k3s-io/k3s/releases/tag/v1.33.5%2Bk3s1
 
 # first node
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.7%2Bk3s1" sh -s - server
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.33.5%2Bk3s1" sh -s - server
 # TODO currently installed without datastore: sh -s - server --datastore-endpoint="<DATASTORE_ENDPOINT>"
 cp /home/sup/code/bash_configs/rancher/config.yaml /etc/rancher/k3s/config.yaml 
 chmod 644 /etc/rancher/k3s/config.yaml
@@ -24,7 +24,7 @@ systemctl start k3s
 # TODO curretnly domain isn't issued also for localdomain so as workaround stick with tailscale
 first_node_host=proxmox3.tailscale.bnowakowski.pl
 k3s_token=$(ssh sup@$first_node_host "sudo -S cat /var/lib/rancher/k3s/server/node-token")
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.7%2Bk3s1" sh -s - server --server https://$first_node_host:6443 --token $k3s_token
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.33.5%2Bk3s1" sh -s - server --server https://$first_node_host:6443 --token $k3s_token
 
 # https://cert-manager.io/v1.0-docs/usage/kubectl-plugin/
 # not every cert-manager release contains cli tool
@@ -45,8 +45,8 @@ helm repo update
 helm upgrade cert-manager jetstack/cert-manager \
   --namespace cert-manager \
   --create-namespace \
-  --version v1.18.2 --set startupapicheck.timeout=5m --set crds.enabled=true
-kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.18.2/cert-manager.crds.yaml
+  --version v1.19.1 --set startupapicheck.timeout=5m --set crds.enabled=true
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.19.1/cert-manager.crds.yaml
 kubectl get pods --namespace cert-manager
 # https://cert-manager.io/docs/configuration/
 # https://cert-manager.io/docs/troubleshooting/acme/#2-troubleshooting-orders
