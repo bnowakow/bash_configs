@@ -3,6 +3,6 @@
 # /usr/bin/su sup -c 'cd /mnt/MargokPool/home/sup/code/nordvpn-torrent; vagrant ssh -c "if service transmission-daemon status | grep Active | grep running> /dev/null; then echo true; else echo false; fi" 2>/dev/null'
 # and
 # /bin/cli -c "app outdated_docker_images *" # problem with having " and *
-Cmnd_Alias ZABBIX_CMD=/bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml, /usr/bin/su, /bin/apt-get update, /bin/apt-get --simulate upgrade, /usr/sbin/service, /usr/bin/ha, /usr/local/crashplan/bin/service.sh, /bin/cli -c *
+Cmnd_Alias ZABBIX_CMD=/bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml, /usr/bin/su, /bin/apt-get update, /bin/apt-get --simulate upgrade, /usr/sbin/service, /usr/bin/ha, /usr/local/crashplan/bin/service.sh, /bin/cli -c *, /usr/sbin/smartctl --scan -j
 zabbix ALL=NOPASSWD: ZABBIX_CMD
 
