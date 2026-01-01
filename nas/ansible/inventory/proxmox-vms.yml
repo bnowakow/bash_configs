@@ -10,6 +10,8 @@ all:
 #        #ansible_user: root
 #    proxmox4.localdomain.bnowakowski.pl:
 #        #ansible_user: root
-#
+#    proxmox-backup-server.localdomain.bnowakowski.pl:
+#        #ansible_user: root
+
 #    ovh.bnowakowskipl:
-    rancher-nas.localdomain.bnowakowski.pl:
+

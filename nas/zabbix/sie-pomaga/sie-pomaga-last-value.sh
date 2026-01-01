@@ -1,6 +1,6 @@
 #!/bin/bash
 
-url="https://www.siepomaga.pl/api/v1/causes/eAtDlJ/stats?locale=pl"
+url="https://www.siepomaga.pl/api/v2/causes/eAtDlJ/statistics?locale=pl"
 
 cd /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga;
 
@@ -15,6 +15,6 @@ if ! cmp -s sie-pomaga-value-current.json sie-pomaga-value-last.json; then
     jq -c ".data.datetime += \"$(date +%Y-%m-%d\ %H:%M)\"" sie-pomaga-value-current.json  >> sie-pomaga-values.txt
 fi
 
-jq '.data.amount,.data.payments_count' sie-pomaga-value-current.json
+jq '.data.funds_current,.data.donors_count' sie-pomaga-value-current.json
 rm sie-pomaga-value-current.json
 

@@ -7,18 +7,21 @@ cd /mnt/MargokPool/archive/Data;
 #du -sh rancher/shinobi; rm -rf rancher/shinobi/videos/qyCQYItwa0/*/2025-05-20*; du -sh rancher/shinobi;
 
 # Shinobi
-for root_dir in "docker/shinobi/reolink/qyCQYItwa0" "rancher/shinobi/videos/qyCQYItwa0"; do
-    echo root_dir=$root_dir;
-    echo "size of root dir before delete "$(du -sh $root_dir)
-    for camera_dir in $(ls $root_dir | grep -v _timelapse); do
-        echo -e '\tcamera_dir='$camera_dir;
-        oldest_day_files_prefix=$(ls -1 $root_dir/$camera_dir | head -1 | sed 's/T.*//'); 
-        files_to_be_deleted_prefix="$root_dir/$camera_dir/$oldest_day_files_prefix"
-        echo -e '\t\tfiles_to_be_deleted_prefixr='$files_to_be_deleted_prefix
-        sudo rm -f "$files_to_be_deleted_prefix"*;
-    done
-    echo "size of root dir before after "$(du -sh $root_dir)
-done
+#for root_dir in "docker/shinobi/reolink/qyCQYItwa0" "rancher/shinobi/videos/qyCQYItwa0"; do
+#    echo root_dir=$root_dir;
+#    echo "size of root dir before delete "$(du -sh $root_dir)
+#    for camera_dir in $(ls $root_dir | grep -v _timelapse); do
+#        echo -e '\tcamera_dir='$camera_dir;
+#        oldest_day_files_prefix=$(ls -1 $root_dir/$camera_dir | head -1 | sed 's/T.*//'); 
+#        files_to_be_deleted_prefix="$root_dir/$camera_dir/$oldest_day_files_prefix"
+#        echo -e '\t\tfiles_to_be_deleted_prefixr='$files_to_be_deleted_prefix
+#        sudo rm -f "$files_to_be_deleted_prefix"*;
+#    done
+#    echo "size of root dir before after "$(du -sh $root_dir)
+#    echo
+#done
+
+echo; echo;
 
 # Reolink uploading to FTP
 for root_dir in "ftp/reolink"; do

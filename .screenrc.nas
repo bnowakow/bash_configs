@@ -108,57 +108,93 @@ defnonblock 5
 
 shell -zsh
 
-# 0
+# 0 
 chdir /mnt/MargokPool/home/sup/code/medihunter-kasia
 screen -t medi-kasia
 
+#
+#chdir /mnt/MargokPool/home/sup/code/medihunter-kuba
+#screen -t medi-kuba
+
+#
+#chdir /mnt/MargokPool/home/sup/code/crashplan-docker
+#screen -t crashplan
+
+#
+#chdir /etc/zabbix/zabbix_agent2.d/bash_configs/nas/zabbix
+#screen -t zabbix1
+
+# 
+#chdir /etc/zabbix/zabbix_agent2.d/bash_configs/nas/zabbix
+#screen -t zabbix2
+
 # 1
-chdir /mnt/MargokPool/home/sup/code/medihunter-kuba
-screen -t medi-kuba
+chdir /mnt/MargokPool/home/sup/code/facebook-post-commenter
+screen -t facebook1
+
+#
+#chdir /mnt/MargokPool/home/sup/code/facebook-post-commenter
+#screen -t facebook2
+
+#
+#chdir /mnt/MargokPool/home/sup/code/scheduler-card-workaround
+#screen -t ha-workaround
+
+#
+#chdir /mnt/MargokPool/home/sup/code/nordvpn-torrent
+#screen -t torrent
+
+#
+#chdir /mnt/MargokPool/home/sup/code/vagrant-basebox
+#screen -t basebox
+
+#
+#chdir /mnt/MargokPool/home/sup/code/bash_configs/home-assistant
+#screen -t ha
+
+#
+#chdir /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga
+#screen -t kibana
+
+# 
+#chdir /mnt/MargokPool/home/sup/code/heavy_script
+#screen -t heavy_script
+
+#
+#chdir /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga
+#screen -t figlet
 
 # 2
-chdir /mnt/MargokPool/home/sup/code/crashplan-docker
-screen -t crashplan
+chdir /mnt/PlexPool/plex
+screen -t plex-mc
 
 # 3
-chdir /mnt/MargokPool/home/sup/code/truetool
-screen -t truetool
+chdir /mnt/MargokPool/home/sup/code/bash_configs/nas
+screen -t plex-clean
 
 # 4
-chdir /etc/zabbix/zabbix_agent2.d/bash_configs/nas/zabbix
-screen -t zabbix1
+chdir /mnt/MargokPool/home/sup/code/meshcommander-scripts
+screen -t meshcmd-web
 
-# 5
-chdir /etc/zabbix/zabbix_agent2.d/bash_configs/nas/zabbix
-screen -t zabbix2
+#
+#chdir /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/
+#screen -t git-pull
 
-# 6
-chdir /mnt/MargokPool/home/sup/code/facebook-post-commenter
-screen -t facebook
+# 
+#chdir /mnt/MargokPool/home/sup/code/YoutubeDL-Material
+#screen -t ytdl
 
-# 7
-chdir /mnt/MargokPool/home/sup/code/nordvpn-torrent
-screen -t torrent
+# 
+#chdir /mnt/MargokPool/home/sup/code/docker-mailserver
+#screen -t mailserver
 
-# 8
-chdir /mnt/MargokPool/home/sup/code/vagrant-basebox
-screen -t basebox
+#
+#chdir /mnt/MargokPool/home/sup/code/zfs-prune-snapshots
+#screen -t zfs-snapshots
 
-# 9
-chdir /mnt/MargokPool/home/sup/code/bash_configs/home-assistant
-screen -t ha
-
-# 10
-chdir /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga
-screen -t kibana
-
-# 11
-chdir /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga
-screen -t figlet
-
-# 12
-chdir /mnt/MargokPool/home/sup/code/docker-mailserver
-screen -t mailserver
+#
+#chdir /mnt/MargokPool/home/sup/code/bash_configs/nas
+#screen -t s3-tunnel
 
 chdir /mnt/MargokPool/archive/
 

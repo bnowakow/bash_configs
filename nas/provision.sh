@@ -66,11 +66,10 @@ sudo cp /mnt/MargokPool/home/sup/code/apfs-fuse/build/apfs-* /usr/local/bin
 
 if ! crontab -l | grep ovh_backup_download; then
     { crontab -l; echo '01 01 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/proxmox_backup_download.sh'; } | crontab -
-    { crontab -l; echo '10 01 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/home-assistant_backup_download.sh'; } | crontab -
     { crontab -l; echo '01 06 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/ovh_backup_download.sh'; } | crontab -
     { crontab -l; echo '20 01 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/proxmox_vm_backups_rotate.sh'; } | crontab -
     { crontab -l; echo '*/10 * * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/git-pull.sh'; } | crontab -
-    { crontab -l; echo '* */1 * * * /mnt/MargokPool/home/sup/code/bash_configs/repos/truecharts/update.sh'; } | crontab -
+    { crontab -l; echo '* */1 * * * /mnt/MargokPool/home/sup/code/bash_configs/repos/truecharts/update-with-only-git-merge.sh'; } | crontab -
 fi
 # truetool is depricated. using now heavy tool in truenas cron interface
 #if ! sudo crontab -l | grep truetool; then
