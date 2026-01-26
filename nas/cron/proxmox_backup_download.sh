@@ -85,7 +85,7 @@ remote_dir="/etc/apt/sources.list.bak"
 rsync --partial --progress --rsh=ssh -r $remote_user@$remote_host:$remote_dir $current_backup_local_dir/;
 number_of_copied_files=$(find "$current_backup_local_dir/sources.list" -type f | wc -l)
 number_of_copied_files_bak=$(find "$current_backup_local_dir/sources.list.bak" -type f | wc -l)
-if [ $number_of_copied_files = 0  && number_of_copied_files_bak = 0 ]; then
+if [ "$number_of_copied_files" = 0 ] && [ "$number_of_copied_files_bak" = 0 ]; then
     echo copy of $remote_dir on $remote_host failed
     rm -rf $current_backup_local_dir
     exit

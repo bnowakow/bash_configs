@@ -12,6 +12,6 @@ if [ "$home_assistant_running_in_vagrant" = true ]; then
 	ssh_host="localhost"
 else
 	ssh_port=""
-	ssh_host="192.168.0.230"
+	ssh_host="home-assistant.localdomain.bnowakowski.pl"
 fi
 
