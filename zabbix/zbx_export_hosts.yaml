@@ -53,7 +53,7 @@ zabbix_export:
       name: PBS
       templates:
         - name: 'bnowakow homelab - Debian or Ubuntu'
-        - name: 'bnowakow homelab - Proxmox'
+        - name: 'bnowakow homelab - Proxmox Backup Server'
       groups:
         - name: 'Linux servers'
         - name: 'Virtual machines'
@@ -70,6 +70,7 @@ zabbix_export:
       templates:
         - name: 'bnowakow homelab - Debian or Ubuntu'
         - name: 'bnowakow homelab - Proxmox'
+        - name: 'Linux by Zabbix agent'
         - name: 'Proxmox VE by HTTP'
         - name: 'SMART by Zabbix agent 2'
       groups:
@@ -101,6 +102,7 @@ zabbix_export:
         - name: 'bnowakow homelab - Debian or Ubuntu'
         - name: 'bnowakow homelab - Proxmox'
         - name: 'bnowakow homelab - Rancher'
+        - name: 'Linux by Zabbix agent'
         - name: 'Proxmox VE by HTTP'
         - name: 'SMART by Zabbix agent 2'
       groups:
@@ -131,6 +133,7 @@ zabbix_export:
       templates:
         - name: 'bnowakow homelab - Debian or Ubuntu'
         - name: 'bnowakow homelab - Proxmox'
+        - name: 'Linux by Zabbix agent'
         - name: 'Proxmox VE by HTTP'
         - name: 'SMART by Zabbix agent 2'
       groups:
@@ -174,7 +177,6 @@ zabbix_export:
         - name: 'bnowakow homelab - TrueNas'
         - name: 'Linux by Zabbix agent'
         - name: 'SMART by Zabbix agent 2'
-        - name: 'Zabbix server health'
       groups:
         - name: 'Zabbix servers'
       interfaces:
@@ -207,7 +209,6 @@ zabbix_export:
     - host: 'Zabbix server'
       name: 'Zabbix server'
       templates:
-        - name: 'Linux by Zabbix agent'
         - name: 'Zabbix server health'
       groups:
         - name: 'Zabbix servers'
@@ -215,7 +216,7 @@ zabbix_export:
         - interface_ref: if1
       inventory:
         name: zabbix-zabbix-server-74fbf6b7bd-wkr5c
-        os: 'Linux version 6.8.12-17-pve (build@proxmox) (gcc (Debian 12.2.0-14+deb12u1) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40) #1 SM'
+        os: 'Linux version 6.17.4-2-pve (build@proxmox) (gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44) #1 SMP PREEMPT'
         location_lat: '56.95387'
         location_lon: '24.22067'
       inventory_mode: AUTOMATIC
