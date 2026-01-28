@@ -113,7 +113,6 @@ zabbix_export:
           history: 90d
           value_type: TEXT
           trends: '0'
-          status: DISABLED
           tags:
             - tag: bnowakow
       tags:
@@ -213,6 +212,32 @@ zabbix_export:
         - uuid: aa109daa4ad94d01bfccbb301cbdab4c
           name: 'Is Proxmox is up to date'
           key: bnowakow.proxmox.is-proxmox-up-to-date
+          delay: 1h
+          history: 90d
+          value_type: TEXT
+          trends: '0'
+          tags:
+            - tag: bnowakow
+      tags:
+        - tag: bnowakow
+    - uuid: 78f60cc0f866484e8cee88ccf567d25b
+      template: 'bnowakow homelab - Proxmox Backup Server'
+      name: 'bnowakow homelab - Proxmox Backup Server'
+      groups:
+        - name: Templates
+      items:
+        - uuid: 77bb2cabfe034d1c89f813f354ab785e
+          name: 'Is PBS is up to date'
+          key: bnowakow.proxmox.is-proxmox-backup-server-up-to-date
+          delay: 1h
+          history: 90d
+          value_type: TEXT
+          trends: '0'
+          tags:
+            - tag: bnowakow
+        - uuid: 5a2f7ad374d54deeb13dd423bcf55105
+          name: 'Is PBS kernel up to date'
+          key: bnowakow.proxmox.is-proxmox-kernel-up-to-date
           delay: 1h
           history: 90d
           value_type: TEXT
