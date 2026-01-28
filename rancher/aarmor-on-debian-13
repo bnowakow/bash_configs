@@ -1,0 +1,18 @@
+1 profiles are loaded.
+1 profiles are in enforce mode.
+   cri-containerd.apparmor.d
+
+20 processes have profiles defined.
+20 processes are in enforce mode.
+/usr/bin/rancher (211833) cri-containerd.apparmor.d
+
+# only partially worked
+https://forum.snapcraft.io/t/apparmor-issue-with-microk8s-snap/47847/2
+apparmor_parser -r /etc/apparmor.d/cri-containerd.apparmor.d
+
+# that works
+# https://github.com/containerd/containerd/issues/12726
+# Force pre-kernel 6.17 ABI
+override-policy-abi=/etc/apparmor.d/abi/4.0
+/etc/apparmor/parser.conf
+

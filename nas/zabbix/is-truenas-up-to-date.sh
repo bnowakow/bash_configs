@@ -1,6 +1,6 @@
 #!/bin/bash
 
-current_version=$(curl https://www.truenas.com/download-truenas-community-edition/ 2> /dev/null | grep iso | head -1 | sed 's/\.iso.*//' | sed 's/.*SCALE\-//g')
+current_version=$(curl https://www.truenas.com/download/ 2> /dev/null | grep 'iso"' | grep -v downloadTrueNASsecondary | head -1 | sed 's/\.iso.*//' | sed 's/.*SCALE\-//g')
 local_version=$(cat /etc/version)
 
 #echo "local_version=$local_version current_version=$current_version";
