@@ -3,7 +3,7 @@
 # preqequisite: gh auth login on zabbix account
 # https://cli.github.com/manual/gh_auth_login
 
-repo_name="${1:-medihunter}"
+repo_name="${1:-truecharts-charts}"
 
 source_branch="master"
 
@@ -37,13 +37,21 @@ if [ "$repo_name" = "truenas-charts" ]; then
     dir="bash_configs/repos/truenas"
 fi
 
-sha_upstream=$(gh api -H "Accept: application/vnd.github+json" /repos/bnowakow/$repo_name/branches | jq "map(select(.name == \"$branch\"))" | jq .[0].commit.sha | sed 's/"//g')
+sha_upstream=$(gh api -H "Accept: application/vnd.github+json" /repos/bnowakow/$repo_name/branches | jq "map(select(.name == \"$source_branch\"))" | jq .[0].commit.sha | sed 's/"//g')
 cd /mnt/MargokPool/home/sup/code/$dir
-sha_local=$(git rev-parse $branch)
 
-if [ "$sha_upstream" = "$sha_local" ]; then
+# comparing if master of upstream repo is the same as master of forked repo
+sha_local_of_master=$(git rev-parse $source_branch)
+if [ "$sha_upstream" != "$sha_local_of_master" ]; then
+    echo "false,$source_branch"
+fi
+
+# checking if master of upstream repo is merged into $branch of forked repo
+sha_local_of_branch=$(git merge-base master $branch)
+if [ "$sha_upstream" = "$sha_local_of_branch" ]; then
     echo "true"
 else
     echo "false,$branch"
 fi
+
 
