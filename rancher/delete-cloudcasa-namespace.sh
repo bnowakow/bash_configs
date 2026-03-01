@@ -2,7 +2,7 @@
 
 # Namespace: apps-cloud-casa5
 # App name: cloudcasa5-1
-# cluster_id: '6714c10d25c7131f9f9d44df'
+# cluster_id: '6938435f0c7d143c28eb3a0f'
 kubectl delete namespace apps-cloudcasa  
 kubectl delete namespace cloudcasa-io
 
