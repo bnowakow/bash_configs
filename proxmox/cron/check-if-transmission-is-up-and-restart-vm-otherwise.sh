@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 #https://gist.github.com/tree-s/1b2177bac1d8f2b70fac9e235a7f262c
 host=transmission.localdomain.bnowakowski.pl
@@ -15,17 +15,18 @@ curl_transmission() {
         echo 0;
         return;
     fi
-    #curl --connect-timeout 10 --max-time 15 -X GET --anyauth --user $user:$pass --header "$sessid" "http://$host:$port/transmission/web/"
+    # TODO can below echo to standard error 2> ? to not affect function output
+    #curl --connect-timeout 10 --max-time 15 -X GET --anyauth --user $user:$pass --header "$sessid" "http://$host:$port/transmission/web/" # remember that after uncommenting this script using this function will fail since output woulnt'd be only http code
 
     transmission_http_code=$(curl --connect-timeout 10 --max-time 15 -s -o /dev/null -w "%{http_code}" -X GET --anyauth --user $user:$pass --header "$sessid" "http://$host:$port/transmission/web/")
     echo $transmission_http_code
 }
 
 for try in `seq 1 3`; do
-    echo try=$try;
+    #echo try=$try;
     date;
     transmission_http_code=$(curl_transmission)
-    echo transmission_http_code=$transmission_http_code
+    #echo transmission_http_code=$transmission_http_code
     if [ "$transmission_http_code" = "200" ]; then
         echo "transmission is up"
         exit # Comment while DEBUG
@@ -47,6 +48,7 @@ sleep 4m;
 checks_number=0
 checks_maximum_number=6
 while true; do
+    # for some reason when timeout was used it didn't finished it time (that was fixed after adding --kill-after, but after that ssh didn't connect eventhough at the same time in different terminal ssh was responding
     #transmission_vm_boot_date_time_after_reboot=$(timeout --kill-after=10s 5s ssh -t $host "who -b")
     transmission_vm_boot_date_time_after_reboot=$(timelimit -S 4 -s 6 -T 8 -t 10 ssh -t $host "who -b")
     if [ "$transmission_vm_boot_date_time_after_reboot" != "" ] && [ "$transmission_vm_boot_date_time_after_reboot" != "$transmission_vm_boot_date_time_before_reboot" ]; then 
