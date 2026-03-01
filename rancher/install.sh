@@ -68,6 +68,8 @@ kubectl -n cattle-system describe ingress
 
 # to check cloudcasa pods
 kubectl get pods -n cloudcasa-io
+# update Kube System UID in cloud casa settings of cluster
+kubectl get namespace kube-system --output jsonpath={.metadata.uid}
 
 echo https://github.com/bnowakow/truecharts-charts.git
 echo https://prometheus-community.github.io/helm-charts

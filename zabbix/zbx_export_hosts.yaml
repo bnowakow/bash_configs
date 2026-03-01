@@ -1,5 +1,5 @@
 zabbix_export:
-  version: '7.0'
+  version: '7.4'
   host_groups:
     - uuid: 1b837a3c078647049a0c00c61b4d57b5
       name: Hypervisors
@@ -23,7 +23,6 @@ zabbix_export:
           ip: ''
           dns: ovh.bnowakowski.pl
           interface_ref: if1
-      inventory_mode: DISABLED
     - host: CrashPlan
       name: CrashPlan
       templates:
@@ -36,7 +35,6 @@ zabbix_export:
           ip: 192.168.0.240
           dns: crashplan.localdomain.bnowakowski.pl
           interface_ref: if1
-      inventory_mode: DISABLED
     - host: 'Home Assistant'
       name: 'Home Assistant'
       templates:
@@ -48,7 +46,6 @@ zabbix_export:
           ip: 192.168.0.230
           dns: home-assistant.localdomain.bnowakowski.pl
           interface_ref: if1
-      inventory_mode: DISABLED
     - host: PBS
       name: PBS
       templates:
@@ -64,7 +61,6 @@ zabbix_export:
           interface_ref: if1
       tags:
         - tag: bnowakow
-      inventory_mode: DISABLED
     - host: Proxmox2
       name: Proxmox2
       templates:
@@ -95,7 +91,6 @@ zabbix_export:
         - macro: '{$PVE.TOKEN.SECRET}'
           value: 12458b05-59a6-48fe-84e2-e49476d07c55
           description: 'Secret key.'
-      inventory_mode: DISABLED
     - host: Proxmox3
       name: Proxmox3
       templates:
@@ -127,7 +122,6 @@ zabbix_export:
         - macro: '{$PVE.TOKEN.SECRET}'
           value: 12458b05-59a6-48fe-84e2-e49476d07c55
           description: 'Secret key.'
-      inventory_mode: DISABLED
     - host: Proxmox4
       name: Proxmox4
       templates:
@@ -156,7 +150,6 @@ zabbix_export:
           description: root@pam!zabbix
         - macro: '{$PVE.TOKEN.SECRET}'
           description: 12458b05-59a6-48fe-84e2-e49476d07c55
-      inventory_mode: DISABLED
     - host: Transmission
       name: Transmission
       templates:
@@ -169,7 +162,6 @@ zabbix_export:
           ip: 192.168.0.210
           dns: transmission.localdomain.bnowakowski.pl
           interface_ref: if1
-      inventory_mode: DISABLED
     - host: TrueNAS
       name: TrueNAS
       templates:
@@ -184,12 +176,12 @@ zabbix_export:
           ip: 192.168.0.20
           dns: nas.localdomain.bnowakowski.pl
           interface_ref: if1
+      inventory_mode: AUTOMATIC
       inventory:
         name: nas
         os: 'Linux version 6.12.33-production+truenas (root@tnsbuilds02) (gcc (Debian 12.2.0-14+deb12u1) 12.2.0, GNU ld (GNU Binutils for Deb'
         location_lat: '56.95387'
         location_lon: '24.22067'
-      inventory_mode: AUTOMATIC
     - host: 'TrueNAS - SNMP'
       name: 'TrueNAS - SNMP'
       templates:
@@ -205,7 +197,6 @@ zabbix_export:
           details:
             community: '{$SNMP_COMMUNITY}'
           interface_ref: if1
-      inventory_mode: DISABLED
     - host: 'Zabbix server'
       name: 'Zabbix server'
       templates:
@@ -214,9 +205,9 @@ zabbix_export:
         - name: 'Zabbix servers'
       interfaces:
         - interface_ref: if1
+      inventory_mode: AUTOMATIC
       inventory:
         name: zabbix-zabbix-server-74fbf6b7bd-wkr5c
         os: 'Linux version 6.17.4-2-pve (build@proxmox) (gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44) #1 SMP PREEMPT'
         location_lat: '56.95387'
         location_lon: '24.22067'
-      inventory_mode: AUTOMATIC

@@ -42,10 +42,12 @@ done
 add_rancher_repo "zabbix-community" "https://zabbix-community.github.io/helm-zabbix" # https://github.com/zabbix-community/helm-zabbix.git
 add_rancher_repo "docker-mailserver" "https://docker-mailserver.github.io/docker-mailserver-helm/" # https://github.com/docker-mailserver/docker-mailserver-helm.git
 add_rancher_repo "elastic" "https://helm.elastic.co" # https://github.com/elastic/cloud-on-k8s/tree/main/deploy/eck-stack/charts
-add_rancher_repo "bitnamicharts-postgresql" "oci://registry-1.docker.io/bitnamicharts/postgresql" # https://github.com/bitnami/charts
+#add_rancher_repo "bitnamicharts-postgresql" "oci://registry-1.docker.io/bitnamicharts/postgresql" # https://github.com/bitnami/charts
 add_rancher_repo "mlohr-roundcube" "https://helm-charts.mlohr.com/" # https://gitlab.com/MatthiasLohr/roundcube-helm-chart
 add_rancher_repo "cloudnative-pg" "https://cloudnative-pg.github.io/charts" # https://github.com/cloudnative-pg/charts
 add_rancher_repo "cloudcasa-vendor" "https://catalogicsoftware.github.io/cloudcasa-helmchart"
+add_rancher_repo "node-feature-discovery" "https://kubernetes-sigs.github.io/node-feature-discovery/charts" # https://github.com/kubernetes-sigs/node-feature-discovery
+add_rancher_repo "intel" "https://intel.github.io/helm-charts/"
 
 # TODO meshcommander
 # TODO shinobi
