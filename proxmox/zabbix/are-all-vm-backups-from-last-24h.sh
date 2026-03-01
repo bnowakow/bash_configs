@@ -2,6 +2,7 @@
 
 # on first run from particular user you need to accept fingerprint twice
 
+cd /home/sup/code/bash_configs/proxmox/zabbix;
 export PBS_PASSWORD="$(cat .pbs-password)"; 
 
 any_backup_have_too_old_backup=false
