@@ -10,8 +10,9 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 - End-of-run summary modal with counters.
 - Lowercase variable naming throughout.
 - Colorized terminal output with improved contrast.
-- Helper status labels (no magic-number-only output) and consistent status/code coloring.
+- Helper status labels (no magic-number-only output) and consistent status/return_code coloring.
 - Added usage documentation in [`rancher/README.md`](/Users/sup/code/bash_configs/rancher/README.md).
+- Added Debian logrotate template + installer script.
 
 ### Implemented Behavior
 - **TUI layer**
@@ -79,12 +80,12 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 - Color mappings:
   - Helm app name: brighter blue (`\033[1;94m`) for better contrast on dark terminals.
   - HTTP code: green for `200`, red otherwise (`color_http_code`).
-  - Bash return code: green for `0`, red otherwise (`color_bash_return_code`).
+  - Bash return_code: green for `0`, red otherwise (`color_bash_return_code`).
   - Helper status label:
     - `up_to_date` -> green,
     - `update_available` and `local_newer_than_repo` -> yellow,
     - `unknown` -> red (`color_helper_status`).
-  - Helper status code:
+  - Helper status return_code:
     - `0` -> green,
     - `1` and `2` -> yellow,
     - other -> red (`color_helper_code`).
@@ -96,14 +97,24 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
   - `1` -> `update_available`
   - `2` -> `local_newer_than_repo`
   - other -> `unknown`
-- User-facing logs include meaningful helper status labels, with numeric code as secondary detail.
-- Fixed color consistency bug: in `helper status: ..., code: ...`, `code: 0` is green (success).
+- User-facing logs include meaningful helper status labels, with numeric return_code as secondary detail.
+
+### Git and Retention Additions
+- Added `@logs/` entry to [`.gitignore`](/Users/sup/code/bash_configs/.gitignore).
+- Added Debian logrotate files:
+  - template: [`rancher/logrotate-helm-upgrade-apps.conf`](/Users/sup/code/bash_configs/rancher/logrotate-helm-upgrade-apps.conf)
+  - installer: [`rancher/install-logrotate-helm-upgrade-apps.sh`](/Users/sup/code/bash_configs/rancher/install-logrotate-helm-upgrade-apps.sh)
+- Installer behavior:
+  - uses repo-relative resolution (`script_dir`) to render the log glob,
+  - installs to `/etc/logrotate.d/helm-upgrade-apps`,
+  - supports `--print` and `--help`.
 
 ### Naming and Style Updates
 - Script variables are lowercase (globals/shared state/config/counters/helpers).
+- `rc` terminology replaced with `return_code` in user-facing output and helper variable names.
 
 ### Documentation Added
-- New [`rancher/README.md`](/Users/sup/code/bash_configs/rancher/README.md) includes:
+- [`rancher/README.md`](/Users/sup/code/bash_configs/rancher/README.md) includes:
   - requirements,
   - command examples,
   - timeout override usage,
@@ -113,3 +124,4 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 
 ### Validation Performed
 - Syntax check: `bash -n rancher/helm-upgrade-apps.sh` (passing).
+- Syntax check: `bash -n rancher/install-logrotate-helm-upgrade-apps.sh` (passing).
