@@ -11,7 +11,7 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 - Lowercase variable naming throughout.
 - Colorized terminal output with improved contrast.
 - Helper status labels (no magic-number-only output) and consistent status/code coloring.
-- Added usage documentation in root [`README.md`](/Users/sup/code/bash_configs/README.md).
+- Added usage documentation in [`rancher/README.md`](/Users/sup/code/bash_configs/rancher/README.md).
 
 ### Implemented Behavior
 - **TUI layer**
@@ -79,7 +79,7 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 - Color mappings:
   - Helm app name: brighter blue (`\033[1;94m`) for better contrast on dark terminals.
   - HTTP code: green for `200`, red otherwise (`color_http_code`).
-  - Bash return code: green for `0`, red otherwise (`color_bash_rc`).
+  - Bash return code: green for `0`, red otherwise (`color_bash_return_code`).
   - Helper status label:
     - `up_to_date` -> green,
     - `update_available` and `local_newer_than_repo` -> yellow,
@@ -103,7 +103,7 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 - Script variables are lowercase (globals/shared state/config/counters/helpers).
 
 ### Documentation Added
-- New root [`README.md`](/Users/sup/code/bash_configs/README.md) includes:
+- New [`rancher/README.md`](/Users/sup/code/bash_configs/rancher/README.md) includes:
   - requirements,
   - command examples,
   - timeout override usage,

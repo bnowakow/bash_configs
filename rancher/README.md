@@ -84,7 +84,7 @@ Colors are disabled only when:
 Color mapping:
 - app name: bright blue
 - HTTP `200`: green; non-`200`: red
-- bash rc `0`: green; non-`0`: red
+- bash return_code `0`: green; non-`0`: red
 - helper status:
   - `up_to_date`: green
   - `update_available`, `local_newer_than_repo`: yellow

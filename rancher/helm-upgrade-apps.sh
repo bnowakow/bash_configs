@@ -155,7 +155,7 @@ color_http_code() {
   fi
 }
 
-color_bash_rc() {
+color_bash_return_code() {
   local code="$1"
   if [ "$code" = "0" ]; then
     if [ "$use_color" -eq 1 ]; then
@@ -440,14 +440,14 @@ check_rollout_ready() {
     [ -z "$resource" ] && continue
     log "$app [$phase]: waiting for rollout status: $resource (timeout=$rollout_timeout)" "$(color_blue "$app") [$phase]: waiting for rollout status: $resource (timeout=$rollout_timeout)"
     if ! kubectl rollout status -n "$namespace" --kubeconfig "$kubeconfig_path" --timeout="$rollout_timeout" "$resource" >>"$log_file" 2>&1; then
-      log "$app [$phase]: rollout failed for $resource (rc=1)" "$(color_blue "$app") [$phase]: rollout failed for $resource (rc=$(color_bash_rc 1))"
+      log "$app [$phase]: rollout failed for $resource (return_code=1)" "$(color_blue "$app") [$phase]: rollout failed for $resource (return_code=$(color_bash_return_code 1))"
       return 1
     fi
   done <<EOF_ROLLOUT
 $resources
 EOF_ROLLOUT
 
-  log "$app [$phase]: rollout checks passed (rc=0)" "$(color_blue "$app") [$phase]: rollout checks passed (rc=$(color_bash_rc 0))"
+  log "$app [$phase]: rollout checks passed (return_code=0)" "$(color_blue "$app") [$phase]: rollout checks passed (return_code=$(color_bash_return_code 0))"
   return 0
 }
 
@@ -511,11 +511,11 @@ perform_upgrade() {
     --version="$target_version" \
     --wait=true \
     "$app" "$chart_ref" >>"$log_file" 2>&1; then
-    record_failure_and_maybe_abort "Helm upgrade failed ($app)" "helm upgrade command failed (rc=1)."
+    record_failure_and_maybe_abort "Helm upgrade failed ($app)" "helm upgrade command failed (return_code=1)."
     return 1
   fi
 
-  log "$app: helm upgrade completed (rc=0)" "$(color_blue "$app"): helm upgrade completed (rc=$(color_bash_rc 0))"
+  log "$app: helm upgrade completed (return_code=0)" "$(color_blue "$app"): helm upgrade completed (return_code=$(color_bash_return_code 0))"
   return 0
 }
 
@@ -540,12 +540,12 @@ log "Refreshing git and helm repos"
 if ! sudo su zabbix -c "/home/sup/code/bash_configs/rancher/cron/git-pull.sh" >>"$log_file" 2>&1; then
   record_failure_and_maybe_abort "Git pull failed" "Unable to run rancher/cron/git-pull.sh as zabbix user."
 else
-  log "git pull refresh completed (rc=0)" "git pull refresh completed (rc=$(color_bash_rc 0))"
+  log "git pull refresh completed (return_code=0)" "git pull refresh completed (return_code=$(color_bash_return_code 0))"
 fi
 if ! helm repo update >>"$log_file" 2>&1; then
   record_failure_and_maybe_abort "helm repo update failed" "Unable to refresh helm repos."
 else
-  log "helm repo update completed (rc=0)" "helm repo update completed (rc=$(color_bash_rc 0))"
+  log "helm repo update completed (return_code=0)" "helm repo update completed (return_code=$(color_bash_return_code 0))"
 fi
 
 apps="$(list_candidate_apps)"
@@ -569,22 +569,22 @@ for app in $apps; do
 
   log "$app: checking if update is available" "$(color_blue "$app"): checking if update is available"
   "$is_up_to_date_helper" "$app" --do-not-update-helm >>"$log_file" 2>&1
-  update_check_rc=$?
-  helper_status="$(helper_status_label "$update_check_rc")"
+  update_check_return_code=$?
+  helper_status="$(helper_status_label "$update_check_return_code")"
 
-  if [ "$update_check_rc" -eq 0 ] || [ "$update_check_rc" -eq 2 ]; then
-    log "$app: no update needed (helper status: $helper_status, code: $update_check_rc)" "$(color_blue "$app"): no update needed (helper status: $(color_helper_status "$update_check_rc"), code: $(color_helper_code "$update_check_rc"))"
+  if [ "$update_check_return_code" -eq 0 ] || [ "$update_check_return_code" -eq 2 ]; then
+    log "$app: no update needed (helper status: $helper_status, return_code: $update_check_return_code)" "$(color_blue "$app"): no update needed (helper status: $(color_helper_status "$update_check_return_code"), return_code: $(color_helper_code "$update_check_return_code"))"
     up_to_date_count=$((up_to_date_count + 1))
     current_app=""
     continue
   fi
-  if [ "$update_check_rc" -ne 1 ]; then
-    log "$app: unexpected helper status: $helper_status (code: $update_check_rc)" "$(color_blue "$app"): unexpected helper status: $(color_helper_status "$update_check_rc") (code: $(color_helper_code "$update_check_rc"))"
-    record_failure_and_maybe_abort "Update check failed ($app)" "is-helm-image-up-to-date.sh returned unexpected code $update_check_rc."
+  if [ "$update_check_return_code" -ne 1 ]; then
+    log "$app: unexpected helper status: $helper_status (return_code: $update_check_return_code)" "$(color_blue "$app"): unexpected helper status: $(color_helper_status "$update_check_return_code") (return_code: $(color_helper_code "$update_check_return_code"))"
+    record_failure_and_maybe_abort "Update check failed ($app)" "is-helm-image-up-to-date.sh returned unexpected return_code $update_check_return_code."
     current_app=""
     continue
   fi
-  log "$app: update available (helper status: $helper_status)" "$(color_blue "$app"): update available (helper status: $(color_helper_status "$update_check_rc"))"
+  log "$app: update available (helper status: $helper_status)" "$(color_blue "$app"): update available (helper status: $(color_helper_status "$update_check_return_code"))"
 
   namespace="$(get_namespace_for_app "$app")"
   if [ -z "$namespace" ]; then
