@@ -11,6 +11,7 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 - Lowercase variable naming throughout.
 - Colorized terminal output with improved contrast.
 - Helper status labels (no magic-number-only output) and consistent status/code coloring.
+- Added usage documentation in root [`README.md`](/Users/sup/code/bash_configs/README.md).
 
 ### Implemented Behavior
 - **TUI layer**
@@ -100,6 +101,15 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 
 ### Naming and Style Updates
 - Script variables are lowercase (globals/shared state/config/counters/helpers).
+
+### Documentation Added
+- New root [`README.md`](/Users/sup/code/bash_configs/README.md) includes:
+  - requirements,
+  - command examples,
+  - timeout override usage,
+  - runtime flow,
+  - log/exit code behavior,
+  - color mapping reference.
 
 ### Validation Performed
 - Syntax check: `bash -n rancher/helm-upgrade-apps.sh` (passing).
