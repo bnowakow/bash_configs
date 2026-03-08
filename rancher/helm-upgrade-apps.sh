@@ -160,6 +160,25 @@ helper_status_label() {
   esac
 }
 
+color_helper_status() {
+  local code="$1"
+  local label
+  label="$(helper_status_label "$code")"
+  if [ "$code" = "0" ]; then
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$green" "$label" "$nc"
+    else
+      printf '%s' "$label"
+    fi
+  else
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$red" "$label" "$nc"
+    else
+      printf '%s' "$label"
+    fi
+  fi
+}
+
 require_cmd() {
   local cmd="$1"
   if ! command -v "$cmd" >/dev/null 2>&1; then
@@ -503,18 +522,18 @@ for app in $apps; do
   helper_status="$(helper_status_label "$update_check_rc")"
 
   if [ "$update_check_rc" -eq 0 ] || [ "$update_check_rc" -eq 2 ]; then
-    log "$app: no update needed (helper status: $helper_status, code: $update_check_rc)" "$(color_blue "$app"): no update needed (helper status: $helper_status, code: $(color_blue "$update_check_rc"))"
+    log "$app: no update needed (helper status: $helper_status, code: $update_check_rc)" "$(color_blue "$app"): no update needed (helper status: $(color_helper_status "$update_check_rc"), code: $(color_bash_rc "$update_check_rc"))"
     up_to_date_count=$((up_to_date_count + 1))
     current_app=""
     continue
   fi
   if [ "$update_check_rc" -ne 1 ]; then
-    log "$app: unexpected helper status: $helper_status (code: $update_check_rc)" "$(color_blue "$app"): unexpected helper status: $helper_status (code: $(color_bash_rc "$update_check_rc"))"
+    log "$app: unexpected helper status: $helper_status (code: $update_check_rc)" "$(color_blue "$app"): unexpected helper status: $(color_helper_status "$update_check_rc") (code: $(color_bash_rc "$update_check_rc"))"
     record_failure_and_maybe_abort "Update check failed ($app)" "is-helm-image-up-to-date.sh returned unexpected code $update_check_rc."
     current_app=""
     continue
   fi
-  log "$app: update available (helper status: $helper_status)" "$(color_blue "$app"): update available (helper status: $helper_status)"
+  log "$app: update available (helper status: $helper_status)" "$(color_blue "$app"): update available (helper status: $(color_helper_status "$update_check_rc"))"
 
   namespace="$(get_namespace_for_app "$app")"
   if [ -z "$namespace" ]; then

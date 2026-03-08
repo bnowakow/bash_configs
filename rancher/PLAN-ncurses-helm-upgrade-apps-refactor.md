@@ -10,7 +10,7 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 - End-of-run summary modal with counters.
 - Lowercase variable naming throughout.
 - Colorized terminal output with improved contrast.
-- Helper status labels (no magic-number-only output).
+- Helper status labels (no magic-number-only output) and consistent status/code coloring.
 
 ### Implemented Behavior
 - **TUI layer**
@@ -68,6 +68,7 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
   - Helm app name: brighter blue (`\033[1;94m`) for better contrast on dark terminals.
   - HTTP code: green for `200`, red otherwise (`color_http_code`).
   - Bash return code: green for `0`, red otherwise (`color_bash_rc`).
+  - Helper status label: colored by corresponding helper return code (`color_helper_status`).
 - Color is applied to terminal output; log file remains uncolored plain text.
 
 ### Helper Status Labels (Magic Number Removal)
@@ -76,7 +77,8 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
   - `1` -> `update_available`
   - `2` -> `local_newer_than_repo`
   - other -> `unknown`
-- User-facing logs now include meaningful `helper status` labels, with numeric code shown only as secondary detail.
+- User-facing logs include meaningful helper status labels, with numeric code as secondary detail.
+- Fixed color consistency bug: in `helper status: ..., code: ...`, `code: 0` is now green (success), not blue.
 
 ### Naming and Style Updates
 - Script variables are lowercase (globals/shared state/config/counters/helpers).
