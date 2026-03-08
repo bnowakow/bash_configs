@@ -20,6 +20,11 @@ failed_apps_count=0
 failure_events_count=0
 current_app=""
 current_app_failed=0
+use_color=1
+blue=""
+green=""
+red=""
+nc=""
 
 # Keep excludes explicit and easy to maintain.
 exclude_patterns=(
@@ -82,9 +87,67 @@ done
 
 log() {
   local message="$1"
+  local display_message="${2:-$1}"
   local ts
   ts="$(date +"%Y-%m-%d %H:%M:%S")"
-  printf '[%s] %s\n' "$ts" "$message" | tee -a "$log_file"
+  printf '[%s] %s\n' "$ts" "$message" >>"$log_file"
+  printf '[%s] %b\n' "$ts" "$display_message"
+}
+
+init_colors() {
+  if [ "${TERM:-}" = "dumb" ] || [ -n "${NO_COLOR:-}" ]; then
+    use_color=0
+  fi
+
+  if [ "$use_color" -eq 1 ]; then
+    blue='\033[0;34m'
+    green='\033[0;32m'
+    red='\033[0;31m'
+    nc='\033[0m'
+  fi
+}
+
+color_blue() {
+  local text="$1"
+  if [ "$use_color" -eq 1 ]; then
+    printf '%b%s%b' "$blue" "$text" "$nc"
+  else
+    printf '%s' "$text"
+  fi
+}
+
+color_http_code() {
+  local code="$1"
+  if [ "$code" = "200" ]; then
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$green" "$code" "$nc"
+    else
+      printf '%s' "$code"
+    fi
+  else
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$red" "$code" "$nc"
+    else
+      printf '%s' "$code"
+    fi
+  fi
+}
+
+color_bash_rc() {
+  local code="$1"
+  if [ "$code" = "0" ]; then
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$green" "$code" "$nc"
+    else
+      printf '%s' "$code"
+    fi
+  else
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$red" "$code" "$nc"
+    else
+      printf '%s' "$code"
+    fi
+  fi
 }
 
 require_cmd() {
@@ -251,7 +314,7 @@ check_ingress_http_codes() {
   hosts="$(get_ingress_hosts "$namespace")"
 
   if [ -z "$hosts" ]; then
-    log "$app [$phase]: no ingress hosts found"
+    log "$app [$phase]: no ingress hosts found" "$(color_blue "$app") [$phase]: no ingress hosts found"
     return 0
   fi
 
@@ -263,7 +326,7 @@ check_ingress_http_codes() {
     [ -z "$host" ] && continue
     http_code="$(curl -L -s -o /dev/null -w "%{http_code}" "https://$host/")"
     summary="${summary}${host} -> ${http_code}\\n"
-    log "$app [$phase]: ingress https://$host/ returned $http_code"
+    log "$app [$phase]: ingress https://$host/ returned $http_code" "$(color_blue "$app") [$phase]: ingress https://$host/ returned $(color_http_code "$http_code")"
     if [ "$http_code" != "200" ]; then
       fail=1
     fi
@@ -288,23 +351,23 @@ check_rollout_ready() {
   resources="$(kubectl get deployment,statefulset -n "$namespace" --kubeconfig "$kubeconfig_path" -o name 2>/dev/null || true)"
 
   if [ -z "$resources" ]; then
-    log "$app [$phase]: no deployment/statefulset resources found"
+    log "$app [$phase]: no deployment/statefulset resources found" "$(color_blue "$app") [$phase]: no deployment/statefulset resources found"
     return 0
   fi
 
   local resource
   while IFS= read -r resource; do
     [ -z "$resource" ] && continue
-    log "$app [$phase]: waiting for rollout status: $resource"
+    log "$app [$phase]: waiting for rollout status: $resource" "$(color_blue "$app") [$phase]: waiting for rollout status: $resource"
     if ! kubectl rollout status -n "$namespace" --kubeconfig "$kubeconfig_path" --timeout=300s "$resource" >>"$log_file" 2>&1; then
-      log "$app [$phase]: rollout failed for $resource"
+      log "$app [$phase]: rollout failed for $resource (rc=1)" "$(color_blue "$app") [$phase]: rollout failed for $resource (rc=$(color_bash_rc 1))"
       return 1
     fi
   done <<EOF_ROLLOUT
 $resources
 EOF_ROLLOUT
 
-  log "$app [$phase]: rollout checks passed"
+  log "$app [$phase]: rollout checks passed (rc=0)" "$(color_blue "$app") [$phase]: rollout checks passed (rc=$(color_bash_rc 0))"
   return 0
 }
 
@@ -349,7 +412,7 @@ perform_upgrade() {
   local chart_ref="$4"
 
   if [ "$dry_run" -eq 1 ]; then
-    log "$app: DRY RUN enabled, skipping helm upgrade"
+    log "$app: DRY RUN enabled, skipping helm upgrade" "$(color_blue "$app"): DRY RUN enabled, skipping helm upgrade"
     return 0
   fi
 
@@ -358,7 +421,7 @@ perform_upgrade() {
     return 1
   fi
 
-  log "$app: running helm upgrade to version $target_version using chart $chart_ref"
+  log "$app: running helm upgrade to version $target_version using chart $chart_ref" "$(color_blue "$app"): running helm upgrade to version $target_version using chart $chart_ref"
   if ! sudo helm upgrade \
     --kubeconfig "$kubeconfig_path" \
     --history-max=5 \
@@ -368,11 +431,11 @@ perform_upgrade() {
     --version="$target_version" \
     --wait=true \
     "$app" "$chart_ref" >>"$log_file" 2>&1; then
-    record_failure_and_maybe_abort "Helm upgrade failed ($app)" "helm upgrade command failed."
+    record_failure_and_maybe_abort "Helm upgrade failed ($app)" "helm upgrade command failed (rc=1)."
     return 1
   fi
 
-  log "$app: helm upgrade completed"
+  log "$app: helm upgrade completed (rc=0)" "$(color_blue "$app"): helm upgrade completed (rc=$(color_bash_rc 0))"
   return 0
 }
 
@@ -390,13 +453,19 @@ if [ ! -x "$is_up_to_date_helper" ] || [ ! -x "$current_version_helper" ] || [ !
   exit 2
 fi
 
+init_colors
+
 log "Run started. log_file=$log_file yes_mode=$yes_mode dry_run=$dry_run"
 log "Refreshing git and helm repos"
 if ! sudo su zabbix -c "/home/sup/code/bash_configs/rancher/cron/git-pull.sh" >>"$log_file" 2>&1; then
   record_failure_and_maybe_abort "Git pull failed" "Unable to run rancher/cron/git-pull.sh as zabbix user."
+else
+  log "git pull refresh completed (rc=0)" "git pull refresh completed (rc=$(color_bash_rc 0))"
 fi
 if ! helm repo update >>"$log_file" 2>&1; then
   record_failure_and_maybe_abort "helm repo update failed" "Unable to refresh helm repos."
+else
+  log "helm repo update completed (rc=0)" "helm repo update completed (rc=$(color_bash_rc 0))"
 fi
 
 apps="$(list_candidate_apps)"
@@ -412,23 +481,28 @@ for app in $apps; do
   current_app_failed=0
 
   if should_exclude_app "$app"; then
-    log "$app: excluded by pattern"
+  log "$app: excluded by pattern" "$(color_blue "$app"): excluded by pattern"
     excluded_count=$((excluded_count + 1))
     current_app=""
     continue
   fi
 
-  log "$app: checking if update is available"
+  log "$app: checking if update is available" "$(color_blue "$app"): checking if update is available"
   "$is_up_to_date_helper" "$app" --do-not-update-helm >>"$log_file" 2>&1
   update_check_rc=$?
 
   if [ "$update_check_rc" -eq 0 ] || [ "$update_check_rc" -eq 2 ]; then
-    log "$app: no update needed (helper exit code: $update_check_rc)"
+    if [ "$update_check_rc" -eq 0 ]; then
+      log "$app: no update needed (helper exit code: $update_check_rc)" "$(color_blue "$app"): no update needed (helper exit code: $(color_bash_rc "$update_check_rc"))"
+    else
+      log "$app: no update needed (helper exit code: $update_check_rc)" "$(color_blue "$app"): no update needed (helper exit code: $(color_blue "$update_check_rc"))"
+    fi
     up_to_date_count=$((up_to_date_count + 1))
     current_app=""
     continue
   fi
   if [ "$update_check_rc" -ne 1 ]; then
+    log "$app: unexpected helper exit code: $update_check_rc" "$(color_blue "$app"): unexpected helper exit code: $(color_bash_rc "$update_check_rc")"
     record_failure_and_maybe_abort "Update check failed ($app)" "is-helm-image-up-to-date.sh returned unexpected code $update_check_rc."
     current_app=""
     continue
@@ -457,9 +531,9 @@ for app in $apps; do
   fi
 
   if show_app_modal "$app" "$namespace" "$local_version" "$target_version" "$ingress_summary"; then
-    log "$app: upgrade approved"
+    log "$app: upgrade approved" "$(color_blue "$app"): upgrade approved"
   else
-    log "$app: upgrade skipped by user"
+    log "$app: upgrade skipped by user" "$(color_blue "$app"): upgrade skipped by user"
     skipped_count=$((skipped_count + 1))
     current_app=""
     continue
@@ -477,7 +551,7 @@ for app in $apps; do
   fi
 
   run_postchecks "$app" "$namespace" || true
-  log "$app: processing complete"
+  log "$app: processing complete" "$(color_blue "$app"): processing complete"
   current_app=""
 done
 

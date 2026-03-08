@@ -1,70 +1,77 @@
-## Refactor Plan: `helm-upgrade-apps.sh` to ncurses TUI (`dialog`)
+## Refactor Status: `helm-upgrade-apps.sh` ncurses TUI (`dialog`)
 
 ### Summary
-Refactor the current interactive upgrade script into a `dialog`-based ncurses workflow with:
-- A persistent scrolling log window for all runtime messages.
-- A per-app modal showing `http_code`, current/target chart version, and upgrade decision.
-- Interactive failure handling (ask whether to continue).
-- Optional non-interactive flags: `--yes` and `--dry-run`.
-- Timestamped run logs for audit/debugging.
+The refactor has been implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup/code/bash_configs/rancher/helm-upgrade-apps.sh) with:
+- `dialog`-based ncurses interaction.
+- Scrolling log window and per-app decision modal.
+- Interactive failure handling (`Continue` / `Abort`).
+- `--yes`, `--dry-run`, `--help` flags.
+- Timestamped logs in `rancher/logs/`.
+- End-of-run summary modal with counters.
+- Lowercase variable naming across the script.
+- Colorized terminal output (enabled by default).
 
-### Key Implementation Changes
-- **TUI architecture**
-  - Build a small UI layer in Bash for `dialog` primitives:
-    - `show_log_window` (scrollable tail of log file).
-    - `show_app_modal` (app summary + yes/no action).
-    - `ask_on_failure` (continue/abort modal).
-  - Keep one append-only log file per run (e.g. `rancher/logs/helm-upgrade-YYYYmmdd-HHMMSS.log`) and mirror important events there.
-- **Workflow restructuring**
-  - Split script into explicit phases per app:
-    1. Discover candidate app from dynamic list (`helm ls` + excludes).
-    2. Check update availability using existing `zabbix/is-helm-image-up-to-date.sh`.
-    3. Collect metadata: namespace, repo/chart ref, ingress hosts, current/target versions.
-    4. Run prechecks:
-       - ingress HTTP checks for **all discovered hosts**.
-       - workload readiness checks (rollout/ready gate).
-    5. Show modal and decide upgrade (`--yes` bypasses prompt).
-    6. Execute `helm upgrade` (or preview only for `--dry-run`).
-    7. Run postchecks: rollout readiness + all ingress HTTP checks.
-- **Error/decision behavior**
-  - Replace hard `exit` on failures with modal choice: `Continue` or `Abort run`.
-  - Preserve safe defaults (`No` on upgrade prompt unless `--yes`).
-- **Configuration cleanup**
-  - Keep dynamic app discovery, but move exclude patterns into a dedicated config array at top of script for easier maintenance.
-  - Keep existing Zabbix helper scripts as integration points; only harden parsing/exit handling in caller.
-- **CLI/interface additions**
-  - New flags:
-    - `--yes`: auto-approve upgrades and continue prompts.
-    - `--dry-run`: no upgrades; still run discovery/precheck and show decisions.
-    - `--help`: usage.
+### Implemented Behavior
+- **TUI layer**
+  - `show_log_window`: final scrollable log view (`dialog --tailbox`).
+  - `show_app_modal`: app metadata + HTTP summary + yes/no approval (`dialog --tailboxbg` + `--yesno`).
+  - `ask_on_failure`: failure modal with continue/abort.
+  - `show_summary_modal`: final totals modal before log window.
+- **Workflow phases per app**
+  1. Discover app candidates from `helm ls --all-namespaces`.
+  2. Exclude system apps via `exclude_patterns` array.
+  3. Check update availability via `zabbix/is-helm-image-up-to-date.sh`.
+  4. Resolve namespace, local version, target version, chart ref.
+  5. Run prechecks:
+     - rollout readiness (`deployment,statefulset` + `kubectl rollout status`),
+     - ingress checks for all discovered hosts.
+  6. Prompt per-app upgrade decision (unless `--yes`).
+  7. Run `helm upgrade` (unless `--dry-run`).
+  8. Run postchecks (rollout + ingress HTTP).
+- **Failure policy**
+  - Failures no longer hard-stop by default.
+  - Any failure triggers modal: continue with next app or abort run.
+  - Exit status is tracked and returned at end (`1` if any failure happened).
 
-### Public Interfaces / Type Changes
-- Script interface changes for [`rancher/helm-upgrade-apps.sh`](/Users/sup/code/bash_configs/rancher/helm-upgrade-apps.sh):
-  - Add supported args: `--yes`, `--dry-run`, `--help`.
-  - Exit codes:
-    - `0` success/completed (possibly with skipped apps),
-    - `1` aborted by user or hard failure,
-    - `2` dependency/setup issue (e.g., missing `dialog`).
-- No planned changes to helper script signatures in [`rancher/zabbix/is-helm-image-up-to-date.sh`](/Users/sup/code/bash_configs/rancher/zabbix/is-helm-image-up-to-date.sh).
+### Interface and Contract
+- **CLI flags**
+  - `--yes`: auto-approve upgrade/failure prompts.
+  - `--dry-run`: skip `helm upgrade`, keep checks and prompts.
+  - `--help`: usage text.
+- **Exit codes**
+  - `0`: completed successfully.
+  - `1`: aborted by user or one/more runtime failures.
+  - `2`: setup/dependency error (missing command/helper/invalid arg).
+- **Helpers kept unchanged**
+  - `rancher/zabbix/is-helm-image-up-to-date.sh`
+  - `rancher/zabbix/lib/helm-current-version-of-chart.sh`
+  - `helm-chart-repo-dir-or-helm-repo.sh` (`/etc/...` primary, local fallback)
 
-### Test Plan
-- **Dependency/setup**
-  - Missing `dialog` path shows clear error and exit `2`.
-- **Candidate/app logic**
-  - Apps up-to-date are logged and skipped.
-  - Apps with updates show modal with correct version fields.
-- **Pre/post checks**
-  - Multi-ingress app: all hosts checked; one non-200 triggers failure modal.
-  - Rollout check failure triggers failure modal.
-- **Modes**
-  - Default interactive: per-app modal and failure modal.
-  - `--yes`: no decision modals, proceeds automatically.
-  - `--dry-run`: no `helm upgrade` executed, but all checks/logging/modals work.
-- **Logging**
-  - Timestamped log file created and includes phase, app, decision, and check outcomes.
+### Logging, Counters, and Summary
+- **Log file**
+  - `rancher/logs/helm-upgrade-YYYYmmdd-HHMMSS.log` per run.
+  - File is plain text and append-only for the session.
+- **Counters added**
+  - `total_discovered_count`, `excluded_count`, `up_to_date_count`, `skipped_count`, `updated_count`, `dry_run_approved_count`, `failed_apps_count`, `failure_events_count`.
+- **Final summary modal fields**
+  - discovered, excluded, up-to-date, skipped, updated,
+  - dry-run approved (when applicable),
+  - failed apps, failure events, exit status, log file path.
 
-### Assumptions and Defaults
-- `dialog` will be installed and available in PATH (required backend).
-- Keep current helper scripts and k3s/rancher command paths unchanged.
-- Continue using dynamic app discovery with maintained exclude list.
-- Rollout readiness checks will be namespace-wide workload checks (deployments/statefulsets) and treated as pass/fail gates.
+### Color Output (Implemented)
+- Colors are enabled by default (`use_color=1`).
+- Colors are disabled only when:
+  - `NO_COLOR` is set, or
+  - `TERM=dumb`.
+- Color rules:
+  - Helm app name: blue (`color_blue`).
+  - HTTP code: green for `200`, red otherwise (`color_http_code`).
+  - Bash return code: green for `0`, red otherwise (`color_bash_rc`).
+- Color is applied to terminal output; log file remains uncolored plain text.
+
+### Naming and Style Updates
+- Script variables are now lowercase (globals and shared state), including:
+  - config paths, mode flags, counters, helper paths, and ingress summary state.
+
+### Validation Performed
+- Syntax check: `bash -n rancher/helm-upgrade-apps.sh` (passing).
