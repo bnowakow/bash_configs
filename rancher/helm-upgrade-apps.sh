@@ -9,6 +9,7 @@ timestamp="$(date +"%Y%m%d-%H%M%S")"
 log_file="$log_dir/helm-upgrade-${timestamp}.log"
 yes_mode=0
 dry_run=0
+rollout_timeout="${ROLLOUT_TIMEOUT:-90s}"
 exit_status=0
 total_discovered_count=0
 excluded_count=0
@@ -50,11 +51,13 @@ fi
 
 usage() {
   cat <<USAGE
-Usage: $(basename "$0") [--yes] [--dry-run] [--help]
+Usage: $(basename "$0") [--yes] [--dry-run] [--rollout-timeout DURATION] [--help]
 
 Options:
   --yes       Auto-approve upgrades and continue prompts.
   --dry-run   Do not run helm upgrade; execute checks and prompts only.
+  --rollout-timeout DURATION
+              Timeout for each rollout status check (default: 90s).
   --help      Show this help message.
 
 Exit codes:
@@ -72,6 +75,23 @@ while [ "$#" -gt 0 ]; do
       ;;
     --dry-run)
       dry_run=1
+      shift
+      ;;
+    --rollout-timeout)
+      shift
+      if [ "$#" -eq 0 ] || [ -z "$1" ]; then
+        echo "Missing value for --rollout-timeout" >&2
+        exit 2
+      fi
+      rollout_timeout="$1"
+      shift
+      ;;
+    --rollout-timeout=*)
+      rollout_timeout="${1#*=}"
+      if [ -z "$rollout_timeout" ]; then
+        echo "Missing value for --rollout-timeout" >&2
+        exit 2
+      fi
       shift
       ;;
     --help)
@@ -408,18 +428,18 @@ check_rollout_ready() {
   local phase="$3"
 
   local resources
-  resources="$(kubectl get deployment,statefulset -n "$namespace" --kubeconfig "$kubeconfig_path" -o name 2>/dev/null || true)"
+  resources="$(kubectl get deployment,statefulset -n "$namespace" --kubeconfig "$kubeconfig_path" -l "app.kubernetes.io/instance=$app" -o name 2>/dev/null || true)"
 
   if [ -z "$resources" ]; then
-    log "$app [$phase]: no deployment/statefulset resources found" "$(color_blue "$app") [$phase]: no deployment/statefulset resources found"
+    log "$app [$phase]: no release-labeled deployment/statefulset resources found for app.kubernetes.io/instance=$app" "$(color_blue "$app") [$phase]: no release-labeled deployment/statefulset resources found for app.kubernetes.io/instance=$app"
     return 0
   fi
 
   local resource
   while IFS= read -r resource; do
     [ -z "$resource" ] && continue
-    log "$app [$phase]: waiting for rollout status: $resource" "$(color_blue "$app") [$phase]: waiting for rollout status: $resource"
-    if ! kubectl rollout status -n "$namespace" --kubeconfig "$kubeconfig_path" --timeout=300s "$resource" >>"$log_file" 2>&1; then
+    log "$app [$phase]: waiting for rollout status: $resource (timeout=$rollout_timeout)" "$(color_blue "$app") [$phase]: waiting for rollout status: $resource (timeout=$rollout_timeout)"
+    if ! kubectl rollout status -n "$namespace" --kubeconfig "$kubeconfig_path" --timeout="$rollout_timeout" "$resource" >>"$log_file" 2>&1; then
       log "$app [$phase]: rollout failed for $resource (rc=1)" "$(color_blue "$app") [$phase]: rollout failed for $resource (rc=$(color_bash_rc 1))"
       return 1
     fi
@@ -515,7 +535,7 @@ fi
 
 init_colors
 
-log "Run started. log_file=$log_file yes_mode=$yes_mode dry_run=$dry_run"
+log "Run started. log_file=$log_file yes_mode=$yes_mode dry_run=$dry_run rollout_timeout=$rollout_timeout"
 log "Refreshing git and helm repos"
 if ! sudo su zabbix -c "/home/sup/code/bash_configs/rancher/cron/git-pull.sh" >>"$log_file" 2>&1; then
   record_failure_and_maybe_abort "Git pull failed" "Unable to run rancher/cron/git-pull.sh as zabbix user."

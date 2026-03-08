@@ -5,7 +5,7 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 - `dialog`-based ncurses interaction.
 - Scrolling log window and per-app decision modal.
 - Interactive failure handling (`Continue` / `Abort`).
-- `--yes`, `--dry-run`, `--help` flags.
+- `--yes`, `--dry-run`, `--rollout-timeout`, `--help` flags.
 - Timestamped logs in `rancher/logs/`.
 - End-of-run summary modal with counters.
 - Lowercase variable naming throughout.
@@ -24,7 +24,7 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
   3. Check update availability via `zabbix/is-helm-image-up-to-date.sh`.
   4. Resolve namespace, local version, target version, chart ref.
   5. Run prechecks:
-     - rollout readiness (`deployment,statefulset` + `kubectl rollout status`),
+     - rollout readiness for release-labeled resources only,
      - ingress checks for all discovered hosts.
   6. Prompt per-app upgrade decision (unless `--yes`).
   7. Run `helm upgrade` (unless `--dry-run`).
@@ -38,7 +38,10 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 - **CLI flags**
   - `--yes`: auto-approve upgrade/failure prompts.
   - `--dry-run`: skip `helm upgrade`, keep checks and prompts.
+  - `--rollout-timeout DURATION`: timeout for each rollout status check (default `90s`).
   - `--help`: usage text.
+- **Environment override**
+  - `ROLLOUT_TIMEOUT` can set default rollout timeout (used when `--rollout-timeout` is not provided).
 - **Exit codes**
   - `0`: completed successfully.
   - `1`: aborted by user or one/more runtime failures.
@@ -47,6 +50,14 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
   - `rancher/zabbix/is-helm-image-up-to-date.sh`
   - `rancher/zabbix/lib/helm-current-version-of-chart.sh`
   - `helm-chart-repo-dir-or-helm-repo.sh` (`/etc/...` primary, local fallback)
+
+### Rollout Check Refinements
+- Rollout readiness now targets only resources from the current release via label selector:
+  - `app.kubernetes.io/instance=$app`
+- This avoids waiting on unrelated deployments in the same namespace.
+- Timeout is configurable per rollout call:
+  - default `90s`,
+  - override with `--rollout-timeout` or `ROLLOUT_TIMEOUT`.
 
 ### Logging, Counters, and Summary
 - **Log file**
