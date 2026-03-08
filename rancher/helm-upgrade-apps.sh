@@ -100,7 +100,7 @@ init_colors() {
   fi
 
   if [ "$use_color" -eq 1 ]; then
-    blue='\033[0;34m'
+    blue='\033[1;94m'
     green='\033[0;32m'
     red='\033[0;31m'
     nc='\033[0m'
