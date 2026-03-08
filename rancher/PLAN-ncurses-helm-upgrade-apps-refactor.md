@@ -12,7 +12,7 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 - Colorized terminal output with improved contrast.
 - Helper status labels (no magic-number-only output) and consistent status/return_code coloring.
 - Added usage documentation in [`rancher/README.md`](/Users/sup/code/bash_configs/rancher/README.md).
-- Added Debian logrotate template + installer script.
+- Added Debian logrotate support with installer script.
 
 ### Implemented Behavior
 - **TUI layer**
@@ -105,7 +105,8 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
   - template: [`rancher/logrotate-helm-upgrade-apps.conf`](/Users/sup/code/bash_configs/rancher/logrotate-helm-upgrade-apps.conf)
   - installer: [`rancher/install-logrotate-helm-upgrade-apps.sh`](/Users/sup/code/bash_configs/rancher/install-logrotate-helm-upgrade-apps.sh)
 - Installer behavior:
-  - uses repo-relative resolution (`script_dir`) to render the log glob,
+  - is self-contained (does not require template file at runtime),
+  - uses repo-relative resolution (`script_dir`) to build the log glob,
   - installs to `/etc/logrotate.d/helm-upgrade-apps`,
   - supports `--print` and `--help`.
 

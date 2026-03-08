@@ -3,8 +3,6 @@
 set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-config_template_rel="logrotate-helm-upgrade-apps.conf"
-config_template="$script_dir/$config_template_rel"
 log_glob="$script_dir/logs/helm-upgrade-*.log"
 target_config="/etc/logrotate.d/helm-upgrade-apps"
 
@@ -25,15 +23,22 @@ elif [ -n "${1:-}" ]; then
   exit 2
 fi
 
-if [ ! -f "$config_template" ]; then
-  echo "Template not found: $config_template" >&2
-  exit 1
-fi
-
 rendered_config="$(mktemp)"
 trap 'rm -f "$rendered_config"' EXIT
 
-sed "s|__LOG_GLOB__|$log_glob|g" "$config_template" > "$rendered_config"
+cat > "$rendered_config" <<EOF
+# Debian logrotate config for helm-upgrade-apps logs
+
+$log_glob {
+    daily
+    rotate 30
+    maxage 90
+    missingok
+    notifempty
+    compress
+    delaycompress
+}
+EOF
 
 if [ "$action" = "print" ]; then
   cat "$rendered_config"
