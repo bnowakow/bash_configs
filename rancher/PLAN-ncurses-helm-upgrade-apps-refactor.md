@@ -68,7 +68,14 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
   - Helm app name: brighter blue (`\033[1;94m`) for better contrast on dark terminals.
   - HTTP code: green for `200`, red otherwise (`color_http_code`).
   - Bash return code: green for `0`, red otherwise (`color_bash_rc`).
-  - Helper status label: colored by corresponding helper return code (`color_helper_status`).
+  - Helper status label:
+    - `up_to_date` -> green,
+    - `update_available` and `local_newer_than_repo` -> yellow,
+    - `unknown` -> red (`color_helper_status`).
+  - Helper status code:
+    - `0` -> green,
+    - `1` and `2` -> yellow,
+    - other -> red (`color_helper_code`).
 - Color is applied to terminal output; log file remains uncolored plain text.
 
 ### Helper Status Labels (Magic Number Removal)
@@ -78,7 +85,7 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
   - `2` -> `local_newer_than_repo`
   - other -> `unknown`
 - User-facing logs include meaningful helper status labels, with numeric code as secondary detail.
-- Fixed color consistency bug: in `helper status: ..., code: ...`, `code: 0` is now green (success), not blue.
+- Fixed color consistency bug: in `helper status: ..., code: ...`, `code: 0` is green (success).
 
 ### Naming and Style Updates
 - Script variables are lowercase (globals/shared state/config/counters/helpers).

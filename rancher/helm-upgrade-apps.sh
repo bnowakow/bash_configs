@@ -24,6 +24,7 @@ use_color=1
 blue=""
 green=""
 red=""
+yellow=""
 nc=""
 
 # Keep excludes explicit and easy to maintain.
@@ -103,6 +104,7 @@ init_colors() {
     blue='\033[1;94m'
     green='\033[0;32m'
     red='\033[0;31m'
+    yellow='\033[0;33m'
     nc='\033[0m'
   fi
 }
@@ -170,11 +172,40 @@ color_helper_status() {
     else
       printf '%s' "$label"
     fi
+  elif [ "$code" = "1" ] || [ "$code" = "2" ]; then
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$yellow" "$label" "$nc"
+    else
+      printf '%s' "$label"
+    fi
   else
     if [ "$use_color" -eq 1 ]; then
       printf '%b%s%b' "$red" "$label" "$nc"
     else
       printf '%s' "$label"
+    fi
+  fi
+}
+
+color_helper_code() {
+  local code="$1"
+  if [ "$code" = "0" ]; then
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$green" "$code" "$nc"
+    else
+      printf '%s' "$code"
+    fi
+  elif [ "$code" = "1" ] || [ "$code" = "2" ]; then
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$yellow" "$code" "$nc"
+    else
+      printf '%s' "$code"
+    fi
+  else
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$red" "$code" "$nc"
+    else
+      printf '%s' "$code"
     fi
   fi
 }
@@ -522,13 +553,13 @@ for app in $apps; do
   helper_status="$(helper_status_label "$update_check_rc")"
 
   if [ "$update_check_rc" -eq 0 ] || [ "$update_check_rc" -eq 2 ]; then
-    log "$app: no update needed (helper status: $helper_status, code: $update_check_rc)" "$(color_blue "$app"): no update needed (helper status: $(color_helper_status "$update_check_rc"), code: $(color_bash_rc "$update_check_rc"))"
+    log "$app: no update needed (helper status: $helper_status, code: $update_check_rc)" "$(color_blue "$app"): no update needed (helper status: $(color_helper_status "$update_check_rc"), code: $(color_helper_code "$update_check_rc"))"
     up_to_date_count=$((up_to_date_count + 1))
     current_app=""
     continue
   fi
   if [ "$update_check_rc" -ne 1 ]; then
-    log "$app: unexpected helper status: $helper_status (code: $update_check_rc)" "$(color_blue "$app"): unexpected helper status: $(color_helper_status "$update_check_rc") (code: $(color_bash_rc "$update_check_rc"))"
+    log "$app: unexpected helper status: $helper_status (code: $update_check_rc)" "$(color_blue "$app"): unexpected helper status: $(color_helper_status "$update_check_rc") (code: $(color_helper_code "$update_check_rc"))"
     record_failure_and_maybe_abort "Update check failed ($app)" "is-helm-image-up-to-date.sh returned unexpected code $update_check_rc."
     current_app=""
     continue
