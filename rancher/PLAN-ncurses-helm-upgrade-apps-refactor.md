@@ -3,7 +3,7 @@
 ### Summary
 The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup/code/bash_configs/rancher/helm-upgrade-apps.sh) with:
 - `dialog`-based ncurses interaction.
-- Scrolling log window and per-app decision modal.
+- Per-app decision modal and summary modal (final log dialog removed).
 - Interactive failure handling (`Continue` / `Abort`).
 - `--yes`, `--dry-run`, `--rollout-timeout`, `--help` flags.
 - Timestamped logs in `rancher/logs/`.
@@ -16,10 +16,10 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 
 ### Implemented Behavior
 - **TUI layer**
-  - `show_log_window`: final scrollable log view (`dialog --tailbox`).
+  - `show_log_window`: optional scrollable log view (`dialog --tailbox`, used on no-app run path).
   - `show_app_modal`: app metadata + HTTP summary + yes/no approval (`dialog --tailboxbg` + `--yesno`).
   - `ask_on_failure`: failure modal with continue/abort.
-  - `show_summary_modal`: final totals modal before log window.
+  - `show_summary_modal`: final totals modal shown before exit.
 - **Workflow phases per app**
   1. Discover app candidates from `helm ls --all-namespaces`.
   2. Exclude system apps via `exclude_patterns` array.

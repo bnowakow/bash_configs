@@ -248,16 +248,6 @@ cleanup() {
   fi
 }
 
-show_log_window() {
-  if [ "$yes_mode" -eq 1 ]; then
-    return 0
-  fi
-  dialog \
-    --clear \
-    --title "Helm Upgrade Log" \
-    --tailbox "$log_file" 20 120
-}
-
 show_summary_modal() {
   local summary
   summary="Discovered: $total_discovered_count
@@ -553,7 +543,6 @@ fi
 apps="$(list_candidate_apps)"
 if [ -z "$apps" ]; then
   log "No helm apps discovered."
-  show_log_window
   exit "$exit_status"
 fi
 
@@ -637,5 +626,4 @@ done
 
 log "Run finished with exit status $exit_status"
 show_summary_modal
-show_log_window
 exit "$exit_status"
