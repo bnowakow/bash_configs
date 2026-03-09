@@ -5,14 +5,14 @@
 # for Intel integrated GPU passthrough e.g. for jellyfin transcoding hardware acceleration
 # https://jonathangazeley.com/2025/02/11/intel-gpu-acceleration-on-kubernetes/
 # https://github.com/kubernetes-sigs/node-feature-discovery
-echo https://kubernetes-sigs.github.io/node-feature-discovery/charts
-# add above repo to rancher and install node-feature-discovery chart in rancher
-kubectl apply -k "https://github.com/kubernetes-sigs/node-feature-discovery/deployment/overlays/default?ref=v0.17.3"
+
+# install node-feature-discovery chart in rancher
+kubectl apply -k "https://github.com/kubernetes-sigs/node-feature-discovery/deployment/overlays/default?ref=v0.18.3"
+kubectl apply -f "https://raw.githubusercontent.com/intel/intel-device-plugins-for-kubernetes/main/deployments/nfd/overlays/node-feature-rules/node-feature-rules.yaml"
 # verify that labes has been added:
 kubectl get no $(hostname) -o json | jq .metadata.labels | grep intel
-echo https://intel.github.io/helm-charts/
-# add above repo to rancher and install intel-device-plugins-operator chart in rancher
-# add above repo to rancher and install intel-device-plugins-gpu chart in rancher, make sure that nodeSelector: intel.feature.node.kubernetes.io/gpu: 'true'
+# install intel-device-plugins-operator chart in rancher
+# install intel-device-plugins-gpu chart in rancher in the same namespace as operator above, make sure that nodeSelector: intel.feature.node.kubernetes.io/gpu: 'true'
 # verify:
 kubectl get no $(hostname) -o json | jq .status.capacity | grep gpu.intel.com
 
