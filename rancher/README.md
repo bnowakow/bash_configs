@@ -3,6 +3,8 @@
 This repository branch (`helm-upgrade-codex-refactor`) includes a refactored ncurses-based Helm upgrade flow for k3s/Rancher in:
 - `rancher/helm-upgrade-apps.sh`
 
+![demo of helm-upgrade.sh](./images/helm-upgrade.sh_demo.gif)
+
 ## What Changed
 
 The script now provides:
