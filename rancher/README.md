@@ -9,23 +9,23 @@
 From repo root:
 
 ```bash
-./rancher/helm-upgrade-apps.sh
+./helm-upgrade-apps.sh
 ```
 
 Options:
 
 ```bash
-./rancher/helm-upgrade-apps.sh --help
-./rancher/helm-upgrade-apps.sh --yes
-./rancher/helm-upgrade-apps.sh --dry-run
-./rancher/helm-upgrade-apps.sh --rollout-timeout 120s
-./rancher/helm-upgrade-apps.sh --yes --rollout-timeout=60s
+./helm-upgrade-apps.sh --help
+./helm-upgrade-apps.sh --yes
+./helm-upgrade-apps.sh --dry-run
+./helm-upgrade-apps.sh --rollout-timeout 120s
+./helm-upgrade-apps.sh --yes --rollout-timeout=60s
 ```
 
 Environment override for rollout timeout:
 
 ```bash
-ROLLOUT_TIMEOUT=2m ./rancher/helm-upgrade-apps.sh
+ROLLOUT_TIMEOUT=2m ./helm-upgrade-apps.sh
 ```
 
 ## Runtime Behavior
