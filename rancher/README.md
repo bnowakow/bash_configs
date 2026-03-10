@@ -43,7 +43,7 @@ Per app, the script does:
 ## Logs and Exit Codes
 
 Logs are written to:
-- `/logs/helm-upgrade-YYYYmmdd-HHMMSS.log`
+- `./logs/helm-upgrade-YYYYmmdd-HHMMSS.log`
 
 ## Text colors in terminals
 
