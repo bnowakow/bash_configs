@@ -181,7 +181,7 @@ dialog_color_http_code() {
   if [ "$code" = "200" ]; then
     if [ "$use_color" -eq 1 ] && [ "$dialog_colors_supported" -eq 1 ]; then
       local prefix="\\Z${dialog_success_attr}\\Z${dialog_success_color}"
-      printf '%s%s\\Z0\\ZB' "$prefix" "$code"
+      printf '%s%s\\Z0' "$prefix" "$code"
     else
       printf '%s' "$code"
     fi
@@ -449,7 +449,7 @@ check_ingress_http_codes() {
     [ -z "$host" ] && continue
     http_code="$(curl -L -s -o /dev/null -w "%{http_code}" "https://$host/")"
     dialog_code="$(dialog_color_http_code "$http_code")"
-    summary="${summary}${host} -> ${dialog_code}\\Z0\\n"
+    summary="${summary}\\Z0${host} -> ${dialog_code}\\Z0\\n"
     log "$app [$phase]: ingress https://$host/ returned $http_code" "$(color_blue "$app") [$phase]: ingress https://$host/ returned $(color_http_code "$http_code")"
     if [ "$http_code" != "200" ]; then
       fail=1
