@@ -90,6 +90,9 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
     - `1` and `2` -> yellow,
     - other -> red (`color_helper_code`).
 - Color is applied to terminal output; log file remains uncolored plain text.
+- Dialog color mapping (when colors enabled):
+  - App name is blue/bold via `--colors` in the per-app modal body.
+  - HTTP codes in ingress summary are green for `200`, red otherwise.
 
 ### Helper Status Labels (Magic Number Removal)
 - Added `helper_status_label()` for update-check helper result mapping:
