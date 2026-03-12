@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-
 set -u
 
 kubeconfig_path="/etc/rancher/k3s/k3s.yaml"
