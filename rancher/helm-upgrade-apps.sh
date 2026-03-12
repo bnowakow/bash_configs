@@ -1,80 +1,682 @@
 #!/bin/bash
 
-# https://stackoverflow.com/a/5947802
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-NC='\033[0m' # No Color
+set -u
 
-sudo su zabbix -c "/home/sup/code/bash_configs/rancher/cron/git-pull.sh"
-helm repo update
+kubeconfig_path="/etc/rancher/k3s/k3s.yaml"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+log_dir="$script_dir/logs"
+timestamp="$(date +"%Y%m%d-%H%M%S")"
+log_file="$log_dir/helm-upgrade-${timestamp}.log"
+yes_mode=0
+dry_run=0
+rollout_timeout="${ROLLOUT_TIMEOUT:-90s}"
+exit_status=0
+total_discovered_count=0
+excluded_count=0
+up_to_date_count=0
+skipped_count=0
+updated_count=0
+dry_run_approved_count=0
+failed_apps_count=0
+failure_events_count=0
+current_app=""
+current_app_failed=0
+use_color=1
+dialog_colors_supported=0
+dialog_success_color=2
+dialog_success_attr="b"
+blue=""
+green=""
+red=""
+yellow=""
+nc=""
 
-list_of_non_system_apps=$(/bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep -v 'cattle-' | grep -v 'kube-system' | grep -v 'cert-manager' | grep -v 'NAME' | grep -v 'cloudnative-pg' | grep -v 'longhorn-crd' | grep -v 'shinobi' | grep -v 'intel-device-plugins-operator' | grep -v 'node-feature-discovery' | grep -v 'meshcommander' | grep -v 'plex' | awk '{print $1}')
+# Keep excludes explicit and easy to maintain.
+exclude_patterns=(
+  '^cattle-'
+  '^kube-system$'
+  '^cert-manager$'
+  '^cloudnative-pg$'
+  '^longhorn-crd$'
+  '^shinobi$'
+  '^intel-device-plugins-operator$'
+  '^node-feature-discovery$'
+  '^meshcommander$'
+  '^plex$'
+)
 
-for app in $list_of_non_system_apps; do
-    # (bnowakow branch must be merged with master, pushed and refreshed in rancher to be availible)";
-    echo "checking if $app has an update version in repo"
-    echo -e -n "\t"
-    if ./zabbix/is-helm-image-up-to-date.sh $app --do-not-update-helm; then
-        echo -e "\tno update availible, current version is up to date";
-    else
-        echo -e "\tupdate is availible"
-        current_version=$(./zabbix/lib/helm-current-version-of-chart.sh $app --do-not-update-helm)
-        # didn't work for postgresql
-        #namespace=$(/bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep [^-]$app | awk '{print $2}')
-        namespace=$(/bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep "^$app\ " | awk '{print $2}')
-        chart_repo_dir_or_helm_repo=$(/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-chart-repo-dir-or-helm-repo.sh $app)
-        rm -f values.yaml
-        # below fails for postgresql and prometheus-operator since it doesn't have deployments, but it rancher it shows something :/
-        #sudo kubectl get deploy -n $namespace $app -o yaml --kubeconfig /etc/rancher/k3s/k3s.yaml > values.yaml
-        # below assumes that each application is run in separate namespace! 
-        # TODO this is not true eg. for apps-postgresql where it has pgadmin and postgresql
-        if kubectl get ingress -n $namespace 2>&1 | grep -q "No resources found"; then
-            ingress_exist=0;
-        else
-            ingress_exist=1;
-        fi
-        echo -e "\tingress_exist=$ingress_exist"
-        if [ "$ingress_exist" == "1" ]; then
-            url=$(kubectl get ingress -n $namespace |awk '{print $3 }' | tail -1 | sed -e 's/,.*//')
-            http_code=$(curl -L -s -o /dev/null -w "%{http_code}" "https://$url/")
-            if [ "$http_code" != 200 ]; then
-                echo -e "\t${RED}http-code=$http_code${NC} url=$url"
-                echo -e "${RED}non-200 http-code${NC}";
-                exit
-            else
-                echo -e "\t${GREEN}http-code=$http_code${NC} url=$url"
-            fi
-            http_code="before-update"
-        else
-            # TODO if ingress doesn't exist check healthcheck?
-            echo -e "\tno ingress, healthcheck not yet checked"
-        fi
-        echo -e "\t"would you like to update y/N
-        read line;
-        if [ "$line" == "y" ]; then
-            echo -e "\t"updating
-            # TODO below will that fail with helm repo that will have empty $chart_repo_dir_or_helm_repo, check if all arguments are not empty
-            #sudo helm upgrade --kubeconfig /etc/rancher/k3s/k3s.yaml --history-max=5 --install=true --namespace=$namespace --timeout=10m0s --values=values.yaml --version=$current_version --wait=true $app $chart_repo_dir_or_helm_repo | head -n3
+is_up_to_date_helper="$script_dir/zabbix/is-helm-image-up-to-date.sh"
+current_version_helper="$script_dir/zabbix/lib/helm-current-version-of-chart.sh"
+chart_repo_helper="/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-chart-repo-dir-or-helm-repo.sh"
+if [ ! -x "$chart_repo_helper" ]; then
+  chart_repo_helper="$script_dir/zabbix/lib/helm-chart-repo-dir-or-helm-repo.sh"
+fi
 
-            #sudo helm template --kubeconfig /etc/rancher/k3s/k3s.yaml --namespace=$namespace --timeout=10m0s --version=$current_version --wait=true $app $chart_repo_dir_or_helm_repo 
-            sudo helm upgrade --kubeconfig /etc/rancher/k3s/k3s.yaml --history-max=5 --install=true --namespace=$namespace --timeout=10m0s --version=$current_version --wait=true $app $chart_repo_dir_or_helm_repo | head -n3
-            # for prometheus-operator additional helm dependency build was needed
-	    #rm values.yaml
-            #mv values.yaml values-$app.yaml
-            if [ "$ingress_exist" == "1" ]; then
-                http_code=$(curl -L -s -o /dev/null -w "%{http_code}" "https://$url/")
-                if [ "$http_code" != 200 ]; then
-                    echo -e "\t${RED}http-code-after-update=$http_code${NC}"
-                    exit
-                else
-                    echo -e "\t${GREEN}http-code-after-update=$http_code${NC}"
-                fi
-                http_code="after-update"
-            fi
-        else
-            echo "\t"skipping update
-        fi
-    fi
-    echo
+usage() {
+  cat <<USAGE
+Usage: $(basename "$0") [--yes] [--dry-run] [--rollout-timeout DURATION] [--help]
+
+Options:
+  --yes       Auto-approve upgrades and continue prompts.
+  --dry-run   Do not run helm upgrade; execute checks and prompts only.
+  --rollout-timeout DURATION
+              Timeout for each rollout status check (default: 90s).
+  --help      Show this help message.
+
+Exit codes:
+  0 success/completed
+  1 aborted by user or runtime failure
+  2 dependency/setup error
+USAGE
+}
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --yes)
+      yes_mode=1
+      shift
+      ;;
+    --dry-run)
+      dry_run=1
+      shift
+      ;;
+    --rollout-timeout)
+      shift
+      if [ "$#" -eq 0 ] || [ -z "$1" ]; then
+        echo "Missing value for --rollout-timeout" >&2
+        exit 2
+      fi
+      rollout_timeout="$1"
+      shift
+      ;;
+    --rollout-timeout=*)
+      rollout_timeout="${1#*=}"
+      if [ -z "$rollout_timeout" ]; then
+        echo "Missing value for --rollout-timeout" >&2
+        exit 2
+      fi
+      shift
+      ;;
+    --help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown argument: $1" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
 done
 
+log() {
+  local message="$1"
+  local display_message="${2:-$1}"
+  local ts
+  ts="$(date +"%Y-%m-%d %H:%M:%S")"
+  printf '[%s] %s\n' "$ts" "$message" >>"$log_file"
+  printf '[%s] %b\n' "$ts" "$display_message"
+}
+
+init_colors() {
+  if [ "${TERM:-}" = "dumb" ] || [ -n "${NO_COLOR:-}" ]; then
+    use_color=0
+  fi
+
+  if [ "$use_color" -eq 1 ]; then
+    blue='\033[1;94m'
+    green='\033[0;32m'
+    red='\033[0;31m'
+    yellow='\033[0;33m'
+    nc='\033[0m'
+  fi
+}
+
+init_dialog_colors() {
+  dialog_colors_supported=0
+  if [ "$use_color" -eq 1 ] && command -v dialog >/dev/null 2>&1; then
+    if dialog --help 2>&1 | grep -q -- '--colors'; then
+      dialog_colors_supported=1
+    fi
+  fi
+}
+
+color_blue() {
+  local text="$1"
+  if [ "$use_color" -eq 1 ]; then
+    printf '%b%s%b' "$blue" "$text" "$nc"
+  else
+    printf '%s' "$text"
+  fi
+}
+
+color_http_code() {
+  local code="$1"
+  if [ "$code" = "200" ]; then
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$green" "$code" "$nc"
+    else
+      printf '%s' "$code"
+    fi
+  else
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$red" "$code" "$nc"
+    else
+      printf '%s' "$code"
+    fi
+  fi
+}
+
+dialog_color_app() {
+  local text="$1"
+  if [ "$use_color" -eq 1 ] && [ "$dialog_colors_supported" -eq 1 ]; then
+    printf '\\Zb\\Z4%s\\Z0' "$text"
+  else
+    printf '%s' "$text"
+  fi
+}
+
+dialog_color_http_code() {
+  local code="$1"
+  if [ "$code" = "200" ]; then
+    if [ "$use_color" -eq 1 ] && [ "$dialog_colors_supported" -eq 1 ]; then
+      local prefix="\\Z${dialog_success_attr}\\Z${dialog_success_color}"
+      printf '%s%s\\Z0' "$prefix" "$code"
+    else
+      printf '%s' "$code"
+    fi
+  else
+    if [ "$use_color" -eq 1 ] && [ "$dialog_colors_supported" -eq 1 ]; then
+      printf '\\Z1%s\\Z0' "$code"
+    else
+      printf '%s' "$code"
+    fi
+  fi
+}
+
+color_bash_return_code() {
+  local code="$1"
+  if [ "$code" = "0" ]; then
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$green" "$code" "$nc"
+    else
+      printf '%s' "$code"
+    fi
+  else
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$red" "$code" "$nc"
+    else
+      printf '%s' "$code"
+    fi
+  fi
+}
+
+helper_status_label() {
+  local code="$1"
+  case "$code" in
+    0) printf 'up_to_date' ;;
+    1) printf 'update_available' ;;
+    2) printf 'local_newer_than_repo' ;;
+    *) printf 'unknown' ;;
+  esac
+}
+
+color_helper_status() {
+  local code="$1"
+  local label
+  label="$(helper_status_label "$code")"
+  if [ "$code" = "0" ]; then
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$green" "$label" "$nc"
+    else
+      printf '%s' "$label"
+    fi
+  elif [ "$code" = "1" ] || [ "$code" = "2" ]; then
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$yellow" "$label" "$nc"
+    else
+      printf '%s' "$label"
+    fi
+  else
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$red" "$label" "$nc"
+    else
+      printf '%s' "$label"
+    fi
+  fi
+}
+
+color_helper_code() {
+  local code="$1"
+  if [ "$code" = "0" ]; then
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$green" "$code" "$nc"
+    else
+      printf '%s' "$code"
+    fi
+  elif [ "$code" = "1" ] || [ "$code" = "2" ]; then
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$yellow" "$code" "$nc"
+    else
+      printf '%s' "$code"
+    fi
+  else
+    if [ "$use_color" -eq 1 ]; then
+      printf '%b%s%b' "$red" "$code" "$nc"
+    else
+      printf '%s' "$code"
+    fi
+  fi
+}
+
+require_cmd() {
+  local cmd="$1"
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "Missing required command: $cmd" >&2
+    return 1
+  fi
+  return 0
+}
+
+cleanup() {
+  # Ensure cursor/screen is restored if dialog was used.
+  if command -v dialog >/dev/null 2>&1; then
+    dialog --clear >/dev/tty 2>/dev/null || true
+  fi
+}
+
+show_summary_modal() {
+  local summary
+  summary="Discovered: $total_discovered_count
+Excluded: $excluded_count
+Up-to-date: $up_to_date_count
+Skipped: $skipped_count
+Updated: $updated_count"
+
+  if [ "$dry_run" -eq 1 ]; then
+    summary="${summary}
+Dry-run approved (not executed): $dry_run_approved_count"
+  fi
+
+  summary="${summary}
+Failed apps: $failed_apps_count
+Failure events: $failure_events_count
+Exit status: $exit_status
+Log file: $log_file"
+
+  if [ "$yes_mode" -eq 1 ]; then
+    log "Summary: discovered=$total_discovered_count excluded=$excluded_count up_to_date=$up_to_date_count skipped=$skipped_count updated=$updated_count dry_run_approved=$dry_run_approved_count failed_apps=$failed_apps_count failure_events=$failure_events_count exit_status=$exit_status"
+    return 0
+  fi
+
+  dialog \
+    --clear \
+    --title "Run Summary" \
+    --msgbox "$summary" 16 100
+}
+
+show_app_modal() {
+  local app="$1"
+  local namespace="$2"
+  local local_version="$3"
+  local target_version="$4"
+  local ingress_summary="$5"
+  local dialog_color_flag=()
+  local dialog_color_flag_yesno=()
+  local app_display
+
+  if [ "$yes_mode" -eq 1 ]; then
+    log "AUTO: approving upgrade for $app"
+    return 0
+  fi
+
+  if [ "$dialog_colors_supported" -eq 1 ]; then
+    dialog_color_flag=(--colors)
+    dialog_color_flag_yesno=(--colors)
+  fi
+
+  app_display="$(dialog_color_app "$app")"
+  ingress_summary="${ingress_summary}\\Z0"
+
+  dialog \
+    "${dialog_color_flag[@]}" \
+    --clear \
+    --begin 0 0 \
+    --title "Helm Upgrade Log" \
+    --tailboxbg "$log_file" 18 120 \
+    --and-widget \
+    "${dialog_color_flag_yesno[@]}" \
+    --begin 2 10 \
+    --title "Upgrade $app?" \
+    --defaultno \
+    --yesno "App: $app_display\nNamespace: $namespace\nInstalled chart: ${local_version:-unknown}\nTarget chart: ${target_version:-unknown}\nHTTP checks:\n$ingress_summary\\Z0\n\nProceed with upgrade?" 16 100
+}
+
+ask_on_failure() {
+  local title="$1"
+  local message="$2"
+
+  if [ "$yes_mode" -eq 1 ]; then
+    log "AUTO: failure encountered, continuing because --yes is set ($title)"
+    return 0
+  fi
+
+  dialog \
+    --clear \
+    --begin 0 0 \
+    --title "Helm Upgrade Log" \
+    --tailboxbg "$log_file" 18 120 \
+    --and-widget \
+    --begin 2 10 \
+    --title "$title" \
+    --defaultno \
+    --yesno "$message\n\nContinue with next app?" 14 100
+}
+
+record_failure_and_maybe_abort() {
+  local title="$1"
+  local message="$2"
+  exit_status=1
+  failure_events_count=$((failure_events_count + 1))
+  if [ -n "$current_app" ] && [ "$current_app_failed" -eq 0 ]; then
+    current_app_failed=1
+    failed_apps_count=$((failed_apps_count + 1))
+  fi
+  log "FAILURE: $title - $message"
+  if ask_on_failure "$title" "$message"; then
+    log "User chose to continue after failure."
+    return 0
+  fi
+  log "User aborted run after failure."
+  cleanup
+  exit 1
+}
+
+should_exclude_app() {
+  local app="$1"
+  local pattern
+  for pattern in "${exclude_patterns[@]}"; do
+    if [[ "$app" =~ $pattern ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+list_candidate_apps() {
+  sudo /bin/helm ls --all-namespaces --kubeconfig "$kubeconfig_path" \
+    | awk 'NR>1 {print $1}'
+}
+
+get_namespace_for_app() {
+  local app="$1"
+  sudo /bin/helm ls --all-namespaces --kubeconfig "$kubeconfig_path" \
+    | awk -v app="$app" '$1==app {print $2; exit}'
+}
+
+get_local_chart_version() {
+  local app="$1"
+  sudo /bin/helm ls --all-namespaces --kubeconfig "$kubeconfig_path" \
+    | awk -v app="$app" '$1==app {print $9; exit}'
+}
+
+get_ingress_hosts() {
+  local namespace="$1"
+  kubectl get ingress -n "$namespace" --kubeconfig "$kubeconfig_path" -o jsonpath='{range .items[*].spec.rules[*]}{.host}{"\n"}{end}' 2>/dev/null | awk 'NF' | sort -u
+}
+
+check_ingress_http_codes() {
+  local app="$1"
+  local namespace="$2"
+  local phase="$3"
+
+  ingress_summary="No ingress hosts found"
+
+  local hosts
+  hosts="$(get_ingress_hosts "$namespace")"
+
+  if [ -z "$hosts" ]; then
+    log "$app [$phase]: no ingress hosts found" "$(color_blue "$app") [$phase]: no ingress hosts found"
+    return 0
+  fi
+
+  local fail=0
+  local summary=""
+  local host
+  local http_code
+  local dialog_code
+  while IFS= read -r host; do
+    [ -z "$host" ] && continue
+    http_code="$(curl -L -s -o /dev/null -w "%{http_code}" "https://$host/")"
+    dialog_code="$(dialog_color_http_code "$http_code")"
+    summary="${summary}\\Z0${host} -> ${dialog_code}\\Z0\\n"
+    log "$app [$phase]: ingress https://$host/ returned $http_code" "$(color_blue "$app") [$phase]: ingress https://$host/ returned $(color_http_code "$http_code")"
+    if [ "$http_code" != "200" ]; then
+      fail=1
+    fi
+  done <<EOF_HOSTS
+$hosts
+EOF_HOSTS
+
+  ingress_summary="$(printf "%b" "$summary")"
+
+  if [ "$fail" -eq 1 ]; then
+    return 1
+  fi
+  return 0
+}
+
+check_rollout_ready() {
+  local app="$1"
+  local namespace="$2"
+  local phase="$3"
+
+  local resources
+  resources="$(kubectl get deployment,statefulset -n "$namespace" --kubeconfig "$kubeconfig_path" -l "app.kubernetes.io/instance=$app" -o name 2>/dev/null || true)"
+
+  if [ -z "$resources" ]; then
+    log "$app [$phase]: no release-labeled deployment/statefulset resources found for app.kubernetes.io/instance=$app" "$(color_blue "$app") [$phase]: no release-labeled deployment/statefulset resources found for app.kubernetes.io/instance=$app"
+    return 0
+  fi
+
+  local resource
+  while IFS= read -r resource; do
+    [ -z "$resource" ] && continue
+    log "$app [$phase]: waiting for rollout status: $resource (timeout=$rollout_timeout)" "$(color_blue "$app") [$phase]: waiting for rollout status: $resource (timeout=$rollout_timeout)"
+    if ! kubectl rollout status -n "$namespace" --kubeconfig "$kubeconfig_path" --timeout="$rollout_timeout" "$resource" >>"$log_file" 2>&1; then
+      log "$app [$phase]: rollout failed for $resource (return_code=1)" "$(color_blue "$app") [$phase]: rollout failed for $resource (return_code=$(color_bash_return_code 1))"
+      return 1
+    fi
+  done <<EOF_ROLLOUT
+$resources
+EOF_ROLLOUT
+
+  log "$app [$phase]: rollout checks passed (return_code=0)" "$(color_blue "$app") [$phase]: rollout checks passed (return_code=$(color_bash_return_code 0))"
+  return 0
+}
+
+run_prechecks() {
+  local app="$1"
+  local namespace="$2"
+
+  if ! check_rollout_ready "$app" "$namespace" "precheck"; then
+    record_failure_and_maybe_abort "Precheck rollout failed ($app)" "Workload rollout status failed in namespace $namespace."
+    return 1
+  fi
+
+  if ! check_ingress_http_codes "$app" "$namespace" "precheck"; then
+    record_failure_and_maybe_abort "Precheck HTTP failed ($app)" "At least one ingress host for $app returned non-200."
+    return 1
+  fi
+
+  return 0
+}
+
+run_postchecks() {
+  local app="$1"
+  local namespace="$2"
+
+  if ! check_rollout_ready "$app" "$namespace" "postcheck"; then
+    record_failure_and_maybe_abort "Postcheck rollout failed ($app)" "Workload rollout status failed in namespace $namespace."
+    return 1
+  fi
+
+  if ! check_ingress_http_codes "$app" "$namespace" "postcheck"; then
+    record_failure_and_maybe_abort "Postcheck HTTP failed ($app)" "At least one ingress host for $app returned non-200 after upgrade."
+    return 1
+  fi
+
+  return 0
+}
+
+perform_upgrade() {
+  local app="$1"
+  local namespace="$2"
+  local target_version="$3"
+  local chart_ref="$4"
+
+  if [ "$dry_run" -eq 1 ]; then
+    log "$app: DRY RUN enabled, skipping helm upgrade" "$(color_blue "$app"): DRY RUN enabled, skipping helm upgrade"
+    return 0
+  fi
+
+  if [ -z "$chart_ref" ]; then
+    record_failure_and_maybe_abort "Missing chart reference ($app)" "Chart repo/ref helper returned empty value."
+    return 1
+  fi
+
+  log "$app: running helm upgrade to version $target_version using chart $chart_ref" "$(color_blue "$app"): running helm upgrade to version $target_version using chart $chart_ref"
+  if ! sudo helm upgrade \
+    --kubeconfig "$kubeconfig_path" \
+    --history-max=5 \
+    --install=true \
+    --namespace="$namespace" \
+    --timeout=10m0s \
+    --version="$target_version" \
+    --wait=true \
+    "$app" "$chart_ref" >>"$log_file" 2>&1; then
+    record_failure_and_maybe_abort "Helm upgrade failed ($app)" "helm upgrade command failed (return_code=1)."
+    return 1
+  fi
+
+  log "$app: helm upgrade completed (return_code=0)" "$(color_blue "$app"): helm upgrade completed (return_code=$(color_bash_return_code 0))"
+  return 0
+}
+
+trap cleanup EXIT
+
+mkdir -p "$log_dir"
+: >"$log_file"
+
+if ! require_cmd dialog || ! require_cmd helm || ! require_cmd kubectl || ! require_cmd curl || ! require_cmd sudo; then
+  echo "Setup error: required dependency is missing." >&2
+  exit 2
+fi
+if [ ! -x "$is_up_to_date_helper" ] || [ ! -x "$current_version_helper" ] || [ ! -x "$chart_repo_helper" ]; then
+  echo "Setup error: one or more helper scripts are missing or not executable." >&2
+  exit 2
+fi
+
+init_colors
+init_dialog_colors
+
+log "Run started. log_file=$log_file yes_mode=$yes_mode dry_run=$dry_run rollout_timeout=$rollout_timeout"
+log "Refreshing git and helm repos"
+if ! sudo su zabbix -c "/home/sup/code/bash_configs/rancher/cron/git-pull.sh" >>"$log_file" 2>&1; then
+  record_failure_and_maybe_abort "Git pull failed" "Unable to run rancher/cron/git-pull.sh as zabbix user."
+else
+  log "git pull refresh completed (return_code=0)" "git pull refresh completed (return_code=$(color_bash_return_code 0))"
+fi
+if ! helm repo update >>"$log_file" 2>&1; then
+  record_failure_and_maybe_abort "helm repo update failed" "Unable to refresh helm repos."
+else
+  log "helm repo update completed (return_code=0)" "helm repo update completed (return_code=$(color_bash_return_code 0))"
+fi
+
+apps="$(list_candidate_apps)"
+if [ -z "$apps" ]; then
+  log "No helm apps discovered."
+  exit "$exit_status"
+fi
+
+for app in $apps; do
+  total_discovered_count=$((total_discovered_count + 1))
+  current_app="$app"
+  current_app_failed=0
+
+  if should_exclude_app "$app"; then
+  log "$app: excluded by pattern" "$(color_blue "$app"): excluded by pattern"
+    excluded_count=$((excluded_count + 1))
+    current_app=""
+    continue
+  fi
+
+  log "$app: checking if update is available" "$(color_blue "$app"): checking if update is available"
+  "$is_up_to_date_helper" "$app" --do-not-update-helm >>"$log_file" 2>&1
+  update_check_return_code=$?
+  helper_status="$(helper_status_label "$update_check_return_code")"
+
+  if [ "$update_check_return_code" -eq 0 ] || [ "$update_check_return_code" -eq 2 ]; then
+    log "$app: no update needed (helper status: $helper_status, return_code: $update_check_return_code)" "$(color_blue "$app"): no update needed (helper status: $(color_helper_status "$update_check_return_code"), return_code: $(color_helper_code "$update_check_return_code"))"
+    up_to_date_count=$((up_to_date_count + 1))
+    current_app=""
+    continue
+  fi
+  if [ "$update_check_return_code" -ne 1 ]; then
+    log "$app: unexpected helper status: $helper_status (return_code: $update_check_return_code)" "$(color_blue "$app"): unexpected helper status: $(color_helper_status "$update_check_return_code") (return_code: $(color_helper_code "$update_check_return_code"))"
+    record_failure_and_maybe_abort "Update check failed ($app)" "is-helm-image-up-to-date.sh returned unexpected return_code $update_check_return_code."
+    current_app=""
+    continue
+  fi
+  log "$app: update available (helper status: $helper_status)" "$(color_blue "$app"): update available (helper status: $(color_helper_status "$update_check_return_code"))"
+
+  namespace="$(get_namespace_for_app "$app")"
+  if [ -z "$namespace" ]; then
+    record_failure_and_maybe_abort "Namespace not found ($app)" "Unable to resolve namespace from helm ls output."
+    current_app=""
+    continue
+  fi
+
+  local_version="$(get_local_chart_version "$app")"
+  target_version="$($current_version_helper "$app" --do-not-update-helm 2>>"$log_file")"
+  chart_ref="$($chart_repo_helper "$app" 2>>"$log_file")"
+
+  if [ -z "$target_version" ]; then
+    record_failure_and_maybe_abort "Version lookup failed ($app)" "Current chart version helper returned empty version."
+    current_app=""
+    continue
+  fi
+
+  if ! run_prechecks "$app" "$namespace"; then
+    current_app=""
+    continue
+  fi
+
+  if show_app_modal "$app" "$namespace" "$local_version" "$target_version" "$ingress_summary"; then
+    log "$app: upgrade approved" "$(color_blue "$app"): upgrade approved"
+  else
+    log "$app: upgrade skipped by user" "$(color_blue "$app"): upgrade skipped by user"
+    skipped_count=$((skipped_count + 1))
+    current_app=""
+    continue
+  fi
+
+  if ! perform_upgrade "$app" "$namespace" "$target_version" "$chart_ref"; then
+    current_app=""
+    continue
+  fi
+
+  if [ "$dry_run" -eq 1 ]; then
+    dry_run_approved_count=$((dry_run_approved_count + 1))
+  else
+    updated_count=$((updated_count + 1))
+  fi
+
+  run_postchecks "$app" "$namespace" || true
+  log "$app: processing complete" "$(color_blue "$app"): processing complete"
+  current_app=""
+done
+
+log "Run finished with exit status $exit_status"
+show_summary_modal
+exit "$exit_status"
