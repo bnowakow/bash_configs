@@ -155,6 +155,32 @@ color_http_code() {
   fi
 }
 
+dialog_color_app() {
+  local text="$1"
+  if [ "$use_color" -eq 1 ]; then
+    printf '\\Zb\\Z4%s\\Z0' "$text"
+  else
+    printf '%s' "$text"
+  fi
+}
+
+dialog_color_http_code() {
+  local code="$1"
+  if [ "$code" = "200" ]; then
+    if [ "$use_color" -eq 1 ]; then
+      printf '\\Z2%s\\Z0' "$code"
+    else
+      printf '%s' "$code"
+    fi
+  else
+    if [ "$use_color" -eq 1 ]; then
+      printf '\\Z1%s\\Z0' "$code"
+    else
+      printf '%s' "$code"
+    fi
+  fi
+}
+
 color_bash_return_code() {
   local code="$1"
   if [ "$code" = "0" ]; then
@@ -282,13 +308,22 @@ show_app_modal() {
   local local_version="$3"
   local target_version="$4"
   local ingress_summary="$5"
+  local dialog_color_flag=()
+  local app_display
 
   if [ "$yes_mode" -eq 1 ]; then
     log "AUTO: approving upgrade for $app"
     return 0
   fi
 
+  if [ "$use_color" -eq 1 ]; then
+    dialog_color_flag=(--colors)
+  fi
+
+  app_display="$(dialog_color_app "$app")"
+
   dialog \
+    "${dialog_color_flag[@]}" \
     --clear \
     --begin 0 0 \
     --title "Helm Upgrade Log" \
@@ -297,7 +332,7 @@ show_app_modal() {
     --begin 2 10 \
     --title "Upgrade $app?" \
     --defaultno \
-    --yesno "App: $app\nNamespace: $namespace\nInstalled chart: ${local_version:-unknown}\nTarget chart: ${target_version:-unknown}\nHTTP checks:\n$ingress_summary\n\nProceed with upgrade?" 16 100
+    --yesno "App: $app_display\nNamespace: $namespace\nInstalled chart: ${local_version:-unknown}\nTarget chart: ${target_version:-unknown}\nHTTP checks:\n$ingress_summary\n\nProceed with upgrade?" 16 100
 }
 
 ask_on_failure() {
@@ -392,10 +427,12 @@ check_ingress_http_codes() {
   local summary=""
   local host
   local http_code
+  local dialog_code
   while IFS= read -r host; do
     [ -z "$host" ] && continue
     http_code="$(curl -L -s -o /dev/null -w "%{http_code}" "https://$host/")"
-    summary="${summary}${host} -> ${http_code}\\n"
+    dialog_code="$(dialog_color_http_code "$http_code")"
+    summary="${summary}${host} -> ${dialog_code}\\n"
     log "$app [$phase]: ingress https://$host/ returned $http_code" "$(color_blue "$app") [$phase]: ingress https://$host/ returned $(color_http_code "$http_code")"
     if [ "$http_code" != "200" ]; then
       fail=1
