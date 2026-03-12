@@ -321,6 +321,7 @@ show_app_modal() {
   local target_version="$4"
   local ingress_summary="$5"
   local dialog_color_flag=()
+  local dialog_color_flag_yesno=()
   local app_display
 
   if [ "$yes_mode" -eq 1 ]; then
@@ -330,6 +331,7 @@ show_app_modal() {
 
   if [ "$dialog_colors_supported" -eq 1 ]; then
     dialog_color_flag=(--colors)
+    dialog_color_flag_yesno=(--colors)
   fi
 
   app_display="$(dialog_color_app "$app")"
@@ -341,6 +343,7 @@ show_app_modal() {
     --title "Helm Upgrade Log" \
     --tailboxbg "$log_file" 18 120 \
     --and-widget \
+    "${dialog_color_flag_yesno[@]}" \
     --begin 2 10 \
     --title "Upgrade $app?" \
     --defaultno \
