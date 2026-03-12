@@ -178,7 +178,7 @@ dialog_color_http_code() {
   local code="$1"
   if [ "$code" = "200" ]; then
     if [ "$use_color" -eq 1 ] && [ "$dialog_colors_supported" -eq 1 ]; then
-      printf '\\Z2%s\\Z0' "$code"
+      printf '\\Zb\\Z2%s\\Z0' "$code"
     else
       printf '%s' "$code"
     fi
