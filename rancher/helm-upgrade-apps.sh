@@ -24,6 +24,7 @@ failure_events_count=0
 current_app=""
 current_app_failed=0
 use_color=1
+dialog_colors_supported=0
 blue=""
 green=""
 red=""
@@ -131,6 +132,15 @@ init_colors() {
   fi
 }
 
+init_dialog_colors() {
+  dialog_colors_supported=0
+  if [ "$use_color" -eq 1 ] && command -v dialog >/dev/null 2>&1; then
+    if dialog --help 2>&1 | grep -q -- '--colors'; then
+      dialog_colors_supported=1
+    fi
+  fi
+}
+
 color_blue() {
   local text="$1"
   if [ "$use_color" -eq 1 ]; then
@@ -159,7 +169,7 @@ color_http_code() {
 
 dialog_color_app() {
   local text="$1"
-  if [ "$use_color" -eq 1 ]; then
+  if [ "$use_color" -eq 1 ] && [ "$dialog_colors_supported" -eq 1 ]; then
     printf '\\Zb\\Z4%s\\Z0' "$text"
   else
     printf '%s' "$text"
@@ -169,13 +179,13 @@ dialog_color_app() {
 dialog_color_http_code() {
   local code="$1"
   if [ "$code" = "200" ]; then
-    if [ "$use_color" -eq 1 ]; then
+    if [ "$use_color" -eq 1 ] && [ "$dialog_colors_supported" -eq 1 ]; then
       printf '\\Z2%s\\Z0' "$code"
     else
       printf '%s' "$code"
     fi
   else
-    if [ "$use_color" -eq 1 ]; then
+    if [ "$use_color" -eq 1 ] && [ "$dialog_colors_supported" -eq 1 ]; then
       printf '\\Z1%s\\Z0' "$code"
     else
       printf '%s' "$code"
@@ -318,7 +328,7 @@ show_app_modal() {
     return 0
   fi
 
-  if [ "$use_color" -eq 1 ]; then
+  if [ "$dialog_colors_supported" -eq 1 ]; then
     dialog_color_flag=(--colors)
   fi
 
@@ -563,6 +573,7 @@ if [ ! -x "$is_up_to_date_helper" ] || [ ! -x "$current_version_helper" ] || [ !
 fi
 
 init_colors
+init_dialog_colors
 
 log "Run started. log_file=$log_file yes_mode=$yes_mode dry_run=$dry_run rollout_timeout=$rollout_timeout"
 log "Refreshing git and helm repos"
