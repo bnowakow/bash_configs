@@ -94,6 +94,7 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
   - App name is blue/bold via `--colors` in the per-app modal body.
   - HTTP codes in ingress summary are green for `200`, red otherwise.
   - Dialog colors are only enabled when `dialog --help` reports `--colors`; otherwise `\Z` codes are not emitted.
+  - `--colors` is applied to both the tailbox and the yes/no widget to ensure the body renders color sequences.
 
 ### Helper Status Labels (Magic Number Removal)
 - Added `helper_status_label()` for update-check helper result mapping:
