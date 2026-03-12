@@ -181,7 +181,7 @@ dialog_color_http_code() {
   if [ "$code" = "200" ]; then
     if [ "$use_color" -eq 1 ] && [ "$dialog_colors_supported" -eq 1 ]; then
       local prefix="\\Z${dialog_success_attr}\\Z${dialog_success_color}"
-      printf '%s%s\\Z0' "$prefix" "$code"
+      printf '%s%s\\Z0\\ZB' "$prefix" "$code"
     else
       printf '%s' "$code"
     fi
