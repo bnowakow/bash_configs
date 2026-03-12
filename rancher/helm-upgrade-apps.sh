@@ -336,6 +336,7 @@ show_app_modal() {
   fi
 
   app_display="$(dialog_color_app "$app")"
+  ingress_summary="${ingress_summary}\\Z0"
 
   dialog \
     "${dialog_color_flag[@]}" \
@@ -348,7 +349,7 @@ show_app_modal() {
     --begin 2 10 \
     --title "Upgrade $app?" \
     --defaultno \
-    --yesno "App: $app_display\nNamespace: $namespace\nInstalled chart: ${local_version:-unknown}\nTarget chart: ${target_version:-unknown}\nHTTP checks:\n$ingress_summary\n\nProceed with upgrade?" 16 100
+    --yesno "App: $app_display\nNamespace: $namespace\nInstalled chart: ${local_version:-unknown}\nTarget chart: ${target_version:-unknown}\nHTTP checks:\n$ingress_summary\\Z0\n\nProceed with upgrade?" 16 100
 }
 
 ask_on_failure() {
@@ -448,7 +449,7 @@ check_ingress_http_codes() {
     [ -z "$host" ] && continue
     http_code="$(curl -L -s -o /dev/null -w "%{http_code}" "https://$host/")"
     dialog_code="$(dialog_color_http_code "$http_code")"
-    summary="${summary}${host} -> ${dialog_code}\\n"
+    summary="${summary}${host} -> ${dialog_code}\\Z0\\n"
     log "$app [$phase]: ingress https://$host/ returned $http_code" "$(color_blue "$app") [$phase]: ingress https://$host/ returned $(color_http_code "$http_code")"
     if [ "$http_code" != "200" ]; then
       fail=1
