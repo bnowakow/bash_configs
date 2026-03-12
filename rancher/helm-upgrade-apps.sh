@@ -23,7 +23,8 @@ current_app=""
 current_app_failed=0
 use_color=1
 dialog_colors_supported=0
-dialog_success_color=3
+dialog_success_color="${DIALOG_SUCCESS_COLOR:-2}"
+dialog_success_attr="${DIALOG_SUCCESS_ATTR:-}"
 blue=""
 green=""
 red=""
@@ -179,7 +180,11 @@ dialog_color_http_code() {
   local code="$1"
   if [ "$code" = "200" ]; then
     if [ "$use_color" -eq 1 ] && [ "$dialog_colors_supported" -eq 1 ]; then
-      printf '\\Zb\\Z%s%s\\Z0' "$dialog_success_color" "$code"
+      local prefix="\\Z${dialog_success_color}"
+      if [ -n "$dialog_success_attr" ]; then
+        prefix="\\Z${dialog_success_attr}${prefix}"
+      fi
+      printf '%s%s\\Z0' "$prefix" "$code"
     else
       printf '%s' "$code"
     fi
