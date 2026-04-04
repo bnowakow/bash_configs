@@ -394,11 +394,11 @@ $host"
 curl_error_looks_like_certificate_validity_issue() {
   local curl_return_code="$1"
   local curl_error_output="$2"
-  if [ "$curl_return_code" != "60" ]; then
-    return 1
+  if printf '%s' "$curl_error_output" | grep -E -i -q 'certificate has expired|certificate.*not yet valid|SSL certificate problem|peer certificate|certificate verify failed|x509:|tlsv1|ssl routines|ssl.*certificate|tls.*certificate'; then
+    return 0
   fi
 
-  if printf '%s' "$curl_error_output" | grep -E -i -q 'certificate has expired|certificate.*not yet valid|SSL certificate problem'; then
+  if [ "$curl_return_code" = "60" ]; then
     return 0
   fi
 
