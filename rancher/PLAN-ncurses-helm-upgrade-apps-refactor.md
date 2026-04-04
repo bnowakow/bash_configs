@@ -27,7 +27,7 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
   4. Resolve namespace, local version, target version, chart ref.
   5. Run prechecks:
      - rollout readiness for release-labeled resources only,
-     - ingress checks for all discovered hosts.
+     - ingress checks for all discovered hosts, with certificate/TLS-aware curl retry handling.
   6. Prompt per-app upgrade decision (unless `--yes`).
   7. Run `helm upgrade` (unless `--dry-run`).
   8. Run postchecks (rollout + ingress HTTP).
@@ -72,6 +72,14 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
   - dry-run approved (when applicable),
   - failed apps, failure events, exit status, log file path.
 
+### Ingress HTTP Check Behavior
+- Ingress health checks use `curl` against every discovered ingress host.
+- `curl` now runs with `-sS` so TLS/certificate errors are captured in stderr instead of being hidden.
+- When curl fails and the error looks like a certificate validity or TLS verification issue, the script asks whether to retry that host with `--insecure`.
+- Certificate/TLS retry detection uses both stderr pattern matching and common curl return codes associated with TLS/certificate problems.
+- If the user approves retry for a host, that host is remembered and future checks in the same run reuse `--insecure` for that host.
+- If the insecure retry succeeds, the ingress summary shows that host as checked `with --insecure`.
+
 ### Output and Color Behavior
 - Colors are enabled by default (`use_color=1`).
 - Colors are disabled only when:
@@ -104,6 +112,9 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
   - `2` -> `local_newer_than_repo`
   - other -> `unknown`
 - User-facing logs include meaningful helper status labels, with numeric return_code as secondary detail.
+
+### Failure Dialog Behavior
+- A certificate/TLS-related curl failure should now prompt for `--insecure` retry before the generic `Precheck HTTP failed` or `Postcheck HTTP failed` dialog appears.
 
 ### Git and Retention Additions
 - Added `@logs/` entry to [`.gitignore`](/Users/sup/code/bash_configs/.gitignore).

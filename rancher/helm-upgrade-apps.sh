@@ -21,6 +21,7 @@ failed_apps_count=0
 failure_events_count=0
 current_app=""
 current_app_failed=0
+insecure_hosts=""
 use_color=1
 dialog_colors_supported=0
 dialog_success_color=2
@@ -373,6 +374,113 @@ ask_on_failure() {
     --yesno "$message\n\nContinue with next app?" 14 100
 }
 
+host_uses_insecure() {
+  local host="$1"
+  printf '%s\n' "$insecure_hosts" | grep -F -x -q "$host"
+}
+
+add_insecure_host() {
+  local host="$1"
+  if ! host_uses_insecure "$host"; then
+    if [ -n "$insecure_hosts" ]; then
+      insecure_hosts="${insecure_hosts}
+$host"
+    else
+      insecure_hosts="$host"
+    fi
+  fi
+}
+
+curl_error_looks_like_certificate_validity_issue() {
+  local curl_return_code="$1"
+  local curl_error_output="$2"
+  if printf '%s' "$curl_error_output" | grep -E -i -q 'certificate has expired|certificate.*not yet valid|SSL certificate problem|peer certificate|certificate verify failed|x509:|tlsv1|ssl routines|ssl.*certificate|tls.*certificate'; then
+    return 0
+  fi
+
+  case "$curl_return_code" in
+    35|51|58|59|60|77|83|90)
+      return 0
+      ;;
+  esac
+
+  if [ "$curl_return_code" = "60" ]; then
+    return 0
+  fi
+
+  return 1
+}
+
+ask_retry_curl_with_insecure() {
+  local host="$1"
+  local curl_error_output="$2"
+
+  if [ "$yes_mode" -eq 1 ]; then
+    log "AUTO: not retrying curl with --insecure for $host because --yes is set"
+    return 1
+  fi
+
+  dialog \
+    --clear \
+    --begin 0 0 \
+    --title "Helm Upgrade Log" \
+    --tailboxbg "$log_file" 18 120 \
+    --and-widget \
+    --begin 2 10 \
+    --title "Certificate Validity Issue" \
+    --defaultno \
+    --yesno "curl failed for https://$host/ and it looks like the certificate may be out of date.\n\nError:\n$curl_error_output\n\nRetry this host with --insecure to skip certificate validity checks?" 18 100
+}
+
+run_curl_http_check() {
+  local host="$1"
+  local curl_error_file
+  local curl_args=(-L -sS -o /dev/null -w "%{http_code}")
+
+  curl_http_code="000"
+  curl_return_code=1
+  curl_used_insecure=0
+  curl_error_output=""
+
+  if host_uses_insecure "$host"; then
+    curl_args+=(--insecure)
+    curl_used_insecure=1
+  fi
+
+  curl_error_file="$(mktemp)"
+  if curl_http_code="$(curl "${curl_args[@]}" "https://$host/" 2>"$curl_error_file")"; then
+    curl_return_code=0
+    curl_error_output=""
+    rm -f "$curl_error_file"
+    return 0
+  fi
+
+  curl_return_code=$?
+  curl_error_output="$(cat "$curl_error_file")"
+  rm -f "$curl_error_file"
+
+  if [ "$curl_used_insecure" -eq 0 ] && curl_error_looks_like_certificate_validity_issue "$curl_return_code" "$curl_error_output"; then
+    log "curl for https://$host/ failed due to certificate validity issue (return_code=$curl_return_code)"
+    if ask_retry_curl_with_insecure "$host" "$curl_error_output"; then
+      add_insecure_host "$host"
+      curl_used_insecure=1
+      curl_error_file="$(mktemp)"
+      if curl_http_code="$(curl -L -sS --insecure -o /dev/null -w "%{http_code}" "https://$host/" 2>"$curl_error_file")"; then
+        curl_return_code=0
+        curl_error_output=""
+        rm -f "$curl_error_file"
+        log "curl for https://$host/ succeeded after retry with --insecure"
+        return 0
+      fi
+      curl_return_code=$?
+      curl_error_output="$(cat "$curl_error_file")"
+      rm -f "$curl_error_file"
+    fi
+  fi
+
+  return 1
+}
+
 record_failure_and_maybe_abort() {
   local title="$1"
   local message="$2"
@@ -445,13 +553,22 @@ check_ingress_http_codes() {
   local host
   local http_code
   local dialog_code
+  local insecure_suffix
   while IFS= read -r host; do
     [ -z "$host" ] && continue
-    http_code="$(curl -L -s -o /dev/null -w "%{http_code}" "https://$host/")"
+    run_curl_http_check "$host"
+    http_code="$curl_http_code"
     dialog_code="$(dialog_color_http_code "$http_code")"
-    summary="${summary}\\Z0${host} -> ${dialog_code}\\Z0\\n"
-    log "$app [$phase]: ingress https://$host/ returned $http_code" "$(color_blue "$app") [$phase]: ingress https://$host/ returned $(color_http_code "$http_code")"
-    if [ "$http_code" != "200" ]; then
+    insecure_suffix=""
+    if [ "$curl_used_insecure" -eq 1 ]; then
+      insecure_suffix=" (with --insecure)"
+    fi
+    summary="${summary}\\Z0${host} -> ${dialog_code}${insecure_suffix}\\Z0\\n"
+    log "$app [$phase]: ingress https://$host/ returned $http_code${insecure_suffix}" "$(color_blue "$app") [$phase]: ingress https://$host/ returned $(color_http_code "$http_code")${insecure_suffix}"
+    if [ "$curl_return_code" != "0" ]; then
+      log "$app [$phase]: curl failed for https://$host/ (return_code=$curl_return_code) error=$curl_error_output" "$(color_blue "$app") [$phase]: curl failed for https://$host/ (return_code=$(color_bash_return_code "$curl_return_code"))"
+      fail=1
+    elif [ "$http_code" != "200" ]; then
       fail=1
     fi
   done <<EOF_HOSTS
