@@ -398,6 +398,12 @@ curl_error_looks_like_certificate_validity_issue() {
     return 0
   fi
 
+  case "$curl_return_code" in
+    35|51|58|59|60|77|83|90)
+      return 0
+      ;;
+  esac
+
   if [ "$curl_return_code" = "60" ]; then
     return 0
   fi
@@ -429,7 +435,7 @@ ask_retry_curl_with_insecure() {
 run_curl_http_check() {
   local host="$1"
   local curl_error_file
-  local curl_args=(-L -s -o /dev/null -w "%{http_code}")
+  local curl_args=(-L -sS -o /dev/null -w "%{http_code}")
 
   curl_http_code="000"
   curl_return_code=1
@@ -459,7 +465,7 @@ run_curl_http_check() {
       add_insecure_host "$host"
       curl_used_insecure=1
       curl_error_file="$(mktemp)"
-      if curl_http_code="$(curl -L -s --insecure -o /dev/null -w "%{http_code}" "https://$host/" 2>"$curl_error_file")"; then
+      if curl_http_code="$(curl -L -sS --insecure -o /dev/null -w "%{http_code}" "https://$host/" 2>"$curl_error_file")"; then
         curl_return_code=0
         curl_error_output=""
         rm -f "$curl_error_file"
