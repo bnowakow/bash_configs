@@ -17,6 +17,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 namespace="apps"
+underscore="_"
 
 # Function to print colored output
 print_status() {
