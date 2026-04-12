@@ -1,23 +1,22 @@
 #!/bin/bash
 
-# Check if running as root
-if [ "$EUID" -ne 0 ]; then 
-    echo "ERROR: This script must be run as root (use sudo)" >&2
-    exit 1
-fi
-
 backup_dir="/home/sup/code/bash_configs/rancher/helm-pvc-storage-backups"
 pvc_dir_prefix="/var/lib/rancher/k3s/storage"
 log_dir="$backup_dir/logs"
-
-namespace="apps"
-underscore="_"
 
 # Color codes for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
+
+# Check if running as root
+if [ "$EUID" -ne 0 ]; then 
+    echo -e "${RED}ERROR${NC}: This script must be run as root (use sudo)" >&2
+    exit 1
+fi
+
+namespace="apps"
 
 # Function to print colored output
 print_status() {
