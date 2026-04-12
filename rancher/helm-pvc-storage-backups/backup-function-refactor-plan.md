@@ -34,24 +34,25 @@
 
 ## Implementation Steps
 1. Add error handling utility functions (optional, for cleaner code)
-2. Create the `backup_pvc()` function with all error handling
-3. Replace both backup blocks with function calls
-4. Add set -e or explicit exit handling for script robustness
+2. Create the `backup_pvc()` function with all error handling and root validation
+3. Replace both backup blocks with a single backup target list and loop
+4. Support duplicate app targets by using a flat array of `app:pvc_dir_middle:pvc_dir_suffix` strings
+5. Add set -e or explicit exit handling for script robustness
 
-## Final Implementation - Using Associative Array and Loop
-- **What**: Define apps in an associative array where app name is the key
-- **Why**: Eliminates repetitive if statements and makes adding new apps trivial
+## Final Implementation - Using Target Array and Loop
+- **What**: Define backup targets in a flat array where each item contains the app key, PVC directory prefix, and PVC suffix
+- **Why**: Supports multiple backup targets for the same app and preserves simple target configuration
 - **How**: 
-  - Create `declare -A apps_to_backup` associative array
-  - Store format: `[app_name]="pvc_dir_middle:pvc_dir_suffix"`
-  - Loop through array keys with `for app in "${!apps_to_backup[@]}"`
-  - Parse the combined value using IFS (internal field separator)
-  - Call `backup_pvc()` for each app in the loop
+  - Create `backup_targets=( ... )` array
+  - Store format: `"app:pvc_dir_middle:pvc_dir_suffix"`
+  - Iterate through array entries with `for target in "${backup_targets[@]}"`
+  - Split each target string with `IFS=':' read -r app pvc_dir_middle pvc_dir_suffix <<< "$target"`
+  - Call `backup_pvc()` for each target
 - **Benefits**:
-  - Easy to add new apps: just add one line to the array
-  - No duplicate if statements
-  - Scalable and maintainable
-  - Clear configuration at the top of the script
+  - Supports duplicate app names with different PVC paths
+  - Easy to add or update backup targets
+  - Allows alphabetical ordering of target entries for readability
+  - Keeps the app configuration explicit and centralized
 
 ## Logging and Log Rotation Implementation
 
