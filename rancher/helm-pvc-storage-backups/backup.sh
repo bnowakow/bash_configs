@@ -4,9 +4,34 @@
 
 backup_dir="/home/sup/code/bash_configs/rancher/helm-pvc-storage-backups"
 pvc_dir_prefix="/var/lib/rancher/k3s/storage"
+log_dir="$backup_dir/logs"
 
 namespace="apps"
 underscore="_"
+
+# Color codes for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_status() {
+    local status=$1
+    local message=$2
+    
+    case $status in
+        success)
+            echo -e "${GREEN}✓ SUCCESS:${NC} $message"
+            ;;
+        failure)
+            echo -e "${RED}✗ FAILURE:${NC} $message"
+            ;;
+        *)
+            echo -e "${YELLOW}⚠ INFO:${NC} $message"
+            ;;
+    esac
+}
 
 # Function to backup a PVC with error handling
 backup_pvc() {
@@ -16,31 +41,40 @@ backup_pvc() {
     
     local source_dir="$pvc_dir_prefix/$pvc_dir_middle$namespace-$app$underscore$app$pvc_dir_suffix"
     local destination_dir="$backup_dir/$app"
+    local log_file="$log_dir/backup-${app}-$(date +%Y%m%d-%H%M%S).log"
+    
+    # Create log directory if it doesn't exist
+    mkdir -p "$log_dir"
     
     # Check if source directory exists
     if [ ! -d "$source_dir" ]; then
-        echo "ERROR: Source directory does not exist: $source_dir" >&2
+        print_status "failure" "Source directory does not exist: $source_dir"
+        echo "ERROR: Source directory does not exist: $source_dir" >> "$log_file"
         return 1
     fi
     
     # Create destination directory if it doesn't exist
     if ! mkdir -p "$destination_dir"; then
-        echo "ERROR: Failed to create destination directory: $destination_dir" >&2
+        print_status "failure" "Failed to create destination directory: $destination_dir"
+        echo "ERROR: Failed to create destination directory: $destination_dir" >> "$log_file"
         return 1
     fi
     
-    # Run rsync and check exit code
-    echo "Backing up $app from $source_dir to $destination_dir..."
-    rsync -a -v --progress "$source_dir" "$destination_dir"
+    # Run rsync and redirect output to log file
+    rsync -a --progress "$source_dir" "$destination_dir" >> "$log_file" 2>&1
     
     local rsync_exit_code=$?
-    if [ $rsync_exit_code -ne 0 ]; then
-        echo "ERROR: rsync failed for $app with exit code $rsync_exit_code" >&2
+    if [ $rsync_exit_code -eq 0 ]; then
+        print_status "success" "Backed up $app (log: $log_file)"
+        return 0
+    elif [ $rsync_exit_code -eq 23 ] || [ $rsync_exit_code -eq 24 ]; then
+        # Exit codes 23 and 24 are partial transfers (some files couldn't be transferred)
+        print_status "" "Backup of $app completed with warnings (exit code: $rsync_exit_code, log: $log_file)"
+        return 0
+    else
+        print_status "failure" "Backup of $app failed (exit code: $rsync_exit_code, log: $log_file)"
         return 1
     fi
-    
-    echo "Successfully backed up $app"
-    return 0
 }
 
 # Define apps to backup as an associative array
