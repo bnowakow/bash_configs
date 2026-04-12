@@ -43,7 +43,7 @@ backup_pvc() {
     local app=$2
     local pvc_dir_suffix=$3
     
-    local source_dir="$pvc_dir_prefix/$pvc_dir_middle$namespace-$app$underscore$app$pvc_dir_suffix"
+    local source_dir="$pvc_dir_prefix/$pvc_dir_middle$namespace-$app$underscore$pvc_dir_suffix"
     local destination_dir="$backup_dir/$app"
     local log_file="$log_dir/backup-${app}-$(date +%Y%m%d-%H%M%S).log"
     

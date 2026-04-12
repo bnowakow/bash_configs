@@ -47,12 +47,14 @@
   - Store format: `"app:pvc_dir_middle:pvc_dir_suffix"`
   - Iterate through array entries with `for target in "${backup_targets[@]}"`
   - Split each target string with `IFS=':' read -r app pvc_dir_middle pvc_dir_suffix <<< "$target"`
+  - Use `source_dir="$pvc_dir_prefix/$pvc_dir_middle$namespace-$app$underscore$pvc_dir_suffix"`
   - Call `backup_pvc()` for each target
 - **Benefits**:
   - Supports duplicate app names with different PVC paths
   - Easy to add or update backup targets
   - Allows alphabetical ordering of target entries for readability
   - Keeps the app configuration explicit and centralized
+  - Makes suffix values the exact directory tail after the app underscore
 
 ## Logging and Log Rotation Implementation
 
