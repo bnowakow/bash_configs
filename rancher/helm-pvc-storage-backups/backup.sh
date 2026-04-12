@@ -1,6 +1,10 @@
 #!/bin/bash
 
-# TODO make sure runs as root
+# Check if running as root
+if [ "$EUID" -ne 0 ]; then 
+    echo "ERROR: This script must be run as root (use sudo)" >&2
+    exit 1
+fi
 
 backup_dir="/home/sup/code/bash_configs/rancher/helm-pvc-storage-backups"
 pvc_dir_prefix="/var/lib/rancher/k3s/storage"
