@@ -84,7 +84,7 @@ backup_pvc() {
 # Define individual backup targets as an array
 # Format: "app:pvc_dir_middle:pvc_dir_suffix"
 backup_targets=(
-    "adguard:pvc-88701eb6-263f-47ca-8c8c-c8310a3bfdda_:adguard-home-data"
+    "adguard-home:pvc-88701eb6-263f-47ca-8c8c-c8310a3bfdda_:adguard-home-data"
     "adguard-home:pvc-ff810ac9-1f85-49a2-ac92-10a1806f0e50_:adguard-home-config"
     "bazarr:pvc-81428f12-9714-4d85-99f8-2617655be696_:bazarr-config"
     "ddclient:pvc-277a068b-f588-4dec-866b-f730766fa910_:ddclient-config"
@@ -93,7 +93,7 @@ backup_targets=(
     "docker-mailserver:pvc-cfb72d39-4cf6-43ce-b997-bd5f59f3d72c_:docker-mailserver-mail-log"
     "docker-mailserver:pvc-e1186a18-2f87-45e3-b284-d58f09689a91_:docker-mailserver-mail-config"
     "filebot:pvc-bfdecbc8-82db-4c3a-ab47-ddf96905d5fc_:filebot-config"
-    "homer:pvc-80dc3cac-61fb-4222-849b-2197bac3a9df_:-config"
+    "homer:pvc-80dc3cac-61fb-4222-849b-2197bac3a9df_:homer-config"
     "jellyseerr:pvc-59cd6a11-8793-43e1-965a-28edd3257d7a_:jellyseerr-config"
     "prowlarr:pvc-179babac-ae59-4484-bbf5-2767ed088d5a_:prowlarr-config"
     "radarr:pvc-2df6a22e-ccef-46cd-a46d-0653232a47e3_:radarr-config"
@@ -102,7 +102,7 @@ backup_targets=(
     "sonarr:pvc-b5811237-c692-4e2d-aa39-fc61f56fe0a8_:sonarr-config"
     "scrutiny:pvc-36b30dbf-47e6-4a93-b193-b7b576b26949_:scrutiny-config"
     "scrutiny:pvc-da5e04e3-c415-498a-b777-e7ad9f1f636f_:scrutiny-influxdb"
-    "youtubedl-material:pvc-02735a71-190c-4f5e-bd43-7bd82ca7a062_:-appdata"
+    "youtubedl-material:pvc-02735a71-190c-4f5e-bd43-7bd82ca7a062_:youtubedl-material-appdata"
     "zabbix:pvc-7bb141a9-5e9b-4bd1-89b2-d4ab28b7a7d5_:postgresql-data-zabbix-postgresql-0"
 )
 
