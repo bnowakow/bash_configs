@@ -6,6 +6,17 @@ port=9091
 user=transmission
 pass=$(cat .transmission-password)
 
+proxmox_vm_id=600;
+
+# Sleep duration settings
+reboot_wait_time=4m
+check_wait_time=1m
+transmission_check_interval=10s
+
+# Attempt settings
+transmission_check_attempts=3
+reboot_check_maximum_number=6
+
 # Color codes for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -62,17 +73,6 @@ for try in `seq 1 $transmission_check_attempts`; do
     fi    
     sleep $transmission_check_interval; # Comment while DEBUG
 done
-
-proxmox_vm_id=600;
-
-# Sleep duration settings
-reboot_wait_time=4m
-check_wait_time=1m
-transmission_check_interval=10s
-
-# Attempt settings
-transmission_check_attempts=3
-reboot_check_maximum_number=6
 
 transmission_vm_boot_date_time_before_reboot=$(ssh -t $host "who -b" 2>&1)
 ssh_exit_code=$?
