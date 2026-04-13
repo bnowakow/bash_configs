@@ -6,6 +6,30 @@ port=9091
 user=transmission
 pass=$(cat .transmission-password)
 
+# Color codes for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_status() {
+    local status=$1
+    local message=$2
+    
+    case $status in
+        success)
+            echo -e "${GREEN}✓ SUCCESS:${NC} $message"
+            ;;
+        failure)
+            echo -e "${RED}✗ FAILURE:${NC} $message"
+            ;;
+        *)
+            echo -e "${YELLOW}⚠ INFO:${NC} $message"
+            ;;
+    esac
+}
+
 
 curl_transmission() {
     sessid=$(curl --connect-timeout 10 --max-time 15 --silent --anyauth --user $user:$pass "http://$host:$port/transmission/rpc" | sed 's/.*<code>//g;s/<\/code>.*//g')
@@ -28,11 +52,11 @@ for try in `seq 1 3`; do
     transmission_http_code=$(curl_transmission)
     #echo transmission_http_code=$transmission_http_code
     if [ "$transmission_http_code" = "200" ]; then
-        echo "transmission is up"
+        print_status "success" "transmission is up"
         exit # Comment while DEBUG
     else
         # TODO check 403 that might be returned when daemon is starting and then do longer sleep to give it a time to start?
-        echo "transmission is down at try=$try"
+        print_status "failure" "transmission is down at try=$try"
     fi    
     sleep 10s; # Comment while DEBUG
 done
@@ -52,7 +76,7 @@ while true; do
     #transmission_vm_boot_date_time_after_reboot=$(timeout --kill-after=10s 5s ssh -t $host "who -b")
     transmission_vm_boot_date_time_after_reboot=$(timelimit -S 4 -s 6 -T 8 -t 10 ssh -t $host "who -b")
     if [ "$transmission_vm_boot_date_time_after_reboot" != "" ] && [ "$transmission_vm_boot_date_time_after_reboot" != "$transmission_vm_boot_date_time_before_reboot" ]; then 
-        echo "booted";
+        print_status "success" "booted"
         break;
     fi
     ((checks_number++))
@@ -67,11 +91,16 @@ done
 date
 
 if [ $checks_number -ge $checks_maximum_number ]; then
-    echo "didn't detect system up after reboot, reseting vm"
-    # TODO add timeout and check if succecced 
-    sudo qm reset $proxmox_vm_id
+    print_status "failure" "didn't detect system up after reboot, reseting vm"
+    reset_output=$(sudo qm reset $proxmox_vm_id 2>&1)
+    if echo "$reset_output" | grep -q "not running"; then
+        print_status "" "VM $proxmox_vm_id not running, starting VM"
+        sudo qm start $proxmox_vm_id
+    else
+        print_status "" "VM reset attempted: $reset_output"
+    fi
 else
-    echo "system booted after reboot";
+    print_status "success" "system booted after reboot"
 fi
 
 
