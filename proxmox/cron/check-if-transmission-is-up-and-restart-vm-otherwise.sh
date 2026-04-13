@@ -66,14 +66,14 @@ proxmox_vm_id=600;
 
 transmission_vm_boot_date_time_before_reboot=$(ssh -t $host "who -b" 2>&1)
 if echo "$transmission_vm_boot_date_time_before_reboot" | grep -q "No route to host"; then
-    print_status "failure" "Cannot connect to VM: No route to host"
+    print_status "failure" "Cannot connect to VM via SSH: No route to host"
     transmission_vm_boot_date_time_before_reboot=""
 fi
 echo transmission_vm_boot_date_time_before_reboot=$transmission_vm_boot_date_time_before_reboot;
 date
 ssh_output=$(ssh -t root@$host "reboot" 2>&1)
 if echo "$ssh_output" | grep -q "No route to host"; then
-    print_status "failure" "Cannot connect to VM: No route to host"
+    print_status "failure" "Cannot connect to VM via SSH: No route to host"
 else
     echo "$ssh_output"
 fi
@@ -86,7 +86,7 @@ while true; do
     #transmission_vm_boot_date_time_after_reboot=$(timeout --kill-after=10s 5s ssh -t $host "who -b")
     transmission_vm_boot_date_time_after_reboot=$(timelimit -S 4 -s 6 -T 8 -t 10 ssh -t $host "who -b" 2>&1)
     if echo "$transmission_vm_boot_date_time_after_reboot" | grep -q "No route to host"; then
-        print_status "failure" "Cannot connect to VM: No route to host"
+        print_status "failure" "Cannot connect to VM via SSH: No route to host"
         transmission_vm_boot_date_time_after_reboot=""
     fi
     if [ "$transmission_vm_boot_date_time_after_reboot" != "" ] && [ "$transmission_vm_boot_date_time_after_reboot" != "$transmission_vm_boot_date_time_before_reboot" ]; then 
