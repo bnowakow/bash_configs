@@ -90,10 +90,10 @@ while true; do
     #transmission_vm_boot_date_time_after_reboot=$(timeout --kill-after=10s 5s ssh -t $host "who -b")
     transmission_vm_boot_date_time_after_reboot=$(timelimit -S 4 -s 6 -T 8 -t 10 ssh -t $host "who -b" 2>&1)
     if [ "$transmission_vm_boot_date_time_after_reboot" = "" ]; then
-        print_status "failure" "SSH command failed"
+        print_status "failure" "SSH command failed: ssh -t $host \"who -b\""
         transmission_vm_boot_date_time_after_reboot=""
     elif echo "$transmission_vm_boot_date_time_after_reboot" | grep -q "No route to host"; then
-        print_status "failure" "Cannot connect to VM via SSH: No route to host"
+        print_status "failure" "Cannot connect to VM via SSH (ssh -t $host \"who -b\"): No route to host"
         transmission_vm_boot_date_time_after_reboot=""
     fi
     if [ "$transmission_vm_boot_date_time_after_reboot" != "" ] && [ "$transmission_vm_boot_date_time_after_reboot" != "$transmission_vm_boot_date_time_before_reboot" ]; then 
