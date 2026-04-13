@@ -47,8 +47,9 @@ curl_transmission() {
     echo $transmission_http_code
 }
 
-for try in `seq 1 3`; do
+for try in `seq 1 $transmission_check_attempts`; do
     #echo try=$try;
+    echo -e "try=${LIGHT_BLUE}$try/${transmission_check_attempts}${NC}"
     date;
     transmission_http_code=$(curl_transmission)
     #echo transmission_http_code=$transmission_http_code
@@ -68,6 +69,10 @@ proxmox_vm_id=600;
 reboot_wait_time=4m
 check_wait_time=1m
 transmission_check_interval=10s
+
+# Attempt settings
+transmission_check_attempts=3
+reboot_check_maximum_number=6
 
 transmission_vm_boot_date_time_before_reboot=$(ssh -t $host "who -b" 2>&1)
 ssh_exit_code=$?
@@ -90,7 +95,7 @@ date
 print_status "" "Waiting $reboot_wait_time for VM to reboot..."
 sleep $reboot_wait_time;
 checks_number=0
-checks_maximum_number=6
+checks_maximum_number=$reboot_check_maximum_number
 while true; do
     # for some reason when timeout was used it didn't finished it time (that was fixed after adding --kill-after, but after that ssh didn't connect eventhough at the same time in different terminal ssh was responding
     #transmission_vm_boot_date_time_after_reboot=$(timeout --kill-after=10s 5s ssh -t $host "who -b")
@@ -107,7 +112,7 @@ while true; do
         break;
     fi
     ((checks_number++))
-    echo -e "checks_number=${LIGHT_BLUE}$checks_number${NC}"
+    echo -e "checks_number=${LIGHT_BLUE}$checks_number/${checks_maximum_number}${NC}"
     if [ $checks_number -ge $checks_maximum_number ]; then
         break;
     fi
