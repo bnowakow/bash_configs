@@ -59,10 +59,15 @@ for try in `seq 1 3`; do
         # TODO check 403 that might be returned when daemon is starting and then do longer sleep to give it a time to start?
         print_status "failure" "transmission is down at try=${LIGHT_BLUE}$try${NC}"
     fi    
-    sleep 10s; # Comment while DEBUG
+    sleep $transmission_check_interval; # Comment while DEBUG
 done
 
 proxmox_vm_id=600;
+
+# Sleep duration settings
+reboot_wait_time=4m
+check_wait_time=1m
+transmission_check_interval=10s
 
 transmission_vm_boot_date_time_before_reboot=$(ssh -t $host "who -b" 2>&1)
 ssh_exit_code=$?
@@ -82,7 +87,8 @@ else
     echo "$ssh_output"
 fi
 date
-sleep 4m;
+print_status "" "Waiting $reboot_wait_time for VM to reboot..."
+sleep $reboot_wait_time;
 checks_number=0
 checks_maximum_number=6
 while true; do
@@ -105,8 +111,8 @@ while true; do
     if [ $checks_number -ge $checks_maximum_number ]; then
         break;
     fi
-
-    sleep 1m;
+    print_status "" "Waiting $check_wait_time before next check (${LIGHT_BLUE}${checks_number}/${checks_maximum_number}${NC})..."
+    sleep $check_wait_time;
 done
 
 date
