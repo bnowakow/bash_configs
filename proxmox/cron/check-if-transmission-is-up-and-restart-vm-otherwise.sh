@@ -71,6 +71,7 @@ for try in `seq 1 $transmission_check_attempts`; do
         # TODO check 403 that might be returned when daemon is starting and then do longer sleep to give it a time to start?
         print_status "failure" "transmission is down at try=${LIGHT_BLUE}$try${NC}"
     fi    
+    print_status "" "Sleeping $transmission_check_interval before next transmission HTTP API check"
     sleep $transmission_check_interval; # Comment while DEBUG
 done
 
