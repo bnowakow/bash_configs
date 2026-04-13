@@ -10,6 +10,7 @@ pass=$(cat .transmission-password)
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+LIGHT_BLUE='\033[94m'
 NC='\033[0m' # No Color
 
 # Function to print colored output
@@ -80,7 +81,7 @@ while true; do
         break;
     fi
     ((checks_number++))
-    echo checks_number=$checks_number
+    echo -e "checks_number=${LIGHT_BLUE}$checks_number${NC}"
     if [ $checks_number -ge $checks_maximum_number ]; then
         break;
     fi
