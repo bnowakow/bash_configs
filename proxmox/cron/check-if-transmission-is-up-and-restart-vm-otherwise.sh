@@ -57,7 +57,7 @@ for try in `seq 1 3`; do
         exit # Comment while DEBUG
     else
         # TODO check 403 that might be returned when daemon is starting and then do longer sleep to give it a time to start?
-        print_status "failure" "transmission is down at try=$try"
+        print_status "failure" "transmission is down at try=${LIGHT_BLUE}$try${NC}"
     fi    
     sleep 10s; # Comment while DEBUG
 done
