@@ -49,7 +49,7 @@ curl_transmission() {
 
 for try in `seq 1 $transmission_check_attempts`; do
     #echo try=$try;
-    echo -e "try=${LIGHT_BLUE}$try/${transmission_check_attempts}${NC}"
+    echo -e "transmission HTTP API check attempt=${LIGHT_BLUE}$try/${transmission_check_attempts}${NC}"
     date;
     transmission_http_code=$(curl_transmission)
     #echo transmission_http_code=$transmission_http_code
@@ -112,7 +112,7 @@ while true; do
         break;
     fi
     ((checks_number++))
-    echo -e "checks_number=${LIGHT_BLUE}$checks_number/${checks_maximum_number}${NC}"
+    echo -e "reboot check attempt=${LIGHT_BLUE}$checks_number/${checks_maximum_number}${NC}"
     if [ $checks_number -ge $checks_maximum_number ]; then
         break;
     fi
