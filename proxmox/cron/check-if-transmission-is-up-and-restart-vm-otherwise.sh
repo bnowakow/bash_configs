@@ -67,9 +67,9 @@ proxmox_vm_id=600;
 transmission_vm_boot_date_time_before_reboot=$(ssh -t $host "who -b" 2>&1)
 ssh_exit_code=$?
 if [ "$transmission_vm_boot_date_time_before_reboot" = "" ] && [ $ssh_exit_code -ne 0 ]; then
-    print_status "failure" "SSH command failed with exit code $ssh_exit_code"
+    print_status "failure" "SSH command failed with exit code $ssh_exit_code: ssh -t $host \"who -b\""
 elif echo "$transmission_vm_boot_date_time_before_reboot" | grep -q "No route to host"; then
-    print_status "failure" "Cannot connect to VM via SSH: No route to host"
+    print_status "failure" "Cannot connect to VM via SSH (ssh -t $host \"who -b\"): No route to host"
     transmission_vm_boot_date_time_before_reboot=""
 else
     echo transmission_vm_boot_date_time_before_reboot=$transmission_vm_boot_date_time_before_reboot;
@@ -77,7 +77,7 @@ fi
 date
 ssh_output=$(ssh -t root@$host "reboot" 2>&1)
 if echo "$ssh_output" | grep -q "No route to host"; then
-    print_status "failure" "Cannot connect to VM via SSH: No route to host"
+    print_status "failure" "Cannot connect to VM via SSH (ssh -t root@$host \"reboot\"): No route to host"
 else
     echo "$ssh_output"
 fi
