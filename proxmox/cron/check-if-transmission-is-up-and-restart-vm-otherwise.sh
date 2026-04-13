@@ -64,10 +64,19 @@ done
 
 proxmox_vm_id=600;
 
-transmission_vm_boot_date_time_before_reboot=$(ssh -t $host "who -b")
+transmission_vm_boot_date_time_before_reboot=$(ssh -t $host "who -b" 2>&1)
+if echo "$transmission_vm_boot_date_time_before_reboot" | grep -q "No route to host"; then
+    print_status "failure" "Cannot connect to VM: No route to host"
+    transmission_vm_boot_date_time_before_reboot=""
+fi
 echo transmission_vm_boot_date_time_before_reboot=$transmission_vm_boot_date_time_before_reboot;
 date
-ssh -t root@$host "reboot"
+ssh_output=$(ssh -t root@$host "reboot" 2>&1)
+if echo "$ssh_output" | grep -q "No route to host"; then
+    print_status "failure" "Cannot connect to VM: No route to host"
+else
+    echo "$ssh_output"
+fi
 date
 sleep 4m;
 checks_number=0
@@ -75,7 +84,11 @@ checks_maximum_number=6
 while true; do
     # for some reason when timeout was used it didn't finished it time (that was fixed after adding --kill-after, but after that ssh didn't connect eventhough at the same time in different terminal ssh was responding
     #transmission_vm_boot_date_time_after_reboot=$(timeout --kill-after=10s 5s ssh -t $host "who -b")
-    transmission_vm_boot_date_time_after_reboot=$(timelimit -S 4 -s 6 -T 8 -t 10 ssh -t $host "who -b")
+    transmission_vm_boot_date_time_after_reboot=$(timelimit -S 4 -s 6 -T 8 -t 10 ssh -t $host "who -b" 2>&1)
+    if echo "$transmission_vm_boot_date_time_after_reboot" | grep -q "No route to host"; then
+        print_status "failure" "Cannot connect to VM: No route to host"
+        transmission_vm_boot_date_time_after_reboot=""
+    fi
     if [ "$transmission_vm_boot_date_time_after_reboot" != "" ] && [ "$transmission_vm_boot_date_time_after_reboot" != "$transmission_vm_boot_date_time_before_reboot" ]; then 
         print_status "success" "booted"
         break;
