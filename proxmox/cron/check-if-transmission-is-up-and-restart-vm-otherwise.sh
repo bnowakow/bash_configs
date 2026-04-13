@@ -89,7 +89,10 @@ while true; do
     # for some reason when timeout was used it didn't finished it time (that was fixed after adding --kill-after, but after that ssh didn't connect eventhough at the same time in different terminal ssh was responding
     #transmission_vm_boot_date_time_after_reboot=$(timeout --kill-after=10s 5s ssh -t $host "who -b")
     transmission_vm_boot_date_time_after_reboot=$(timelimit -S 4 -s 6 -T 8 -t 10 ssh -t $host "who -b" 2>&1)
-    if echo "$transmission_vm_boot_date_time_after_reboot" | grep -q "No route to host"; then
+    if [ "$transmission_vm_boot_date_time_after_reboot" = "" ]; then
+        print_status "failure" "SSH command failed"
+        transmission_vm_boot_date_time_after_reboot=""
+    elif echo "$transmission_vm_boot_date_time_after_reboot" | grep -q "No route to host"; then
         print_status "failure" "Cannot connect to VM via SSH: No route to host"
         transmission_vm_boot_date_time_after_reboot=""
     fi
