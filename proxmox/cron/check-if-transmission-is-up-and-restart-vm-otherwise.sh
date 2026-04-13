@@ -65,7 +65,7 @@ for try in `seq 1 $transmission_check_attempts`; do
     transmission_http_code=$(curl_transmission)
     #echo transmission_http_code=$transmission_http_code
     if [ "$transmission_http_code" = "200" ]; then
-        print_status "success" "transmission is up"
+        print_status "success" "transmission is up (next check sleep: $transmission_check_interval)"
         exit # Comment while DEBUG
     else
         # TODO check 403 that might be returned when daemon is starting and then do longer sleep to give it a time to start?
