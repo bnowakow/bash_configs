@@ -36,9 +36,10 @@ Per app, the script does:
 3. runs prechecks:
    - rollout checks only for release-labeled resources: `app.kubernetes.io/instance=<app>`
    - ingress HTTP code checks for all discovered hosts
+   - if no ingress exists, collects the last 10 log lines from each release-labeled pod and shows them in the ncurses approval modal
 4. asks whether to upgrade (unless `--yes`)
 5. runs `helm upgrade` (unless `--dry-run`)
-6. runs postchecks (rollout + ingress HTTP code checks)
+6. runs postchecks (rollout + ingress HTTP code checks, or pod log review when no ingress exists)
 
 ## Logs and Exit Codes
 
