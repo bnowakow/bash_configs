@@ -22,6 +22,9 @@ failure_events_count=0
 current_app=""
 current_app_failed=0
 insecure_hosts=""
+check_summary_title=""
+check_summary_body=""
+check_summary_kind=""
 use_color=1
 dialog_colors_supported=0
 dialog_success_color=2
@@ -321,7 +324,8 @@ show_app_modal() {
   local namespace="$2"
   local local_version="$3"
   local target_version="$4"
-  local ingress_summary="$5"
+  local summary_title="$5"
+  local summary_body="$6"
   local dialog_color_flag=()
   local dialog_color_flag_yesno=()
   local app_display
@@ -337,7 +341,7 @@ show_app_modal() {
   fi
 
   app_display="$(dialog_color_app "$app")"
-  ingress_summary="${ingress_summary}\\Z0"
+  summary_body="${summary_body}\\Z0"
 
   dialog \
     "${dialog_color_flag[@]}" \
@@ -350,7 +354,32 @@ show_app_modal() {
     --begin 2 10 \
     --title "Upgrade $app?" \
     --defaultno \
-    --yesno "App: $app_display\nNamespace: $namespace\nInstalled chart: ${local_version:-unknown}\nTarget chart: ${target_version:-unknown}\nHTTP checks:\n$ingress_summary\\Z0\n\nProceed with upgrade?" 16 100
+    --yesno "App: $app_display\nNamespace: $namespace\nInstalled chart: ${local_version:-unknown}\nTarget chart: ${target_version:-unknown}\n${summary_title}:\n$summary_body\\Z0\n\nProceed with upgrade?" 24 120
+}
+
+show_postcheck_log_review_modal() {
+  local app="$1"
+  local namespace="$2"
+  local summary_title="$3"
+  local summary_body="$4"
+
+  if [ "$yes_mode" -eq 1 ]; then
+    log "AUTO: accepting postcheck pod log review for $app"
+    return 0
+  fi
+
+  dialog \
+    --clear \
+    --begin 0 0 \
+    --title "Helm Upgrade Log" \
+    --tailboxbg "$log_file" 18 120 \
+    --and-widget \
+    --begin 2 10 \
+    --title "Post-upgrade review for $app" \
+    --yes-label "Looks good" \
+    --no-label "Does not" \
+    --defaultno \
+    --yesno "Namespace: $namespace\n${summary_title}:\n$summary_body\n\nDo these logs look good after the upgrade?" 24 120
 }
 
 ask_on_failure() {
@@ -533,18 +562,68 @@ get_ingress_hosts() {
   kubectl get ingress -n "$namespace" --kubeconfig "$kubeconfig_path" -o jsonpath='{range .items[*].spec.rules[*]}{.host}{"\n"}{end}' 2>/dev/null | awk 'NF' | sort -u
 }
 
+get_release_pods() {
+  local app="$1"
+  local namespace="$2"
+  kubectl get pods -n "$namespace" --kubeconfig "$kubeconfig_path" -l "app.kubernetes.io/instance=$app" -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>/dev/null | awk 'NF' | sort -u
+}
+
+collect_no_ingress_pod_log_summary() {
+  local app="$1"
+  local namespace="$2"
+  local phase="$3"
+  local pods
+  local summary=""
+  local pod
+  local pod_logs
+  local line
+
+  check_summary_title="Pod logs (last 10 lines per pod)"
+  check_summary_kind="pod-logs"
+
+  pods="$(get_release_pods "$app" "$namespace")"
+  if [ -z "$pods" ]; then
+    check_summary_body="No release-labeled pods found for app.kubernetes.io/instance=$app"
+    log "$app [$phase]: no ingress hosts found and no release-labeled pods were found for pod log review" "$(color_blue "$app") [$phase]: no ingress hosts found and no release-labeled pods were found for pod log review"
+    return 0
+  fi
+
+  while IFS= read -r pod; do
+    [ -z "$pod" ] && continue
+    log "$app [$phase]: collecting last 10 log lines for pod $pod" "$(color_blue "$app") [$phase]: collecting last 10 log lines for pod $pod"
+    pod_logs="$(kubectl logs -n "$namespace" --kubeconfig "$kubeconfig_path" --all-containers=true --tail=10 "$pod" 2>&1 || true)"
+    summary="${summary}Pod: $pod"$'\n'
+    if [ -n "$pod_logs" ]; then
+      while IFS= read -r line; do
+        summary="${summary}  $line"$'\n'
+      done <<<"$pod_logs"
+    else
+      summary="${summary}  <no log output>"$'\n'
+    fi
+    summary="${summary}"$'\n'
+  done <<EOF_PODS
+$pods
+EOF_PODS
+
+  check_summary_body="${summary%$'\n'}"
+  log "$app [$phase]: no ingress hosts found, using pod log review instead" "$(color_blue "$app") [$phase]: no ingress hosts found, using pod log review instead"
+  return 0
+}
+
 check_ingress_http_codes() {
   local app="$1"
   local namespace="$2"
   local phase="$3"
 
-  ingress_summary="No ingress hosts found"
+  check_summary_title="HTTP checks"
+  check_summary_body="No ingress hosts found"
+  check_summary_kind="http"
 
   local hosts
   hosts="$(get_ingress_hosts "$namespace")"
 
   if [ -z "$hosts" ]; then
-    log "$app [$phase]: no ingress hosts found" "$(color_blue "$app") [$phase]: no ingress hosts found"
+    collect_no_ingress_pod_log_summary "$app" "$namespace" "$phase"
     return 0
   fi
 
@@ -563,7 +642,7 @@ check_ingress_http_codes() {
     if [ "$curl_used_insecure" -eq 1 ]; then
       insecure_suffix=" (with --insecure)"
     fi
-    summary="${summary}\\Z0${host} -> ${dialog_code}${insecure_suffix}\\Z0\\n"
+    summary="${summary}\\Z0${host} -> ${dialog_code}${insecure_suffix}\\Z0"$'\n'
     log "$app [$phase]: ingress https://$host/ returned $http_code${insecure_suffix}" "$(color_blue "$app") [$phase]: ingress https://$host/ returned $(color_http_code "$http_code")${insecure_suffix}"
     if [ "$curl_return_code" != "0" ]; then
       log "$app [$phase]: curl failed for https://$host/ (return_code=$curl_return_code) error=$curl_error_output" "$(color_blue "$app") [$phase]: curl failed for https://$host/ (return_code=$(color_bash_return_code "$curl_return_code"))"
@@ -575,7 +654,7 @@ check_ingress_http_codes() {
 $hosts
 EOF_HOSTS
 
-  ingress_summary="$(printf "%b" "$summary")"
+  check_summary_body="${summary%$'\n'}"
 
   if [ "$fail" -eq 1 ]; then
     return 1
@@ -641,6 +720,14 @@ run_postchecks() {
   if ! check_ingress_http_codes "$app" "$namespace" "postcheck"; then
     record_failure_and_maybe_abort "Postcheck HTTP failed ($app)" "At least one ingress host for $app returned non-200 after upgrade."
     return 1
+  fi
+
+  if [ "$check_summary_kind" = "pod-logs" ]; then
+    if ! show_postcheck_log_review_modal "$app" "$namespace" "$check_summary_title" "$check_summary_body"; then
+      record_failure_and_maybe_abort "Postcheck pod log review failed ($app)" "Pod logs did not look good after upgrade in namespace $namespace."
+      return 1
+    fi
+    log "$app [postcheck]: pod log review accepted" "$(color_blue "$app") [postcheck]: pod log review accepted"
   fi
 
   return 0
@@ -769,7 +856,7 @@ for app in $apps; do
     continue
   fi
 
-  if show_app_modal "$app" "$namespace" "$local_version" "$target_version" "$ingress_summary"; then
+  if show_app_modal "$app" "$namespace" "$local_version" "$target_version" "$check_summary_title" "$check_summary_body"; then
     log "$app: upgrade approved" "$(color_blue "$app"): upgrade approved"
   else
     log "$app: upgrade skipped by user" "$(color_blue "$app"): upgrade skipped by user"

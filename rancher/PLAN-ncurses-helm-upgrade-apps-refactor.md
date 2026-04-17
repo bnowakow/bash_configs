@@ -17,7 +17,8 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 ### Implemented Behavior
 - **TUI layer**
   - `show_log_window`: optional scrollable log view (`dialog --tailbox`, used on no-app run path).
-  - `show_app_modal`: app metadata + HTTP summary + yes/no approval (`dialog --tailboxbg` + `--yesno`).
+  - `show_app_modal`: app metadata + check summary + yes/no approval (`dialog --tailboxbg` + `--yesno`).
+  - `show_postcheck_log_review_modal`: post-upgrade yes/no review for pod logs when an app has no ingress.
   - `ask_on_failure`: failure modal with continue/abort.
   - `show_summary_modal`: final totals modal shown before exit.
 - **Workflow phases per app**
@@ -27,10 +28,12 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
   4. Resolve namespace, local version, target version, chart ref.
   5. Run prechecks:
      - rollout readiness for release-labeled resources only,
-     - ingress checks for all discovered hosts, with certificate/TLS-aware curl retry handling.
+      - ingress checks for all discovered hosts, with certificate/TLS-aware curl retry handling,
+      - or last-10-lines pod log collection for release-labeled pods when no ingress exists.
   6. Prompt per-app upgrade decision (unless `--yes`).
   7. Run `helm upgrade` (unless `--dry-run`).
   8. Run postchecks (rollout + ingress HTTP).
+      - When no ingress exists, show the last 10 pod log lines again and ask whether the logs look good.
 - **Failure policy**
   - Failures do not hard-stop by default.
   - Failures trigger modal: continue with next app or abort run.
@@ -79,6 +82,14 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 - Certificate/TLS retry detection uses both stderr pattern matching and common curl return codes associated with TLS/certificate problems.
 - If the user approves retry for a host, that host is remembered and future checks in the same run reuse `--insecure` for that host.
 - If the insecure retry succeeds, the ingress summary shows that host as checked `with --insecure`.
+
+### No-Ingress Pod Log Review
+- When a namespace has no ingress hosts, the script switches the ncurses summary from HTTP codes to pod logs.
+- Pod logs are collected from release-labeled pods using:
+  - `app.kubernetes.io/instance=$app`
+- The pre-upgrade modal shows the last 10 log lines for each matching pod instead of an HTTP summary.
+- The post-upgrade path repeats the pod log view and asks the user whether the logs look good.
+- If the user says the logs do not look good, the run is recorded as a failure and follows the existing continue/abort flow.
 
 ### Output and Color Behavior
 - Colors are enabled by default (`use_color=1`).
