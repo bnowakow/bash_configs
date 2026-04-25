@@ -1,10 +1,19 @@
 #!/bin/bash
 
 #https://gist.github.com/tree-s/1b2177bac1d8f2b70fac9e235a7f262c
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+password_file="$script_dir/.transmission-password"
+
+if [ ! -f "$password_file" ]; then
+    echo "ERROR: missing Transmission password file: $password_file" >&2
+    echo "Create it based on: $script_dir/.transmission-password.sample" >&2
+    exit 1
+fi
+
 host=transmission.localdomain.bnowakowski.pl
 port=9091
 user=transmission
-pass=$(cat .transmission-password)
+pass=$(cat "$password_file")
 
 proxmox_vm_id=600;
 
@@ -135,7 +144,6 @@ if [ $checks_number -ge $checks_maximum_number ]; then
 else
     print_status "success" "system booted after reboot"
 fi
-
 
 
 
