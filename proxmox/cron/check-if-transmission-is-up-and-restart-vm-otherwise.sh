@@ -54,6 +54,19 @@ get_vm_boot_time() {
     return 0
 }
 
+validate_proxmox_vm_id() {
+    if ! command -v qm >/dev/null 2>&1; then
+        print_status "failure" "missing required command: qm"
+        exit 1
+    fi
+
+    if ! qm list | awk 'NR > 1 {print $1}' | grep -x -q "$proxmox_vm_id"; then
+        print_status "failure" "configured Proxmox VM ID does not exist: $proxmox_vm_id"
+        print_status "" "Run 'qm list' and update proxmox_vm_id in this script"
+        exit 1
+    fi
+}
+
 if [ ! -f "$password_file" ]; then
     print_status "failure" "missing Transmission password file: $password_file" >&2
     print_status "" "Create it based on: $script_dir/.transmission-password.sample" >&2
@@ -75,6 +88,8 @@ transmission_check_interval=10s
 # Attempt settings
 transmission_check_attempts=3
 reboot_check_maximum_number=6
+
+validate_proxmox_vm_id
 
 curl_transmission() {
     sessid=$(curl --connect-timeout 10 --max-time 15 --silent --anyauth --user $user:$pass "http://$host:$port/transmission/rpc" | sed 's/.*<code>//g;s/<\/code>.*//g')
@@ -158,4 +173,3 @@ if [ $checks_number -ge $checks_maximum_number ]; then
 else
     print_status "success" "system booted after reboot"
 fi
-
