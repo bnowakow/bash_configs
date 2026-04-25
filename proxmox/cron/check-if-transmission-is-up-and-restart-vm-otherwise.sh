@@ -65,7 +65,7 @@ port=9091
 user=transmission
 pass=$(cat "$password_file")
 
-proxmox_vm_id=600;
+proxmox_vm_id=601;
 
 # Sleep duration settings
 reboot_wait_time=4m
