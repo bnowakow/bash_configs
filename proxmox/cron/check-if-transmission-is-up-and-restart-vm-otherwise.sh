@@ -28,6 +28,32 @@ print_status() {
     esac
 }
 
+get_vm_boot_time() {
+    local ssh_target=$1
+    local command_output
+    local command_exit_code
+
+    command_output=$(timelimit -S 4 -s 6 -T 8 -t 10 ssh -t "$ssh_target" "who -b" 2>&1)
+    command_exit_code=$?
+
+    if [ $command_exit_code -ne 0 ]; then
+        if echo "$command_output" | grep -q "No route to host"; then
+            print_status "failure" "Cannot connect to VM via SSH running 'who -b': No route to host"
+        else
+            print_status "failure" "SSH command failed with exit code $command_exit_code: ssh -t $ssh_target \"who -b\""
+        fi
+        return 1
+    fi
+
+    if ! echo "$command_output" | grep -q "system boot"; then
+        print_status "failure" "Unexpected output from ssh -t $ssh_target \"who -b\": $command_output"
+        return 1
+    fi
+
+    printf '%s\n' "$command_output"
+    return 0
+}
+
 if [ ! -f "$password_file" ]; then
     print_status "failure" "missing Transmission password file: $password_file" >&2
     print_status "" "Create it based on: $script_dir/.transmission-password.sample" >&2
@@ -82,20 +108,18 @@ for try in `seq 1 $transmission_check_attempts`; do
     sleep $transmission_check_interval; # Comment while DEBUG
 done
 
-transmission_vm_boot_date_time_before_reboot=$(ssh -t $host "who -b" 2>&1)
-ssh_exit_code=$?
-if [ "$transmission_vm_boot_date_time_before_reboot" = "" ] && [ $ssh_exit_code -ne 0 ]; then
-    print_status "failure" "SSH command failed with exit code $ssh_exit_code: ssh -t $host \"who -b\""
-elif echo "$transmission_vm_boot_date_time_before_reboot" | grep -q "No route to host"; then
-    print_status "failure" "Cannot connect to VM via SSH running 'who -b': No route to host"
-    transmission_vm_boot_date_time_before_reboot=""
-else
+if transmission_vm_boot_date_time_before_reboot=$(get_vm_boot_time "$host"); then
     echo transmission_vm_boot_date_time_before_reboot=$transmission_vm_boot_date_time_before_reboot;
+else
+    transmission_vm_boot_date_time_before_reboot=""
 fi
 date
 ssh_output=$(ssh -t root@$host "reboot" 2>&1)
-if echo "$ssh_output" | grep -q "No route to host"; then
+ssh_exit_code=$?
+if [ $ssh_exit_code -ne 0 ] && echo "$ssh_output" | grep -q "No route to host"; then
     print_status "failure" "Cannot connect to VM via SSH running 'reboot' as root: No route to host"
+elif [ $ssh_exit_code -ne 0 ]; then
+    print_status "failure" "SSH command failed with exit code $ssh_exit_code: ssh -t root@$host \"reboot\""
 else
     echo "$ssh_output"
 fi
@@ -105,17 +129,9 @@ sleep $reboot_wait_time;
 checks_number=0
 checks_maximum_number=$reboot_check_maximum_number
 while true; do
-    # for some reason when timeout was used it didn't finished it time (that was fixed after adding --kill-after, but after that ssh didn't connect eventhough at the same time in different terminal ssh was responding
-    #transmission_vm_boot_date_time_after_reboot=$(timeout --kill-after=10s 5s ssh -t $host "who -b")
-    transmission_vm_boot_date_time_after_reboot=$(timelimit -S 4 -s 6 -T 8 -t 10 ssh -t $host "who -b" 2>&1)
-    if [ "$transmission_vm_boot_date_time_after_reboot" = "" ]; then
-        print_status "failure" "SSH command failed: ssh -t $host \"who -b\""
+    if ! transmission_vm_boot_date_time_after_reboot=$(get_vm_boot_time "$host"); then
         transmission_vm_boot_date_time_after_reboot=""
-    elif echo "$transmission_vm_boot_date_time_after_reboot" | grep -q "No route to host"; then
-        print_status "failure" "Cannot connect to VM via SSH running 'who -b': No route to host"
-        transmission_vm_boot_date_time_after_reboot=""
-    fi
-    if [ "$transmission_vm_boot_date_time_after_reboot" != "" ] && [ "$transmission_vm_boot_date_time_after_reboot" != "$transmission_vm_boot_date_time_before_reboot" ]; then 
+    elif [ "$transmission_vm_boot_date_time_after_reboot" != "$transmission_vm_boot_date_time_before_reboot" ]; then 
         print_status "success" "booted"
         break;
     fi
@@ -142,5 +158,4 @@ if [ $checks_number -ge $checks_maximum_number ]; then
 else
     print_status "success" "system booted after reboot"
 fi
-
 
