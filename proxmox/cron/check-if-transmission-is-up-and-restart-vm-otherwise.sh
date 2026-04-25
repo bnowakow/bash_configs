@@ -67,6 +67,13 @@ validate_proxmox_vm_id() {
     fi
 }
 
+require_root() {
+    if [ "$(id -u)" -ne 0 ]; then
+        print_status "failure" "this script must be run as root"
+        exit 1
+    fi
+}
+
 if [ ! -f "$password_file" ]; then
     print_status "failure" "missing Transmission password file: $password_file" >&2
     print_status "" "Create it based on: $script_dir/.transmission-password.sample" >&2
@@ -89,6 +96,7 @@ transmission_check_interval=10s
 transmission_check_attempts=3
 reboot_check_maximum_number=6
 
+require_root
 validate_proxmox_vm_id
 
 curl_transmission() {
