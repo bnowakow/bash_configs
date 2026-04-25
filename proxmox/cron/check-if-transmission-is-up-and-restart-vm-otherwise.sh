@@ -4,9 +4,33 @@
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 password_file="$script_dir/.transmission-password"
 
+# Color codes for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+LIGHT_BLUE='\033[94m'
+NC='\033[0m' # No Color
+
+print_status() {
+    local status=$1
+    local message=$2
+
+    case $status in
+        success)
+            echo -e "${GREEN}✓ SUCCESS:${NC} $message"
+            ;;
+        failure)
+            echo -e "${RED}✗ FAILURE:${NC} $message"
+            ;;
+        *)
+            echo -e "${YELLOW}⚠ INFO:${NC} $message"
+            ;;
+    esac
+}
+
 if [ ! -f "$password_file" ]; then
-    echo "ERROR: missing Transmission password file: $password_file" >&2
-    echo "Create it based on: $script_dir/.transmission-password.sample" >&2
+    print_status "failure" "missing Transmission password file: $password_file" >&2
+    print_status "" "Create it based on: $script_dir/.transmission-password.sample" >&2
     exit 1
 fi
 
@@ -25,32 +49,6 @@ transmission_check_interval=10s
 # Attempt settings
 transmission_check_attempts=3
 reboot_check_maximum_number=6
-
-# Color codes for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-LIGHT_BLUE='\033[94m'
-NC='\033[0m' # No Color
-
-# Function to print colored output
-print_status() {
-    local status=$1
-    local message=$2
-    
-    case $status in
-        success)
-            echo -e "${GREEN}✓ SUCCESS:${NC} $message"
-            ;;
-        failure)
-            echo -e "${RED}✗ FAILURE:${NC} $message"
-            ;;
-        *)
-            echo -e "${YELLOW}⚠ INFO:${NC} $message"
-            ;;
-    esac
-}
-
 
 curl_transmission() {
     sessid=$(curl --connect-timeout 10 --max-time 15 --silent --anyauth --user $user:$pass "http://$host:$port/transmission/rpc" | sed 's/.*<code>//g;s/<\/code>.*//g')
@@ -144,6 +142,5 @@ if [ $checks_number -ge $checks_maximum_number ]; then
 else
     print_status "success" "system booted after reboot"
 fi
-
 
 
