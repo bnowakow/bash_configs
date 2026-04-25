@@ -77,7 +77,6 @@ require_root() {
         exit 1
     fi
 }
-
 if [ ! -f "$password_file" ]; then
     print_status "failure" "missing Transmission password file: $password_file" >&2
     print_status "" "Create it based on: $script_dir/.transmission-password.sample" >&2
