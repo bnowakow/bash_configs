@@ -55,14 +55,18 @@ get_vm_boot_time() {
 }
 
 validate_proxmox_vm_id() {
+    local qm_list_output
+
     if ! command -v qm >/dev/null 2>&1; then
         print_status "failure" "missing required command: qm"
         exit 1
     fi
 
-    if ! qm list | awk 'NR > 1 {print $1}' | grep -x -q "$proxmox_vm_id"; then
+    qm_list_output="$(qm list 2>&1)"
+    if ! printf '%s\n' "$qm_list_output" | awk 'NR > 1 {print $1}' | grep -x -q "$proxmox_vm_id"; then
         print_status "failure" "configured Proxmox VM ID does not exist: $proxmox_vm_id"
-        print_status "" "Run 'qm list' and update proxmox_vm_id in this script"
+        print_status "" "Available VMs from 'qm list':"
+        printf '%s\n' "$qm_list_output"
         exit 1
     fi
 }
