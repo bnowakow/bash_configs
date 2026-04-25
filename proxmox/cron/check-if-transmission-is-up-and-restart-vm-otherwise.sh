@@ -1,21 +1,8 @@
 #!/bin/bash
 
 #https://gist.github.com/tree-s/1b2177bac1d8f2b70fac9e235a7f262c
-host=transmission.localdomain.bnowakowski.pl
-port=9091
-user=transmission
-pass=$(cat .transmission-password)
-
-proxmox_vm_id=600;
-
-# Sleep duration settings
-reboot_wait_time=4m
-check_wait_time=1m
-transmission_check_interval=10s
-
-# Attempt settings
-transmission_check_attempts=3
-reboot_check_maximum_number=6
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+password_file="$script_dir/.transmission-password"
 
 # Color codes for output
 RED='\033[0;31m'
@@ -24,11 +11,10 @@ YELLOW='\033[1;33m'
 LIGHT_BLUE='\033[94m'
 NC='\033[0m' # No Color
 
-# Function to print colored output
 print_status() {
     local status=$1
     local message=$2
-    
+
     case $status in
         success)
             echo -e "${GREEN}✓ SUCCESS:${NC} $message"
@@ -42,6 +28,27 @@ print_status() {
     esac
 }
 
+if [ ! -f "$password_file" ]; then
+    print_status "failure" "missing Transmission password file: $password_file" >&2
+    print_status "" "Create it based on: $script_dir/.transmission-password.sample" >&2
+    exit 1
+fi
+
+host=transmission.localdomain.bnowakowski.pl
+port=9091
+user=transmission
+pass=$(cat "$password_file")
+
+proxmox_vm_id=600;
+
+# Sleep duration settings
+reboot_wait_time=4m
+check_wait_time=1m
+transmission_check_interval=10s
+
+# Attempt settings
+transmission_check_attempts=3
+reboot_check_maximum_number=6
 
 curl_transmission() {
     sessid=$(curl --connect-timeout 10 --max-time 15 --silent --anyauth --user $user:$pass "http://$host:$port/transmission/rpc" | sed 's/.*<code>//g;s/<\/code>.*//g')
@@ -135,7 +142,5 @@ if [ $checks_number -ge $checks_maximum_number ]; then
 else
     print_status "success" "system booted after reboot"
 fi
-
-
 
 
