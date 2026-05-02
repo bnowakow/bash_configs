@@ -9,10 +9,11 @@ any_backup_have_too_old_backup=false
 
 # skipping vm_id = 300 which is home assistant supervised on debian which was migrated to HAOS which is vm_id = 350
 # skipping vm_id = 350 which has moved to 351
+# skipping vm_id = 400 which has moved to 401
 # skipping vm_id = 600 which has moved to 601
 # skipping vm_id = 900 which is macos which I don't need backuped every day
 # TODO why there's no alerts for 800, but there're for 900?
-for vm_id in $(proxmox-backup-client list --repository backup@pbs@proxmox-backup-server.tailscale.bnowakowski.pl:margok-pbs-nfs --output-format json-pretty | jq ".[].\"backup-id\"" | grep -v '"300"' | grep -v '"350"' | grep -v '"600"' | grep -v '"900"'); do
+for vm_id in $(proxmox-backup-client list --repository backup@pbs@proxmox-backup-server.tailscale.bnowakowski.pl:margok-pbs-nfs --output-format json-pretty | jq ".[].\"backup-id\"" | grep -v '"300"' | grep -v '"350"' | grep -v '"400"' | grep -v '"600"' | grep -v '"900"'); do
     #echo vm_id=$vm_id;
     last_update=$(proxmox-backup-client list --repository backup@pbs@proxmox-backup-server.tailscale.bnowakowski.pl:margok-pbs-nfs --output-format json-pretty | jq "map(select(.\"backup-id\" == $vm_id))" | jq ".[0].\"last-backup\"")
     #echo last_update=$last_update
