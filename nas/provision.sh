@@ -16,27 +16,29 @@ sudo apt-get install -y software-properties-common
 
 # https://docs.docker.com/engine/install/debian/
 # Add Docker's official GPG key:
+# on 26-beta
+# E: Malformed entry 1 in list file /etc/apt/sources.list.d/docker.list (Component)
 sudo apt-get update
 sudo apt-get install -y ca-certificates curl gnupg
 sudo install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
+#curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+#sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
 # Add the repository to Apt sources:
-echo \
-  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
-  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
+#echo \
+#  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+#  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+#  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+#sudo apt-get update
 
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+#sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # TODO after cobia upgrade missing: hddtemp 
 # removed: vagrant clang
 # because it tries to install linux-image-amd64 and libc-i686 that fails becuse of RO /boot in dragonfish and prevents rest of packages to be configured by apt
 sudo apt-get update
 sudo apt-get install -y screen vim  wget gnupg2 ncdu elinks jdupes hfsprogs libicu-dev bzip2 \
-    cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev git libattr1-dev libfsapfs-utils \
+    cmake libz-dev libbz2-dev fuse3 libfuse3-4 libfuse3-dev git libattr1-dev libfsapfs-utils \
     dos2unix edac-utils inxi rasdaemon figlet ansible sshpass \
     bc hfsprogs nvidia-smi lshw vim-runtime unrar alien
 # TODO python breaks on .2 truenas
