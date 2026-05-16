@@ -35,6 +35,11 @@ Current source facts found during planning:
   - selected k3s tag.
   - selected cert-manager tag.
   - current installed k3s, cert-manager, and Rancher versions when detectable.
+- Pre-upgrade version check:
+  - compare installed `k3s --version` with the selected k3s release.
+  - compare installed cert-manager Helm `app_version` with the selected cert-manager release.
+  - compare installed Rancher Helm `app_version` with the selected Rancher version.
+  - exit without snapshot, confirmation, or upgrade commands when all installed versions already match the selected targets.
 - Safety checkpoint:
   - show `kubectl get nodes` and relevant pod status for `cert-manager` and `cattle-system` if reachable.
   - run `k3s etcd-snapshot save --name "pre-rancher-upgrade-<timestamp>"` when available.
@@ -56,7 +61,7 @@ Current source facts found during planning:
   - apply `https://github.com/jetstack/cert-manager/releases/download/$cert_manager_version/cert-manager.crds.yaml` twice.
   - show `kubectl get pods --namespace cert-manager`.
 - Rancher:
-  - use `helm upgrade --install rancher rancher-stable/rancher --namespace cattle-system --create-namespace`.
+  - use `helm upgrade --install rancher rancher-stable/rancher --namespace cattle-system --create-namespace --version "${rancher_version#v}"`.
   - preserve settings from `install.sh`:
     - `hostname=$(hostname).tailscale.bnowakowski.pl`
     - `bootstrapPassword=admin`
@@ -65,12 +70,18 @@ Current source facts found during planning:
   - run rollout/status checks.
   - print final setup URL with bootstrap secret.
 - Finish with `"$script_dir/rancher_add_cluster_repos.sh"`.
+- Final verification:
+  - run `k3s --version` and require the reported version to match the selected k3s release.
+  - run `helm list --namespace cert-manager --filter '^cert-manager$'` and require the Helm `app_version` to match the selected cert-manager release.
+  - run `helm list --namespace cattle-system --filter '^rancher$'` and require the Helm `app_version` to match the selected Rancher version.
+  - fail the script if any installed version differs from the selected upgrade target.
 
 ## Improvements Included
 - `helm upgrade --install` for Rancher and cert-manager.
 - idempotent Helm repo setup.
 - live version discovery with fail-closed behavior.
 - pre-upgrade snapshot when possible.
+- no-op exit when k3s, cert-manager, and Rancher are already at the selected target versions.
 - current version/status display before changes.
 - all risky commands logged and printed.
 - timestamped run log.
@@ -86,12 +97,14 @@ Current source facts found during planning:
   - selected k3s release is stable and matches the supported minor.
   - selected cert-manager release is stable.
 - Run on target host and stop at confirmation prompt to verify displayed URLs/versions.
+- Run on an already-current target host and verify the script exits before snapshot and upgrade commands.
 - Full acceptance:
   - snapshot step either succeeds or requires explicit override.
   - k3s restarts cleanly.
   - `kubectl get nodes` succeeds.
   - cert-manager pods are visible/healthy.
   - Rancher rollout succeeds.
+  - final version checks confirm k3s, cert-manager, and Rancher match the selected upgrade targets.
   - dashboard setup URL is printed.
   - `rancher_add_cluster_repos.sh` completes.
 

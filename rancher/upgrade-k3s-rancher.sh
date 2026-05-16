@@ -248,6 +248,109 @@ wait_for_kubectl() {
   return 1
 }
 
+normalize_leading_v() {
+  local version="$1"
+  printf 'v%s\n' "${version#v}"
+}
+
+require_equal_version() {
+  local component="$1"
+  local expected="$2"
+  local actual="$3"
+
+  if [ "$(normalize_leading_v "$actual")" != "$(normalize_leading_v "$expected")" ]; then
+    log "$component version check failed: expected $expected, got ${actual:-unknown}."
+    return 1
+  fi
+
+  log "$component version check passed: $actual"
+}
+
+versions_match() {
+  local actual="$1"
+  local expected="$2"
+
+  [ -n "$actual" ] && [ "$(normalize_leading_v "$actual")" = "$(normalize_leading_v "$expected")" ]
+}
+
+helm_release_field() {
+  local release="$1"
+  local namespace="$2"
+  local field="$3"
+
+  helm --kubeconfig "$kubeconfig_path" list \
+    --namespace "$namespace" \
+    --filter "^${release}$" \
+    --output json |
+    sed -nE "s/.*\"$field\"[[:space:]]*:[[:space:]]*\"([^\"]+)\".*/\1/p" |
+    head -n 1
+}
+
+installed_k3s_version() {
+  if ! command -v k3s >/dev/null 2>&1; then
+    return 1
+  fi
+
+  k3s --version | awk 'NR == 1 {print $3}'
+}
+
+skip_if_already_current() {
+  local expected_k3s_version="$1"
+  local expected_cert_manager_version="$2"
+  local expected_rancher_version="$3"
+  local actual_k3s_version
+  local actual_cert_manager_version
+  local actual_rancher_version
+
+  log "Checking whether installed versions already match selected upgrade targets."
+
+  actual_k3s_version="$(installed_k3s_version || true)"
+  actual_cert_manager_version="$(helm_release_field cert-manager cert-manager app_version || true)"
+  actual_rancher_version="$(helm_release_field rancher cattle-system app_version || true)"
+
+  log "Installed k3s version: ${actual_k3s_version:-not detected}; target: $expected_k3s_version"
+  log "Installed cert-manager app_version: ${actual_cert_manager_version:-not detected}; target: $expected_cert_manager_version"
+  log "Installed Rancher app_version: ${actual_rancher_version:-not detected}; target: $expected_rancher_version"
+
+  if versions_match "$actual_k3s_version" "$expected_k3s_version" &&
+     versions_match "$actual_cert_manager_version" "$expected_cert_manager_version" &&
+     versions_match "$actual_rancher_version" "$expected_rancher_version"; then
+    log "All selected upgrade targets are already installed. No upgrade needed."
+    exit 0
+  fi
+}
+
+verify_final_versions() {
+  local expected_k3s_version="$1"
+  local expected_cert_manager_version="$2"
+  local expected_rancher_version="$3"
+  local actual_k3s_version
+  local actual_cert_manager_version
+  local actual_rancher_version
+  local cert_manager_chart
+  local rancher_chart
+
+  log "Verifying installed versions against selected upgrade targets."
+
+  actual_k3s_version="$(installed_k3s_version)"
+  run_cmd k3s --version
+  require_equal_version "k3s" "$expected_k3s_version" "$actual_k3s_version"
+
+  actual_cert_manager_version="$(helm_release_field cert-manager cert-manager app_version)"
+  cert_manager_chart="$(helm_release_field cert-manager cert-manager chart)"
+  run_cmd helm --kubeconfig "$kubeconfig_path" list --namespace cert-manager --filter '^cert-manager$'
+  require_equal_version "cert-manager app_version" "$expected_cert_manager_version" "$actual_cert_manager_version"
+  log "cert-manager chart version reported by Helm: ${cert_manager_chart:-unknown}"
+
+  actual_rancher_version="$(helm_release_field rancher cattle-system app_version)"
+  rancher_chart="$(helm_release_field rancher cattle-system chart)"
+  run_cmd helm --kubeconfig "$kubeconfig_path" list --namespace cattle-system --filter '^rancher$'
+  require_equal_version "Rancher app_version" "$expected_rancher_version" "$actual_rancher_version"
+  log "Rancher chart version reported by Helm: ${rancher_chart:-unknown}"
+
+  log "All final version checks passed."
+}
+
 ensure_helm_repo() {
   local name="$1"
   local url="$2"
@@ -328,6 +431,7 @@ main() {
   log "cert-manager releases URL: https://github.com/cert-manager/cert-manager/releases"
   log "Rancher hostname: $hostname_fqdn"
 
+  skip_if_already_current "$k3s_version" "$cert_manager_version" "$rancher_version"
   show_current_status
   save_snapshot_or_confirm
 
@@ -374,6 +478,7 @@ SUMMARY
   run_cmd helm --kubeconfig "$kubeconfig_path" upgrade --install rancher rancher-stable/rancher \
     --namespace cattle-system \
     --create-namespace \
+    --version "${rancher_version#v}" \
     --set "hostname=$hostname_fqdn" \
     --set bootstrapPassword=admin \
     --set ingress.tls.source=letsEncrypt \
@@ -386,6 +491,7 @@ SUMMARY
   log "Rancher setup URL: https://$hostname_fqdn/dashboard/?setup=$setup_password"
 
   run_cmd "$script_dir/rancher_add_cluster_repos.sh"
+  verify_final_versions "$k3s_version" "$cert_manager_version" "$rancher_version"
 
   log "Upgrade completed."
 }
