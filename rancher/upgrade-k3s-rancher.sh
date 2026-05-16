@@ -12,6 +12,12 @@ rancher_matrix_current_url="https://www.suse.com/suse-rancher/support-matrix"
 k3s_releases_api_url="https://api.github.com/repos/k3s-io/k3s/releases?per_page=100"
 cert_manager_releases_api_url="https://api.github.com/repos/cert-manager/cert-manager/releases?per_page=100"
 rollout_timeout="${ROLLOUT_TIMEOUT:-10m}"
+color_blue=""
+color_red=""
+color_yellow=""
+color_green=""
+color_bold=""
+color_reset=""
 
 usage() {
   cat <<USAGE
@@ -32,7 +38,57 @@ log() {
   local message="$1"
   local ts
   ts="$(date +"%Y-%m-%d %H:%M:%S")"
-  printf '[%s] %s\n' "$ts" "$message" | tee -a "$log_file"
+  printf '[%s] %b\n' "$ts" "$message"
+  printf '[%s] %b\n' "$ts" "$message" | sed -E $'s/\x1B\\[[0-9;]*[[:alpha:]]//g' >>"$log_file"
+}
+
+init_colors() {
+  if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
+    color_blue=$'\033[1;94m'
+    color_red=$'\033[31m'
+    color_yellow=$'\033[33m'
+    color_green=$'\033[32m'
+    color_bold=$'\033[1m'
+    color_reset=$'\033[0m'
+  fi
+}
+
+color_text() {
+  local color="$1"
+  local text="$2"
+  printf '%s%s%s' "$color" "$text" "$color_reset"
+}
+
+component_text() {
+  color_text "$color_blue" "$1"
+}
+
+version_text() {
+  color_text "$color_bold" "$1"
+}
+
+success_text() {
+  color_text "$color_green" "$1"
+}
+
+warning_text() {
+  color_text "$color_yellow" "$1"
+}
+
+error_text() {
+  color_text "$color_red" "$1"
+}
+
+log_success() {
+  log "$(success_text "$1")"
+}
+
+log_warning() {
+  log "$(warning_text "$1")"
+}
+
+log_error() {
+  log "$(error_text "$1")"
 }
 
 run_cmd() {
@@ -42,7 +98,7 @@ run_cmd() {
 
 require_root() {
   if [ "${EUID:-$(id -u)}" -ne 0 ]; then
-    echo "This script must be run as root." >&2
+    printf '%b\n' "$(error_text "This script must be run as root.")" >&2
     exit 2
   fi
 }
@@ -50,7 +106,7 @@ require_root() {
 require_cmd() {
   local cmd="$1"
   if ! command -v "$cmd" >/dev/null 2>&1; then
-    echo "Missing required command: $cmd" >&2
+    printf '%b\n' "$(error_text "Missing required command: $cmd")" >&2
     return 1
   fi
 }
@@ -203,7 +259,7 @@ show_current_status() {
   if command -v k3s >/dev/null 2>&1; then
     run_cmd k3s --version || true
   else
-    log "k3s command not found; this may be a fresh install or PATH issue."
+    log_warning "$(component_text "k3s") command not found; this may be a fresh install or PATH issue."
   fi
 
   if [ -f "$kubeconfig_path" ]; then
@@ -213,23 +269,23 @@ show_current_status() {
     run_cmd helm --kubeconfig "$kubeconfig_path" list --namespace cert-manager || true
     run_cmd helm --kubeconfig "$kubeconfig_path" list --namespace cattle-system || true
   else
-    log "Kubeconfig does not exist yet: $kubeconfig_path"
+    log_warning "Kubeconfig does not exist yet: $kubeconfig_path"
   fi
 }
 
 save_snapshot_or_confirm() {
   if ! command -v k3s >/dev/null 2>&1; then
-    log "Skipping k3s snapshot because k3s command is not available."
+    log_warning "Skipping $(component_text "k3s") snapshot because k3s command is not available."
     confirm "Continue without a pre-upgrade k3s snapshot?" || exit 1
     return 0
   fi
 
   if run_cmd k3s etcd-snapshot save --name "pre-rancher-upgrade-${timestamp}"; then
-    log "Pre-upgrade k3s snapshot completed."
+    log_success "Pre-upgrade $(component_text "k3s") snapshot completed."
     return 0
   fi
 
-  log "Pre-upgrade k3s snapshot failed or is unavailable for this datastore."
+  log_warning "Pre-upgrade $(component_text "k3s") snapshot failed or is unavailable for this datastore."
   confirm "Continue without a successful pre-upgrade k3s snapshot?" || exit 1
 }
 
@@ -244,7 +300,7 @@ wait_for_kubectl() {
     sleep 5
   done
 
-  log "Kubernetes API did not become reachable in time."
+  log_error "Kubernetes API did not become reachable in time."
   return 1
 }
 
@@ -259,11 +315,11 @@ require_equal_version() {
   local actual="$3"
 
   if [ "$(normalize_leading_v "$actual")" != "$(normalize_leading_v "$expected")" ]; then
-    log "$component version check failed: expected $expected, got ${actual:-unknown}."
+    log_error "$(component_text "$component") version check failed: expected $(version_text "$expected"), got $(version_text "${actual:-unknown}")."
     return 1
   fi
 
-  log "$component version check passed: $actual"
+  log_success "$(component_text "$component") version check passed: $(version_text "$actual")"
 }
 
 versions_match() {
@@ -308,14 +364,14 @@ skip_if_already_current() {
   actual_cert_manager_version="$(helm_release_field cert-manager cert-manager app_version || true)"
   actual_rancher_version="$(helm_release_field rancher cattle-system app_version || true)"
 
-  log "Installed k3s version: ${actual_k3s_version:-not detected}; target: $expected_k3s_version"
-  log "Installed cert-manager app_version: ${actual_cert_manager_version:-not detected}; target: $expected_cert_manager_version"
-  log "Installed Rancher app_version: ${actual_rancher_version:-not detected}; target: $expected_rancher_version"
+  log "Installed $(component_text "k3s") version: $(version_text "${actual_k3s_version:-not detected}"); target: $(version_text "$expected_k3s_version")"
+  log "Installed $(component_text "cert-manager") app_version: $(version_text "${actual_cert_manager_version:-not detected}"); target: $(version_text "$expected_cert_manager_version")"
+  log "Installed $(component_text "Rancher") app_version: $(version_text "${actual_rancher_version:-not detected}"); target: $(version_text "$expected_rancher_version")"
 
   if versions_match "$actual_k3s_version" "$expected_k3s_version" &&
      versions_match "$actual_cert_manager_version" "$expected_cert_manager_version" &&
      versions_match "$actual_rancher_version" "$expected_rancher_version"; then
-    log "All selected upgrade targets are already installed. No upgrade needed."
+    log_success "All selected upgrade targets are already installed. No upgrade needed."
     exit 0
   fi
 }
@@ -340,15 +396,15 @@ verify_final_versions() {
   cert_manager_chart="$(helm_release_field cert-manager cert-manager chart)"
   run_cmd helm --kubeconfig "$kubeconfig_path" list --namespace cert-manager --filter '^cert-manager$'
   require_equal_version "cert-manager app_version" "$expected_cert_manager_version" "$actual_cert_manager_version"
-  log "cert-manager chart version reported by Helm: ${cert_manager_chart:-unknown}"
+  log "$(component_text "cert-manager") chart version reported by Helm: $(version_text "${cert_manager_chart:-unknown}")"
 
   actual_rancher_version="$(helm_release_field rancher cattle-system app_version)"
   rancher_chart="$(helm_release_field rancher cattle-system chart)"
   run_cmd helm --kubeconfig "$kubeconfig_path" list --namespace cattle-system --filter '^rancher$'
   require_equal_version "Rancher app_version" "$expected_rancher_version" "$actual_rancher_version"
-  log "Rancher chart version reported by Helm: ${rancher_chart:-unknown}"
+  log "$(component_text "Rancher") chart version reported by Helm: $(version_text "${rancher_chart:-unknown}")"
 
-  log "All final version checks passed."
+  log_success "All final version checks passed."
 }
 
 ensure_helm_repo() {
@@ -356,7 +412,7 @@ ensure_helm_repo() {
   local url="$2"
 
   if helm repo list 2>/dev/null | awk '{print $1}' | grep -Fxq "$name"; then
-    log "Helm repo already exists: $name"
+    log_success "Helm repo already exists: $name"
     return 0
   fi
 
@@ -364,13 +420,15 @@ ensure_helm_repo() {
 }
 
 main() {
+  init_colors
+
   if [ "${1:-}" = "--help" ]; then
     usage
     exit 0
   fi
 
   if [ "$#" -gt 0 ]; then
-    echo "Unknown argument: $1" >&2
+    printf '%b\n' "$(error_text "Unknown argument: $1")" >&2
     usage >&2
     exit 2
   fi
@@ -381,7 +439,7 @@ main() {
   export KUBECONFIG="$kubeconfig_path"
 
   log "Run started. log_file=$log_file"
-  log "Discovering latest Rancher, k3s, and cert-manager versions."
+  log "Discovering latest $(component_text "Rancher"), $(component_text "k3s"), and $(component_text "cert-manager") versions."
 
   local rancher_effective_url
   local rancher_index_html
@@ -405,7 +463,7 @@ main() {
   supported_k3s_minor="$(parse_supported_k3s_minor "$rancher_matrix_html")"
 
   if [ -z "$rancher_version" ] || [ -z "$supported_k3s_minor" ]; then
-    log "Unable to discover Rancher version or supported k3s minor from SUSE support matrix."
+    log_error "Unable to discover $(component_text "Rancher") version or supported $(component_text "k3s") minor from SUSE support matrix."
     exit 1
   fi
 
@@ -415,42 +473,42 @@ main() {
   cert_manager_version="$(select_cert_manager_release "$cert_manager_releases_json")"
 
   if [ -z "$k3s_version" ] || [ -z "$cert_manager_version" ]; then
-    log "Unable to select k3s or cert-manager release from GitHub."
+    log_error "Unable to select $(component_text "k3s") or $(component_text "cert-manager") release from GitHub."
     exit 1
   fi
 
   k3s_install_version="$(url_encode_k3s_version "$k3s_version")"
   hostname_fqdn="$(hostname).tailscale.bnowakowski.pl"
 
-  log "Selected Rancher version: $rancher_version"
-  log "Rancher support matrix URL: $rancher_matrix_url"
-  log "Supported k3s Kubernetes minor: $supported_k3s_minor"
-  log "Selected k3s release: $k3s_version"
-  log "k3s releases URL: https://github.com/k3s-io/k3s/releases"
-  log "Selected cert-manager release: $cert_manager_version"
-  log "cert-manager releases URL: https://github.com/cert-manager/cert-manager/releases"
-  log "Rancher hostname: $hostname_fqdn"
+  log "Selected $(component_text "Rancher") version: $(version_text "$rancher_version")"
+  log "$(component_text "Rancher") support matrix URL: $rancher_matrix_url"
+  log "Supported $(component_text "k3s") Kubernetes minor: $(version_text "$supported_k3s_minor")"
+  log "Selected $(component_text "k3s") release: $(version_text "$k3s_version")"
+  log "$(component_text "k3s") releases URL: https://github.com/k3s-io/k3s/releases"
+  log "Selected $(component_text "cert-manager") release: $(version_text "$cert_manager_version")"
+  log "$(component_text "cert-manager") releases URL: https://github.com/cert-manager/cert-manager/releases"
+  log "$(component_text "Rancher") hostname: $hostname_fqdn"
 
   skip_if_already_current "$k3s_version" "$cert_manager_version" "$rancher_version"
   show_current_status
   save_snapshot_or_confirm
 
-  cat <<SUMMARY
+  printf '%b\n' "
 
 About to run the upgrade with:
-  Rancher:       $rancher_version
-  Rancher URL:   $rancher_matrix_url
-  k3s minor:     $supported_k3s_minor
-  k3s release:   $k3s_version
-  cert-manager:  $cert_manager_version
+  $(component_text "Rancher"):       $(version_text "$rancher_version")
+  $(component_text "Rancher") URL:   $rancher_matrix_url
+  $(component_text "k3s") minor:     $(version_text "$supported_k3s_minor")
+  $(component_text "k3s") release:   $(version_text "$k3s_version")
+  $(component_text "cert-manager"):  $(version_text "$cert_manager_version")
   hostname:      $hostname_fqdn
   log file:      $log_file
 
-SUMMARY
+"
 
   confirm "Do these versions and settings look good?" || exit 1
 
-  log "Upgrading k3s to $k3s_version."
+  log "Upgrading $(component_text "k3s") to $(version_text "$k3s_version")."
   log "+ curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=\"$k3s_install_version\" sh -s - server"
   curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="$k3s_install_version" sh -s - server 2>&1 | tee -a "$log_file"
 
@@ -488,12 +546,12 @@ SUMMARY
   run_cmd kubectl --kubeconfig "$kubeconfig_path" -n cattle-system get deploy rancher
 
   setup_password="$(kubectl --kubeconfig "$kubeconfig_path" get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')"
-  log "Rancher setup URL: https://$hostname_fqdn/dashboard/?setup=$setup_password"
+  log_success "$(component_text "Rancher") setup URL: https://$hostname_fqdn/dashboard/?setup=$setup_password"
 
   run_cmd "$script_dir/rancher_add_cluster_repos.sh"
   verify_final_versions "$k3s_version" "$cert_manager_version" "$rancher_version"
 
-  log "Upgrade completed."
+  log_success "Upgrade completed."
 }
 
 main "$@"
