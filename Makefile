@@ -3,7 +3,7 @@
 .DEFAULT_GOAL := help
 
 help:
-	@echo "bash_configs helper targets"
+	@echo "Rancher helper targets"
 	@echo ""
 	@echo "  install-git-hooks  Configure repository git hooks"
 
