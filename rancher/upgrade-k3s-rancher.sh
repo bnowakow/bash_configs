@@ -67,6 +67,23 @@ version_text() {
   color_text "$color_bold" "$1"
 }
 
+version_transition_text() {
+  local current="$1"
+  local target="$2"
+
+  if versions_match "$current" "$target"; then
+    printf '%s (%s)' "$(version_text "$target")" "$(success_text "already up to date")"
+    return 0
+  fi
+
+  if [ -n "$current" ] && ! target_version_is_newer "$current" "$target"; then
+    printf '%s -> %s (%s)' "$(version_text "$current")" "$(version_text "$target")" "$(warning_text "target is not newer; will skip")"
+    return 0
+  fi
+
+  warning_text "$(printf '%s -> %s' "$(version_text "${current:-not detected}")" "$(version_text "$target")")"
+}
+
 success_text() {
   color_text "$color_green" "$1"
 }
@@ -329,6 +346,23 @@ versions_match() {
   [ -n "$actual" ] && [ "$(normalize_leading_v "$actual")" = "$(normalize_leading_v "$expected")" ]
 }
 
+target_version_is_newer() {
+  local current="$1"
+  local target="$2"
+  local newest
+
+  if [ -z "$current" ]; then
+    return 0
+  fi
+
+  if versions_match "$current" "$target"; then
+    return 1
+  fi
+
+  newest="$(printf '%s\n%s\n' "$(normalize_leading_v "$current")" "$(normalize_leading_v "$target")" | sort -V | tail -n 1)"
+  [ "$newest" = "$(normalize_leading_v "$target")" ]
+}
+
 helm_release_field() {
   local release="$1"
   local namespace="$2"
@@ -354,15 +388,17 @@ skip_if_already_current() {
   local expected_k3s_version="$1"
   local expected_cert_manager_version="$2"
   local expected_rancher_version="$3"
-  local actual_k3s_version
-  local actual_cert_manager_version
-  local actual_rancher_version
+  local actual_k3s_version="${4:-}"
+  local actual_cert_manager_version="${5:-}"
+  local actual_rancher_version="${6:-}"
 
   log "Checking whether installed versions already match selected upgrade targets."
 
-  actual_k3s_version="$(installed_k3s_version || true)"
-  actual_cert_manager_version="$(helm_release_field cert-manager cert-manager app_version || true)"
-  actual_rancher_version="$(helm_release_field rancher cattle-system app_version || true)"
+  if [ "$#" -lt 6 ]; then
+    actual_k3s_version="$(installed_k3s_version || true)"
+    actual_cert_manager_version="$(helm_release_field cert-manager cert-manager app_version || true)"
+    actual_rancher_version="$(helm_release_field rancher cattle-system app_version || true)"
+  fi
 
   log "Installed $(component_text "k3s") version: $(version_text "${actual_k3s_version:-not detected}"); target: $(version_text "$expected_k3s_version")"
   log "Installed $(component_text "cert-manager") app_version: $(version_text "${actual_cert_manager_version:-not detected}"); target: $(version_text "$expected_cert_manager_version")"
@@ -386,7 +422,7 @@ verify_final_versions() {
   local cert_manager_chart
   local rancher_chart
 
-  log "Verifying installed versions against selected upgrade targets."
+  log "Verifying installed versions after upgrade."
 
   actual_k3s_version="$(installed_k3s_version)"
   run_cmd k3s --version
@@ -452,6 +488,15 @@ main() {
   local k3s_install_version
   local cert_manager_releases_json
   local cert_manager_version
+  local current_k3s_version
+  local current_cert_manager_version
+  local current_rancher_version
+  local upgrade_k3s
+  local upgrade_cert_manager
+  local upgrade_rancher
+  local final_k3s_version
+  local final_cert_manager_version
+  local final_rancher_version
   local hostname_fqdn
   local setup_password
 
@@ -489,18 +534,65 @@ main() {
   log "$(component_text "cert-manager") releases URL: https://github.com/cert-manager/cert-manager/releases"
   log "$(component_text "Rancher") hostname: $hostname_fqdn"
 
-  skip_if_already_current "$k3s_version" "$cert_manager_version" "$rancher_version"
+  current_k3s_version="$(installed_k3s_version || true)"
+  current_cert_manager_version="$(helm_release_field cert-manager cert-manager app_version || true)"
+  current_rancher_version="$(helm_release_field rancher cattle-system app_version || true)"
+  upgrade_k3s=0
+  upgrade_cert_manager=0
+  upgrade_rancher=0
+
+  if target_version_is_newer "$current_k3s_version" "$k3s_version"; then
+    upgrade_k3s=1
+  fi
+
+  if target_version_is_newer "$current_cert_manager_version" "$cert_manager_version"; then
+    upgrade_cert_manager=1
+  fi
+
+  if target_version_is_newer "$current_rancher_version" "$rancher_version"; then
+    upgrade_rancher=1
+  fi
+
+  final_k3s_version="$current_k3s_version"
+  final_cert_manager_version="$current_cert_manager_version"
+  final_rancher_version="$current_rancher_version"
+
+  if [ "$upgrade_k3s" -eq 1 ]; then
+    final_k3s_version="$k3s_version"
+  fi
+
+  if [ "$upgrade_cert_manager" -eq 1 ]; then
+    final_cert_manager_version="$cert_manager_version"
+  fi
+
+  if [ "$upgrade_rancher" -eq 1 ]; then
+    final_rancher_version="$rancher_version"
+  fi
+
+  skip_if_already_current \
+    "$k3s_version" \
+    "$cert_manager_version" \
+    "$rancher_version" \
+    "$current_k3s_version" \
+    "$current_cert_manager_version" \
+    "$current_rancher_version"
+
+  if [ "$upgrade_k3s" -eq 0 ] && [ "$upgrade_cert_manager" -eq 0 ] && [ "$upgrade_rancher" -eq 0 ]; then
+    log_success "No selected target version is newer than the installed version. No upgrade needed."
+    exit 0
+  fi
+
   show_current_status
   save_snapshot_or_confirm
 
   printf '%b\n' "
 
 About to run the upgrade with:
-  $(component_text "Rancher"):       $(version_text "$rancher_version")
+  $(component_text "Rancher"):       $(version_transition_text "$current_rancher_version" "$rancher_version")
   $(component_text "Rancher") URL:   $rancher_matrix_url
   $(component_text "k3s") minor:     $(version_text "$supported_k3s_minor")
-  $(component_text "k3s") release:   $(version_text "$k3s_version")
-  $(component_text "cert-manager"):  $(version_text "$cert_manager_version")
+  $(component_text "k3s") release:   $(version_transition_text "$current_k3s_version" "$k3s_version")
+  $(component_text "cert-manager"):  $(version_transition_text "$current_cert_manager_version" "$cert_manager_version")
   hostname:      $hostname_fqdn
   log file:      $log_file
 
@@ -508,48 +600,70 @@ About to run the upgrade with:
 
   confirm "Do these versions and settings look good?" || exit 1
 
-  log "Upgrading $(component_text "k3s") to $(version_text "$k3s_version")."
-  log "+ curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=\"$k3s_install_version\" sh -s - server"
-  curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="$k3s_install_version" sh -s - server 2>&1 | tee -a "$log_file"
+  if [ "$upgrade_k3s" -eq 1 ]; then
+    log "Upgrading $(component_text "k3s") from $(version_text "${current_k3s_version:-not detected}") to $(version_text "$k3s_version")."
+    log "+ curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=\"$k3s_install_version\" sh -s - server"
+    curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="$k3s_install_version" sh -s - server 2>&1 | tee -a "$log_file"
 
-  run_cmd cp "$script_dir/config.yaml" /etc/rancher/k3s/config.yaml
-  run_cmd chmod 644 /etc/rancher/k3s/config.yaml
-  run_cmd systemctl stop k3s
-  run_cmd systemctl start k3s
-  wait_for_kubectl
+    run_cmd cp "$script_dir/config.yaml" /etc/rancher/k3s/config.yaml
+    run_cmd chmod 644 /etc/rancher/k3s/config.yaml
+    run_cmd systemctl stop k3s
+    run_cmd systemctl start k3s
+    wait_for_kubectl
+  else
+    log_success "Skipping $(component_text "k3s"); installed version is $(version_text "${current_k3s_version:-not detected}") and target $(version_text "$k3s_version") is not newer."
+  fi
 
-  ensure_helm_repo "rancher-stable" "https://releases.rancher.com/server-charts/stable"
-  ensure_helm_repo "jetstack" "https://charts.jetstack.io"
-  run_cmd helm repo update
+  if [ "$upgrade_cert_manager" -eq 1 ] || [ "$upgrade_rancher" -eq 1 ]; then
+    if [ "$upgrade_rancher" -eq 1 ]; then
+      ensure_helm_repo "rancher-stable" "https://releases.rancher.com/server-charts/stable"
+    fi
 
-  run_cmd helm --kubeconfig "$kubeconfig_path" upgrade --install cert-manager jetstack/cert-manager \
-    --namespace cert-manager \
-    --create-namespace \
-    --version "$cert_manager_version" \
-    --set startupapicheck.timeout=5m \
-    --set crds.enabled=true
+    if [ "$upgrade_cert_manager" -eq 1 ]; then
+      ensure_helm_repo "jetstack" "https://charts.jetstack.io"
+    fi
 
-  run_cmd kubectl --kubeconfig "$kubeconfig_path" apply --validate=false -f "https://github.com/jetstack/cert-manager/releases/download/$cert_manager_version/cert-manager.crds.yaml"
-  run_cmd kubectl --kubeconfig "$kubeconfig_path" apply --validate=false -f "https://github.com/jetstack/cert-manager/releases/download/$cert_manager_version/cert-manager.crds.yaml"
-  run_cmd kubectl --kubeconfig "$kubeconfig_path" get pods --namespace cert-manager
+    run_cmd helm repo update
+  fi
 
-  run_cmd helm --kubeconfig "$kubeconfig_path" upgrade --install rancher rancher-stable/rancher \
-    --namespace cattle-system \
-    --create-namespace \
-    --version "${rancher_version#v}" \
-    --set "hostname=$hostname_fqdn" \
-    --set bootstrapPassword=admin \
-    --set ingress.tls.source=letsEncrypt \
-    --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com
+  if [ "$upgrade_cert_manager" -eq 1 ]; then
+    log "Upgrading $(component_text "cert-manager") from $(version_text "${current_cert_manager_version:-not detected}") to $(version_text "$cert_manager_version")."
+    run_cmd helm --kubeconfig "$kubeconfig_path" upgrade --install cert-manager jetstack/cert-manager \
+      --namespace cert-manager \
+      --create-namespace \
+      --version "$cert_manager_version" \
+      --set startupapicheck.timeout=5m \
+      --set crds.enabled=true
 
-  run_cmd kubectl --kubeconfig "$kubeconfig_path" -n cattle-system rollout status deploy/rancher --timeout="$rollout_timeout"
-  run_cmd kubectl --kubeconfig "$kubeconfig_path" -n cattle-system get deploy rancher
+    run_cmd kubectl --kubeconfig "$kubeconfig_path" apply --validate=false -f "https://github.com/jetstack/cert-manager/releases/download/$cert_manager_version/cert-manager.crds.yaml"
+    run_cmd kubectl --kubeconfig "$kubeconfig_path" get pods --namespace cert-manager
+  else
+    log_success "Skipping $(component_text "cert-manager"); installed version is $(version_text "${current_cert_manager_version:-not detected}") and target $(version_text "$cert_manager_version") is not newer."
+  fi
 
-  setup_password="$(kubectl --kubeconfig "$kubeconfig_path" get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')"
-  log_success "$(component_text "Rancher") setup URL: https://$hostname_fqdn/dashboard/?setup=$setup_password"
+  if [ "$upgrade_rancher" -eq 1 ]; then
+    log "Upgrading $(component_text "Rancher") from $(version_text "${current_rancher_version:-not detected}") to $(version_text "$rancher_version")."
+    run_cmd helm --kubeconfig "$kubeconfig_path" upgrade --install rancher rancher-stable/rancher \
+      --namespace cattle-system \
+      --create-namespace \
+      --version "${rancher_version#v}" \
+      --set "hostname=$hostname_fqdn" \
+      --set bootstrapPassword=admin \
+      --set ingress.tls.source=letsEncrypt \
+      --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com
 
-  run_cmd "$script_dir/rancher_add_cluster_repos.sh"
-  verify_final_versions "$k3s_version" "$cert_manager_version" "$rancher_version"
+    run_cmd kubectl --kubeconfig "$kubeconfig_path" -n cattle-system rollout status deploy/rancher --timeout="$rollout_timeout"
+    run_cmd kubectl --kubeconfig "$kubeconfig_path" -n cattle-system get deploy rancher
+
+    setup_password="$(kubectl --kubeconfig "$kubeconfig_path" get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')"
+    log_success "$(component_text "Rancher") setup URL: https://$hostname_fqdn/dashboard/?setup=$setup_password"
+
+    run_cmd "$script_dir/rancher_add_cluster_repos.sh"
+  else
+    log_success "Skipping $(component_text "Rancher"); installed version is $(version_text "${current_rancher_version:-not detected}") and target $(version_text "$rancher_version") is not newer."
+  fi
+
+  verify_final_versions "$final_k3s_version" "$final_cert_manager_version" "$final_rancher_version"
 
   log_success "Upgrade completed."
 }
