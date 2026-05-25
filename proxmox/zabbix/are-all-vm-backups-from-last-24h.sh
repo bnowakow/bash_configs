@@ -2,37 +2,60 @@
 
 # on first run from particular user you need to accept fingerprint twice
 
-cd /home/sup/code/bash_configs/proxmox/zabbix;
-export PBS_PASSWORD="$(cat .pbs-password)"; 
+cd /home/sup/code/bash_configs/proxmox/zabbix || exit 1
+export PBS_PASSWORD="$(cat .pbs-password)"
 
-any_backup_have_too_old_backup=false
+repository="backup@pbs@proxmox-backup-server.tailscale.bnowakowski.pl:margok-pbs-nfs"
+number_of_seconds_in_a_day=86400
+now=$(date +%s)
 
-# skipping vm_id = 300 which is home assistant supervised on debian which was migrated to HAOS which is vm_id = 350
-# skipping vm_id = 350 which has moved to 351
-# skipping vm_id = 400 which has moved to 401
-# skipping vm_id = 600 which has moved to 601
-# skipping vm_id = 900 which is macos which I don't need backuped every day
-# TODO why there's no alerts for 800, but there're for 900?
-for vm_id in $(proxmox-backup-client list --repository backup@pbs@proxmox-backup-server.tailscale.bnowakowski.pl:margok-pbs-nfs --output-format json-pretty | jq ".[].\"backup-id\"" | grep -v '"300"' | grep -v '"350"' | grep -v '"400"' | grep -v '"600"' | grep -v '"900"'); do
-    #echo vm_id=$vm_id;
-    last_update=$(proxmox-backup-client list --repository backup@pbs@proxmox-backup-server.tailscale.bnowakowski.pl:margok-pbs-nfs --output-format json-pretty | jq "map(select(.\"backup-id\" == $vm_id))" | jq ".[0].\"last-backup\"")
-    #echo last_update=$last_update
-    seconds_since_last_backup=$(($(date +%s) - $last_update))
-    numer_of_seconds_in_a_day=86400
-    #echo seconds_since_last_backup=$seconds_since_last_backup
-    if [ ! "$seconds_since_last_backup" -le "$numer_of_seconds_in_a_day" ]; then
-        if [ "$any_backup_have_too_old_backup" == "false" ]; then
-            any_backup_have_too_old_backup=true;
-            echo -n "false,$vm_id"
-        else
-            echo -n ",$vm_id"
-        fi
-    fi
-    #exit
-done
+# These VMs do not need daily backup checks.
+ignored_backup_ids='["800", "900"]'
 
-if [ "$any_backup_have_too_old_backup" == "false" ]; then
-    echo true;
+if ! backups_json=$(proxmox-backup-client list --repository "$repository" --output-format json 2>/dev/null); then
+    echo false,proxmox-backup-client-list-error
+    exit 0
 fi
 
+if ! missing_groups=$(
+    jq -r \
+        --argjson now "$now" \
+        --argjson max_age "$number_of_seconds_in_a_day" \
+        --argjson ignored_backup_ids "$ignored_backup_ids" \
+        '
+        # Restores/migrations stay within the same hundred range, e.g. 300/350/351.
+        def group_id:
+            if (."backup-id" | test("^[0-9][0-9][0-9]$")) then
+                (."backup-id" | .[0:1]) + "xx"
+            else
+                ."backup-id"
+            end;
 
+        [
+            .[]
+            | select(."backup-id" as $backup_id | $ignored_backup_ids | index($backup_id) | not)
+            | {
+                group_id: group_id,
+                backup_id: ."backup-id",
+                is_recent: (($now - ."last-backup") <= $max_age)
+            }
+        ]
+        | group_by(.group_id)
+        | map(select(any(.is_recent) | not))
+        | map(
+            map(.backup_id)
+            | sort
+            | join("/")
+        )
+        | join(",")
+        ' <<< "$backups_json"
+); then
+    echo false,jq-error
+    exit 0
+fi
+
+if [ -z "$missing_groups" ]; then
+    echo true
+else
+    echo "false,$missing_groups"
+fi
