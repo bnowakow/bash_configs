@@ -215,6 +215,25 @@ color_bash_return_code() {
   fi
 }
 
+color_count() {
+  local count="$1"
+  local color="${2:-}"
+  if [ "$use_color" -eq 1 ] && [ -n "$color" ]; then
+    printf '%b%s%b' "$color" "$count" "$nc"
+  else
+    printf '%s' "$count"
+  fi
+}
+
+color_zero_ok_count() {
+  local count="$1"
+  if [ "$count" -eq 0 ]; then
+    color_count "$count" "$green"
+  else
+    color_count "$count" "$red"
+  fi
+}
+
 helper_status_label() {
   local code="$1"
   case "$code" in
@@ -289,6 +308,24 @@ cleanup() {
   fi
 }
 
+print_colored_summary() {
+  printf '%b\n' "$(color_blue "Run Summary")"
+  printf 'Discovered: %b\n' "$(color_count "$total_discovered_count" "$blue")"
+  printf 'Excluded: %b\n' "$(color_count "$excluded_count" "$yellow")"
+  printf 'Up-to-date: %b\n' "$(color_count "$up_to_date_count" "$green")"
+  printf 'Skipped: %b\n' "$(color_count "$skipped_count" "$yellow")"
+  printf 'Updated: %b\n' "$(color_count "$updated_count" "$green")"
+
+  if [ "$dry_run" -eq 1 ]; then
+    printf 'Dry-run approved (not executed): %b\n' "$(color_count "$dry_run_approved_count" "$yellow")"
+  fi
+
+  printf 'Failed apps: %b\n' "$(color_zero_ok_count "$failed_apps_count")"
+  printf 'Failure events: %b\n' "$(color_zero_ok_count "$failure_events_count")"
+  printf 'Exit status: %b\n' "$(color_bash_return_code "$exit_status")"
+  printf 'Log file: %s\n' "$log_file"
+}
+
 show_summary_modal() {
   local summary
   summary="Discovered: $total_discovered_count
@@ -307,6 +344,16 @@ Failed apps: $failed_apps_count
 Failure events: $failure_events_count
 Exit status: $exit_status
 Log file: $log_file"
+
+  if [ "$updated_count" -eq 0 ]; then
+    local ts
+    ts="$(date +"%Y-%m-%d %H:%M:%S")"
+    cleanup
+    trap - EXIT
+    print_colored_summary
+    printf '[%s] Summary: discovered=%s excluded=%s up_to_date=%s skipped=%s updated=%s dry_run_approved=%s failed_apps=%s failure_events=%s exit_status=%s\n' "$ts" "$total_discovered_count" "$excluded_count" "$up_to_date_count" "$skipped_count" "$updated_count" "$dry_run_approved_count" "$failed_apps_count" "$failure_events_count" "$exit_status" >>"$log_file"
+    return 0
+  fi
 
   if [ "$yes_mode" -eq 1 ]; then
     log "Summary: discovered=$total_discovered_count excluded=$excluded_count up_to_date=$up_to_date_count skipped=$skipped_count updated=$updated_count dry_run_approved=$dry_run_approved_count failed_apps=$failed_apps_count failure_events=$failure_events_count exit_status=$exit_status"
