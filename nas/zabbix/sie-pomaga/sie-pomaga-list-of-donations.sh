@@ -1,63 +1,45 @@
 #!/bin/bash
 
-next_page_url="/raczka-kuby?last_payment_id=&last_payment_time=&tabs=";
-stop_page_url='":null}}'
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "$script_dir/sie-pomaga-lib.sh"
 
-cd /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga;
+per_page=100
 
-mv sie-pomaga-list-of-donations.txt sie-pomaga-list-of-donations.old.txt
+sie_pomaga_cd
+
+if [ -f sie-pomaga-list-of-donations.txt ]; then
+    mv sie-pomaga-list-of-donations.txt sie-pomaga-list-of-donations.old.txt
+fi
+
+after_id=""
+after_value=""
 
 while true; do
+    url=$(sie_pomaga_payments_url "$per_page" "$after_id" "$after_value")
 
-    curl \                                                                                                                                                                                     -H "Host: www.siepomaga.pl" \                                                                                                                                                          -H "accept: application/json" \                                                                                                                                                        --compressed \
-        "https://www.siepomaga.pl$next_page_url" \
-        > sie-pomaga-list-of-donations-in-progress-1.json 2>/dev/null
+    wget -q -O sie-pomaga-list-of-donations-in-progress.json "$url"
 
-    cat sie-pomaga-list-of-donations-in-progress-1.json | tr '<' '\n<' > sie-pomaga-list-of-donations-in-progress-2.json
+    number_of_donations=$(jq '.data | length' sie-pomaga-list-of-donations-in-progress.json)
+    echo number_of_donations=$number_of_donations
 
-    number_of_donations=$(grep donation-card-component__name sie-pomaga-list-of-donations-in-progress-2.json | wc -l)
-    number_of_values=5
+    jq -c '.data[] | {
+        name: (.payer.name // ""),
+        value: (.amount // ""),
+        datetime: (.state_changed_at // ""),
+        comment: (.comment_text // ""),
+        id: .id
+    }' sie-pomaga-list-of-donations-in-progress.json >> sie-pomaga-list-of-donations.txt
 
-    # name
-    grep donation-card-component__name sie-pomaga-list-of-donations-in-progress-2.json | sed "s/.*>\\\n//" | sed "s/\ \ //g" | sed "s/\\\n$//" \
-        > sie-pomaga-list-of-donations-in-progress-3.json
-    # donation value
-    grep data-common-formatted-number-component-raw-value-value sie-pomaga-list-of-donations-in-progress-2.json | sed "s/.*>\\\n//" | sed "s/\ \ //g" | sed "s/\\\n$//" \
-        >> sie-pomaga-list-of-donations-in-progress-3.json
-    # datetime
-    grep datetime sie-pomaga-list-of-donations-in-progress-2.json | sed "s/time datetime=\\\.//" | sed "s/\\\.*//" \
-        >> sie-pomaga-list-of-donations-in-progress-3.json
-    # comment
-    grep donation-card-component__text__comment sie-pomaga-list-of-donations-in-progress-2.json | sed "s/.*>\\\n//" | sed "s/\ \ //g" | sed "s/\\\n$//" \
-        >> sie-pomaga-list-of-donations-in-progress-3.json
-    # id
-    grep donation-card-comment sie-pomaga-list-of-donations-in-progress-2.json | sed "s/.*donation-card-comment-//" | sed "s/\\\.*//" \
-        >> sie-pomaga-list-of-donations-in-progress-3.json
+    if [ "$number_of_donations" -lt "$per_page" ]; then
+        break
+    fi
 
-    values_names=("name" "value" "datetime" "comment" "id")
+    after_id=$(jq -r '.data[-1].id // ""' sie-pomaga-list-of-donations-in-progress.json)
+    after_value=$(jq -r '.data[-1].state_changed_at // ""' sie-pomaga-list-of-donations-in-progress.json)
 
-    for (( j=0; j<$number_of_donations; j++ ))
-    do
-        jq -n '{}' > sie-pomaga-list-of-donations-in-progress-4.json
-        for (( i=0; i<$number_of_values; i++ ))
-        do
-            k=$(($i*$number_of_donations+$j+1))
-            value_name=${values_names[$i]}
-            value=$(sed -n "$k""p" < sie-pomaga-list-of-donations-in-progress-3.json)
-            jq -c  ".$value_name += \"$value\"" sie-pomaga-list-of-donations-in-progress-4.json > sie-pomaga-list-of-donations-in-progress-5.json
-        cp sie-pomaga-list-of-donations-in-progress-5.json sie-pomaga-list-of-donations-in-progress-4.json
-        done
-        jq -c . sie-pomaga-list-of-donations-in-progress-4.json >> sie-pomaga-list-of-donations.txt
-    done
-
-    next_page_url=$(grep load_more_button sie-pomaga-list-of-donations-in-progress-1.json | sed "s/.*load_more_button//" | sed "s/.*data-url=\\\.//" | sed "s/..\\\n.*//")
-    echo next_page_url=$next_page_url
-
-    rm sie-pomaga-list-of-donations-in-progress-*
-
-    if [ "$next_page_url" = "$stop_page_url" ]; then
-        break;
+    if [ -z "$after_id" ] || [ -z "$after_value" ]; then
+        break
     fi
 done
 
-
+rm sie-pomaga-list-of-donations-in-progress.json
