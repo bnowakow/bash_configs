@@ -1,0 +1,446 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root=$(git rev-parse --show-toplevel)
+cd "$repo_root"
+
+tmp_files=()
+cleanup() {
+	if [ "${#tmp_files[@]}" -gt 0 ]; then
+		rm -f "${tmp_files[@]}"
+	fi
+}
+trap cleanup EXIT
+
+ui_fallback_explained=0
+
+codex_command=()
+resolve_codex_command() {
+	if command -v codex >/dev/null 2>&1; then
+		codex_command=(codex)
+		return 0
+	fi
+
+	local candidate
+	for candidate in \
+		"/Applications/Codex.app/Contents/Resources/codex" \
+		"$HOME/Applications/Codex.app/Contents/Resources/codex"; do
+		if [ -x "$candidate" ]; then
+			codex_command=("$candidate")
+			return 0
+		fi
+	done
+
+	return 1
+}
+
+terminal_ui_unavailable_reason() {
+	if [ ! -e /dev/tty ]; then
+		printf 'no controlling terminal is available'
+		return 0
+	fi
+
+	if [ ! -r /dev/tty ] || [ ! -w /dev/tty ]; then
+		printf '/dev/tty is not readable and writable'
+		return 0
+	fi
+
+	if [ -z "${TERM:-}" ]; then
+		printf 'TERM is not set'
+		return 0
+	fi
+
+	if [ "${TERM:-}" = "dumb" ]; then
+		printf 'TERM=dumb'
+		return 0
+	fi
+
+	if ! infocmp "$TERM" >/dev/null 2>&1; then
+		printf 'no terminfo entry exists for TERM=%s' "$TERM"
+		return 0
+	fi
+
+	return 1
+}
+
+can_use_terminal_ui() {
+	! terminal_ui_unavailable_reason >/dev/null
+}
+
+can_use_dialog() {
+	command -v dialog >/dev/null 2>&1 && can_use_terminal_ui
+}
+
+can_use_whiptail() {
+	command -v whiptail >/dev/null 2>&1 && can_use_terminal_ui
+}
+
+explain_plain_prompt_fallback() {
+	local reason
+
+	if [ "$ui_fallback_explained" -eq 1 ]; then
+		return
+	fi
+
+	ui_fallback_explained=1
+
+	if reason=$(terminal_ui_unavailable_reason); then
+		printf 'Using plain terminal prompts because the dialog UI is unavailable: %s.\n' "$reason" >&2
+		return
+	fi
+
+	if ! command -v dialog >/dev/null 2>&1 && ! command -v whiptail >/dev/null 2>&1; then
+		printf 'Using plain terminal prompts because neither dialog nor whiptail is on PATH.\n' >&2
+	fi
+}
+
+read_prompt_answer() {
+	local variable_name=$1
+
+	if [ -r /dev/tty ] && [ -w /dev/tty ]; then
+		IFS= read -r "$variable_name" </dev/tty
+		return
+	fi
+
+	IFS= read -r "$variable_name"
+}
+
+prompt_menu() {
+	local title=$1
+	local text=$2
+	shift 2
+
+	if can_use_dialog; then
+		dialog --stdout --title "$title" --menu "$text" 15 76 5 "$@" \
+			2>/dev/tty </dev/tty
+		return
+	fi
+
+	if can_use_whiptail; then
+		whiptail --title "$title" --menu "$text" 15 76 5 "$@" \
+			3>&1 1>/dev/tty 2>&3 </dev/tty
+		return
+	fi
+
+	explain_plain_prompt_fallback
+
+	local choices=("$@")
+	local index=1
+	local i
+	printf '%s\n%s\n' "$title" "$text" >&2
+	for ((i = 0; i < ${#choices[@]}; i += 2)); do
+		printf '  %d. %s - %s\n' "$index" "${choices[$i]}" "${choices[$((i + 1))]}" >&2
+		index=$((index + 1))
+	done
+	printf 'Choose [1-%d]: ' "$((index - 1))" >&2
+	if ! read_prompt_answer answer; then
+		printf '\nNo interactive input was available.\n' >&2
+		return 1
+	fi
+	if ! [[ "$answer" =~ ^[0-9]+$ ]] || [ "$answer" -lt 1 ] || [ "$answer" -ge "$index" ]; then
+		return 1
+	fi
+	printf '%s\n' "${choices[$(((answer - 1) * 2))]}"
+}
+
+confirm() {
+	local title=$1
+	local text=$2
+
+	if can_use_dialog; then
+		dialog --title "$title" --yesno "$text" 20 90 >/dev/tty 2>&1 </dev/tty
+		return
+	fi
+
+	if can_use_whiptail; then
+		whiptail --title "$title" --yesno "$text" 20 90 >/dev/tty 2>&1 </dev/tty
+		return
+	fi
+
+	explain_plain_prompt_fallback
+
+	local answer
+	printf '%s\n%s [y/N]: ' "$title" "$text" >&2
+	if ! read_prompt_answer answer; then
+		printf '\nNo interactive input was available.\n' >&2
+		return 1
+	fi
+	[[ "$answer" =~ ^[Yy]$|^[Yy][Ee][Ss]$ ]]
+}
+
+whiptail_supports_extra_button() {
+	whiptail --help 2>&1 | grep -q -- '--extra-button'
+}
+
+prompt_push_action() {
+	local text=$1
+	local status
+
+	if can_use_dialog; then
+		dialog \
+			--title "Push" \
+			--yes-button "Push" \
+			--extra-button \
+			--extra-label "Show diff" \
+			--no-button "Cancel" \
+			--yesno "$text" 20 90 \
+			>/dev/tty 2>&1 </dev/tty
+		status=$?
+		case "$status" in
+			0) printf 'push\n' ;;
+			1) printf 'skip\n' ;;
+			3) printf 'diff\n' ;;
+			*) return 1 ;;
+		esac
+		return
+	fi
+
+	if can_use_whiptail; then
+		if whiptail_supports_extra_button; then
+			whiptail \
+				--title "Push" \
+				--yes-button "Push" \
+				--extra-button \
+				--extra-label "Show diff" \
+				--no-button "Cancel" \
+				--yesno "$text" 20 90 \
+				>/dev/tty 2>&1 </dev/tty
+			status=$?
+			case "$status" in
+				0) printf 'push\n' ;;
+				1) printf 'skip\n' ;;
+				3) printf 'diff\n' ;;
+				*) return 1 ;;
+			esac
+			return
+		fi
+
+		whiptail \
+			--title "Push" \
+			--yes-button "Push" \
+			--no-button "Show diff" \
+			--yesno "$text
+
+Press Esc to cancel." 22 90 \
+			>/dev/tty 2>&1 </dev/tty
+		status=$?
+		case "$status" in
+			0) printf 'push\n' ;;
+			1) printf 'diff\n' ;;
+			*) return 1 ;;
+		esac
+		return
+	fi
+
+	prompt_menu \
+		"Push" \
+		"$text" \
+		push "Run git push now" \
+		diff "Show diff for HEAD~1..HEAD" \
+		skip "Cancel"
+}
+
+has_staged_changes() {
+	! git diff --cached --quiet
+}
+
+has_unmerged_paths() {
+	[ -n "$(git diff --name-only --diff-filter=U)" ]
+}
+
+view_last_commit_diff() {
+	if [ -r /dev/tty ] && [ -w /dev/tty ]; then
+		git diff HEAD~1 HEAD -- >/dev/tty </dev/tty
+	else
+		git diff HEAD~1 HEAD --
+	fi
+}
+
+resolve_pull_conflict_with_codex() {
+	local conflict_output
+
+	conflict_output=$(mktemp "${TMPDIR:-/tmp}/bash-configs-codex-conflict.XXXXXX")
+	tmp_files+=("$conflict_output")
+
+	printf '\nGit pull produced conflicts. Attempting to resolve them with Codex...\n'
+	printf 'Conflicted files:\n'
+	git diff --name-only --diff-filter=U | sed 's/^/  - /'
+
+	if ! "${codex_command[@]}" exec \
+		-C "$repo_root" \
+		--sandbox workspace-write \
+		--output-last-message "$conflict_output" \
+		'Git is currently stopped on a pull/rebase conflict. Inspect the conflicted files, resolve the conflict markers in the working tree, preserve the intended behavior from both sides where possible, and do not commit, push, reset, abort, or continue the rebase. After editing, report whether all conflict markers and unmerged paths are resolved.'; then
+		echo "Codex failed while attempting to resolve the pull conflict."
+		cat "$conflict_output" >&2
+		return 1
+	fi
+
+	if has_unmerged_paths; then
+		echo "Codex was not able to resolve all git conflicts."
+		printf 'Still conflicted:\n'
+		git diff --name-only --diff-filter=U | sed 's/^/  - /'
+		cat "$conflict_output" >&2
+		return 1
+	fi
+
+	if ! git diff --check; then
+		echo "Codex edits still contain conflict markers or whitespace errors."
+		return 1
+	fi
+
+	if GIT_EDITOR=true git rebase --continue; then
+		echo "Codex resolved the git conflict and the rebase continued successfully."
+		return 0
+	fi
+
+	echo "Codex resolved the files, but git rebase --continue failed."
+	return 1
+}
+
+extract_commit_message() {
+	local output_file=$1
+	local message
+
+	message=$(
+		awk '
+			/^```/ {
+				if (!seen) {
+					seen = 1
+					in_block = 1
+					next
+				}
+				if (in_block) {
+					exit
+				}
+			}
+			in_block {
+				print
+			}
+		' "$output_file" | sed '/^[[:space:]]*$/d; s/[[:space:]]*$//'
+	)
+
+	if [ -z "$message" ]; then
+		message=$(sed '/^[[:space:]]*$/d; /^```/d; s/[[:space:]]*$//' "$output_file" | head -n 1)
+	fi
+
+	printf '%s\n' "$message"
+}
+
+build_commit_prompt() {
+	local skill_path
+
+	for skill_path in \
+		"$repo_root/doc/codex-skills/SKIL_suggest-commit-message/SKILL.md" \
+		"$HOME/.codex/skills/SKIL_suggest-commit-message/SKILL.md"; do
+		if [ -f "$skill_path" ]; then
+			printf 'Use the suggest-commit-message skill at %s to propose a concise commit message for the currently staged changes. If that path is inaccessible, inspect the staged changes directly. Return the recommended commit message as the first fenced code block.\n' "$skill_path"
+			return
+		fi
+	done
+
+	printf 'Inspect the currently staged changes and propose a concise git commit message. Return the recommended commit message as the first fenced code block, with no extra text before it.\n'
+}
+
+if ! has_staged_changes; then
+	echo "No staged changes to commit. Run git add for the files you want to commit, then try again."
+	exit 0
+fi
+
+if ! resolve_codex_command; then
+	echo "codex command not found. Install the Codex CLI or add Codex.app's bundled CLI to PATH." >&2
+	exit 1
+fi
+
+codex_output=$(mktemp "${TMPDIR:-/tmp}/bash-configs-codex-commit.XXXXXX")
+tmp_files+=("$codex_output")
+commit_prompt=$(build_commit_prompt)
+
+"${codex_command[@]}" exec \
+	-C "$repo_root" \
+	--sandbox read-only \
+	--output-last-message "$codex_output" \
+	"$commit_prompt" >/dev/null
+
+commit_message=$(extract_commit_message "$codex_output")
+if [ -z "$commit_message" ]; then
+	echo "Could not parse a commit message from Codex output:" >&2
+	cat "$codex_output" >&2
+	exit 1
+fi
+
+git commit -m "$commit_message"
+
+printf '\nCommitted with message:\n'
+printf '%s\n' "$commit_message"
+
+printf '\nCurrent git status:\n'
+git status --short --branch
+
+upstream=
+if upstream=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null); then
+	echo "Fetching $upstream before push check..."
+	git fetch --quiet
+	read -r ahead behind < <(git rev-list --left-right --count HEAD..."$upstream")
+
+	if [ "$behind" -gt 0 ]; then
+		if confirm "Pull before push" "Upstream $upstream has $behind commit(s) not in this branch. Run git pull --rebase before push?"; then
+			if ! git pull --rebase; then
+				if has_unmerged_paths; then
+					resolve_pull_conflict_with_codex || {
+						echo "Aborting codex-commit because the git conflict was not resolved."
+						exit 1
+					}
+				else
+					echo "git pull --rebase failed without unmerged paths. Aborting."
+					exit 1
+				fi
+			fi
+		else
+			echo "Skipping push because upstream has new commits."
+			exit 0
+		fi
+	fi
+else
+	echo "No upstream branch is configured; git push will use Git's default behavior."
+fi
+
+push_summary=$(
+	printf '1. git log message\n'
+	git log -1 --format=%B
+	printf '\n2. files changed in HEAD~1..HEAD\n'
+	changed_files=$(git diff --name-status HEAD~1 HEAD --)
+	if [ -n "$changed_files" ]; then
+		printf '%s\n' "$changed_files"
+	else
+		printf 'No files changed in HEAD~1..HEAD.\n'
+	fi
+	printf '\nChoose the next action.'
+)
+
+while true; do
+	push_choice=$(
+		prompt_push_action "$push_summary"
+	) || {
+		echo "Push skipped."
+		exit 0
+	}
+
+	case "$push_choice" in
+		push)
+			git push
+			break
+			;;
+		diff)
+			view_last_commit_diff
+			;;
+		skip)
+			echo "Push skipped."
+			break
+			;;
+		*)
+			echo "Unexpected choice: $push_choice" >&2
+			exit 1
+			;;
+	esac
+done
