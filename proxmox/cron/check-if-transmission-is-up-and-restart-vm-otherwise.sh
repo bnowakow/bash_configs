@@ -1,5 +1,7 @@
 #!/bin/bash
 
+proxmox_vm_id=600;
+
 #https://gist.github.com/tree-s/1b2177bac1d8f2b70fac9e235a7f262c
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 password_file="$script_dir/.transmission-password"
@@ -33,20 +35,20 @@ get_vm_boot_time() {
     local command_output
     local command_exit_code
 
-    command_output=$(timelimit -S 4 -s 6 -T 8 -t 10 ssh -t "$ssh_target" "who -b" 2>&1)
+    command_output=$(timelimit -S 4 -s 6 -T 8 -t 10 ssh -o BatchMode=yes -t "$ssh_target" "who -b" 2>&1)
     command_exit_code=$?
 
     if [ $command_exit_code -ne 0 ]; then
         if echo "$command_output" | grep -q "No route to host"; then
             print_status "failure" "Cannot connect to VM via SSH running 'who -b': No route to host"
         else
-            print_status "failure" "SSH command failed with exit code $command_exit_code: ssh -t $ssh_target \"who -b\""
+            print_status "failure" "SSH command failed with exit code $command_exit_code: ssh -o BatchMode=yes -t $ssh_target \"who -b\""
         fi
         return 1
     fi
 
     if ! echo "$command_output" | grep -q "system boot"; then
-        print_status "failure" "Unexpected output from ssh -t $ssh_target \"who -b\": $command_output"
+        print_status "failure" "Unexpected output from ssh -o BatchMode=yes -t $ssh_target \"who -b\": $command_output"
         return 1
     fi
 
@@ -77,6 +79,29 @@ require_root() {
         exit 1
     fi
 }
+
+ensure_root_ssh_key_access() {
+    local ssh_target="root@$host"
+    local ssh_output
+    local ssh_exit_code
+
+    print_status "" "Checking SSH key access to $ssh_target"
+    ssh_output=$(ssh -o BatchMode=yes -o ConnectTimeout=10 "$ssh_target" "true" 2>&1)
+    ssh_exit_code=$?
+    if [ $ssh_exit_code -eq 0 ]; then
+        print_status "success" "SSH key access to $ssh_target works"
+        return 0
+    fi
+
+    if echo "$ssh_output" | grep -q "No route to host"; then
+        print_status "failure" "Cannot connect to VM via SSH while checking key auth: No route to host"
+        exit 1
+    fi
+
+    print_status "failure" "SSH key access to $ssh_target does not work: $ssh_output"
+    print_status "" "Configure key-based SSH for root@$host before running this script unattended"
+    exit 1
+}
 if [ ! -f "$password_file" ]; then
     print_status "failure" "missing Transmission password file: $password_file" >&2
     print_status "" "Create it based on: $script_dir/.transmission-password.sample" >&2
@@ -87,8 +112,6 @@ host=transmission.localdomain.bnowakowski.pl
 port=9091
 user=transmission
 pass=$(cat "$password_file")
-
-proxmox_vm_id=601;
 
 # Sleep duration settings
 reboot_wait_time=4m
@@ -101,6 +124,7 @@ reboot_check_maximum_number=6
 
 require_root
 validate_proxmox_vm_id
+ensure_root_ssh_key_access
 
 curl_transmission() {
     sessid=$(curl --connect-timeout 10 --max-time 15 --silent --anyauth --user $user:$pass "http://$host:$port/transmission/rpc" | sed 's/.*<code>//g;s/<\/code>.*//g')
@@ -134,18 +158,18 @@ for try in `seq 1 $transmission_check_attempts`; do
     sleep $transmission_check_interval; # Comment while DEBUG
 done
 
-if transmission_vm_boot_date_time_before_reboot=$(get_vm_boot_time "$host"); then
+if transmission_vm_boot_date_time_before_reboot=$(get_vm_boot_time "root@$host"); then
     echo transmission_vm_boot_date_time_before_reboot=$transmission_vm_boot_date_time_before_reboot;
 else
     transmission_vm_boot_date_time_before_reboot=""
 fi
 date
-ssh_output=$(ssh -t root@$host "reboot" 2>&1)
+ssh_output=$(ssh -o BatchMode=yes -t root@$host "reboot" 2>&1)
 ssh_exit_code=$?
 if [ $ssh_exit_code -ne 0 ] && echo "$ssh_output" | grep -q "No route to host"; then
     print_status "failure" "Cannot connect to VM via SSH running 'reboot' as root: No route to host"
 elif [ $ssh_exit_code -ne 0 ]; then
-    print_status "failure" "SSH command failed with exit code $ssh_exit_code: ssh -t root@$host \"reboot\""
+    print_status "failure" "SSH command failed with exit code $ssh_exit_code: ssh -o BatchMode=yes -t root@$host \"reboot\""
 else
     echo "$ssh_output"
 fi
@@ -155,7 +179,7 @@ sleep $reboot_wait_time;
 checks_number=0
 checks_maximum_number=$reboot_check_maximum_number
 while true; do
-    if ! transmission_vm_boot_date_time_after_reboot=$(get_vm_boot_time "$host"); then
+    if ! transmission_vm_boot_date_time_after_reboot=$(get_vm_boot_time "root@$host"); then
         transmission_vm_boot_date_time_after_reboot=""
     elif [ "$transmission_vm_boot_date_time_after_reboot" != "$transmission_vm_boot_date_time_before_reboot" ]; then 
         print_status "success" "booted"
