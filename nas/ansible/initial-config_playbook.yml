@@ -1,5 +1,5 @@
 - hosts: all
-    
+
   tasks:
     - name: Add authorized key from id_ecdsa.pub file
       authorized_key:
@@ -8,8 +8,40 @@
         key: "{{ lookup('file', '/mnt/MargokPool/home/sup/.ssh/id_ecdsa.pub') }}"
     - name: install packages
       apt:
-        name: vim, git, screen, nfs-common, software-properties-common, dirmngr, apt-transport-https, zsh, htop, ncdu, jq
+        name:
+          - apt-transport-https
+          - bubblewrap
+          - ca-certificates
+          - curl
+          - dirmngr
+          - git
+          - htop
+          - jq
+          - ncdu
+          - nfs-common
+          - nodejs
+          - npm
+          - openssh-client
+          - ripgrep
+          - screen
+          - software-properties-common
+          - vim
+          - zsh
         state: present
-      become: true  
+        update_cache: true
+      become: true
 
-   
+    - name: check codex cli
+      ansible.builtin.command: codex --version
+      register: codex_cli_version
+      changed_when: false
+      failed_when: false
+
+    - name: install codex cli
+      ansible.builtin.command: npm install -g @openai/codex
+      when: codex_cli_version.rc != 0
+      become: true
+
+    - name: verify codex cli
+      ansible.builtin.command: codex --version
+      changed_when: false

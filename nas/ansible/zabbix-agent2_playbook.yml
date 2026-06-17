@@ -1,10 +1,21 @@
 - hosts: all
   become: true
   become_method: sudo
+  vars:
+    zabbix_version: 7.0
+  pre_tasks:
+    - name: check zabbix apt repository
+      ansible.builtin.stat:
+        path: /etc/apt/sources.list.d/zabbix.list
+      register: zabbix_apt_repository
+    - name: install zabbix release package
+      ansible.builtin.shell: |
+        set -e
+        curl -fsSL -o /tmp/zabbix-release.deb "https://repo.zabbix.com/zabbix/{{ zabbix_version }}/{{ ansible_distribution | lower }}/pool/main/z/zabbix-release/zabbix-release_latest_{{ zabbix_version }}+{{ ansible_distribution | lower }}{{ ansible_distribution_major_version }}_all.deb"
+        apt-get install -y /tmp/zabbix-release.deb
+      when: not zabbix_apt_repository.stat.exists
   roles:
     - role: revenni.zabbix_agent2
-      vars:
-        zabbix_version: 7.0
       tags: zabbix_agent2
     
   tasks:
