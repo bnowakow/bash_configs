@@ -35,7 +35,7 @@ EOF
 for true_chart_repo_name in sonarr radarr bazarr jellyfin jellyseerr prowlarr plex homer bazarr flaresolverr scrutiny \
     adguard-home jellystat duckdns filebot maintainerr plextraktsync proxmox-backup-server scrutiny smokeping \
     youtubedl-material cloudnative-pg prometheus-operator nginx-proxy-manager authelia pgadmin scrypted recyclarr readarr \
-    calibre; do
+    calibre bookstack; do
     add_rancher_repo "truecharts-$true_chart_repo_name" "oci://oci.trueforge.org/truecharts/$true_chart_repo_name"
 done
 
@@ -48,6 +48,7 @@ add_rancher_repo "cloudnative-pg" "https://cloudnative-pg.github.io/charts" # ht
 add_rancher_repo "cloudcasa-vendor" "https://catalogicsoftware.github.io/cloudcasa-helmchart"
 add_rancher_repo "node-feature-discovery" "https://kubernetes-sigs.github.io/node-feature-discovery/charts" # https://github.com/kubernetes-sigs/node-feature-discovery
 add_rancher_repo "intel" "https://intel.github.io/helm-charts/"
+
 
 # TODO meshcommander
 # TODO shinobi
