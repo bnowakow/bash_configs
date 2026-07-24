@@ -60,7 +60,12 @@ echo https://$(hostname).tailscale.bnowakowski.pl/dashboard/?setup=$(kubectl get
 ./rancher_add_cluster_repos.sh
 
 # below uses DNS01 challenge since rancher isn't reachable from the internet
-helm upgrade rancher rancher-stable/rancher --namespace cattle-system --set hostname=$(hostname).tailscale.bnowakowski.pl --set bootstrapPassword=admin --set ingress.tls.source=secret --set ingress.extraAnnotations.'cert-manager\.io/cluster-issuer'=letsencrypt
+helm upgrade rancher rancher-stable/rancher \
+    --namespace cattle-system \
+    --reuse-values \
+    --set hostname="$(hostname).tailscale.bnowakowski.pl" \
+    --set ingress.tls.source=secret \
+    --set 'ingress.extraAnnotations.cert-manager\.io/cluster-issuer=letsencrypt'
 kubectl cert-manager renew -A --all 
 kubectl cert-manager renew tls-rancher-ingress -n cattle-system
 # https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/install-upgrade-on-a-kubernetes-cluster/troubleshooting
