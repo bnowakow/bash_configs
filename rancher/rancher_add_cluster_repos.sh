@@ -1,5 +1,8 @@
 #!/bin/bash
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$script_dir/helm-repositories.sh"
+
 add_rancher_repo() {
 repo_name=$1
 repo_url=$2
@@ -11,8 +14,14 @@ metadata:
 spec:
   url: $repo_url
 EOF
-helm repo add $repo_name $repo_url
-#helm pull $repo_url 
+
+# Keep the same repositories available to the local Helm client.  OCI charts
+# are not added with `helm repo add`; they are addressed directly by URL.
+if [[ "$repo_url" == oci://* ]]; then
+    helm show chart "$repo_url" >/dev/null
+else
+    helm repo add "$repo_name" "$repo_url"
+fi
 }
 
 add_rancher_repo_git() {
@@ -32,10 +41,7 @@ EOF
 
 # trucharts
 # https://truecharts.org/charts/description-list/
-for true_chart_repo_name in sonarr radarr bazarr jellyfin jellyseerr prowlarr plex homer bazarr flaresolverr scrutiny \
-    adguard-home jellystat duckdns filebot maintainerr plextraktsync proxmox-backup-server scrutiny smokeping \
-    youtubedl-material cloudnative-pg prometheus-operator nginx-proxy-manager authelia pgadmin scrypted recyclarr readarr \
-    calibre bookstack; do
+for true_chart_repo_name in "${truecharts_apps[@]}"; do
     add_rancher_repo "truecharts-$true_chart_repo_name" "oci://oci.trueforge.org/truecharts/$true_chart_repo_name"
 done
 
@@ -49,10 +55,11 @@ add_rancher_repo "cloudcasa-vendor" "https://catalogicsoftware.github.io/cloudca
 add_rancher_repo "node-feature-discovery" "https://kubernetes-sigs.github.io/node-feature-discovery/charts" # https://github.com/kubernetes-sigs/node-feature-discovery
 add_rancher_repo "intel" "https://intel.github.io/helm-charts/"
 
+# Refresh the locally configured HTTP repositories after all additions.
+helm repo update
+
 
 # TODO meshcommander
 # TODO shinobi
 # TODO youtubedl-material
 # TODO node-feature-discovery 	intel-device-plugins-operator 	intel-device-plugins-gpu 
-
-

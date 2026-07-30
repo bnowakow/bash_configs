@@ -4,6 +4,45 @@ name="${1:-duckdns}"
 # TODO below is crap because it doesn't parse argument, it will just check if second argument is not empty
 do_not_update_helm="${2:-}"
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+repositories_file="$script_dir/helm-repositories.sh"
+
+# OCI charts are not returned by `helm search repo`; resolve their configured
+# reference directly and ask Helm for the chart metadata instead.
+if [ -f "$repositories_file" ]; then
+    # shellcheck source=/dev/null
+    source "$repositories_file"
+    chart_ref="$(helm_chart_ref_for_app "$name" 2>/dev/null || true)"
+    if [ -n "$chart_ref" ]; then
+        chart_metadata="$(helm show chart "$chart_ref" 2>/dev/null)"
+        helm_status=$?
+        if [ "$helm_status" -ne 0 ] || [ -z "$chart_metadata" ]; then
+            exit 1
+        fi
+        printf '%s\n' "$chart_metadata" |
+            awk -F': *' '$1 == "version" { print $2; exit }'
+        exit 0
+    fi
+fi
+
+# The local Zabbix checkout can lag behind the configured Helm repository.
+# Prefer the repository's chart version when it has an exact Zabbix chart.
+if [ "$name" = "zabbix" ]; then
+    repository_version="$(helm search repo "$name" --versions 2>/dev/null | awk '
+        NR > 1 {
+            chart=$1
+            sub(/^.*\//, "", chart)
+            if (chart == "zabbix") {
+                print $2
+                exit
+            }
+        }')"
+    if [ -n "$repository_version" ]; then
+        printf '%s\n' "$repository_version"
+        exit 0
+    fi
+fi
+
 chart_repo_dir=$(/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-chart-repo-dir.sh $name) 
 
 if [ "$chart_repo_dir" == "" ]; then
@@ -16,7 +55,15 @@ if [ "$chart_repo_dir" == "" ]; then
             helm repo update > /dev/null
         fi
         # return only first result. elasticsearch is present in elastic helm repo and bitnami. adding zz-prefixes to get expected one as first. could be problematic in future
-        echo $(/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-search-for-exact-chart.sh $name | awk '{print $2}' | head -n1)
+        helm search repo "$name" --versions 2>/dev/null | awk -v app="$name" '
+            NR > 1 {
+                chart=$1
+                sub(/^.*\//, "", chart)
+                if (chart == app || chart == "helm-" app) {
+                    print $2
+                    exit
+                }
+            }'
         exit
     fi
 else
@@ -46,4 +93,3 @@ else
 fi
 
 exit 1
-

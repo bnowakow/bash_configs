@@ -3,9 +3,33 @@
 name="${1:-duckdns}"
 # in $2 there could be do_not_update_helm it'ss crap because it doesn't parse argument it will just pass $2 whenever it's empty or set
 
-version_current=$(/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-current-version-of-chart.sh $name $2)
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+version_helper="$script_dir/lib/helm-current-version-of-chart.sh"
+if [ ! -x "$version_helper" ]; then
+    version_helper="/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-current-version-of-chart.sh"
+fi
+version_current="$($version_helper "$name" "$2")"
 # TODO for external-service we run multiple of the same helm but we check version of only first one
 version_local=$(sudo /bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep $name- | head -1 | awk '{print $9}')
+
+version_is_numeric() {
+    local version="$1"
+    local component
+
+    for component in $(echo "$version" | sed 's/.*-//' | tr '.' ' '); do
+        case "$component" in
+            ''|*[!0-9]*) return 1 ;;
+        esac
+    done
+    return 0
+}
+
+if [ -z "$version_current" ] || ! version_is_numeric "$version_current" || \
+   { [ -n "$version_local" ] && ! version_is_numeric "$version_local"; }; then
+    echo "false,error"
+    exit 3
+fi
+
 # https://www.truenas.com/community/threads/install-helm-chart-via-command-line.97191/
 # https://github.com/k3s-io/k3s/issues/1126
 if sudo /bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep $name | awk '{print $9}' | sed 's/.*-//' | grep $version_current > /dev/null; then
@@ -44,4 +68,3 @@ else
         exit 1
     fi
 fi
-
