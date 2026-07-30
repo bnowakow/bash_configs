@@ -24,6 +24,8 @@ resolve_codex_command() {
 	local candidate
 	for candidate in \
 		"/Applications/Codex.app/Contents/Resources/codex" \
+		"/Applications/ChatGPT.app/Contents/Resources/codex" \
+		"$HOME/Applications/ChatGPT.app/Contents/Resources/codex" \
 		"$HOME/Applications/Codex.app/Contents/Resources/codex"; do
 		if [ -x "$candidate" ]; then
 			codex_command=("$candidate")
