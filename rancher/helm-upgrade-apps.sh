@@ -4,7 +4,15 @@ set -u
 
 kubeconfig_path="/etc/rancher/k3s/k3s.yaml"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$script_dir/helm-repositories.sh"
 log_dir="$script_dir/logs"
+if [ ! -d "$log_dir" ] && ! mkdir -p "$log_dir" 2>/dev/null; then
+  log_dir="${TMPDIR:-/tmp}/helm-upgrade-apps-logs"
+  mkdir -p "$log_dir"
+elif [ ! -w "$log_dir" ]; then
+  log_dir="${TMPDIR:-/tmp}/helm-upgrade-apps-logs"
+  mkdir -p "$log_dir"
+fi
 timestamp="$(date +"%Y%m%d-%H%M%S")"
 log_file="$log_dir/helm-upgrade-${timestamp}.log"
 yes_mode=0
@@ -19,6 +27,7 @@ updated_count=0
 dry_run_approved_count=0
 failed_apps_count=0
 failure_events_count=0
+version_check_error_apps=()
 current_app=""
 current_app_failed=0
 insecure_hosts=""
@@ -47,6 +56,14 @@ exclude_patterns=(
   '^node-feature-discovery$'
   '^meshcommander$'
   '^plex$'
+  '^fleet$'
+  '^fleet-agent-local$'
+  '^fleet-crd$'
+  '^rancher-turtles$'
+  '^rancher-webhook$'
+  '^system-upgrade-controller$'
+  '^traefik$'
+  '^traefik-crd$'
 )
 
 is_up_to_date_helper="$script_dir/zabbix/is-helm-image-up-to-date.sh"
@@ -55,6 +72,59 @@ chart_repo_helper="/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/h
 if [ ! -x "$chart_repo_helper" ]; then
   chart_repo_helper="$script_dir/zabbix/lib/helm-chart-repo-dir-or-helm-repo.sh"
 fi
+
+# Return the first exact chart match from Helm's configured repositories.
+# `helm search repo` can return similarly named charts, so compare the chart
+# name (the part after the final slash) rather than accepting the first row.
+helm_exact_chart() {
+  local app="$1"
+  local configured_chart_ref
+
+  configured_chart_ref="$(helm_chart_ref_for_app "$app" 2>/dev/null || true)"
+  if [ -n "$configured_chart_ref" ]; then
+    printf '%s\n' "$configured_chart_ref"
+    return 0
+  fi
+
+  helm search repo "$app" --versions 2>/dev/null | awk -v app="$app" \
+    'NR > 1 { name=$1; sub(/^.*\//, "", name); if (name == app) { print $1; exit } }'
+}
+
+chart_ref_for_app() {
+  local app="$1"
+  local chart_ref
+
+  chart_ref="$(helm_exact_chart "$app")"
+  if [ -n "$chart_ref" ]; then
+    printf '%s\n' "$chart_ref"
+    return 0
+  fi
+
+  # Some legacy/private charts are still only available in the local checkout.
+  "$chart_repo_helper" "$app"
+}
+
+chart_version_for_app() {
+  local app="$1"
+  local chart_version
+  local configured_chart_ref
+
+  configured_chart_ref="$(helm_chart_ref_for_app "$app" 2>/dev/null || true)"
+  if [ -n "$configured_chart_ref" ]; then
+    helm show chart "$configured_chart_ref" 2>/dev/null | awk -F': *' '$1 == "version" { print $2; exit }'
+    return 0
+  fi
+
+  chart_version="$(helm search repo "$app" --versions 2>/dev/null | awk -v app="$app" \
+    'NR > 1 { name=$1; sub(/^.*\//, "", name); if (name == app) { print $2; exit } }')"
+  if [ -n "$chart_version" ]; then
+    printf '%s\n' "$chart_version"
+    return 0
+  fi
+
+  # Fall back to the local chart only when Helm has no exact repository match.
+  "$current_version_helper" "$app" --do-not-update-helm
+}
 
 usage() {
   cat <<USAGE
@@ -322,6 +392,9 @@ print_colored_summary() {
 
   printf 'Failed apps: %b\n' "$(color_zero_ok_count "$failed_apps_count")"
   printf 'Failure events: %b\n' "$(color_zero_ok_count "$failure_events_count")"
+  if [ "${#version_check_error_apps[@]}" -gt 0 ]; then
+    printf 'Helm version check errors: %s\n' "${version_check_error_apps[*]}"
+  fi
   printf 'Exit status: %b\n' "$(color_bash_return_code "$exit_status")"
   printf 'Log file: %s\n' "$log_file"
 }
@@ -341,7 +414,14 @@ Dry-run approved (not executed): $dry_run_approved_count"
 
   summary="${summary}
 Failed apps: $failed_apps_count
-Failure events: $failure_events_count
+Failure events: $failure_events_count"
+
+  if [ "${#version_check_error_apps[@]}" -gt 0 ]; then
+    summary="${summary}
+Helm version check errors: ${version_check_error_apps[*]}"
+  fi
+
+  summary="${summary}
 Exit status: $exit_status
 Log file: $log_file"
 
@@ -588,19 +668,19 @@ should_exclude_app() {
 }
 
 list_candidate_apps() {
-  sudo /bin/helm ls --all-namespaces --kubeconfig "$kubeconfig_path" \
+  helm ls --all-namespaces --kubeconfig "$kubeconfig_path" \
     | awk 'NR>1 {print $1}'
 }
 
 get_namespace_for_app() {
   local app="$1"
-  sudo /bin/helm ls --all-namespaces --kubeconfig "$kubeconfig_path" \
+  helm ls --all-namespaces --kubeconfig "$kubeconfig_path" \
     | awk -v app="$app" '$1==app {print $2; exit}'
 }
 
 get_local_chart_version() {
   local app="$1"
-  sudo /bin/helm ls --all-namespaces --kubeconfig "$kubeconfig_path" \
+  helm ls --all-namespaces --kubeconfig "$kubeconfig_path" \
     | awk -v app="$app" '$1==app {print $9; exit}'
 }
 
@@ -797,7 +877,7 @@ perform_upgrade() {
   fi
 
   log "$app: running helm upgrade to version $target_version using chart $chart_ref" "$(color_blue "$app"): running helm upgrade to version $target_version using chart $chart_ref"
-  if ! sudo helm upgrade \
+  if ! helm upgrade \
     --kubeconfig "$kubeconfig_path" \
     --history-max=5 \
     --install=true \
@@ -819,7 +899,7 @@ trap cleanup EXIT
 mkdir -p "$log_dir"
 : >"$log_file"
 
-if ! require_cmd dialog || ! require_cmd helm || ! require_cmd kubectl || ! require_cmd curl || ! require_cmd sudo; then
+if ! require_cmd dialog || ! require_cmd helm || ! require_cmd kubectl || ! require_cmd curl; then
   echo "Setup error: required dependency is missing." >&2
   exit 2
 fi
@@ -832,12 +912,7 @@ init_colors
 init_dialog_colors
 
 log "Run started. log_file=$log_file yes_mode=$yes_mode dry_run=$dry_run rollout_timeout=$rollout_timeout"
-log "Refreshing git and helm repos"
-if ! sudo su zabbix -c "/home/sup/code/bash_configs/rancher/cron/git-pull.sh" >>"$log_file" 2>&1; then
-  record_failure_and_maybe_abort "Git pull failed" "Unable to run rancher/cron/git-pull.sh as zabbix user."
-else
-  log "git pull refresh completed (return_code=0)" "git pull refresh completed (return_code=$(color_bash_return_code 0))"
-fi
+log "Refreshing helm repos"
 if ! helm repo update >>"$log_file" 2>&1; then
   record_failure_and_maybe_abort "helm repo update failed" "Unable to refresh helm repos."
 else
@@ -874,6 +949,9 @@ for app in $apps; do
     continue
   fi
   if [ "$update_check_return_code" -ne 1 ]; then
+    if [ "$update_check_return_code" -eq 3 ]; then
+      version_check_error_apps+=("$app")
+    fi
     log "$app: unexpected helper status: $helper_status (return_code: $update_check_return_code)" "$(color_blue "$app"): unexpected helper status: $(color_helper_status "$update_check_return_code") (return_code: $(color_helper_code "$update_check_return_code"))"
     record_failure_and_maybe_abort "Update check failed ($app)" "is-helm-image-up-to-date.sh returned unexpected return_code $update_check_return_code."
     current_app=""
@@ -889,8 +967,8 @@ for app in $apps; do
   fi
 
   local_version="$(get_local_chart_version "$app")"
-  target_version="$($current_version_helper "$app" --do-not-update-helm 2>>"$log_file")"
-  chart_ref="$($chart_repo_helper "$app" 2>>"$log_file")"
+  target_version="$(chart_version_for_app "$app" 2>>"$log_file")"
+  chart_ref="$(chart_ref_for_app "$app" 2>>"$log_file")"
 
   if [ -z "$target_version" ]; then
     record_failure_and_maybe_abort "Version lookup failed ($app)" "Current chart version helper returned empty version."

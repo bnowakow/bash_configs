@@ -339,6 +339,13 @@ zabbix_export:
           value_type: TEXT
           tags:
             - tag: bnowakow
+        - uuid: b74f705bf06448598573723f470d9f2f
+          name: 'is zabbix docker image in helm up to date'
+          key: bnowakow.rancher.k8s.is-zabbix-docker-image-up-to-date
+          delay: 1h
+          value_type: TEXT
+          tags:
+            - tag: bnowakow
       tags:
         - tag: bnowakow
     - uuid: 0aacf21df3d042419ed1363838fa1391
