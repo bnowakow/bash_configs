@@ -1,0 +1,26 @@
+---
+- name: Upgrade apt packages and firmware
+  hosts: all
+  become: true
+  become_method: sudo
+  tasks:
+    - name: Update and upgrade packages and remove unused packages
+      ansible.builtin.shell: |
+        set -e
+        export DEBIAN_FRONTEND=noninteractive
+        apt update
+        apt upgrade -y
+        apt dist-upgrade -y
+        apt autoremove -y
+      args:
+        executable: /bin/bash
+
+    - name: Check whether fwupdmgr is installed
+      ansible.builtin.command: command -v fwupdmgr
+      register: fwupdmgr_check
+      changed_when: false
+      failed_when: false
+
+    - name: Update firmware
+      ansible.builtin.command: fwupdmgr update
+      when: fwupdmgr_check.rc == 0

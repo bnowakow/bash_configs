@@ -1,17 +1,17 @@
 all:
   hosts:
-#    transmission.localdomain.bnowakowski.pl:
+    transmission.localdomain.bnowakowski.pl:
 #    kibana.localdomain.bnowakowski.pl:
 #    home-assistant.localdomain.bnowakowski.pl:
-#    crashplan.localdomain.bnowakowski.pl:
-#    proxmox2.localdomain.bnowakowski.pl:
-#        #ansible_user: root
-#    proxmox3.localdomain.bnowakowski.pl:
-#        #ansible_user: root
-#    proxmox4.localdomain.bnowakowski.pl:
-#        #ansible_user: root
-#    proxmox-backup-server.localdomain.bnowakowski.pl:
-#        #ansible_user: root
+    proxmox-backup-server.localdomain.bnowakowski.pl:
+    crashplan.localdomain.bnowakowski.pl:
+    proxmox2-old.localdomain.bnowakowski.pl:
+        #ansible_user: root
+    proxmox3.localdomain.bnowakowski.pl:
+        #ansible_user: root
+    proxmox4.localdomain.bnowakowski.pl:
+        #ansible_user: root
+    proxmox-backup-server.localdomain.bnowakowski.pl:
+        #ansible_user: root
 
 #    ovh.bnowakowskipl:
-
