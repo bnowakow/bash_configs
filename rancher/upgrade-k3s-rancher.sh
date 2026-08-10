@@ -9,6 +9,7 @@ timestamp="$(date +"%Y%m%d-%H%M%S")"
 log_file="$log_dir/upgrade-k3s-rancher-${timestamp}.log"
 rancher_matrix_index_url="https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/"
 rancher_matrix_current_url="https://www.suse.com/suse-rancher/support-matrix"
+rancher_chart_index_url="https://releases.rancher.com/server-charts/stable/index.yaml"
 k3s_releases_api_url="https://api.github.com/repos/k3s-io/k3s/releases?per_page=100"
 cert_manager_releases_api_url="https://api.github.com/repos/cert-manager/cert-manager/releases?per_page=100"
 rollout_timeout="${ROLLOUT_TIMEOUT:-10m}"
@@ -180,16 +181,15 @@ parse_latest_rancher_url() {
   local index_html="$2"
   local candidate
 
-  if printf '%s\n' "$effective_url" | grep -Eq '/rancher-v[0-9]+-[0-9]+-[0-9]+/?$'; then
-    printf '%s\n' "$effective_url"
-    return 0
-  fi
-
   candidate="$(
-    printf '%s\n' "$index_html" |
+    {
+      printf '%s\n' "$effective_url"
+      printf '%s\n' "$index_html"
+    } |
       grep -Eo 'https://www\.suse\.com/suse-rancher/support-matrix/all-supported-versions/rancher-v[0-9]+-[0-9]+-[0-9]+/?|/suse-rancher/support-matrix/all-supported-versions/rancher-v[0-9]+-[0-9]+-[0-9]+/?' |
       sed -E 's#^/suse-rancher#https://www.suse.com/suse-rancher#; s#/$##' |
       sed -E 's#.*rancher-v([0-9]+)-([0-9]+)-([0-9]+).*#\1.\2.\3 &#' |
+      sort -u |
       sort -t. -k1,1n -k2,2n -k3,3n |
       tail -n 1 |
       awk '{print $2}'
@@ -205,6 +205,43 @@ parse_latest_rancher_url() {
 parse_rancher_version_from_url() {
   local url="$1"
   printf '%s\n' "$url" | sed -E 's#.*rancher-v([0-9]+)-([0-9]+)-([0-9]+)/?.*#v\1.\2.\3#'
+}
+
+rancher_matrix_url_for_version() {
+  local version="$1"
+  local version_path
+  version_path="$(printf '%s\n' "${version#v}" | tr . -)"
+  printf '%srancher-v%s/\n' "$rancher_matrix_index_url" "$version_path"
+}
+
+select_rancher_chart_version() {
+  local index_yaml="$1"
+  local max_version="$2"
+  local selected
+
+  selected="$(
+    printf '%s\n' "$index_yaml" |
+      sed -nE 's/^[[:space:]]+version:[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+)$/\1/p' |
+      sort -Vu |
+      awk -v max="${max_version#v}" '
+        BEGIN { split(max, max_parts, ".") }
+        {
+          split($0, parts, ".")
+          if (parts[1] < max_parts[1] ||
+              (parts[1] == max_parts[1] && parts[2] < max_parts[2]) ||
+              (parts[1] == max_parts[1] && parts[2] == max_parts[2] && parts[3] <= max_parts[3])) {
+            selected = $0
+          }
+        }
+        END { if (selected != "") print "v" selected }
+      '
+  )"
+
+  if [ -z "$selected" ]; then
+    return 1
+  fi
+
+  printf '%s\n' "$selected"
 }
 
 parse_supported_k3s_minor() {
@@ -475,6 +512,10 @@ main() {
   export KUBECONFIG="$kubeconfig_path"
 
   log "Run started. log_file=$log_file"
+  ensure_helm_repo "rancher-stable" "https://releases.rancher.com/server-charts/stable"
+  ensure_helm_repo "jetstack" "https://charts.jetstack.io"
+  run_cmd helm repo update
+
   log "Discovering latest $(component_text "Rancher"), $(component_text "k3s"), and $(component_text "cert-manager") versions."
 
   local rancher_effective_url
@@ -482,6 +523,8 @@ main() {
   local rancher_matrix_url
   local rancher_matrix_html
   local rancher_version
+  local rancher_chart_index_yaml
+  local rancher_chart_version
   local supported_k3s_minor
   local k3s_releases_json
   local k3s_version
@@ -503,8 +546,21 @@ main() {
   rancher_effective_url="$(fetch_effective_url "$rancher_matrix_current_url")"
   rancher_index_html="$(fetch_url "$rancher_matrix_index_url" || true)"
   rancher_matrix_url="$(parse_latest_rancher_url "$rancher_effective_url" "$rancher_index_html")"
-  rancher_matrix_html="$(fetch_url "$rancher_matrix_url")"
   rancher_version="$(parse_rancher_version_from_url "$rancher_matrix_url")"
+  rancher_chart_index_yaml="$(fetch_url "$rancher_chart_index_url")"
+  rancher_chart_version="$(select_rancher_chart_version "$rancher_chart_index_yaml" "$rancher_version")"
+  if [ -z "$rancher_version" ] || [ -z "$rancher_chart_version" ]; then
+    log_error "Unable to discover $(component_text "Rancher") version from SUSE support matrix or Rancher Helm chart index."
+    exit 1
+  fi
+
+  if ! versions_match "$rancher_chart_version" "$rancher_version"; then
+    log_warning "Latest SUSE support matrix is $(version_text "$rancher_version"), but rancher-stable Helm only has $(version_text "$rancher_chart_version"); selecting the newest installable chart."
+    rancher_version="$rancher_chart_version"
+    rancher_matrix_url="$(rancher_matrix_url_for_version "$rancher_version")"
+  fi
+
+  rancher_matrix_html="$(fetch_url "$rancher_matrix_url")"
   supported_k3s_minor="$(parse_supported_k3s_minor "$rancher_matrix_html")"
 
   if [ -z "$rancher_version" ] || [ -z "$supported_k3s_minor" ]; then
@@ -612,18 +668,6 @@ About to run the upgrade with:
     wait_for_kubectl
   else
     log_success "Skipping $(component_text "k3s"); installed version is $(version_text "${current_k3s_version:-not detected}") and target $(version_text "$k3s_version") is not newer."
-  fi
-
-  if [ "$upgrade_cert_manager" -eq 1 ] || [ "$upgrade_rancher" -eq 1 ]; then
-    if [ "$upgrade_rancher" -eq 1 ]; then
-      ensure_helm_repo "rancher-stable" "https://releases.rancher.com/server-charts/stable"
-    fi
-
-    if [ "$upgrade_cert_manager" -eq 1 ]; then
-      ensure_helm_repo "jetstack" "https://charts.jetstack.io"
-    fi
-
-    run_cmd helm repo update
   fi
 
   if [ "$upgrade_cert_manager" -eq 1 ]; then
