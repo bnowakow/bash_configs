@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml;
+
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$script_dir/helm-repositories.sh"
 
@@ -54,6 +56,7 @@ add_rancher_repo "cloudnative-pg" "https://cloudnative-pg.github.io/charts" # ht
 add_rancher_repo "cloudcasa-vendor" "https://catalogicsoftware.github.io/cloudcasa-helmchart"
 add_rancher_repo "node-feature-discovery" "https://kubernetes-sigs.github.io/node-feature-discovery/charts" # https://github.com/kubernetes-sigs/node-feature-discovery
 add_rancher_repo "intel" "https://intel.github.io/helm-charts/"
+add_rancher_repo "media-servarr" "https://media-servarr.shw.al/charts"
 
 # Refresh the locally configured HTTP repositories after all additions.
 helm repo update

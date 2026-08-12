@@ -6,7 +6,7 @@ truecharts_apps=(
   sonarr radarr bazarr jellyfin jellyseerr prowlarr plex homer flaresolverr scrutiny
   adguard-home jellystat duckdns filebot maintainerr plextraktsync proxmox-backup-server
   smokeping youtubedl-material cloudnative-pg prometheus-operator nginx-proxy-manager
-  authelia pgadmin scrypted recyclarr readarr calibre bookstack
+  authelia pgadmin scrypted recyclarr readarr calibre bookstack profilarr
 )
 
 helm_chart_ref_for_app() {

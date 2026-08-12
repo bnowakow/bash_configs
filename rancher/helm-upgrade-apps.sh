@@ -527,7 +527,7 @@ ask_on_failure() {
     --begin 2 10 \
     --title "$title" \
     --defaultno \
-    --yesno "$message\n\nContinue with next app?" 14 100
+    --yesno "$message\n\nContinue with next app?" 20 120
 }
 
 host_uses_insecure() {
@@ -745,6 +745,7 @@ check_ingress_http_codes() {
   check_summary_title="HTTP checks"
   check_summary_body="No ingress hosts found"
   check_summary_kind="http"
+  check_failed_ingress_summary=""
 
   local hosts
   hosts="$(get_ingress_hosts "$namespace")"
@@ -760,6 +761,7 @@ check_ingress_http_codes() {
   local http_code
   local dialog_code
   local insecure_suffix
+  local failed_summary=""
   while IFS= read -r host; do
     [ -z "$host" ] && continue
     run_curl_http_check "$host"
@@ -773,8 +775,10 @@ check_ingress_http_codes() {
     log "$app [$phase]: ingress https://$host/ returned $http_code${insecure_suffix}" "$(color_blue "$app") [$phase]: ingress https://$host/ returned $(color_http_code "$http_code")${insecure_suffix}"
     if [ "$curl_return_code" != "0" ]; then
       log "$app [$phase]: curl failed for https://$host/ (return_code=$curl_return_code) error=$curl_error_output" "$(color_blue "$app") [$phase]: curl failed for https://$host/ (return_code=$(color_bash_return_code "$curl_return_code"))"
+      failed_summary="${failed_summary}${host} -> ${http_code} (curl failed, return code ${curl_return_code})"$'\n'
       fail=1
     elif [ "$http_code" != "200" ]; then
+      failed_summary="${failed_summary}${host} -> ${http_code}"$'\n'
       fail=1
     fi
   done <<EOF_HOSTS
@@ -782,6 +786,7 @@ $hosts
 EOF_HOSTS
 
   check_summary_body="${summary%$'\n'}"
+  check_failed_ingress_summary="${failed_summary%$'\n'}"
 
   if [ "$fail" -eq 1 ]; then
     return 1
@@ -828,7 +833,7 @@ run_prechecks() {
   fi
 
   if ! check_ingress_http_codes "$app" "$namespace" "precheck"; then
-    record_failure_and_maybe_abort "Precheck HTTP failed ($app)" "At least one ingress host for $app returned non-200."
+    record_failure_and_maybe_abort "Precheck HTTP failed ($app)" "Failed ingress hosts for $app:\n$check_failed_ingress_summary"
     return 1
   fi
 
@@ -845,7 +850,7 @@ run_postchecks() {
   fi
 
   if ! check_ingress_http_codes "$app" "$namespace" "postcheck"; then
-    record_failure_and_maybe_abort "Postcheck HTTP failed ($app)" "At least one ingress host for $app returned non-200 after upgrade."
+    record_failure_and_maybe_abort "Postcheck HTTP failed ($app)" "Failed ingress hosts for $app after upgrade:\n$check_failed_ingress_summary"
     return 1
   fi
 
