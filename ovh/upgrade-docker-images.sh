@@ -12,8 +12,8 @@ LOG_FILE=${UPGRADE_DOCKER_IMAGES_LOG:-/tmp/upgrade-docker-images.log}
 # requires another entry.  The compose directory is also the working
 # directory used for make upgrade and make codex-commit.
 DEPLOYMENTS=(
-  "n2nieruchomosci.pl|wordpress|wordpress"
-  "bnowakowski.pl|wordpress|wordpress"
+  "n2nieruchomosci.pl|/home/sup/docker/n2nieruchomosci.pl|wordpress|wordpress"
+  "bnowakowski.pl|/home/sup/docker/bnowakowski.pl|wordpress|wordpress"
   # "mysql|mysql|mariadb"
 )
 
@@ -123,9 +123,9 @@ fi
 
 updates=()
 for deployment in "${DEPLOYMENTS[@]}"; do
-  IFS='|' read -r directory service image <<< "$deployment"
-  compose_file="$SCRIPT_DIR/$directory/compose.yml"
-  env_file="$SCRIPT_DIR/$directory/.env"
+  IFS='|' read -r directory project_dir service image <<< "$deployment"
+  compose_file="$project_dir/compose.yml"
+  env_file="$project_dir/.env"
   [[ -f "$compose_file" && -f "$env_file" ]] || die "Missing compose or .env in $directory"
 
   current_tag=$(sed -n "s/^[[:space:]]*image:[[:space:]]*${image}:\([^[:space:]]*\).*/\1/p" "$compose_file" | head -n 1)
@@ -145,7 +145,7 @@ for deployment in "${DEPLOYMENTS[@]}"; do
 
   desired_tag=$(newer_tag "$current_tag" "$newest_tag" "$running_image_tag")
   if [[ "$current_tag" != "$desired_tag" || ( -n "$running_image_tag" && "$running_image_tag" != "$current_tag" ) ]]; then
-    updates+=("$directory|$compose_file|$service|$image|$current_tag|$desired_tag|$running_image_tag")
+    updates+=("$directory|$project_dir|$compose_file|$service|$image|$current_tag|$desired_tag|$running_image_tag")
   fi
 done
 
@@ -156,7 +156,7 @@ fi
 
 summary=$'Available updates:\n\n'
 for update in "${updates[@]}"; do
-  IFS='|' read -r directory _ service image current_tag newest_tag running_image_tag <<< "$update"
+  IFS='|' read -r directory _ _ service image current_tag newest_tag running_image_tag <<< "$update"
   summary+="$directory ($service): compose $image:$current_tag"
   [[ -n "$running_image_tag" ]] && summary+="; running $image:$running_image_tag"
   summary+=" -> $image:$newest_tag"$'\n'
@@ -166,13 +166,13 @@ confirm "Docker image updates" "$summary" || exit 0
 
 completed_summary=$'Upgraded successfully:\n\n'
 for update in "${updates[@]}"; do
-  IFS='|' read -r directory compose_file service image old_tag new_tag running_image_tag <<< "$update"
-  env_file="$SCRIPT_DIR/$directory/.env"
+  IFS='|' read -r directory project_dir compose_file service image old_tag new_tag running_image_tag <<< "$update"
+  env_file="$project_dir/.env"
   domain=$(sed -n 's/^DOMAIN=//p' "$env_file" | head -n 1)
   [[ -n "$domain" ]] || die "DOMAIN is missing in $env_file"
 
   sed -i "s#^\([[:space:]]*image:[[:space:]]*${image}:\)[^[:space:]]*#\1${new_tag}#" "$compose_file"
-  if ! make -C "$SCRIPT_DIR/$directory" upgrade; then
+  if ! make -C "$project_dir" upgrade; then
     show_message "Upgrade failed" "$directory: make upgrade failed. The compose file contains the new tag; inspect the deployment before retrying."
     exit 1
   fi
@@ -186,13 +186,14 @@ for update in "${updates[@]}"; do
   if [[ "$old_tag" != "$new_tag" ]]; then
     old_image="${image}:${old_tag}"
     if docker ps --format '{{.Image}}' | grep -Fxq "$old_image"; then
-      show_message "Old image still in use" "$directory: a running container still uses $old_image. The WordPress health check passed, but the old image was not deleted and no commit was made."
-      exit 1
+      log "keeping old image still in use directory=$directory image=$old_image"
+    else
+      docker image rm "$old_image" || die "Could not delete unused old image $old_image"
     fi
-    docker image rm "$old_image" || die "Could not delete unused old image $old_image"
   fi
-  git -C "$SCRIPT_DIR/$directory" add -- "$compose_file"
-  make -C "$SCRIPT_DIR/$directory" codex-commit || die "codex-commit failed in $directory"
+
+  git -C "$project_dir" add -- "$compose_file"
+  make -C "$project_dir" codex-commit || die "codex-commit failed in $directory"
   completed_summary+="$directory ($service): $image:$old_tag -> $image:$new_tag"$'\n'
 done
 
