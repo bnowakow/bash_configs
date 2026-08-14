@@ -1,6 +1,7 @@
 ---
 - name: Upgrade apt packages and firmware
   hosts: all
+  serial: 1
   become: true
   become_method: sudo
   tasks:
@@ -24,3 +25,57 @@
     - name: Update firmware
       ansible.builtin.command: fwupdmgr update
       when: fwupdmgr_check.rc == 0
+
+    # Add host-specific checks here before requesting reboot approval.
+    - name: Check whether the running Proxmox kernel is up to date
+      ansible.builtin.command: /home/sup/code/bash_configs/proxmox/zabbix/is-proxmox-kernel-up-to-date.sh
+      register: kernel_status_before_reboot
+      changed_when: false
+      failed_when: false
+
+    - name: Ask whether this host may be rebooted
+      ansible.builtin.pause:
+        prompt: >-
+          {{ inventory_hostname }} needs a reboot to activate its newer kernel
+          (kernel check returned {{ kernel_status_before_reboot.stdout | trim | default('no output', true) }}).
+          Continue with reboot on this host? [yes/no]
+      register: reboot_confirmation
+      when: kernel_status_before_reboot.stdout | trim != 'true'
+
+    - name: Reboot host to activate the newer kernel
+      ansible.builtin.reboot:
+        msg: Rebooting to activate the newly installed Proxmox kernel
+        reboot_timeout: 900
+      when:
+        - kernel_status_before_reboot.stdout | trim != 'true'
+        - reboot_confirmation.user_input | lower in ['yes', 'y']
+
+    - name: Check kernel status after reboot
+      ansible.builtin.command: /home/sup/code/bash_configs/proxmox/zabbix/is-proxmox-kernel-up-to-date.sh
+      register: kernel_status_after_reboot
+      changed_when: false
+      failed_when: false
+      until: kernel_status_after_reboot.stdout | trim == 'true'
+      retries: 30
+      delay: 10
+      when:
+        - kernel_status_before_reboot.stdout | trim != 'true'
+        - reboot_confirmation.user_input | lower in ['yes', 'y']
+
+    - name: Fail if the newer kernel is still not active
+      ansible.builtin.assert:
+        that:
+          - kernel_status_after_reboot.stdout | trim == 'true'
+        fail_msg: >-
+          {{ inventory_hostname }} rebooted, but the kernel status check did not
+          return true after waiting for it.
+      when:
+        - kernel_status_before_reboot.stdout | trim != 'true'
+        - reboot_confirmation.user_input | lower in ['yes', 'y']
+
+    - name: Report that reboot was declined
+      ansible.builtin.debug:
+        msg: Reboot declined for {{ inventory_hostname }}; the newer kernel remains inactive.
+      when:
+        - kernel_status_before_reboot.stdout | trim != 'true'
+        - reboot_confirmation.user_input | lower not in ['yes', 'y']
