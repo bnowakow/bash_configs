@@ -192,9 +192,18 @@ for update in "${updates[@]}"; do
     fi
   fi
 
-  git -C "$project_dir" add -- "$compose_file"
-  make -C "$project_dir" codex-commit || die "codex-commit failed in $directory"
   completed_summary+="$directory ($service): $image:$old_tag -> $image:$new_tag"$'\n'
 done
+
+if confirm "Commit Docker image updates" "$completed_summary\nCommit the compose file changes now?"; then
+  for update in "${updates[@]}"; do
+    IFS='|' read -r directory project_dir compose_file service image old_tag new_tag running_image_tag <<< "$update"
+    git -C "$project_dir" add -- "$compose_file"
+    make -C "$project_dir" codex-commit || die "codex-commit failed in $directory"
+  done
+else
+  show_message "Docker image upgrade" "$completed_summary\nCompose changes were not committed."
+  exit 0
+fi
 
 show_message "Docker image upgrade" "$completed_summary"
