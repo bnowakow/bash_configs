@@ -1,7 +1,6 @@
 ---
 - name: Upgrade apt packages and firmware
   hosts: all
-  serial: 1
   become: true
   become_method: sudo
   tasks:
@@ -26,6 +25,12 @@
       ansible.builtin.command: fwupdmgr update
       when: fwupdmgr_check.rc == 0
 
+- name: Check reboot requirements and reboot hosts sequentially
+  hosts: all
+  serial: 1
+  become: true
+  become_method: sudo
+  tasks:
     # Add host-specific checks here before requesting reboot approval.
     - name: Check whether the running Proxmox kernel is up to date
       ansible.builtin.command: /home/sup/code/bash_configs/proxmox/zabbix/is-proxmox-kernel-up-to-date.sh
