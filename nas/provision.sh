@@ -2,6 +2,13 @@
 
 # TODO check two key add that require's user's input
 
+apt_install() {
+    if ! sudo apt-get install "$@"; then
+        echo "ERROR: apt-get install failed (arguments: $*)" >&2
+        exit 1
+    fi
+}
+
 # https://www.truenas.com/docs/scale/scaletutorials/systemsettings/advanced/developermode/#:~:text=To%20enable%20developer%20mode%2C%20log,install%2Ddev%2Dtools%20command.&text=Running%20install%2Ddev%2Dtools%20removes,for%20development%20environments%20on%20TrueNAS.
 # https://www.truenas.com/community/threads/no-more-apt.116340/
 sudo install-dev-tools
@@ -12,14 +19,14 @@ sudo chmod +x /bin/apt /bin/apt-key /bin/apt-get /bin/apt-cache /bin/apt-config 
 #sudo ~/code/bash_configs/nas/change-iptables-bridge-docker-settings.sh
 
 sudo apt-get update
-sudo apt-get install -y software-properties-common
+apt_install -y software-properties-common
 
 # https://docs.docker.com/engine/install/debian/
 # Add Docker's official GPG key:
 # on 26-beta
 # E: Malformed entry 1 in list file /etc/apt/sources.list.d/docker.list (Component)
 sudo apt-get update
-sudo apt-get install -y ca-certificates curl gnupg
+apt_install -y ca-certificates curl gnupg
 sudo install -m 0755 -d /etc/apt/keyrings
 #curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 #sudo chmod a+r /etc/apt/keyrings/docker.gpg
@@ -37,10 +44,10 @@ sudo install -m 0755 -d /etc/apt/keyrings
 # removed: vagrant clang
 # because it tries to install linux-image-amd64 and libc-i686 that fails becuse of RO /boot in dragonfish and prevents rest of packages to be configured by apt
 sudo apt-get update
-sudo apt-get install -y screen vim  wget gnupg2 ncdu elinks jdupes hfsprogs libicu-dev bzip2 \
-    cmake libz-dev libbz2-dev fuse3 libfuse3-4 libfuse3-dev git libattr1-dev libfsapfs-utils \
+apt_install -y screen vim  wget gnupg2 ncdu elinks jdupes hfsprogs libicu-dev bzip2 \
+    cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev git libattr1-dev libfsapfs-utils \
     dos2unix edac-utils inxi rasdaemon figlet ansible sshpass \
-    bc hfsprogs nvidia-smi lshw vim-runtime unrar alien
+    bc hfsprogs nvidia-smi lshw vim-runtime unrar alien bubblewrap
 # TODO python breaks on .2 truenas
 # sudo apt-get install -y virtualenv python3-venv python3-pip python3-full
 sudo apt-get remove -y linux-image-amd64
@@ -59,7 +66,7 @@ curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo 
 && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
 && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
 && sudo apt-get update \
-; sudo apt-get install gh -y
+; apt_install gh -y
 
 chsh -s $(which zsh)
 
@@ -89,7 +96,7 @@ fi
 # TODO check what was this IP previously
 #ssh-copy-id root@192.168.1.56
 
-sudo apt-get install software-properties-common dirmngr apt-transport-https -y
+apt_install software-properties-common dirmngr apt-transport-https -y
 #sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C4A05888A1C4FA02E1566F859F2A29A569653940
 #sudo add-apt-repository "deb http://kryptco.github.io/deb kryptco main" # non-Kali Linux only
 #sudo apt-get update
@@ -101,11 +108,11 @@ date
 date
 cp ssh-config /mnt/MargokPool/home/sup/.ssh/config
 
-sudo apt-get install software-properties-common -y
+apt_install software-properties-common -y
 sudo add-apt-repository 'deb [arch=amd64] https://repo.zabbix.com/zabbix/7.0/debian/ bullseye main'
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv D913219AB5333005
 sudo apt-get update
-sudo apt-get install zabbix-agent2
+apt_install zabbix-agent2
 sudo cp /mnt/MargokPool/home/sup/code/bash_configs/zabbix/zabbix_agent2.conf /etc/zabbix
 cd /etc/zabbix/zabbix_agent2.d
 sudo ln -sf /mnt/MargokPool/home/sup/code/bash_configs bash_configs
@@ -121,7 +128,7 @@ sudo ./bash_configs/zabbix/update-zabbix-metadata.sh
 # TODO check why zabbix-add-to-sudoers.sh isn't called
 sudo ~/code/bash_configs/nas/zabbix-add-to-sudoers.sh
 
-sudo apt-get install unison -y
+apt_install unison -y
 
 ## https://www.zigbee2mqtt.io/advanced/remote-adapter/connect_to_a_remote_adapter.html
 ## https://sourceforge.net/p/ser2net/discussion/90083/thread/df1050a576/
@@ -139,9 +146,9 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
 sudo add-apt-repository ppa:rmescandon/yq -y
 sudo sed -i -e 's|lunar|focal|g' /etc/apt/sources.list.d/rmescandon-ubuntu-yq-lunar.list
 sudo apt-get update #--allow-insecure-repositories
-sudo apt-get install yq -y 
+apt_install yq -y 
 
-sudo apt-get install -y default-jdk
+apt_install -y default-jdk
 curl -s https://get.sdkman.io | bash
 source ~/.sdkman/src/sdkman-main.sh
 yes | sdk update
@@ -165,7 +172,7 @@ curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | sud
 sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22
 curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg
 sudo apt-get update
-sudo apt-get install -y 1password 1password-cli
+apt_install -y 1password 1password-cli
 
 echo;
 echo manual steps:;
@@ -191,3 +198,4 @@ sudo mkdir -p /run/screen; sudo chmod 777 /run/screen
 
 sudo service docker start
 
+curl -fsSL https://chatgpt.com/codex/install.sh | sh

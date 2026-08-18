@@ -72,9 +72,14 @@ done
 #echo "dockerhub:        "$image_name:$newest_version_current
 #echo "localhost:        "$(docker ps --format '{{.Image}}' | grep $image_name)
 
-if docker ps --format '{{.Image}}' | grep "$image_name:$newest_version_current" > /dev/null; then
+running_images=$(docker ps --format '{{.Image}}' | grep -E "(^|/)${image_name}:" || true)
+
+# The host can run multiple deployments of the same image. Report up to date
+# only when every matching running container uses the newest tag.
+if [ -n "$running_images" ] && ! echo "$running_images" | grep -vFx "$image_name:$newest_version_current" > /dev/null; then
         echo true;
 else
-        echo false,$(docker ps --format '{{.Image}}' | grep $image_name),$newest_version_current;
+        old_running_images=$(echo "$running_images" | grep -vFx "$image_name:$newest_version_current" || true)
+        echo "false,$old_running_images,$newest_version_current" | tr '\n' ' '
+        echo
 fi
-
