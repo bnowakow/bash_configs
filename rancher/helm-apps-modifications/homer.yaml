@@ -1,6 +1,7 @@
 persistence:
   config:
     enabled: true
-    type: pvc
-    existingClaim: homer-config-longhorn
+    path: /mnt/MargokPool/archive/Data/rancher/homer
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
     mountPath: /www/assets
