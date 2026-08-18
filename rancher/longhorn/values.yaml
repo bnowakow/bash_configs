@@ -1,0 +1,13 @@
+defaultBackupStore:
+  backupTarget: nfs://nas.localdomain.bnowakowski.pl:/mnt/MargokPool/archive/Backups/rancher/longhorn
+
+defaultSettings:
+  createDefaultDiskLabeledNodes: true
+  defaultDataPath: /var/lib/longhorn
+  defaultReplicaCount: 1
+  storageReservedPercentageForDefaultDisk: 10
+
+persistence:
+  defaultClass: false
+  defaultClassReplicaCount: 1
+  reclaimPolicy: Retain

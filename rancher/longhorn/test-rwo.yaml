@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: longhorn-test
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rwo-test
+  namespace: longhorn-test
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rwo-writer
+  namespace: longhorn-test
+spec:
+  restartPolicy: Never
+  containers:
+    - name: writer
+      image: busybox:1.37
+      command: ["sh", "-c", "date -Iseconds | tee /data/created.txt; sync; sleep 3600"]
+      volumeMounts:
+        - name: data
+          mountPath: /data
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: rwo-test

@@ -1,0 +1,8 @@
+apiVersion: longhorn.io/v1beta2
+kind: Backup
+metadata:
+  name: rwo-test-backup
+  namespace: longhorn-system
+spec:
+  backupMode: full
+  snapshotName: rwo-test-backup-snapshot

@@ -1,0 +1,8 @@
+apiVersion: longhorn.io/v1beta2
+kind: Snapshot
+metadata:
+  name: rwo-test-backup-snapshot
+  namespace: longhorn-system
+spec:
+  volume: pvc-2e7c5add-e36f-4648-b1e1-f3acadc085f8
+  createSnapshot: true

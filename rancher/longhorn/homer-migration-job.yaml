@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: homer-longhorn-migration
+  namespace: apps-homer
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: copy
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              cp -a /source/. /target/
+              sync
+          volumeMounts:
+            - name: source
+              mountPath: /source
+              readOnly: true
+            - name: target
+              mountPath: /target
+      volumes:
+        - name: source
+          persistentVolumeClaim:
+            claimName: homer-config
+        - name: target
+          persistentVolumeClaim:
+            claimName: homer-config-longhorn

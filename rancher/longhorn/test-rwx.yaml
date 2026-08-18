@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rwx-test
+  namespace: longhorn-test
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rwx-writer
+  namespace: longhorn-test
+spec:
+  containers:
+    - name: writer
+      image: busybox:1.37
+      command: ["sh", "-c", "echo shared-from-longhorn > /data/shared.txt; sync; sleep 3600"]
+      volumeMounts:
+        - name: data
+          mountPath: /data
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: rwx-test
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rwx-reader
+  namespace: longhorn-test
+spec:
+  containers:
+    - name: reader
+      image: busybox:1.37
+      command: ["sh", "-c", "until [ -f /data/shared.txt ]; do sleep 1; done; sleep 3600"]
+      volumeMounts:
+        - name: data
+          mountPath: /data
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: rwx-test
