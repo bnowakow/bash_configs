@@ -1,0 +1,13 @@
+# Merge this overlay into the AdGuard Home Helm values only after the copy Job
+# has completed successfully and its source workload is stopped.
+persistence:
+  config:
+    enabled: true
+    type: pvc
+    existingClaim: adguard-home-config-longhorn
+    mountPath: /opt/adguardhome/conf
+  data:
+    enabled: true
+    type: pvc
+    existingClaim: adguard-home-data-longhorn
+    mountPath: /opt/adguardhome/work

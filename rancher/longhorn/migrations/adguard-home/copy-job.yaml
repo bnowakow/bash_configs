@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: adguard-home-longhorn-migration
+  namespace: apps-adguard-home
+  labels:
+    app.kubernetes.io/part-of: adguard-home-migration
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 3600
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/part-of: adguard-home-migration
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: copy-config
+          image: busybox:1.37
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -eu
+              cp -a /source-config/. /target-config/
+              sync
+          volumeMounts:
+            - name: source-config
+              mountPath: /source-config
+              readOnly: true
+            - name: target-config
+              mountPath: /target-config
+        - name: copy-data
+          image: busybox:1.37
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -eu
+              cp -a /source-data/. /target-data/
+              sync
+          volumeMounts:
+            - name: source-data
+              mountPath: /source-data
+              readOnly: true
+            - name: target-data
+              mountPath: /target-data
+      volumes:
+        - name: source-config
+          persistentVolumeClaim:
+            claimName: adguard-home-config
+        - name: target-config
+          persistentVolumeClaim:
+            claimName: adguard-home-config-longhorn
+        - name: source-data
+          persistentVolumeClaim:
+            claimName: adguard-home-data
+        - name: target-data
+          persistentVolumeClaim:
+            claimName: adguard-home-data-longhorn

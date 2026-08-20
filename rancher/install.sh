@@ -12,7 +12,7 @@ export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 # https://www.suse.com/suse-rancher/support-matrix/all-supported-versions/rancher-v2-13-3/
 # https://github.com/k3s-io/k3s/releases/tag/v1.34.5%2Bk3s1
 
-# first node
+# first node - check k3s version!
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.34.5%2Bk3s1" sh -s - server
 # TODO currently installed without datastore: sh -s - server --datastore-endpoint="<DATASTORE_ENDPOINT>"
 cp /home/sup/code/bash_configs/rancher/config.yaml /etc/rancher/k3s/config.yaml 
@@ -24,7 +24,15 @@ systemctl start k3s
 # TODO curretnly domain isn't issued also for localdomain so as workaround stick with tailscale
 first_node_host=proxmox3.tailscale.bnowakowski.pl
 k3s_token=$(ssh sup@$first_node_host "sudo -S cat /var/lib/rancher/k3s/server/node-token")
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.34.5%2Bk3s1" sh -s - server --server https://$first_node_host:6443 --token $k3s_token
+k3s_version=$(ssh "sup@$first_node_host" \
+    "sudo -S k3s --version" |
+    awk 'NR == 1 { print $3 }')
+curl -sfL https://get.k3s.io |
+    INSTALL_K3S_VERSION="$k3s_version" \
+    sh -s - server \
+      --server "https://$first_node_host:6443" \
+      --token "$k3s_token"
+
 
 # https://cert-manager.io/v1.0-docs/usage/kubectl-plugin/
 # not every cert-manager release contains cli tool

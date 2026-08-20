@@ -148,10 +148,11 @@ Homer in the `apps-homer` namespace was migrated from `local-path` to Longhorn o
 - The Helm release uses `persistence.config.existingClaim: homer-config-longhorn` in `../helm-apps-modifications/homer.yaml`.
 - Copied data size was approximately 992 KiB. Homer became Ready and served its homepage after the cutover.
 
-The migration resources are kept as a repeatable reference:
+The migration resources are kept as a repeatable reference under
+`migrations/`:
 
-- `homer-migration-pvc.yaml`
-- `homer-migration-job.yaml`
+- `migrations/homer/`
+- `migrations/adguard-home/`
 
 For an application migration, create and bind the target claim first, stop the application, run the copy job, then apply the Helm change that selects the target `existingClaim`. Never run the copy job while the application is writing to its source PVC.
 
