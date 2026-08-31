@@ -4,9 +4,9 @@ set -u
 set -o pipefail
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-IMAGE_CHECKER="/home/sup/code/bash_configs/ovh/zabbix/is-docker-image-up-to-date.sh"
+IMAGE_CHECKER="$SCRIPT_DIR/zabbix/is-docker-image-up-to-date.sh"
 STARTUP_WAIT_SECONDS=${STARTUP_WAIT_SECONDS:-30}
-LOG_FILE=${UPGRADE_DOCKER_IMAGES_LOG:-/tmp/upgrade-docker-images.log}
+LOG_FILE=${UPGRADE_DOCKER_IMAGES_LOG:-/tmp/upgrade-docker-images-${UID}.log}
 
 # Fields: label, compose directory, service, image, container, health check.
 # The compose directory is also the working directory used for make upgrade
@@ -45,7 +45,7 @@ confirm() {
 }
 
 latest_tag() {
-  local image=$1 result newest checker_status response_file next_url page tag_count
+  local image=$1 result newest checker_status response_file next_url page tag_count candidate
 
   log "checking image=$image with checker=$IMAGE_CHECKER"
   result=$($IMAGE_CHECKER "$image" 2>>"$LOG_FILE") || {
@@ -58,8 +58,11 @@ latest_tag() {
     # The checker format is false,<old-running-images>,<newest-tag>.
     newest=$(printf '%s\n' "$result" | awk -F, '{ value=$NF; gsub(/[[:space:]]/, "", value); print value }')
     if [[ "$newest" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-      printf '%s\n' "$newest"
-      return 0
+      if docker manifest inspect "${image}:${newest}" >/dev/null 2>>"$LOG_FILE"; then
+        printf '%s\n' "$newest"
+        return 0
+      fi
+      log "checker selected tag without a pullable manifest image=$image tag=$newest; falling back to Docker Hub tag list"
     fi
   fi
 
@@ -85,10 +88,17 @@ latest_tag() {
     jq -r '.results[]?.name' "${response_file}.page" >>"$response_file"
     next_url=$(jq -r '.next // empty' "${response_file}.page")
   done
-  newest=$(sed -nE 's/^([0-9]+\.[0-9]+\.[0-9]+)(-.+)?$/\1/p' "$response_file" |
-    sort -V | tail -n 1)
+  newest=""
+  while IFS= read -r candidate; do
+    if docker manifest inspect "${image}:${candidate}" >/dev/null 2>>"$LOG_FILE"; then
+      newest=$candidate
+      break
+    fi
+    log "skipping tag without a pullable manifest image=$image tag=$candidate"
+  done < <(sed -nE 's/^([0-9]+\.[0-9]+\.[0-9]+)(-.+)?$/\1/p' "$response_file" |
+    sort -Vu | sort -Vr)
   if [[ -z "$newest" ]]; then
-    log "could not find a versioned WordPress tag across $page Docker Hub pages image=$image"
+    log "could not find a pullable versioned tag across $page Docker Hub pages image=$image"
     rm -f "$response_file" "${response_file}.page"
     return 1
   fi
@@ -149,7 +159,12 @@ for deployment in "${DEPLOYMENTS[@]}"; do
     die "Could not determine the newest tag for $image (see $LOG_FILE)"
   fi
 
-  desired_tag=$(newer_tag "$current_tag" "$newest_tag" "$running_image_tag")
+  if docker manifest inspect "${image}:${current_tag}" >/dev/null 2>>"$LOG_FILE"; then
+    desired_tag=$(newer_tag "$current_tag" "$newest_tag" "$running_image_tag")
+  else
+    log "configured tag has no pullable manifest image=$image tag=$current_tag; allowing fallback"
+    desired_tag=$(newer_tag "$newest_tag" "$running_image_tag")
+  fi
   if [[ "$current_tag" != "$desired_tag" || ( -n "$running_image_tag" && "$running_image_tag" != "$current_tag" ) ]]; then
     updates+=("$directory|$project_dir|$compose_file|$service|$image|$current_tag|$desired_tag|$running_image_tag|$container|$health_check")
   fi
@@ -177,7 +192,7 @@ for update in "${updates[@]}"; do
   domain=$(sed -n 's/^DOMAIN=//p' "$env_file" | head -n 1)
 
   sed -i "s#^\([[:space:]]*image:[[:space:]]*${image}:\)[^[:space:]]*#\1${new_tag}#" "$compose_file"
-  if ! make -C "$project_dir" upgrade; then
+  if ! sudo make -C "$project_dir" upgrade; then
     show_message "Upgrade failed" "$directory: make upgrade failed. The compose file contains the new tag; inspect the deployment before retrying."
     exit 1
   fi
