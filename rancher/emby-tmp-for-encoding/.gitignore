@@ -1,0 +1,15 @@
+# Emby runtime data
+/config/
+
+# Local environment and editor files
+.env
+.env.*
+!.env.example
+.DS_Store
+*.swp
+*.swo
+
+# Temporary and log files
+*.log
+tmp/
+temp/
