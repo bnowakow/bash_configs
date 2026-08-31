@@ -6,16 +6,36 @@ if ! command -v ggshield >/dev/null 2>&1; then
 	exit 0
 fi
 
+git_dir=$(git rev-parse --git-dir)
+last_run_file="$git_dir/ggshield-pre-commit-last-run"
+scan_interval=${GGSHIELD_SCAN_INTERVAL_SECONDS:-604800}
+
+if [ "${GGSHIELD_FORCE:-0}" != 1 ] && [ -f "$last_run_file" ]; then
+	last_run=$(sed -n '1p' "$last_run_file")
+	now=$(date +%s)
+
+	case "$last_run" in
+		''|*[!0-9]*) last_run=0 ;;
+	esac
+
+	if [ "$last_run" -gt 0 ] && [ $((now - last_run)) -lt "$scan_interval" ]; then
+		printf 'ggshield scan skipped (cooldown; scans run at most once per week).\n'
+		exit 0
+	fi
+fi
+
 output=$(ggshield secret scan pre-commit --no-check-for-updates "$@" 2>&1) && {
 	if [ -n "$output" ]; then
 		printf '%s\n' "$output"
 	fi
+	date +%s > "$last_run_file"
 	exit 0
 }
 status=$?
 
 case "$output" in
 	*"Error: Could not perform the requested action: no more API calls available."*)
+		date +%s > "$last_run_file"
 		printf '\033[33mWarning: ggshield could not be completed: no more API calls available. Allowing commit to continue.\033[0m\n' >&2
 		exit 0
 		;;
