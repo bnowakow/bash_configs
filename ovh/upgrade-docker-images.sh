@@ -8,13 +8,13 @@ IMAGE_CHECKER="/home/sup/code/bash_configs/ovh/zabbix/is-docker-image-up-to-date
 STARTUP_WAIT_SECONDS=${STARTUP_WAIT_SECONDS:-30}
 LOG_FILE=${UPGRADE_DOCKER_IMAGES_LOG:-/tmp/upgrade-docker-images.log}
 
-# Keep image checks here so adding the mysql/MariaDB deployment later only
-# requires another entry.  The compose directory is also the working
-# directory used for make upgrade and make codex-commit.
+# Fields: label, compose directory, service, image, container, health check.
+# The compose directory is also the working directory used for make upgrade
+# and make codex-commit.  Health checks are either https or none.
 DEPLOYMENTS=(
-  "n2nieruchomosci.pl|/home/sup/docker/n2nieruchomosci.pl|wordpress|wordpress"
-  "bnowakowski.pl|/home/sup/docker/bnowakowski.pl|wordpress|wordpress"
-  # "mysql|mysql|mariadb"
+  "n2nieruchomosci.pl|/home/sup/docker/n2nieruchomosci.pl|wordpress|wordpress|auto|https"
+  "bnowakowski.pl|/home/sup/docker/bnowakowski.pl|wordpress|wordpress|auto|https"
+  "mysql|/home/sup/docker/mysql|mysql|mariadb|shared-mysql|none"
 )
 
 die() {
@@ -123,7 +123,7 @@ fi
 
 updates=()
 for deployment in "${DEPLOYMENTS[@]}"; do
-  IFS='|' read -r directory project_dir service image <<< "$deployment"
+  IFS='|' read -r directory project_dir service image container health_check <<< "$deployment"
   compose_file="$project_dir/compose.yml"
   env_file="$project_dir/.env"
   [[ -f "$compose_file" && -f "$env_file" ]] || die "Missing compose or .env in $directory"
@@ -131,9 +131,15 @@ for deployment in "${DEPLOYMENTS[@]}"; do
   current_tag=$(sed -n "s/^[[:space:]]*image:[[:space:]]*${image}:\([^[:space:]]*\).*/\1/p" "$compose_file" | head -n 1)
   [[ -n "$current_tag" ]] || die "Could not find ${image} image tag in $compose_file"
   domain=$(sed -n 's/^DOMAIN=//p' "$env_file" | head -n 1)
-  [[ -n "$domain" ]] || die "DOMAIN is missing in $env_file"
+  if [[ "$health_check" == https ]]; then
+    [[ -n "$domain" ]] || die "DOMAIN is missing in $env_file"
+  fi
 
-  running_image_tag=$(running_tag "${domain}-${service}" || true)
+  if [[ "$container" == auto ]]; then
+    [[ -n "$domain" ]] || die "DOMAIN is missing in $env_file"
+    container="${domain}-${service}"
+  fi
+  running_image_tag=$(running_tag "$container" || true)
   check_status=0
   newest_tag=$(latest_tag "$image") || check_status=$?
   if [[ $check_status -eq 2 ]]; then
@@ -145,7 +151,7 @@ for deployment in "${DEPLOYMENTS[@]}"; do
 
   desired_tag=$(newer_tag "$current_tag" "$newest_tag" "$running_image_tag")
   if [[ "$current_tag" != "$desired_tag" || ( -n "$running_image_tag" && "$running_image_tag" != "$current_tag" ) ]]; then
-    updates+=("$directory|$project_dir|$compose_file|$service|$image|$current_tag|$desired_tag|$running_image_tag")
+    updates+=("$directory|$project_dir|$compose_file|$service|$image|$current_tag|$desired_tag|$running_image_tag|$container|$health_check")
   fi
 done
 
@@ -166,10 +172,9 @@ confirm "Docker image updates" "$summary" || exit 0
 
 completed_summary=$'Upgraded successfully:\n\n'
 for update in "${updates[@]}"; do
-  IFS='|' read -r directory project_dir compose_file service image old_tag new_tag running_image_tag <<< "$update"
+  IFS='|' read -r directory project_dir compose_file service image old_tag new_tag running_image_tag container health_check <<< "$update"
   env_file="$project_dir/.env"
   domain=$(sed -n 's/^DOMAIN=//p' "$env_file" | head -n 1)
-  [[ -n "$domain" ]] || die "DOMAIN is missing in $env_file"
 
   sed -i "s#^\([[:space:]]*image:[[:space:]]*${image}:\)[^[:space:]]*#\1${new_tag}#" "$compose_file"
   if ! make -C "$project_dir" upgrade; then
@@ -177,10 +182,14 @@ for update in "${updates[@]}"; do
     exit 1
   fi
 
-  sleep "$STARTUP_WAIT_SECONDS"
-  if ! curl --fail --silent --show-error --location --max-time 30 "https://${domain}/" >/dev/null; then
-    show_message "WordPress health check failed" "$directory did not respond successfully at https://${domain}/ after the upgrade. The old image was not deleted and no commit was made."
-    exit 1
+  if [[ "$health_check" == https ]]; then
+    sleep "$STARTUP_WAIT_SECONDS"
+    if ! curl --fail --silent --show-error --location --max-time 30 "https://${domain}/" >/dev/null; then
+      show_message "WordPress health check failed" "$directory did not respond successfully at https://${domain}/ after the upgrade. The old image was not deleted and no commit was made."
+      exit 1
+    fi
+  else
+    log "skipping HTTP health check directory=$directory health_check=$health_check"
   fi
 
   if [[ "$old_tag" != "$new_tag" ]]; then
@@ -197,9 +206,14 @@ done
 
 if confirm "Commit Docker image updates" "$completed_summary\nCommit the compose file changes now?"; then
   for update in "${updates[@]}"; do
-    IFS='|' read -r directory project_dir compose_file service image old_tag new_tag running_image_tag <<< "$update"
+    IFS='|' read -r directory project_dir compose_file service image old_tag new_tag running_image_tag container health_check <<< "$update"
     git -C "$project_dir" add -- "$compose_file"
-    make -C "$project_dir" codex-commit || die "codex-commit failed in $directory"
+    if make -C "$project_dir" -qp 2>/dev/null | grep -q '^codex-commit:'; then
+      make -C "$project_dir" codex-commit || die "codex-commit failed in $directory"
+    else
+      log "codex-commit target missing directory=$directory; using git commit"
+      git -C "$project_dir" commit -m "Upgrade $image in $directory" || die "git commit failed in $directory"
+    fi
   done
 else
   show_message "Docker image upgrade" "$completed_summary\nCompose changes were not committed."
