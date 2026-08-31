@@ -20,6 +20,10 @@ $(VENV_PYTHON):
 venv: $(VENV_PYTHON)
 
 install-requirements: $(VENV_PYTHON)
+	@if ! $(VENV_PYTHON) -c 'import pip' >/dev/null 2>&1; then \
+		echo "pip is missing from $(VENV); bootstrapping it with ensurepip"; \
+		$(VENV_PYTHON) -m ensurepip --upgrade; \
+	fi
 	$(VENV_PYTHON) -m pip install -r requirements.txt
 
 png-to-a4-pdf: install-requirements

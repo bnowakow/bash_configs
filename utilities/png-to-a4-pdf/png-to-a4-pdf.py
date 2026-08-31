@@ -6,7 +6,7 @@ The image is scaled to fit the printable width of A4, then sliced vertically
 into as many pages as needed.
 
 Requires:
-    cd utilities && make install-requirements
+    cd utilities/png-to-a4-pdf && make install-requirements
 """
 
 from __future__ import annotations
@@ -19,7 +19,9 @@ try:
     from PIL import Image, ImageDraw, ImageFont
 except ModuleNotFoundError as error:
     raise SystemExit(
-        "Missing dependency: Pillow. Install it with: cd utilities && make install-requirements"
+        "Missing dependency: Pillow. Install it with: "
+        "cd utilities/png-to-a4-pdf && make install-requirements; "
+        "run this script with .venv/bin/python or via make"
     ) from error
 
 
