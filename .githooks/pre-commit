@@ -1,6 +1,16 @@
 #!/bin/sh
 set -eu
 
+if [ "${1:-}" = "--check-dependencies" ]; then
+	if command -v ggshield >/dev/null 2>&1; then
+		printf 'ggshield is installed.\n'
+		exit 0
+	fi
+
+	printf 'ggshield is not installed.\n' >&2
+	exit 1
+fi
+
 if ! command -v ggshield >/dev/null 2>&1; then
 	printf '\033[31mWarning: ggshield is not installed; secrets were not verified for this commit.\033[0m\n' >&2
 	exit 0
