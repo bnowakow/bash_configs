@@ -41,6 +41,10 @@ Per app, the script does:
 5. runs `helm upgrade` (unless `--dry-run`)
 6. runs postchecks (rollout + ingress HTTP code checks, or pod log review when no ingress exists)
 
+If `helm upgrade` fails, the failure dialog also offers rollback to the latest
+previously deployed Helm revision, alongside continuing with the next app or
+aborting the run. The rollback restores that release revision with `--wait`.
+
 ## Logs and Exit Codes
 
 Logs are written to:

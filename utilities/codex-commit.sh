@@ -387,14 +387,16 @@ if upstream=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null
 
 	if [ "$behind" -gt 0 ]; then
 		if confirm "Pull before push" "Upstream $upstream has $behind commit(s) not in this branch. Run git pull --rebase before push?"; then
-			if ! git pull --rebase; then
+			# Preserve tracked work that was intentionally left unstaged while
+			# rebasing the newly created commit onto the updated upstream.
+			if ! git pull --rebase --autostash; then
 				if has_unmerged_paths; then
 					resolve_pull_conflict_with_codex || {
 						echo "Aborting codex-commit because the git conflict was not resolved."
 						exit 1
 					}
 				else
-					echo "git pull --rebase failed without unmerged paths. Aborting."
+					echo "git pull --rebase --autostash failed without unmerged paths. Aborting."
 					exit 1
 				fi
 			fi

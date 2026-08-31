@@ -24,7 +24,7 @@ usage() {
   cat <<USAGE
 Usage: $(basename "$0") [--help]
 
-Upgrades the current k3s server node, cert-manager, and Rancher.
+Upgrades Rancher first, then the current k3s server node, then cert-manager.
 
 The script discovers current compatible versions from SUSE/GitHub, prints the
 selected versions and source URLs, attempts a pre-upgrade k3s snapshot, and then
@@ -649,6 +649,7 @@ About to run the upgrade with:
   $(component_text "k3s") minor:     $(version_text "$supported_k3s_minor")
   $(component_text "k3s") release:   $(version_transition_text "$current_k3s_version" "$k3s_version")
   $(component_text "cert-manager"):  $(version_transition_text "$current_cert_manager_version" "$cert_manager_version")
+  order:         Rancher -> k3s -> cert-manager
   hostname:      $hostname_fqdn
   log file:      $log_file
 
@@ -656,8 +657,30 @@ About to run the upgrade with:
 
   confirm "Do these versions and settings look good?" || exit 1
 
+  if [ "$upgrade_rancher" -eq 1 ]; then
+    log "Upgrading $(component_text "Rancher") from $(version_text "${current_rancher_version:-not detected}") to $(version_text "$rancher_version")."
+    run_cmd helm --kubeconfig "$kubeconfig_path" upgrade --install rancher rancher-stable/rancher \
+      --namespace cattle-system \
+      --create-namespace \
+      --version "${rancher_version#v}" \
+      --set "hostname=$hostname_fqdn" \
+      --set bootstrapPassword=admin \
+      --set ingress.tls.source=letsEncrypt \
+      --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com
+
+    run_cmd kubectl --kubeconfig "$kubeconfig_path" -n cattle-system rollout status deploy/rancher --timeout="$rollout_timeout"
+    run_cmd kubectl --kubeconfig "$kubeconfig_path" -n cattle-system get deploy rancher
+
+    setup_password="$(kubectl --kubeconfig "$kubeconfig_path" get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')"
+    log_success "$(component_text "Rancher") setup URL: https://$hostname_fqdn/dashboard/?setup=$setup_password"
+
+    run_cmd "$script_dir/rancher_add_cluster_repos.sh"
+  else
+    log_success "Skipping $(component_text "Rancher"); installed version is $(version_text "${current_rancher_version:-not detected}") and target $(version_text "$rancher_version") is not newer."
+  fi
+
   if [ "$upgrade_k3s" -eq 1 ]; then
-    log "Upgrading $(component_text "k3s") from $(version_text "${current_k3s_version:-not detected}") to $(version_text "$k3s_version")."
+    log "Upgrading $(component_text "k3s") from $(version_text "${current_k3s_version:-not detected}") to $(version_text "$k3s_version") after $(component_text "Rancher") is on $(version_text "$final_rancher_version")."
     log "+ curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=\"$k3s_install_version\" sh -s - server"
     curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="$k3s_install_version" sh -s - server 2>&1 | tee -a "$log_file"
 
@@ -683,28 +706,6 @@ About to run the upgrade with:
     run_cmd kubectl --kubeconfig "$kubeconfig_path" get pods --namespace cert-manager
   else
     log_success "Skipping $(component_text "cert-manager"); installed version is $(version_text "${current_cert_manager_version:-not detected}") and target $(version_text "$cert_manager_version") is not newer."
-  fi
-
-  if [ "$upgrade_rancher" -eq 1 ]; then
-    log "Upgrading $(component_text "Rancher") from $(version_text "${current_rancher_version:-not detected}") to $(version_text "$rancher_version")."
-    run_cmd helm --kubeconfig "$kubeconfig_path" upgrade --install rancher rancher-stable/rancher \
-      --namespace cattle-system \
-      --create-namespace \
-      --version "${rancher_version#v}" \
-      --set "hostname=$hostname_fqdn" \
-      --set bootstrapPassword=admin \
-      --set ingress.tls.source=letsEncrypt \
-      --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com
-
-    run_cmd kubectl --kubeconfig "$kubeconfig_path" -n cattle-system rollout status deploy/rancher --timeout="$rollout_timeout"
-    run_cmd kubectl --kubeconfig "$kubeconfig_path" -n cattle-system get deploy rancher
-
-    setup_password="$(kubectl --kubeconfig "$kubeconfig_path" get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')"
-    log_success "$(component_text "Rancher") setup URL: https://$hostname_fqdn/dashboard/?setup=$setup_password"
-
-    run_cmd "$script_dir/rancher_add_cluster_repos.sh"
-  else
-    log_success "Skipping $(component_text "Rancher"); installed version is $(version_text "${current_rancher_version:-not detected}") and target $(version_text "$rancher_version") is not newer."
   fi
 
   verify_final_versions "$final_k3s_version" "$final_cert_manager_version" "$final_rancher_version"

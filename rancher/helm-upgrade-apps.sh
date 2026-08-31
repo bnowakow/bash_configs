@@ -530,6 +530,86 @@ ask_on_failure() {
     --yesno "$message\n\nContinue with next app?" 20 120
 }
 
+last_deployed_revision() {
+  local app="$1"
+  local namespace="$2"
+
+  helm history "$app" \
+    --kubeconfig "$kubeconfig_path" \
+    --max 20 \
+    --namespace "$namespace" 2>>"$log_file" \
+    | awk 'NR > 1 && $1 ~ /^[0-9]+$/ && $3 == "deployed" { revision = $1 } END { if (revision != "") print revision }'
+}
+
+ask_on_helm_upgrade_failure() {
+  local app="$1"
+  local namespace="$2"
+  local revision="$3"
+  local choice_file
+  local choice
+
+  if [ "$yes_mode" -eq 1 ] || [ -z "$revision" ]; then
+    if [ -z "$revision" ]; then
+      log "$app: no previously deployed Helm revision found; rollback is unavailable"
+    fi
+    ask_on_failure "Helm upgrade failed ($app)" "helm upgrade command failed (return_code=1)."
+    return $?
+  fi
+
+  choice_file="$(mktemp "${TMPDIR:-/tmp}/helm-upgrade-failure-choice.XXXXXX")"
+  if dialog \
+    --clear \
+    --begin 0 0 \
+    --title "Helm Upgrade Log" \
+    --tailboxbg "$log_file" 18 120 \
+    --and-widget \
+    --begin 2 10 \
+    --title "Helm upgrade failed ($app)" \
+    --default-item 1 \
+    --menu "helm upgrade command failed (return_code=1).\n\nA previously deployed revision is available. What should happen next?" 16 110 3 \
+    1 "Rollback to revision $revision" \
+    2 "Continue with next app" \
+    3 "Abort run" \
+    2>"$choice_file"; then
+    choice="$(<"$choice_file")"
+  else
+    choice=3
+  fi
+  rm -f "$choice_file"
+
+  case "$choice" in
+    1)
+      log "$app: rolling back to previously deployed Helm revision $revision" "$(color_blue "$app"): rolling back to previously deployed Helm revision $revision"
+      if helm rollback \
+        --kubeconfig "$kubeconfig_path" \
+        --namespace "$namespace" \
+        --timeout=10m0s \
+        --wait=true \
+        "$app" "$revision" >>"$log_file" 2>&1; then
+        log "$app: rollback to Helm revision $revision completed (return_code=0)" "$(color_blue "$app"): rollback to Helm revision $revision completed (return_code=$(color_bash_return_code 0))"
+        return 0
+      fi
+      log "$app: rollback to Helm revision $revision failed (return_code=1)" "$(color_blue "$app"): rollback to Helm revision $revision failed (return_code=$(color_bash_return_code 1))"
+      if ask_on_failure "Helm rollback failed ($app)" "helm rollback to revision $revision failed (return_code=1)."; then
+        log "User chose to continue after rollback failure."
+        return 0
+      fi
+      log "User aborted run after rollback failure."
+      cleanup
+      exit 1
+      ;;
+    2)
+      log "User chose to continue after Helm upgrade failure."
+      return 0
+      ;;
+    *)
+      log "User aborted run after Helm upgrade failure."
+      cleanup
+      exit 1
+      ;;
+  esac
+}
+
 host_uses_insecure() {
   local host="$1"
   printf '%s\n' "$insecure_hosts" | grep -F -x -q "$host"
@@ -870,6 +950,7 @@ perform_upgrade() {
   local namespace="$2"
   local target_version="$3"
   local chart_ref="$4"
+  local previous_working_revision
 
   if [ "$dry_run" -eq 1 ]; then
     log "$app: DRY RUN enabled, skipping helm upgrade" "$(color_blue "$app"): DRY RUN enabled, skipping helm upgrade"
@@ -882,6 +963,7 @@ perform_upgrade() {
   fi
 
   log "$app: running helm upgrade to version $target_version using chart $chart_ref" "$(color_blue "$app"): running helm upgrade to version $target_version using chart $chart_ref"
+  previous_working_revision="$(last_deployed_revision "$app" "$namespace")"
   if ! helm upgrade \
     --kubeconfig "$kubeconfig_path" \
     --history-max=5 \
@@ -891,7 +973,14 @@ perform_upgrade() {
     --version="$target_version" \
     --wait=true \
     "$app" "$chart_ref" >>"$log_file" 2>&1; then
-    record_failure_and_maybe_abort "Helm upgrade failed ($app)" "helm upgrade command failed (return_code=1)."
+    exit_status=1
+    failure_events_count=$((failure_events_count + 1))
+    if [ -n "$current_app" ] && [ "$current_app_failed" -eq 0 ]; then
+      current_app_failed=1
+      failed_apps_count=$((failed_apps_count + 1))
+    fi
+    log "FAILURE: Helm upgrade failed ($app) - helm upgrade command failed (return_code=1)."
+    ask_on_helm_upgrade_failure "$app" "$namespace" "$previous_working_revision"
     return 1
   fi
 
