@@ -207,6 +207,7 @@ for cert_line in "${problem_certs[@]}"; do
             name: .metadata.name,
             created: .metadata.creationTimestamp,
             ageSeconds: ($now - (.metadata.creationTimestamp | fromdateiso8601)),
+            ownerless: ((.metadata.ownerReferences // []) | length == 0),
             ready: ((.status.conditions // []) | map(select(.type == "Ready")) | last // {}),
             approved: ((.status.conditions // []) | map(select(.type == "Approved")) | last // {})
           }
@@ -217,7 +218,8 @@ for cert_line in "${problem_certs[@]}"; do
             (.ready.status // "<none>"),
             (.ready.reason // "<none>"),
             (.ready.message // "<none>"),
-            (.approved.status // "<none>")
+            (.approved.status // "<none>"),
+            (.ownerless | tostring)
           ]
         | @tsv
       ' <<<"$requests_json"
@@ -337,12 +339,17 @@ for cert_line in "${problem_certs[@]}"; do
   fi
 
   for request_line in "${cert_requests[@]}"; do
-    IFS=$'\t' read -r request_name request_created request_age_seconds request_ready request_reason request_message request_approved <<<"$request_line"
+    IFS=$'\t' read -r request_name request_created request_age_seconds request_ready request_reason request_message request_approved request_ownerless <<<"$request_line"
     request_age_minutes=$((request_age_seconds / 60))
 
-    if [[ "$request_ready" != "True" ]] && (( request_age_seconds >= stuck_after_seconds )); then
+    if (( request_age_seconds >= stuck_after_seconds )) && [[ "$request_ready" != "True" || "$request_ownerless" == "true" ]]; then
       stuck=$((stuck + 1))
-      echo "  Old/stuck CertificateRequest: ${cert_ns}/${request_name}"
+      if [[ "$request_ownerless" == "true" ]]; then
+        echo "  Old/orphaned CertificateRequest: ${cert_ns}/${request_name}"
+        echo "    OwnerReferences: none"
+      else
+        echo "  Old/stuck CertificateRequest: ${cert_ns}/${request_name}"
+      fi
       echo "    Created: ${request_created} (${request_age_minutes}m old)"
       echo "    Approved: ${request_approved:-<unknown>}"
       echo "    Ready: ${request_ready:-<none>}"
@@ -380,12 +387,12 @@ for cert_line in "${problem_certs[@]}"; do
 done
 
 echo "Expired/problem certificates inspected: ${#problem_certs[@]}"
-echo "Old/stuck CertificateRequests found: $stuck"
+echo "Old/stuck or orphaned CertificateRequests found: $stuck"
 echo "Recent CertificateRequests left alone: $recent"
 echo "Stale ACME Challenges found: $stale_challenges"
 echo "Stale ACME Orders found: $stale_orders"
 if [[ "$delete" == true ]]; then
-  echo "Old/stuck CertificateRequests deleted: $deleted"
+  echo "Old/stuck or orphaned CertificateRequests deleted: $deleted"
   echo "Stale ACME Challenges deleted: $deleted_challenges"
   echo "Stale ACME Orders deleted: $deleted_orders"
 else
