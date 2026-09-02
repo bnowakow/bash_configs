@@ -8,12 +8,27 @@
       ansible.builtin.shell: |
         set -e
         export DEBIAN_FRONTEND=noninteractive
-        apt update
-        apt upgrade -y
-        apt dist-upgrade -y
-        apt autoremove -y
+        before=$(mktemp)
+        after=$(mktemp)
+        trap 'rm -f "$before" "$after"' EXIT
+
+        dpkg-query -W -f='${binary:Package} ${Version}\n' | sort > "$before"
+        apt-get update >&2
+        apt-get upgrade -y >&2
+        apt-get dist-upgrade -y >&2
+        apt-get autoremove -y >&2
+        dpkg-query -W -f='${binary:Package} ${Version}\n' | sort > "$after"
+
+        if diff -u "$before" "$after"; then
+          echo 'No package changes.'
+        else
+          true
+        fi
       args:
         executable: /bin/bash
+      register: apt_package_changes
+      changed_when: false
+      failed_when: apt_package_changes.rc > 1
 
     - name: Check whether fwupdmgr is installed
       ansible.builtin.command: command -v fwupdmgr
@@ -84,3 +99,13 @@
       when:
         - kernel_status_before_reboot.stdout | trim != 'true'
         - reboot_confirmation.user_input | lower not in ['yes', 'y']
+
+- name: Show package changes summary
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Show package changes for this host
+      ansible.builtin.debug:
+        msg: |-
+          Package changes on {{ inventory_hostname }}:
+          {{ apt_package_changes.stdout | trim }}

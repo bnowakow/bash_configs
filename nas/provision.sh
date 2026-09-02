@@ -3,11 +3,41 @@
 # TODO check two key add that require's user's input
 
 apt_install() {
-    if ! sudo apt-get install "$@"; then
-        echo "ERROR: apt-get install failed (arguments: $*)" >&2
-        exit 1
+    local apt_log
+    apt_log=$(mktemp)
+
+    # Keep apt's output visible while retaining it so that configure-only
+    # failures can be handled separately from packages that could not be
+    # installed at all.
+    set -o pipefail
+    if sudo apt-get install "$@" 2>&1 | tee "$apt_log"; then
+        rm -f "$apt_log"
+        return 0
     fi
+
+    # A package may have been unpacked successfully but fail in its
+    # post-install/configuration script (for example because TrueNAS keeps
+    # /boot read-only).  Do not make those failures abort provisioning.
+    if awk '/^dpkg: error processing package / {
+            count++
+            if ($0 !~ /\(--configure\)/) other_error=1
+        }
+        END { exit !(count > 0 && !other_error) }' "$apt_log"; then
+        while read -r package; do
+            [[ -n "$package" ]] && APT_CONFIG_WARNINGS+=("$package")
+        done < <(awk '/^dpkg: error processing package .* \(--configure\):/ { print $5 }' "$apt_log")
+        rm -f "$apt_log"
+        return 0
+    fi
+
+    echo "ERROR: apt-get install failed (arguments: $*)" >&2
+    rm -f "$apt_log"
+    exit 1
 }
+
+declare -a APT_CONFIG_WARNINGS=()
+YELLOW=$'\033[33m'
+RESET=$'\033[0m'
 
 # https://www.truenas.com/docs/scale/scaletutorials/systemsettings/advanced/developermode/#:~:text=To%20enable%20developer%20mode%2C%20log,install%2Ddev%2Dtools%20command.&text=Running%20install%2Ddev%2Dtools%20removes,for%20development%20environments%20on%20TrueNAS.
 # https://www.truenas.com/community/threads/no-more-apt.116340/
@@ -41,13 +71,13 @@ sudo install -m 0755 -d /etc/apt/keyrings
 #sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # TODO after cobia upgrade missing: hddtemp 
-# removed: vagrant clang
+# removed: vagrant clang nvidia-smi
 # because it tries to install linux-image-amd64 and libc-i686 that fails becuse of RO /boot in dragonfish and prevents rest of packages to be configured by apt
 sudo apt-get update
 apt_install -y screen vim  wget gnupg2 ncdu elinks jdupes hfsprogs libicu-dev bzip2 \
     cmake libz-dev libbz2-dev fuse3 libfuse3-3 libfuse3-dev git libattr1-dev libfsapfs-utils \
     dos2unix edac-utils inxi rasdaemon figlet ansible sshpass \
-    bc hfsprogs nvidia-smi lshw vim-runtime unrar alien bubblewrap
+    bc hfsprogs lshw vim-runtime unrar alien bubblewrap
 # TODO python breaks on .2 truenas
 # sudo apt-get install -y virtualenv python3-venv python3-pip python3-full
 sudo apt-get remove -y linux-image-amd64
@@ -68,7 +98,10 @@ curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo 
 && sudo apt-get update \
 ; apt_install gh -y
 
-chsh -s $(which zsh)
+if ! grep -qxF /usr/bin/zsh /etc/shells; then
+    echo /usr/bin/zsh | sudo tee -a /etc/shells > /dev/null
+fi
+sudo chsh -s /usr/bin/zsh "$USER" < /dev/tty
 
 # https://linuxnewbieguide.org/how-to-mount-macos-apfs-disk-volumes-in-linux/
 sudo cp /mnt/MargokPool/home/sup/code/apfs-fuse/build/apfs-* /usr/local/bin
@@ -109,13 +142,13 @@ date
 cp ssh-config /mnt/MargokPool/home/sup/.ssh/config
 
 apt_install software-properties-common -y
-sudo add-apt-repository 'deb [arch=amd64] https://repo.zabbix.com/zabbix/7.0/debian/ bullseye main'
+sudo add-apt-repository -y 'deb [arch=amd64] https://repo.zabbix.com/zabbix/7.0/debian/ bullseye main'
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv D913219AB5333005
 sudo apt-get update
-apt_install zabbix-agent2
+apt_install -y zabbix-agent2
 sudo cp /mnt/MargokPool/home/sup/code/bash_configs/zabbix/zabbix_agent2.conf /etc/zabbix
 cd /etc/zabbix/zabbix_agent2.d
-sudo ln -sf /mnt/MargokPool/home/sup/code/bash_configs bash_configs
+sudo ln -sfnT /mnt/MargokPool/home/sup/code/bash_configs /etc/zabbix/zabbix_agent2.d/bash_configs
 cd bash_configs
 sudo chown sup:sup -R .
 mkdir -p repos
@@ -160,7 +193,7 @@ sudo chown sup:zabbix sie-pomaga/*
 sudo chmod 774 sie-pomaga
 cd ~/code/bash_configs/home-assistant/zabbix
 sudo chown sup:zabbix *
-cd ~/code/bash_configs/nas/zabbix/is-plex-running
+cd ~/code/bash_configs/nas/zabbix/archived/is-plex-running
 sudo chown sup:zabbix *
 
 # 1password
@@ -178,7 +211,8 @@ echo;
 echo manual steps:;
 echo chage zabbix user id and group id to 990;
 echo "press enter when done"
-read;
+read -r -n 1 -s < /dev/tty
+echo
 
 sudo chown -R zabbix:zabbix /var/log/zabbix
 sudo chown -R zabbix:zabbix /var/run/zabbix
@@ -198,4 +232,19 @@ sudo mkdir -p /run/screen; sudo chmod 777 /run/screen
 
 sudo service docker start
 
-curl -fsSL https://chatgpt.com/codex/install.sh | sh
+codex_installer=$(mktemp)
+if curl -fsSL -o "$codex_installer" https://chatgpt.com/codex/install.sh; then
+    printf 'n\n' | script -qec "sh '$codex_installer'" /dev/null
+    codex_install_status=$?
+else
+    codex_install_status=$?
+fi
+rm -f "$codex_installer"
+if ((codex_install_status != 0)); then
+    exit "$codex_install_status"
+fi
+
+if ((${#APT_CONFIG_WARNINGS[@]})); then
+    printf '\n%bWARNING: package configuration completed with errors:%b\n' "$YELLOW" "$RESET" >&2
+    printf '%b- %s%b\n' "$YELLOW" "${APT_CONFIG_WARNINGS[@]}" "$RESET" >&2
+fi
