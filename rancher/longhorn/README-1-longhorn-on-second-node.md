@@ -61,6 +61,24 @@ A sparse zvol advertises its full virtual size but consumes ZFS pool space as da
 
 ## Install host prerequisites
 
+From this repository, the preparation can be performed with the checked-in
+script (it validates that `/var/lib/longhorn` is a mounted ext4/XFS filesystem
+before installing packages):
+
+```bash
+sudo ./install-longhorn-node.sh dependencies
+sudo ./install-longhorn-node.sh prepare
+```
+
+`dependencies` only installs the host packages and kernel modules. `prepare`
+also creates a sparse `100G` zvol named `rpool/longhorn`, formats a newly
+created or unformatted zvol as ext4, and mounts it persistently at
+`/var/lib/longhorn`. If `rpool` is unavailable, an ncurses menu lists the
+available ZFS pools and their size/free space. Set `LONGHORN_ZFS_POOL` or
+`LONGHORN_ZFS_SIZE` to bypass the selection or change the defaults. The script
+refuses to format a zvol that already contains a filesystem and does not
+retrieve, print, or persist the K3s token.
+
 On Debian or Ubuntu:
 
 ```bash
@@ -99,6 +117,21 @@ command -v mount.nfs
 Join the node to the existing K3s cluster using the same K3s version as the cluster. Use the cluster's server URL and node token. Join as an `agent` for a worker/storage-only node, or as a `server` when an additional control-plane node is intended.
 
 Do not store or commit the node token in this repository.
+
+After preparation, join as a storage-only agent. When `K3S_TOKEN` and
+`K3S_VERSION` are omitted, the script retrieves both over SSH from
+`sup@K3S_SERVER_URL`, matching the behavior of the legacy installer:
+
+```bash
+sudo env \
+  K3S_SERVER_URL=proxmox3.tailscale.bnowakowski.pl \
+  ./install-longhorn-node.sh join
+```
+
+Set `K3S_TOKEN` and/or `K3S_VERSION` to override remote retrieval. SSH access
+for `sup` and non-interactive sudo on the first node are required.
+Do not use the repository's old `install.sh` for this operation: it contains
+both first-server bootstrap and second-server logic.
 
 After the installation, confirm that Kubernetes sees the node:
 

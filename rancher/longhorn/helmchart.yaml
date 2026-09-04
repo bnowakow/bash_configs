@@ -8,7 +8,7 @@ spec:
   chart: longhorn
   version: 1.12.0
   targetNamespace: longhorn-system
-  createNamespace: false
+  createNamespace: true
   failurePolicy: abort
   valuesContent: |-
     defaultBackupStore:
