@@ -142,10 +142,11 @@ After all nodes are healthy, create a new StorageClass with `numberOfReplicas: "
 
 Homer in the `apps-homer` namespace was migrated from `local-path` to Longhorn on 2026-08-14.
 
-- New active claim: `homer-config-longhorn` (`1Gi`, `longhorn`, RWO).
+- Original Longhorn claim: `homer-config-longhorn` (`1Gi`, `longhorn`, RWO).
+- Follow-up HA target claim: `homer-config-longhorn-rwx` (`1Gi`, `longhorn`, RWX).
 - Original rollback claim: `homer-config` (`100Gi`, `local-path`, RWO).
 - The original PV `pvc-8814974b-c528-4152-a80b-10b03f85f3d7` has been changed to `Retain` and the PVC has `helm.sh/resource-policy: keep`.
-- The Helm release uses `persistence.config.existingClaim: homer-config-longhorn` in `../helm-apps-modifications/homer.yaml`.
+- The Helm release will use `persistence.config.existingClaim: homer-config-longhorn-rwx` in `../helm-apps-modifications/homer.yaml` after the RWX cutover.
 - Copied data size was approximately 992 KiB. Homer became Ready and served its homepage after the cutover.
 
 The migration resources are kept as a repeatable reference under

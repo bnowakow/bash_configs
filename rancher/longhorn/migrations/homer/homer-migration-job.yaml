@@ -30,4 +30,4 @@ spec:
             claimName: homer-config
         - name: target
           persistentVolumeClaim:
-            claimName: homer-config-longhorn
+            claimName: homer-config-longhorn-rwx

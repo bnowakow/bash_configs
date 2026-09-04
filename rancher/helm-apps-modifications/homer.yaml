@@ -2,5 +2,22 @@ persistence:
   config:
     enabled: true
     type: pvc
-    existingClaim: homer-config-longhorn
+    existingClaim: homer-config-longhorn-rwx
     mountPath: /www/assets
+
+# Run two Homer pods and prefer placing them on different Kubernetes nodes.
+# This claim is Longhorn RWX so replicas can mount it from different nodes.
+podOptions:
+  defaultAffinity: false
+
+workload:
+  main:
+    replicas: 2
+    podSpec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: homer
