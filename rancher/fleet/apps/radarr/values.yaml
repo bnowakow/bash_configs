@@ -1,0 +1,46 @@
+persistence:
+  config:
+    existingClaim: radarr-config
+  plex-nfs-persistence:
+    enabled: true
+    path: /mnt/PlexPool/plex
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+    targetSelector:
+      main:
+        main:
+          mountPath: /mnt/PlexPool/plex
+
+resources:
+  limits:
+    cpu: 12000m
+  requests:
+    cpu: 30m
+
+metrics:
+  main:
+    enabled: false
+
+ingress:
+  main:
+    enabled: true
+    primary: true
+    ingressClassName: traefik
+    hosts:
+      - host: radarr.rancher.tailscale.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+      - host: radarr.rancher.localdomain.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt
+      traefik:
+        enabled: true
+        entrypoints:
+          - websecure
+        forceTLS: true

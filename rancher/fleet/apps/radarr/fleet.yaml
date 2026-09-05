@@ -1,0 +1,10 @@
+name: radarr
+defaultNamespace: apps-radarr
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/radarr
+  version: 27.12.1
+  releaseName: radarr
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
