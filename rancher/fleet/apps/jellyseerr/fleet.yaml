@@ -1,0 +1,10 @@
+name: jellyseerr
+defaultNamespace: apps-jellyseerr
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/jellyseerr
+  version: 15.5.0
+  releaseName: jellyseerr
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
