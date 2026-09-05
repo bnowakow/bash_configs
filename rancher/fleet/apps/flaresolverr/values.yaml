@@ -24,5 +24,4 @@ ingress:
         enabled: true
         entrypoints:
           - web
-          - websecure
         forceTLS: false
