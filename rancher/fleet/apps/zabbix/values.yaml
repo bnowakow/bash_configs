@@ -1,3 +1,6 @@
+# Match the restored Zabbix 7.4 database schema.
+zabbixImageTag: ubuntu-7.4.14
+
 # The database PVC is restored from CloudCasa before Zabbix is started.
 # Keep this as an existing claim so Helm/Fleet does not create or delete it.
 postgresql:
