@@ -1,5 +1,5 @@
 name: cloudcasa
-namespace: cloudcasa-io
+defaultNamespace: cloudcasa-io
 
 helm:
   repo: https://catalogicsoftware.github.io/cloudcasa-helmchart

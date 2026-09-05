@@ -1,5 +1,5 @@
 name: cert-manager
-namespace: cert-manager
+defaultNamespace: cert-manager
 
 helm:
   repo: oci://quay.io/jetstack/charts/cert-manager

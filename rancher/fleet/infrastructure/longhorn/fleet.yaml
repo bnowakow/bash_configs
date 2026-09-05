@@ -1,5 +1,5 @@
 name: longhorn
-namespace: longhorn-system
+defaultNamespace: longhorn-system
 
 helm:
   repo: https://charts.longhorn.io
