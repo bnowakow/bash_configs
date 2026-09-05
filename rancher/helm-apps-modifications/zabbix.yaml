@@ -1,4 +1,0 @@
-  persistence:
-    enabled: true
-    existingClaimName: false
-    storageSize: 5Gi
