@@ -27,3 +27,7 @@ resources:
     cpu: 12000m
   requests:
     cpu: 30m
+
+metrics:
+  main:
+    enabled: false
