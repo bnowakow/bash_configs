@@ -51,9 +51,3 @@ spec:
       kubernetesIngress:
         publishedService:
           enabled: true
-    service:
-      annotations:
-        kube-vip.io/loadbalancerIPs: "10.0.0.55"
-      spec:
-        loadBalancerClass: kube-vip
-        ipFamilyPolicy: PreferDualStack
