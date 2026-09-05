@@ -1,0 +1,6 @@
+---
+# The NAS uses credentials different from the Proxmox hosts.
+# Values are loaded from ansible/.env by run.sh and are never committed.
+ansible_user: "{{ lookup('env', 'NAS_ANSIBLE_USER') | default('sup', true) }}"
+ansible_password: "{{ lookup('env', 'NAS_ANSIBLE_PASSWORD') }}"
+ansible_become_password: "{{ lookup('env', 'NAS_ANSIBLE_PASSWORD') }}"

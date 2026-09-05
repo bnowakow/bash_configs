@@ -37,6 +37,15 @@ cp .env.sample .env
 
 Edit the inventory and variables. In particular, verify `longhorn_device`; formatting
 is disabled by default and the playbook fails if the device has no filesystem UUID.
+`dm_crypt` loading is also disabled by default because this cluster does not use
+Longhorn volume or backup encryption. Set `longhorn_dm_crypt_enabled: true` if that
+feature is enabled later.
+The inventory includes `nas.localdomain.bnowakowski.pl` as a third K3s server so embedded
+etcd can regain an odd-numbered quorum. The NAS is intentionally not in
+`longhorn_nodes`, so the Longhorn disk preparation tasks are not run there. Set
+`NAS_ANSIBLE_USER` and `NAS_ANSIBLE_PASSWORD` in `.env`; the same password is used for
+SSH and sudo/become and is not committed. If the password is omitted from `.env`,
+`run.sh` asks for it once, silently, when the NAS is selected.
 By default, the playbook creates a basic-auth Secret for the private GitHub repository
 from `GITHUB_USERNAME` and `GITHUB_TOKEN`. A fine-grained GitHub token with read access
 to this repository is sufficient. To use SSH instead, set `fleet_git_auth_type: ssh`
@@ -83,6 +92,8 @@ CLOUDFLARE_API_TOKEN='replace-me'
 CLOUDCASA_CLUSTER_ID='replace-me'
 GITHUB_USERNAME='replace-me'
 GITHUB_TOKEN='replace-me'
+NAS_ANSIBLE_USER='sup'
+NAS_ANSIBLE_PASSWORD='replace-me'
 ```
 
 `./run.sh` loads `ansible/.env` automatically. Use `--env-file FILE` or the

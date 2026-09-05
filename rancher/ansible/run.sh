@@ -11,6 +11,7 @@ ask_become_pass=1
 check_mode=0
 syntax_check=0
 list_hosts=0
+limit_pattern=""
 extra_args=()
 
 usage() {
@@ -79,6 +80,7 @@ while [[ $# -gt 0 ]]; do
     --limit|--tags|--skip-tags)
       [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 2; }
       extra_args+=("$1" "$2")
+      [[ "$1" == "--limit" ]] && limit_pattern="$2"
       shift 2
       ;;
     --check|--diff)
@@ -135,6 +137,35 @@ if [[ -f "$env_file" ]]; then
   # shellcheck disable=SC1090
   source "$env_file"
   set +a
+fi
+
+prompt_secret() {
+  local variable_name="$1"
+  local prompt_text="$2"
+  local value
+
+  printf '%s' "$prompt_text" >&2
+  IFS= read -r -s value
+  printf '\n' >&2
+  printf -v "$variable_name" '%s' "$value"
+  export "$variable_name"
+}
+
+# Host-specific NAS credentials cannot be supplied by Ansible's single global
+# --ask-pass/--ask-become-pass prompts. Ask only for the missing NAS password when
+# the NAS is part of this normal bootstrap run; host_vars/nas.yml uses it for both
+# SSH and become authentication.
+nas_is_selected=0
+if [[ "$playbook" == "$script_dir/site.yml" && "$check_mode" -eq 0 && "$syntax_check" -eq 0 && "$list_hosts" -eq 0 ]]; then
+  if [[ -z "$limit_pattern" || "$limit_pattern" == *nas* || "$limit_pattern" == *k3s_servers* || "$limit_pattern" == *all* ]]; then
+    nas_is_selected=1
+  fi
+fi
+
+if [[ "$nas_is_selected" -eq 1 ]]; then
+  if [[ -z "${NAS_ANSIBLE_PASSWORD:-}" ]]; then
+    prompt_secret NAS_ANSIBLE_PASSWORD 'NAS SSH/sudo password: '
+  fi
 fi
 
 playbook_args=(

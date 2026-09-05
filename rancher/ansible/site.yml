@@ -32,6 +32,7 @@
     - name: Load dm_crypt immediately
       ansible.builtin.command: modprobe dm_crypt
       changed_when: false
+      when: longhorn_dm_crypt_enabled | bool
 
     - name: Persist dm_crypt
       ansible.builtin.copy:
@@ -40,6 +41,7 @@
         owner: root
         group: root
         mode: '0644'
+      when: longhorn_dm_crypt_enabled | bool
 
 - name: Prepare dedicated Longhorn disks
   hosts: longhorn_nodes
