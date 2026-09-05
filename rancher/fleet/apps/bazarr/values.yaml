@@ -1,6 +1,4 @@
 persistence:
-  config:
-    existingClaim: bazarr-config
   plex-nfs-persistence:
     enabled: true
     path: /mnt/PlexPool/plex
