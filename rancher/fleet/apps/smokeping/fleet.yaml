@@ -1,0 +1,10 @@
+name: smokeping
+defaultNamespace: apps-smokeping
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/smokeping
+  version: 14.9.1
+  releaseName: smokeping
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml

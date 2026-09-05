@@ -1,0 +1,23 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pgcluster
+#  namespace: apps-postgresql
+spec:
+  instances: 3
+
+  bootstrap:
+    initdb:
+      database: roundcube
+      owner: roundcube
+      postInitApplicationSQLRefs:
+        configMapRefs:
+        - name: post-init-sql-configmap
+          key: configmap.sql
+        secretRefs:
+        - name: post-init-sql-secret
+          key: secret.sql
+
+
+  storage:
+    size: 1Gi

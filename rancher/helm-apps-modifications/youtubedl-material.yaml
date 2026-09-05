@@ -31,3 +31,38 @@ resources:
     cpu: 60m
     memory: 4Gi
 
+workload:
+  main:
+    podSpec:
+      containers:
+        main:
+          fixedEnv:
+            PUID: "568"
+          probes:
+            startup:
+              enabled: true
+              spec:
+                initialDelaySeconds: 30
+                periodSeconds: 10
+                timeoutSeconds: 5
+                failureThreshold: 180
+                successThreshold: 1
+            liveness:
+              enabled: true
+              spec:
+                initialDelaySeconds: 60
+                periodSeconds: 30
+                timeoutSeconds: 5
+                failureThreshold: 5
+                successThreshold: 1
+
+security:
+  PUID: 568
+
+securityContext:
+  container:
+    fsGroup: 568
+    runAsUser: 0
+    runAsGroup: 0
+    runAsNonRoot: false
+    readOnlyRootFilesystem: false

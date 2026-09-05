@@ -1,0 +1,72 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    # Keep the existing K3s-specific Traefik settings.
+    dashboard:
+      enabled: true
+
+    ports:
+      traefik:
+        expose:
+          default: true
+
+    logs:
+      access:
+        enabled: true
+
+    # Run two Traefik controllers.
+    deployment:
+      replicas: 2
+      podAnnotations:
+        prometheus.io/port: "8082"
+        prometheus.io/scrape: "true"
+
+    # Prefer separate Kubernetes nodes for the two controllers.
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: traefik
+                  app.kubernetes.io/instance: traefik-kube-system
+
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: traefik
+            app.kubernetes.io/instance: traefik-kube-system
+
+    tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+
+    priorityClassName: system-cluster-critical
+
+    image:
+      repository: rancher/mirrored-library-traefik
+      tag: "3.7.8"
+
+    providers:
+      kubernetesIngress:
+        publishedService:
+          enabled: true
+
+    service:
+      annotations:
+        kube-vip.io/loadbalancerIPs: "10.0.0.55"
+      spec:
+        loadBalancerClass: kube-vip
+        ipFamilyPolicy: PreferDualStack

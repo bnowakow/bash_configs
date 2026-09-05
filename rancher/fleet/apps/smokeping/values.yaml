@@ -1,0 +1,39 @@
+persistence:
+  config:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/smokeping/config
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+    mountPath: /config
+  data:
+    enabled: true
+    path: /mnt/MargokPool/archive/Data/rancher/smokeping/data
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+    mountPath: /data
+  varrun:
+    enabled: false
+
+ingress:
+  main:
+    enabled: true
+    primary: true
+    ingressClassName: traefik
+    hosts:
+      - host: smokeping.rancher.tailscale.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+      - host: smokeping.rancher.localdomain.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt
+      traefik:
+        enabled: true
+        entrypoints:
+          - websecure
+        forceTLS: true
