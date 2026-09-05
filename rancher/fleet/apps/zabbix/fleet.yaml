@@ -1,0 +1,11 @@
+name: zabbix
+defaultNamespace: apps-zabbix
+
+helm:
+  chart: zabbix
+  repo: https://zabbix-community.github.io/helm-zabbix
+  version: 7.1.0
+  releaseName: zabbix
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml

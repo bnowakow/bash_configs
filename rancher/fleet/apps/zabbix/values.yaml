@@ -1,0 +1,37 @@
+# The database PVC is restored from CloudCasa before Zabbix is started.
+# Keep this as an existing claim so Helm/Fleet does not create or delete it.
+postgresql:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "16"
+  persistence:
+    enabled: true
+    existingClaimName: postgresql-data-zabbix-postgresql-0
+    storageSize: 5Gi
+  extraRuntimeParameters:
+    max_connections: 50
+
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  hosts:
+    - host: zabbix.rancher.tailscale.bnowakowski.pl
+      paths:
+        - path: /
+          pathType: Prefix
+    - host: zabbix.rancher.localdomain.bnowakowski.pl
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: zabbix-tls-tailscale
+      hosts:
+        - zabbix.rancher.tailscale.bnowakowski.pl
+    - secretName: zabbix-tls-localdomain
+      hosts:
+        - zabbix.rancher.localdomain.bnowakowski.pl
