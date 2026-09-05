@@ -246,6 +246,21 @@
         -f https://github.com/jetstack/cert-manager/releases/download/v1.19.4/cert-manager.crds.yaml
       changed_when: false
 
+    - name: Add Helm ownership metadata to cert-manager CRDs
+      ansible.builtin.command: >-
+        kubectl label crd certificaterequests.cert-manager.io certificates.cert-manager.io
+        challenges.acme.cert-manager.io clusterissuers.cert-manager.io issuers.cert-manager.io
+        orders.acme.cert-manager.io app.kubernetes.io/managed-by=Helm --overwrite
+      changed_when: false
+
+    - name: Add cert-manager release metadata to cert-manager CRDs
+      ansible.builtin.command: >-
+        kubectl annotate crd certificaterequests.cert-manager.io certificates.cert-manager.io
+        challenges.acme.cert-manager.io clusterissuers.cert-manager.io issuers.cert-manager.io
+        orders.acme.cert-manager.io meta.helm.sh/release-name=cert-manager
+        meta.helm.sh/release-namespace=cert-manager --overwrite
+      changed_when: false
+
     - name: Install Rancher and its bundled Fleet controllers
       block:
         - name: Create temporary Rancher values file
@@ -275,6 +290,7 @@
               - --create-namespace
               - --version
               - "{{ rancher_chart_version }}"
+              - --reuse-values
               - --values
               - /tmp/rancher-bootstrap-values.yaml
               - --wait
@@ -292,6 +308,44 @@
     - name: Wait for Rancher
       ansible.builtin.command: kubectl -n cattle-system rollout status deployment/rancher --timeout=15m
       changed_when: false
+
+    - name: Upgrade Fleet CRDs
+      ansible.builtin.command:
+        argv:
+          - helm
+          - upgrade
+          - fleet-crd
+          - "https://github.com/rancher/fleet/releases/download/v{{ fleet_version }}/fleet-crd-{{ fleet_version }}.tgz"
+          - --namespace
+          - cattle-fleet-system
+          - --reuse-values
+          - --wait
+          - --timeout
+          - 10m
+      register: fleet_crd_upgrade
+      changed_when: fleet_crd_upgrade.rc == 0
+
+    - name: Upgrade Fleet controllers
+      ansible.builtin.command:
+        argv:
+          - helm
+          - upgrade
+          - fleet
+          - "https://github.com/rancher/fleet/releases/download/v{{ fleet_version }}/fleet-{{ fleet_version }}.tgz"
+          - --namespace
+          - cattle-fleet-system
+          - --reuse-values
+          - --set
+          - image.tag=v{{ fleet_version }}
+          - --set
+          - agentImage.tag=v{{ fleet_version }}
+          - --set
+          - controller.registrationTokenTTL.required=false
+          - --wait
+          - --timeout
+          - 10m
+      register: fleet_upgrade
+      changed_when: fleet_upgrade.rc == 0
 
     - name: Apply kube-vip RBAC
       ansible.builtin.command: kubectl apply -f {{ kube_vip_rbac_url }}

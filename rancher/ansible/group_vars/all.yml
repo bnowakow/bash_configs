@@ -2,6 +2,7 @@
 # Pin these values and change them through reviewed commits.
 k3s_version: v1.35.7+k3s1
 helm_version: 3.18.6
+fleet_version: 0.16.0
 
 k3s_init_host: proxmox3
 k3s_tls_sans:
@@ -15,7 +16,7 @@ longhorn_filesystem: ext4
 longhorn_format_device: false
 
 rancher_hostname: proxmox3.tailscale.bnowakowski.pl
-rancher_chart_version: "2.14.1"
+rancher_chart_version: "2.14.2"
 rancher_ingress_tls_source: rancher
 rancher_bootstrap_password: "{{ lookup('env', 'RANCHER_BOOTSTRAP_PASSWORD') }}"
 

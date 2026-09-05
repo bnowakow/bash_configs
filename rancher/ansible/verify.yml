@@ -23,7 +23,10 @@
       changed_when: false
 
     - name: Wait for Longhorn pods to be Ready
-      ansible.builtin.command: kubectl wait --for=condition=Ready pod --all -n longhorn-system --timeout={{ health_timeout }}
+      ansible.builtin.command: >-
+        kubectl wait --for=condition=Ready pod
+        -l 'job-name notin (longhorn-uninstall)'
+        -n longhorn-system --timeout={{ health_timeout }}
       changed_when: false
 
     - name: Wait for every Longhorn node to be Ready
@@ -55,7 +58,7 @@
     - name: Wait for Fleet GitRepo to be Ready
       ansible.builtin.command: >-
         kubectl wait --for=condition=Ready gitrepo/rancher-cluster
-        -n fleet-local --timeout={{ health_timeout }}
+        -n fleet-local --timeout=10s
       register: fleet_gitrepo
       retries: 90
       delay: 10
