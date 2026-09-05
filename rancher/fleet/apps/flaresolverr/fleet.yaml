@@ -1,0 +1,10 @@
+name: flaresolverr
+defaultNamespace: apps-flaresolverr
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/flaresolverr
+  version: 17.10.0
+  releaseName: flaresolverr
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
