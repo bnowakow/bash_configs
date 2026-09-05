@@ -1,0 +1,4 @@
+name: cert-manager-resources
+
+dependsOn:
+  - name: cert-manager

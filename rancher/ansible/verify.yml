@@ -1,0 +1,75 @@
+---
+- name: Wait for the rebuilt cluster infrastructure to become healthy
+  hosts: "{{ k3s_init_host }}"
+  become: true
+  gather_facts: false
+  environment:
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+  vars:
+    health_timeout: 15m
+    resource_retries: 90
+    resource_delay: 10
+  tasks:
+    - name: Wait for every K3s node to be Ready
+      ansible.builtin.command: kubectl wait --for=condition=Ready nodes --all --timeout={{ health_timeout }}
+      changed_when: false
+
+    - name: Wait for Longhorn pods to be created
+      ansible.builtin.command: kubectl get pods -n longhorn-system -o name
+      register: longhorn_pods
+      retries: "{{ resource_retries }}"
+      delay: "{{ resource_delay }}"
+      until: longhorn_pods.rc == 0 and longhorn_pods.stdout | trim | length > 0
+      changed_when: false
+
+    - name: Wait for Longhorn pods to be Ready
+      ansible.builtin.command: kubectl wait --for=condition=Ready pod --all -n longhorn-system --timeout={{ health_timeout }}
+      changed_when: false
+
+    - name: Wait for every Longhorn node to be Ready
+      ansible.builtin.command: >-
+        kubectl wait --for=condition=Ready
+        nodes.longhorn.io --all -n longhorn-system --timeout={{ health_timeout }}
+      changed_when: false
+
+    - name: Wait for the Longhorn StorageClass
+      ansible.builtin.command: kubectl get storageclass longhorn
+      register: longhorn_storageclass
+      retries: 60
+      delay: 10
+      until: longhorn_storageclass.rc == 0
+      changed_when: false
+
+    - name: Wait for CloudCasa pods to be created
+      ansible.builtin.command: kubectl get pods -n cloudcasa-io -o name
+      register: cloudcasa_pods
+      retries: "{{ resource_retries }}"
+      delay: "{{ resource_delay }}"
+      until: cloudcasa_pods.rc == 0 and cloudcasa_pods.stdout | trim | length > 0
+      changed_when: false
+
+    - name: Wait for CloudCasa pods to be Ready
+      ansible.builtin.command: kubectl wait --for=condition=Ready pod --all -n cloudcasa-io --timeout={{ health_timeout }}
+      changed_when: false
+
+    - name: Wait for Fleet GitRepo to be Ready
+      ansible.builtin.command: >-
+        kubectl wait --for=condition=Ready gitrepo/rancher-cluster
+        -n fleet-local --timeout={{ health_timeout }}
+      register: fleet_gitrepo
+      retries: 90
+      delay: 10
+      until: fleet_gitrepo.rc == 0
+      changed_when: false
+
+    - name: Show Longhorn health summary
+      ansible.builtin.command: kubectl -n longhorn-system get pods,nodes.longhorn.io
+      changed_when: false
+
+    - name: Show CloudCasa health summary
+      ansible.builtin.command: kubectl -n cloudcasa-io get pods
+      changed_when: false
+
+    - name: Show Fleet bundle summary
+      ansible.builtin.command: kubectl -n fleet-local get gitrepo,bundle
+      changed_when: false

@@ -1,0 +1,39 @@
+---
+# Pin these values and change them through reviewed commits.
+k3s_version: v1.35.7+k3s1
+helm_version: 3.18.6
+
+k3s_init_host: proxmox3
+k3s_tls_sans:
+  - proxmox3.tailscale.bnowakowski.pl
+
+# Longhorn requires an ext4 or XFS filesystem on a dedicated device.
+# This example matches the documented ZFS zvol path. Formatting is disabled by default.
+longhorn_device: /dev/zvol/rpool/longhorn
+longhorn_mount_path: /var/lib/longhorn
+longhorn_filesystem: ext4
+longhorn_format_device: false
+
+rancher_hostname: proxmox3.tailscale.bnowakowski.pl
+rancher_chart_version: "2.14.1"
+rancher_ingress_tls_source: rancher
+rancher_bootstrap_password: "{{ lookup('env', 'RANCHER_BOOTSTRAP_PASSWORD') }}"
+
+# This is the current repository. HTTPS + GitHub PAT is created as a Fleet Secret
+# from environment variables by the bootstrap. SSH is also supported; set
+# fleet_git_auth_type to ssh and pre-create the Secret instead.
+fleet_git_repo_url: https://github.com/bnowakow/bash_configs.git
+fleet_git_branch: master
+fleet_git_path: rancher/fleet
+fleet_git_client_secret_name: gitcredential
+fleet_git_auth_type: basic-auth
+fleet_git_username: "{{ lookup('env', 'GITHUB_USERNAME') }}"
+fleet_git_token: "{{ lookup('env', 'GITHUB_TOKEN') }}"
+
+kube_vip_enabled: false
+kube_vip_rbac_url: https://kube-vip.io/manifests/rbac.yaml
+kube_vip_manifest: "{{ playbook_dir }}/../kube-vip/kube-vip-daemonset.yaml"
+
+# These values are read from the environment, never committed to Git.
+cloudflare_api_token: "{{ lookup('env', 'CLOUDFLARE_API_TOKEN') }}"
+cloudcasa_cluster_id: "{{ lookup('env', 'CLOUDCASA_CLUSTER_ID') }}"

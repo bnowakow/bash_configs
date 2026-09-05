@@ -1,0 +1,14 @@
+name: cert-manager
+namespace: cert-manager
+
+helm:
+  repo: oci://quay.io/jetstack/charts/cert-manager
+  version: v1.19.4
+  releaseName: cert-manager
+  waitForJobs: true
+  atomic: true
+  values:
+    crds:
+      enabled: true
+    startupapicheck:
+      timeout: 5m

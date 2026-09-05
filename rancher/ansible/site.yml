@@ -1,0 +1,401 @@
+---
+- name: Prepare K3s and Longhorn hosts
+  hosts: all
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Require Debian-family hosts
+      ansible.builtin.assert:
+        that: ansible_facts.os_family == 'Debian'
+        fail_msg: This playbook currently supports Debian-family hosts only.
+
+    - name: Install host prerequisites
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - nfs-common
+          - open-iscsi
+          - tar
+          - util-linux
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Enable iSCSI daemon
+      ansible.builtin.systemd:
+        name: iscsid
+        enabled: true
+        state: started
+
+    - name: Load dm_crypt immediately
+      ansible.builtin.command: modprobe dm_crypt
+      changed_when: false
+
+    - name: Persist dm_crypt
+      ansible.builtin.copy:
+        dest: /etc/modules-load.d/longhorn.conf
+        content: "dm_crypt\n"
+        owner: root
+        group: root
+        mode: '0644'
+
+- name: Prepare dedicated Longhorn disks
+  hosts: longhorn_nodes
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Check Longhorn device exists
+      ansible.builtin.stat:
+        path: "{{ longhorn_device }}"
+      register: longhorn_device_stat
+
+    - name: Stop before touching a missing device
+      ansible.builtin.assert:
+        that: longhorn_device_stat.stat.exists
+        fail_msg: "Longhorn device does not exist: {{ longhorn_device }}"
+
+    - name: Format Longhorn device when explicitly enabled
+      community.general.filesystem:
+        dev: "{{ longhorn_device }}"
+        fstype: "{{ longhorn_filesystem }}"
+      when: longhorn_format_device | bool
+
+    - name: Read Longhorn filesystem UUID
+      ansible.builtin.command: blkid -s UUID -o value {{ longhorn_device }}
+      register: longhorn_uuid
+      changed_when: false
+      failed_when: longhorn_uuid.rc != 0 or not longhorn_uuid.stdout | trim
+
+    - name: Mount Longhorn filesystem persistently
+      ansible.posix.mount:
+        path: "{{ longhorn_mount_path }}"
+        src: "UUID={{ longhorn_uuid.stdout | trim }}"
+        fstype: "{{ longhorn_filesystem }}"
+        opts: defaults
+        dump: '0'
+        passno: '2'
+        state: mounted
+
+- name: Install the K3s init server
+  hosts: k3s_servers
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Create K3s configuration directory
+      ansible.builtin.file:
+        path: /etc/rancher/k3s
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Configure K3s init server
+      ansible.builtin.copy:
+        dest: /etc/rancher/k3s/config.yaml
+        content: |
+          write-kubeconfig-mode: "0644"
+          tls-san:
+          {% for san in k3s_tls_sans %}
+            - "{{ san }}"
+          {% endfor %}
+          cluster-init: true
+          disable:
+            - servicelb
+        owner: root
+        group: root
+        mode: '0644'
+      when: inventory_hostname == k3s_init_host
+
+    - name: Install K3s init server
+      ansible.builtin.shell: curl -sfL https://get.k3s.io | sh -s - server
+      args:
+        creates: /usr/local/bin/k3s
+      environment:
+        INSTALL_K3S_VERSION: "{{ k3s_version }}"
+      when: inventory_hostname == k3s_init_host
+
+    - name: Restart K3s after configuration changes
+      ansible.builtin.systemd:
+        name: k3s
+        state: restarted
+        enabled: true
+      when: inventory_hostname == k3s_init_host
+
+    - name: Wait for the init server API
+      ansible.builtin.command: k3s kubectl get nodes
+      register: init_api
+      retries: 30
+      delay: 10
+      until: init_api.rc == 0
+      changed_when: false
+      when: inventory_hostname == k3s_init_host
+
+    - name: Read the K3s node token
+      ansible.builtin.slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      register: init_node_token
+      when: inventory_hostname == k3s_init_host
+
+    - name: Publish the K3s node token to joining-host tasks
+      ansible.builtin.set_fact:
+        k3s_node_token: "{{ init_node_token.content | b64decode | trim }}"
+      when: inventory_hostname == k3s_init_host
+
+- name: Join additional K3s servers
+  hosts: k3s_servers
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Check joining server can reach the init server API
+      ansible.builtin.command: >-
+        curl -kfsS --connect-timeout 5
+        https://{{ hostvars[k3s_init_host].ansible_host | default(k3s_init_host) }}:6443/cacerts
+      register: init_server_reachable
+      retries: 12
+      delay: 5
+      until: init_server_reachable.rc == 0
+      changed_when: false
+      when: inventory_hostname != k3s_init_host
+
+    - name: Configure joining server
+      ansible.builtin.copy:
+        dest: /etc/rancher/k3s/config.yaml
+        content: |
+          write-kubeconfig-mode: "0644"
+          tls-san:
+          {% for san in k3s_tls_sans %}
+            - "{{ san }}"
+          {% endfor %}
+          disable:
+            - servicelb
+        owner: root
+        group: root
+        mode: '0644'
+      when: inventory_hostname != k3s_init_host
+
+    - name: Join server to the K3s cluster
+      ansible.builtin.shell: >-
+        curl -sfL https://get.k3s.io | sh -s - server
+        --server https://{{ hostvars[k3s_init_host].ansible_host | default(k3s_init_host) }}:6443
+        --token '{{ hostvars[k3s_init_host].k3s_node_token }}'
+      args:
+        creates: /usr/local/bin/k3s
+      environment:
+        INSTALL_K3S_VERSION: "{{ k3s_version }}"
+      when: inventory_hostname != k3s_init_host
+
+- name: Join K3s agents
+  hosts: k3s_agents
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Join agent to the K3s cluster
+      ansible.builtin.shell: >-
+        curl -sfL https://get.k3s.io | sh -s - agent
+        --server https://{{ hostvars[k3s_init_host].ansible_host | default(k3s_init_host) }}:6443
+        --token '{{ hostvars[k3s_init_host].k3s_node_token }}'
+      args:
+        creates: /etc/systemd/system/k3s-agent.service
+      environment:
+        INSTALL_K3S_VERSION: "{{ k3s_version }}"
+
+- name: Bootstrap Rancher, Fleet, and infrastructure
+  hosts: "{{ k3s_init_host }}"
+  become: true
+  gather_facts: false
+  environment:
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+  tasks:
+    - name: Install Helm
+      block:
+        - name: Download Helm archive
+          ansible.builtin.get_url:
+            url: "https://get.helm.sh/helm-v{{ helm_version | regex_replace('^v', '') }}-linux-amd64.tar.gz"
+            dest: /tmp/helm-linux-amd64.tar.gz
+            mode: '0644'
+        - name: Extract Helm archive
+          ansible.builtin.unarchive:
+            src: /tmp/helm-linux-amd64.tar.gz
+            dest: /tmp
+            remote_src: true
+        - name: Install Helm binary
+          ansible.builtin.copy:
+            src: /tmp/linux-amd64/helm
+            dest: /usr/local/bin/helm
+            remote_src: true
+            mode: '0755'
+
+    - name: Require Rancher bootstrap password
+      ansible.builtin.assert:
+        that: rancher_bootstrap_password | length >= 12
+        fail_msg: Set RANCHER_BOOTSTRAP_PASSWORD to a strong temporary Rancher bootstrap password.
+
+    - name: Add Rancher Helm repository
+      ansible.builtin.command: helm repo add rancher-stable https://releases.rancher.com/server-charts/stable --force-update
+      changed_when: false
+
+    - name: Update Helm repositories
+      ansible.builtin.command: helm repo update
+      changed_when: false
+
+    - name: Install cert-manager CRDs required to render Rancher
+      ansible.builtin.command: >-
+        kubectl apply --validate=false
+        -f https://github.com/jetstack/cert-manager/releases/download/v1.19.4/cert-manager.crds.yaml
+      changed_when: false
+
+    - name: Install Rancher and its bundled Fleet controllers
+      block:
+        - name: Create temporary Rancher values file
+          ansible.builtin.copy:
+            dest: /tmp/rancher-bootstrap-values.yaml
+            content: |
+              hostname: "{{ rancher_hostname }}"
+              bootstrapPassword: "{{ rancher_bootstrap_password }}"
+              ingress:
+                tls:
+                  source: "{{ rancher_ingress_tls_source }}"
+            owner: root
+            group: root
+            mode: '0600'
+          no_log: true
+
+        - name: Run Rancher Helm installation
+          ansible.builtin.command:
+            argv:
+              - helm
+              - upgrade
+              - --install
+              - rancher
+              - rancher-stable/rancher
+              - --namespace
+              - cattle-system
+              - --create-namespace
+              - --version
+              - "{{ rancher_chart_version }}"
+              - --values
+              - /tmp/rancher-bootstrap-values.yaml
+              - --wait
+              - --timeout
+              - 15m
+          register: rancher_helm_result
+          changed_when: true
+
+      always:
+        - name: Remove temporary Rancher values file
+          ansible.builtin.file:
+            path: /tmp/rancher-bootstrap-values.yaml
+            state: absent
+
+    - name: Wait for Rancher
+      ansible.builtin.command: kubectl -n cattle-system rollout status deployment/rancher --timeout=15m
+      changed_when: false
+
+    - name: Apply kube-vip RBAC
+      ansible.builtin.command: kubectl apply -f {{ kube_vip_rbac_url }}
+      when: kube_vip_enabled | bool
+
+    - name: Apply kube-vip DaemonSet
+      ansible.builtin.command: kubectl apply -f {{ kube_vip_manifest }}
+      when: kube_vip_enabled | bool
+
+    - name: Require Cloudflare API token
+      ansible.builtin.assert:
+        that: cloudflare_api_token | length > 0
+        fail_msg: Set CLOUDFLARE_API_TOKEN before running the bootstrap.
+
+    - name: Require CloudCasa cluster ID
+      ansible.builtin.assert:
+        that: cloudcasa_cluster_id | length > 0
+        fail_msg: Set CLOUDCASA_CLUSTER_ID from the CloudCasa portal before running the bootstrap.
+
+    - name: Create cert-manager namespace for its external secret
+      kubernetes.core.k8s:
+        state: present
+        api_version: v1
+        kind: Namespace
+        name: cert-manager
+
+    - name: Create Cloudflare API token Secret
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: cloudflare-api-token-secret
+            namespace: cert-manager
+          type: Opaque
+          stringData:
+            api-token: "{{ cloudflare_api_token }}"
+      no_log: true
+
+    - name: Create CloudCasa namespace for its values secret
+      ansible.builtin.command: kubectl create namespace cloudcasa-io
+      register: cloudcasa_namespace
+      changed_when: cloudcasa_namespace.rc == 0
+      failed_when: cloudcasa_namespace.rc != 0 and 'AlreadyExists' not in cloudcasa_namespace.stderr
+      when: cloudcasa_cluster_id | length > 0
+
+    - name: Create CloudCasa values secret for the Fleet bundle
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: cloudcasa-values
+            namespace: cloudcasa-io
+          type: Opaque
+          stringData:
+            values.yaml: |-
+              clusterID: "{{ cloudcasa_cluster_id }}"
+      no_log: true
+      when: cloudcasa_cluster_id | length > 0
+
+    - name: Require GitHub credentials for Fleet
+      ansible.builtin.assert:
+        that:
+          - fleet_git_username | length > 0
+          - fleet_git_token | length > 0
+        fail_msg: Set GITHUB_USERNAME and GITHUB_TOKEN, or switch fleet_git_auth_type to ssh and pre-create the Fleet Secret.
+      when: fleet_git_auth_type == 'basic-auth'
+
+    - name: Create Fleet GitHub credential Secret
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: "{{ fleet_git_client_secret_name }}"
+            namespace: fleet-local
+          type: kubernetes.io/basic-auth
+          stringData:
+            username: "{{ fleet_git_username }}"
+            password: "{{ fleet_git_token }}"
+      no_log: true
+      when: fleet_git_auth_type == 'basic-auth'
+
+    - name: Verify Fleet Git credential Secret exists
+      ansible.builtin.command: kubectl -n fleet-local get secret {{ fleet_git_client_secret_name }}
+      changed_when: false
+      when: fleet_git_auth_type == 'ssh'
+
+    - name: Register this repository with Fleet
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: fleet.cattle.io/v1alpha1
+          kind: GitRepo
+          metadata:
+            name: rancher-cluster
+            namespace: fleet-local
+          spec:
+            repo: "{{ fleet_git_repo_url }}"
+            branch: "{{ fleet_git_branch }}"
+            paths:
+              - "{{ fleet_git_path }}"
+            clientSecretName: "{{ fleet_git_client_secret_name }}"

@@ -1,0 +1,13 @@
+name: cloudcasa
+namespace: cloudcasa-io
+
+helm:
+  repo: https://catalogicsoftware.github.io/cloudcasa-helmchart
+  chart: cloudcasa
+  version: 3.4.7
+  releaseName: cloudcasa
+  valuesFrom:
+    - secretKeyRef:
+        name: cloudcasa-values
+        namespace: cloudcasa-io
+        key: values.yaml
