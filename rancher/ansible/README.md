@@ -22,6 +22,9 @@ registered Kube System UID for this cluster in CloudCasa under **Clusters > Over
 Do not delete or recreate the `kube-system` namespace. If CloudCasa does not expose the
 field, ask CloudCasa support to update the registered UID instead.
 
+After you confirm the update by typing `yes`, the playbook restarts the
+`cloudcasa-kubeagent-manager` Deployment and waits for its rollout to complete.
+
 ## Prepare
 
 ```bash

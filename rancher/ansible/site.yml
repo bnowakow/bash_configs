@@ -402,6 +402,28 @@
           Bootstrap stopped. Update the Kube System UID in CloudCasa first,
           then rerun the playbook and confirm with 'yes'.
 
+    - name: Restart CloudCasa agent after UID update
+      ansible.builtin.command:
+        argv:
+          - kubectl
+          - -n
+          - cloudcasa-io
+          - rollout
+          - restart
+          - deployment/cloudcasa-kubeagent-manager
+      changed_when: true
+
+    - name: Wait for CloudCasa agent rollout
+      ansible.builtin.command:
+        argv:
+          - kubectl
+          - -n
+          - cloudcasa-io
+          - rollout
+          - status
+          - deployment/cloudcasa-kubeagent-manager
+      changed_when: false
+
     - name: Create cert-manager namespace for its external secret
       kubernetes.core.k8s:
         state: present

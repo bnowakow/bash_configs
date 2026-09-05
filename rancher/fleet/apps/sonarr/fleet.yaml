@@ -1,0 +1,10 @@
+name: sonarr
+defaultNamespace: apps-sonarr
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/sonarr
+  version: 26.9.1
+  releaseName: sonarr
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml

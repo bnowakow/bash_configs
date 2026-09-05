@@ -12,6 +12,8 @@ Each child directory containing a `fleet.yaml` is a separate Fleet bundle:
 - `infrastructure/traefik` manages the K3s Traefik `HelmChartConfig`.
 - `infrastructure/cert-manager-resources` contains cert-manager resources that should be
   added after cert-manager is healthy.
+- `apps/sonarr` installs Sonarr from the TrueCharts OCI registry with the repository's
+  customized values.
 
 The chart versions are deliberately pinned. Upgrade them through a reviewed Git change.
 
