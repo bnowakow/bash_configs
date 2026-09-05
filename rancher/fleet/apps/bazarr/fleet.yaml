@@ -1,0 +1,10 @@
+name: bazarr
+defaultNamespace: apps-bazarr
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/bazarr
+  version: 24.10.0
+  releaseName: bazarr
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
