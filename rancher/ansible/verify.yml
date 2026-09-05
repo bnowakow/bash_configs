@@ -9,6 +9,7 @@
     health_timeout: 15m
     resource_retries: 90
     resource_delay: 10
+    rollout_retries: 45
   tasks:
     - name: Wait for every K3s node to be Ready
       ansible.builtin.command: kubectl wait --for=condition=Ready nodes --all --timeout={{ health_timeout }}
@@ -22,11 +23,32 @@
       until: longhorn_pods.rc == 0 and longhorn_pods.stdout | trim | length > 0
       changed_when: false
 
-    - name: Wait for Longhorn pods to be Ready
-      ansible.builtin.command: >-
-        kubectl wait --for=condition=Ready pod
-        -l 'job-name notin (longhorn-uninstall)'
-        -n longhorn-system --timeout={{ health_timeout }}
+    - name: Wait for Longhorn Deployments to finish rolling out
+      ansible.builtin.shell: |
+        set -o pipefail
+        for resource in $(kubectl -n longhorn-system get deployments -o name); do
+          kubectl -n longhorn-system rollout status "$resource" --timeout=10s
+        done
+      args:
+        executable: /bin/bash
+      register: longhorn_deployments
+      retries: "{{ rollout_retries }}"
+      delay: "{{ resource_delay }}"
+      until: longhorn_deployments.rc == 0
+      changed_when: false
+
+    - name: Wait for Longhorn DaemonSets to finish rolling out
+      ansible.builtin.shell: |
+        set -o pipefail
+        for resource in $(kubectl -n longhorn-system get daemonsets -o name); do
+          kubectl -n longhorn-system rollout status "$resource" --timeout=10s
+        done
+      args:
+        executable: /bin/bash
+      register: longhorn_daemonsets
+      retries: "{{ rollout_retries }}"
+      delay: "{{ resource_delay }}"
+      until: longhorn_daemonsets.rc == 0
       changed_when: false
 
     - name: Wait for every Longhorn node to be Ready

@@ -16,6 +16,12 @@ values are read from the environment and are not stored in Git. The CloudCasa ag
 chart itself is still a normal HTTP Helm repo;
 its current vendor repository does not provide an OCI URL.
 
+During a normal bootstrap, the playbook reads the current Kubernetes `kube-system`
+namespace UID, prints it, and pauses for confirmation. Before typing `yes`, update the
+registered Kube System UID for this cluster in CloudCasa under **Clusters > Overview**.
+Do not delete or recreate the `kube-system` namespace. If CloudCasa does not expose the
+field, ask CloudCasa support to update the registered UID instead.
+
 ## Prepare
 
 ```bash

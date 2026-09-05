@@ -365,6 +365,43 @@
         that: cloudcasa_cluster_id | length > 0
         fail_msg: Set CLOUDCASA_CLUSTER_ID from the CloudCasa portal before running the bootstrap.
 
+    - name: Read the current kube-system UID for CloudCasa registration
+      ansible.builtin.command:
+        argv:
+          - kubectl
+          - get
+          - namespace
+          - kube-system
+          - -o
+          - jsonpath={.metadata.uid}
+      register: cloudcasa_kube_system_uid
+      changed_when: false
+      failed_when: >-
+        cloudcasa_kube_system_uid.rc != 0 or
+        cloudcasa_kube_system_uid.stdout | trim | length == 0
+
+    - name: Show CloudCasa Kube System UID update instructions
+      ansible.builtin.debug:
+        msg:
+          - "Current kube-system UID: {{ cloudcasa_kube_system_uid.stdout | trim }}"
+          - "In CloudCasa, open Clusters > Overview, edit the cluster identified by CLOUDCASA_CLUSTER_ID={{ cloudcasa_cluster_id }}, and update its registered Kube System UID to {{ cloudcasa_kube_system_uid.stdout | trim }}."
+          - "Save the change and reinstall/reapply the CloudCasa agent manifest if CloudCasa prompts you. Do not delete or recreate the kube-system namespace."
+
+    - name: Confirm CloudCasa Kube System UID was updated
+      ansible.builtin.pause:
+        prompt: >-
+          Update the Kube System UID in CloudCasa to
+          {{ cloudcasa_kube_system_uid.stdout | trim }}, save it, and type
+          'yes' to continue
+      register: cloudcasa_uid_confirmation
+
+    - name: Require confirmation that CloudCasa Kube System UID was updated
+      ansible.builtin.assert:
+        that: cloudcasa_uid_confirmation.user_input | trim | lower == 'yes'
+        fail_msg: >-
+          Bootstrap stopped. Update the Kube System UID in CloudCasa first,
+          then rerun the playbook and confirm with 'yes'.
+
     - name: Create cert-manager namespace for its external secret
       kubernetes.core.k8s:
         state: present
