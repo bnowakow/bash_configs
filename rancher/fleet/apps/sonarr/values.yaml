@@ -1,4 +1,6 @@
 persistence:
+  config:
+    existingClaim: sonarr-config
   plex-nfs-persistence:
     enabled: true
     path: /mnt/PlexPool/plex
