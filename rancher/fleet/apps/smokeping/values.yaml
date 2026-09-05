@@ -1,3 +1,9 @@
+persistence:
+  config:
+    existingClaim: smokeping-config
+  data:
+    existingClaim: smokeping-data
+
 ingress:
   main:
     enabled: true
