@@ -39,3 +39,4 @@ kube_vip_manifest: "{{ playbook_dir }}/../kube-vip/kube-vip-daemonset.yaml"
 # These values are read from the environment, never committed to Git.
 cloudflare_api_token: "{{ lookup('env', 'CLOUDFLARE_API_TOKEN') }}"
 cloudcasa_cluster_id: "{{ lookup('env', 'CLOUDCASA_CLUSTER_ID') }}"
+duckdns_token: "{{ lookup('env', 'DUCKDNS_TOKEN') }}"

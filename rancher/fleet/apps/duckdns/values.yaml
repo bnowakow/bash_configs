@@ -5,8 +5,7 @@ workload:
         main:
           env:
             LOG_FILE: false
-            SUBDOMAINS: 'rancher-sup.duckdns.org'
-            TOKEN: '4dc224c6-79ee-4795-8bc6-2fbfe296c9d4'
+            SUBDOMAINS: rancher-sup.duckdns.org
           probes:
             liveness:
               enabled: false

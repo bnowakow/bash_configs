@@ -470,6 +470,39 @@
       no_log: true
       when: cloudcasa_cluster_id | length > 0
 
+    - name: Require DuckDNS token for the Fleet bundle
+      ansible.builtin.assert:
+        that: duckdns_token | length > 0
+        fail_msg: Set DUCKDNS_TOKEN in ansible/.env before bootstrapping DuckDNS.
+
+    - name: Create DuckDNS namespace for its values secret
+      kubernetes.core.k8s:
+        state: present
+        api_version: v1
+        kind: Namespace
+        name: apps-duckdns
+
+    - name: Create DuckDNS values secret for the Fleet bundle
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: duckdns-values
+            namespace: apps-duckdns
+          type: Opaque
+          stringData:
+            values.yaml: |-
+              workload:
+                main:
+                  podSpec:
+                    containers:
+                      main:
+                        env:
+                          TOKEN: "{{ duckdns_token }}"
+      no_log: true
+
     - name: Require GitHub credentials for Fleet
       ansible.builtin.assert:
         that:

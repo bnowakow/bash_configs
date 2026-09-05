@@ -1,0 +1,14 @@
+name: duckdns
+defaultNamespace: apps-duckdns
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/duckdns
+  version: 13.9.1
+  releaseName: duckdns
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
+  valuesFrom:
+    - secretKeyRef:
+        name: duckdns-values
+        key: values.yaml
