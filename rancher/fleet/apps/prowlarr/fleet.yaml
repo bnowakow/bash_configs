@@ -1,0 +1,10 @@
+name: prowlarr
+defaultNamespace: apps-prowlarr
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/prowlarr
+  version: 22.12.1
+  releaseName: prowlarr
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
