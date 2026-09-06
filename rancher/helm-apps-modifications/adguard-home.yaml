@@ -12,11 +12,15 @@
 persistence:
   config:
     enabled: true
-    mountPath: /opt/adguardhome/conf
-    existingClaim: adguard-home-config-longhorn
     type: pvc
+    storageClass: local-path
+    size: 100Mi
+    existingClaim: adguard-home-config
+    mountPath: /opt/adguardhome/conf
   data:
     enabled: true
-    mountPath: /opt/adguardhome/work
-    existingClaim: adguard-home-data-longhorn
     type: pvc
+    storageClass: local-path
+    size: 10Gi
+    existingClaim: adguard-home-data
+    mountPath: /opt/adguardhome/work
