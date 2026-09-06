@@ -4,7 +4,7 @@ defaultNamespace: apps-cleanuparr
 helm:
   chart: cleanuparr
   repo: https://media-servarr.shw.al/charts
-  version: 0.18.0
+  version: 0.17.1
   releaseName: cleanuparr
   waitForJobs: true
   valuesFiles:
