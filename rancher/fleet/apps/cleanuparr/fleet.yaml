@@ -1,0 +1,11 @@
+name: cleanuparr
+defaultNamespace: apps-cleanuparr
+
+helm:
+  chart: cleanuparr
+  repo: https://media-servarr.shw.al/charts
+  version: 0.18.0
+  releaseName: cleanuparr
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml

@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cleanuparr-localdomain
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: cleanuparr-localdomain-tls
+      hosts:
+        - cleanuparr.rancher.localdomain.bnowakowski.pl
+  rules:
+    - host: cleanuparr.rancher.localdomain.bnowakowski.pl
+      http:
+        paths:
+          - path: /cleanuparr
+            pathType: Prefix
+            backend:
+              service:
+                name: cleanuparr
+                port:
+                  number: 11011

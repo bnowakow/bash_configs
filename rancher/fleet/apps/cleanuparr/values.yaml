@@ -1,0 +1,37 @@
+application:
+  port: 11011
+  urlBase: cleanuparr
+
+deployment:
+  container:
+    env:
+      - name: PGID
+        value: "1000"
+      - name: PUID
+        value: "1000"
+    volumeMounts:
+      - name: config
+        mountPath: /config
+  volumes:
+    config:
+      persistentVolumeClaim:
+        claimName: cleanuparr-config
+
+persistentVolumeClaims:
+  cleanuparr-config:
+    accessMode: ReadWriteOnce
+    requestStorage: 1Gi
+    selector: {}
+
+ingress:
+  enabled: true
+  className: traefik
+  host: cleanuparr.rancher.tailscale.bnowakowski.pl
+  path: /cleanuparr
+  pathType: Prefix
+  tls:
+    - secretName: cleanuparr-tailscale-tls
+      hosts:
+        - cleanuparr.rancher.tailscale.bnowakowski.pl
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
