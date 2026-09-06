@@ -14,6 +14,10 @@ service:
   main:
     enabled: false
 
+workload:
+  main:
+    replicas: 1
+
 securityContext:
   container:
     readOnlyRootFilesystem: false
