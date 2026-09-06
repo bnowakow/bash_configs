@@ -1,0 +1,11 @@
+name: profilarr
+defaultNamespace: apps-profilarr
+
+helm:
+  chart: profilarr
+  repo: https://media-servarr.shw.al/charts
+  version: 2.2.0
+  releaseName: profilarr
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml

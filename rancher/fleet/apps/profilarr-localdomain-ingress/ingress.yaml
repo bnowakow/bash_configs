@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: profilarr-localdomain
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: profilarr-localdomain-tls
+      hosts:
+        - profilarr.rancher.localdomain.bnowakowski.pl
+  rules:
+    - host: profilarr.rancher.localdomain.bnowakowski.pl
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: profilarr
+                port:
+                  number: 6868
