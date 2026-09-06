@@ -12,6 +12,7 @@ persistence:
 ingress:
   webserver:
     enabled: true
+    primary: true
     ingressClassName: traefik
     targetSelector:
       webserver: webserver
