@@ -4,10 +4,10 @@ defaultBackupStore:
 defaultSettings:
   createDefaultDiskLabeledNodes: true
   defaultDataPath: /var/lib/longhorn
-  defaultReplicaCount: 2
+  defaultReplicaCount: 1
   storageReservedPercentageForDefaultDisk: 10
 
 persistence:
   defaultClass: false
-  defaultClassReplicaCount: 2
+  defaultClassReplicaCount: 1
   reclaimPolicy: Retain
