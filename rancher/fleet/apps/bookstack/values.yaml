@@ -1,10 +1,11 @@
-# Keep the restored BookStack configuration PVC.
+# Create the configuration PVC so CloudCasa can restore into it before startup.
 persistence:
   config:
-    existingClaim: bookstack-config
+    enabled: true
 
 workload:
   main:
+    replicas: 0
     podSpec:
       containers:
         main:
