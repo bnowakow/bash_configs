@@ -1,0 +1,22 @@
+image:
+  repository: ghcr.io/linuxserver/ddclient
+  tag: 4.0.0@sha256:392b61f59008dead275763d2bf83519600496870c7e54614e245f87351eb97ac
+
+persistence:
+  config:
+    enabled: true
+    type: pvc
+    storageClass: local-path
+    size: 100Gi
+    mountPath: /config
+
+service:
+  main:
+    enabled: false
+
+securityContext:
+  container:
+    readOnlyRootFilesystem: false
+    runAsGroup: 0
+    runAsNonRoot: false
+    runAsUser: 0

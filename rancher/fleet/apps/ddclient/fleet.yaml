@@ -1,0 +1,10 @@
+name: ddclient
+defaultNamespace: apps-ddclient
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/ddclient
+  version: 14.4.0
+  releaseName: ddclient
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
