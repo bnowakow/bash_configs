@@ -103,8 +103,6 @@
             - "{{ san }}"
           {% endfor %}
           cluster-init: true
-          disable:
-            - servicelb
         owner: root
         group: root
         mode: '0644'
@@ -170,8 +168,6 @@
           {% for san in k3s_tls_sans %}
             - "{{ san }}"
           {% endfor %}
-          disable:
-            - servicelb
         owner: root
         group: root
         mode: '0644'

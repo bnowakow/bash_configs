@@ -1,9 +1,6 @@
   dns-udp:
     enabled: true
     type: LoadBalancer
-    loadBalancerClass: kube-vip
-    annotations:
-      kube-vip.io/loadbalancerIPs: 10.0.0.53
     ports:
       dns-udp:
         enabled: true

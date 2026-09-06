@@ -9,9 +9,11 @@ spec:
       enabled: true
     ports:
       web:
-        hostPort: 80
+        expose:
+          default: true
       websecure:
-        hostPort: 443
+        expose:
+          default: true
       traefik:
         expose:
           default: true
