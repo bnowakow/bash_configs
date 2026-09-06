@@ -6,3 +6,5 @@ helm:
   version: 14.10.0
   releaseName: scrutiny
   waitForJobs: true
+  valuesFiles:
+    - values.yaml
