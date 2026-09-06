@@ -1,8 +1,9 @@
 # Keep the mailserver stopped while CloudCasa restores all four mail PVCs.
 deployment:
-  replicas: 0
+  replicas: 1
   env:
     OVERRIDE_HOSTNAME: mailserver.rancher.tailscale.bnowakowski.pl
+    SSL_TYPE: self-signed
 
 # Reuse the PVC names from the former Helm deployment.
 persistent_volume_claims:
