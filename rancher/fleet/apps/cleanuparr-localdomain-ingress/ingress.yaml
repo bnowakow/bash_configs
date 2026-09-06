@@ -14,7 +14,7 @@ spec:
     - host: cleanuparr.rancher.localdomain.bnowakowski.pl
       http:
         paths:
-          - path: /cleanuparr
+          - path: /
             pathType: Prefix
             backend:
               service:

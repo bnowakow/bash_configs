@@ -1,6 +1,6 @@
 application:
   port: 11011
-  urlBase: cleanuparr
+  urlBase: ''
 
 deployment:
   container:
@@ -27,7 +27,7 @@ ingress:
   enabled: true
   className: traefik
   host: cleanuparr.rancher.tailscale.bnowakowski.pl
-  path: /cleanuparr
+  path: /
   pathType: Prefix
   tls:
     - secretName: cleanuparr-tailscale-tls
