@@ -1,0 +1,10 @@
+name: filebot
+defaultNamespace: apps-filebot
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/filebot
+  version: 15.11.0
+  releaseName: filebot
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
