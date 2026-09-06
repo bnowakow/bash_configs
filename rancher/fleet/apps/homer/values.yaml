@@ -16,7 +16,7 @@ ingress:
         paths:
           - path: /
             pathType: Prefix
-      - host: homer.localdomain.bnowakowski.pl
+      - host: homer.rancher.localdomain.bnowakowski.pl
         paths:
           - path: /
             pathType: Prefix
