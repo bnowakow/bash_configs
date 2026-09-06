@@ -5,6 +5,10 @@ deployment:
     OVERRIDE_HOSTNAME: mailserver.rancher.tailscale.bnowakowski.pl
     SSL_TYPE: self-signed
 
+service:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+
 # Reuse the PVC names from the former Helm deployment.
 persistent_volume_claims:
   mail-config:
