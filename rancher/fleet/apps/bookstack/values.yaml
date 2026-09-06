@@ -1,0 +1,32 @@
+# Keep the restored BookStack configuration PVC.
+persistence:
+  config:
+    existingClaim: bookstack-config
+
+workload:
+  main:
+    podSpec:
+      containers:
+        main:
+          env:
+            APP_URL: https://bookstack.rancher.tailscale.bnowakowski.pl/
+
+ingress:
+  main:
+    enabled: true
+    primary: true
+    ingressClassName: traefik
+    hosts:
+      - host: bookstack.rancher.tailscale.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt
+      traefik:
+        enabled: true
+        entrypoints:
+          - websecure
+        forceTLS: true

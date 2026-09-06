@@ -1,0 +1,10 @@
+name: bookstack
+defaultNamespace: apps-bookstack
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/bookstack
+  version: 21.19.0
+  releaseName: bookstack
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
