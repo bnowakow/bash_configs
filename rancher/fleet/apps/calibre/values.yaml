@@ -10,12 +10,10 @@ persistence:
           mountPath: /mnt/PlexPool/plex
 
 ingress:
-  webserver:
+  main:
     enabled: true
     primary: true
     ingressClassName: traefik
-    targetSelector:
-      webserver: webserver
     hosts:
       - host: calibre.rancher.tailscale.bnowakowski.pl
         paths:
