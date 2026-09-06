@@ -7,7 +7,7 @@ persistence:
 mariadb:
   workload:
     main:
-      replicas: 0
+      replicas: 1
   persistence:
     data:
       enabled: true
@@ -16,7 +16,7 @@ mariadb:
 
 workload:
   main:
-    replicas: 0
+    replicas: 1
     podSpec:
       containers:
         main:
