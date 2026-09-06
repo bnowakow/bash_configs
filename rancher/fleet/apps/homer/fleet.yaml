@@ -1,0 +1,10 @@
+name: homer
+defaultNamespace: apps-homer
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/homer
+  version: 15.10.1
+  releaseName: homer
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml

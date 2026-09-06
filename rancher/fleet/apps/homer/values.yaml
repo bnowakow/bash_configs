@@ -1,0 +1,7 @@
+persistence:
+  config:
+    enabled: true
+    type: pvc
+    storageClass: local-path
+    size: 1Gi
+    mountPath: /www/assets
