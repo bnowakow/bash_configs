@@ -1,0 +1,35 @@
+persistence:
+  plex-nfs-persistence:
+    enabled: true
+    path: /mnt/PlexPool/plex
+    server: nas.localdomain.bnowakowski.pl
+    type: nfs
+    targetSelector:
+      main:
+        main:
+          mountPath: /mnt/PlexPool/plex
+
+ingress:
+  webserver:
+    enabled: true
+    ingressClassName: traefik
+    targetSelector:
+      webserver: webserver
+    hosts:
+      - host: calibre.rancher.tailscale.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+      - host: calibre.rancher.localdomain.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt
+      traefik:
+        enabled: true
+        entrypoints:
+          - websecure
+        forceTLS: true

@@ -1,0 +1,10 @@
+name: calibre
+defaultNamespace: apps-calibre
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/calibre
+  version: 20.18.1
+  releaseName: calibre
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
