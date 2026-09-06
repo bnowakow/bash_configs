@@ -3,6 +3,14 @@ persistence:
   config:
     enabled: true
 
+# Keep the MariaDB data mount tied to the PVC restored by CloudCasa.
+mariadb:
+  persistence:
+    data:
+      enabled: true
+      type: pvc
+      existingClaim: bookstack-mariadb-data
+
 workload:
   main:
     replicas: 0
