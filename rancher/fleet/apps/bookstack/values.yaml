@@ -5,6 +5,9 @@ persistence:
 
 # Keep the MariaDB data mount tied to the PVC restored by CloudCasa.
 mariadb:
+  workload:
+    main:
+      replicas: 0
   persistence:
     data:
       enabled: true
