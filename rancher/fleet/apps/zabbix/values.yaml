@@ -15,6 +15,16 @@ postgresql:
   extraRuntimeParameters:
     max_connections: 50
 
+# Keep the restored Zabbix stack running after Fleet reconciliation.
+zabbixServer:
+  replicaCount: 1
+
+zabbixWeb:
+  replicaCount: 1
+
+zabbixWebService:
+  replicaCount: 1
+
 ingress:
   enabled: true
   ingressClassName: traefik
