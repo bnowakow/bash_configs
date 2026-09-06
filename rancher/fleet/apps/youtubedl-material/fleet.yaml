@@ -1,0 +1,10 @@
+name: youtubedl-material
+defaultNamespace: apps-youtubedl-material
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/youtubedl-material
+  version: 15.18.1
+  releaseName: youtubedl-material
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
