@@ -1,0 +1,10 @@
+name: adguard-home
+defaultNamespace: apps-adguard-home
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/adguard-home
+  version: 13.7.0
+  releaseName: adguard-home
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
