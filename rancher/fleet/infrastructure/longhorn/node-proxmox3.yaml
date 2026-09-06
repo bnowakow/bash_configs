@@ -1,0 +1,14 @@
+apiVersion: longhorn.io/v1beta2
+kind: Node
+metadata:
+  name: proxmox3
+  namespace: longhorn-system
+spec:
+  allowScheduling: true
+  disks:
+    default-disk:
+      allowScheduling: true
+      diskType: filesystem
+      path: /var/lib/longhorn
+      storageReserved: 0
+      tags: []
