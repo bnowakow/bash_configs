@@ -1,0 +1,20 @@
+# Keep the mailserver stopped while CloudCasa restores all four mail PVCs.
+deployment:
+  replicas: 0
+  env:
+    OVERRIDE_HOSTNAME: mailserver.rancher.tailscale.bnowakowski.pl
+
+# Reuse the PVC names from the former Helm deployment.
+persistent_volume_claims:
+  mail-config:
+    enabled: true
+    existingClaim: docker-mailserver-mail-config
+  mail-data:
+    enabled: true
+    existingClaim: docker-mailserver-mail-data
+  mail-state:
+    enabled: true
+    existingClaim: docker-mailserver-mail-state
+  mail-log:
+    enabled: true
+    existingClaim: docker-mailserver-mail-log

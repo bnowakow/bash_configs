@@ -1,0 +1,10 @@
+name: docker-mailserver
+defaultNamespace: apps-docker-mailserver
+
+helm:
+  chart: docker-mailserver/docker-mailserver
+  version: 5.1.1
+  releaseName: docker-mailserver
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
