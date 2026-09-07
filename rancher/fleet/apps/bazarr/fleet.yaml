@@ -5,6 +5,7 @@ helm:
   chart: oci://oci.trueforge.org/truecharts/bazarr
   version: 24.10.0
   releaseName: bazarr
+  takeOwnership: true
   waitForJobs: true
   valuesFiles:
     - values.yaml
