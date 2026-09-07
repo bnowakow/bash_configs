@@ -4,7 +4,7 @@ defaultNamespace: longhorn-system
 helm:
   repo: https://charts.longhorn.io
   chart: longhorn
-  version: 1.12.0
+  version: 1.12.1
   releaseName: longhorn
   waitForJobs: true
   atomic: false

@@ -26,7 +26,8 @@ deployment:
 persistentVolumeClaims:
   profilarr-config:
     accessMode: ReadWriteOnce
-    requestStorage: 5Gi
+    # The restored data volume is 100Gi; PVC capacity cannot be reduced.
+    requestStorage: 100Gi
     selector: {}
 
 ingress:
