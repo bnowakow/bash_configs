@@ -4,6 +4,7 @@ set -u
 
 kubeconfig_path="/etc/rancher/k3s/k3s.yaml"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+bash_configs_root="$(cd "$script_dir/.." && pwd)"
 source "$script_dir/helm-repositories.sh"
 log_dir="$script_dir/logs"
 if [ ! -d "$log_dir" ] && ! mkdir -p "$log_dir" 2>/dev/null; then
@@ -24,6 +25,7 @@ excluded_count=0
 up_to_date_count=0
 skipped_count=0
 updated_count=0
+staged_fleet_count=0
 dry_run_approved_count=0
 failed_apps_count=0
 failure_events_count=0
@@ -49,6 +51,7 @@ exclude_patterns=(
   '^cattle-'
   '^kube-system$'
   '^cert-manager$'
+  '^cert-manager-resources$'
   '^cloudnative-pg$'
   '^longhorn-crd$'
   '^shinobi$'
@@ -63,7 +66,10 @@ exclude_patterns=(
   '^rancher-webhook$'
   '^system-upgrade-controller$'
   '^traefik$'
+  '^traefik-config$'
   '^traefik-crd$'
+  '^cleanuparr-localdomain-ingress$'
+  '^profilarr-localdomain-ingress$'
 )
 
 is_up_to_date_helper="$script_dir/zabbix/is-helm-image-up-to-date.sh"
@@ -132,7 +138,7 @@ Usage: $(basename "$0") [--yes] [--dry-run] [--rollout-timeout DURATION] [--help
 
 Options:
   --yes       Auto-approve upgrades and continue prompts.
-  --dry-run   Do not run helm upgrade; execute checks and prompts only.
+  --dry-run   Do not apply Fleet changes; execute checks and prompts only.
   --rollout-timeout DURATION
               Timeout for each rollout status check (default: 90s).
   --help      Show this help message.
@@ -371,10 +377,497 @@ require_cmd() {
   return 0
 }
 
+install_fleet_cli() {
+  local download_file
+  local fleet_url="https://github.com/rancher/fleet/releases/latest/download/fleet-linux-amd64"
+
+  if ! command -v curl >/dev/null 2>&1; then
+    echo "Cannot install Fleet CLI automatically because curl is missing." >&2
+    return 1
+  fi
+
+  if [ "$yes_mode" -eq 1 ]; then
+    log "AUTO: installing Fleet CLI from $fleet_url"
+  elif ! command -v dialog >/dev/null 2>&1; then
+    echo "Cannot ask whether to install Fleet CLI because dialog is missing." >&2
+    return 1
+  elif ! dialog \
+    --clear \
+    --title "Fleet CLI is missing" \
+    --defaultno \
+    --yesno "The Fleet CLI is required but is not installed.\n\nDownload and install it to /usr/local/bin/fleet now?" 12 80; then
+    return 1
+  fi
+
+  download_file="$(mktemp "${TMPDIR:-/tmp}/fleet.XXXXXX")"
+  log "Downloading Fleet CLI from $fleet_url"
+  if ! curl -fL --retry 3 --connect-timeout 10 "$fleet_url" -o "$download_file" >>"$log_file" 2>&1; then
+    rm -f "$download_file"
+    echo "Fleet CLI download failed." >&2
+    return 1
+  fi
+  chmod +x "$download_file"
+
+  log "Installing Fleet CLI to /usr/local/bin/fleet"
+  if ! sudo install -m 0755 "$download_file" /usr/local/bin/fleet >>"$log_file" 2>&1; then
+    rm -f "$download_file"
+    echo "Fleet CLI installation failed. You may need sudo access." >&2
+    return 1
+  fi
+  rm -f "$download_file"
+
+  if ! command -v fleet >/dev/null 2>&1; then
+    echo "Fleet CLI installation completed, but fleet is still not in PATH." >&2
+    return 1
+  fi
+
+  log "Fleet CLI installed: $(fleet --version 2>&1 | head -n 1)"
+  return 0
+}
+
+fleet_file_for_app() {
+  local app="$1"
+  local fleet_file
+  local fleet_name
+
+  while IFS= read -r fleet_file; do
+    fleet_name="$(awk -F': *' '$1 == "name" {print $2; exit}' "$fleet_file")"
+    if [ "$fleet_name" = "$app" ]; then
+      printf '%s\n' "$fleet_file"
+      return 0
+    fi
+  done < <(find "$script_dir/fleet" -type f -name fleet.yaml -print)
+
+  return 1
+}
+
+fleet_version_from_file() {
+  local fleet_file="$1"
+  awk -F': *' '$1 == "version" {print $2; exit}' "$fleet_file"
+}
+
+update_fleet_version() {
+  local fleet_file="$1"
+  local target_version="$2"
+  local temporary_file
+
+  temporary_file="$(mktemp "${TMPDIR:-/tmp}/fleet-version.XXXXXX")"
+  if ! awk -v target_version="$target_version" '
+    BEGIN { updated = 0 }
+    !updated && $0 ~ /^[[:space:]]*version:[[:space:]]*/ {
+      sub(/version:[[:space:]]*.*/, "version: " target_version)
+      updated = 1
+    }
+    { print }
+    END { if (!updated) exit 1 }
+  ' "$fleet_file" >"$temporary_file"; then
+    rm -f "$temporary_file"
+    return 1
+  fi
+
+  mv "$temporary_file" "$fleet_file"
+}
+
+fleet_bundle_name_for_app() {
+  local app="$1"
+  local candidate="$app"
+  local repo_name
+
+  if ! kubectl get bundle -n fleet-local --kubeconfig "$kubeconfig_path" "$candidate" >/dev/null 2>&1; then
+    return 1
+  fi
+
+  repo_name="$(kubectl get bundle -n fleet-local --kubeconfig "$kubeconfig_path" "$candidate" \
+    -o jsonpath='{.metadata.labels.fleet\.cattle\.io/repo-name}' 2>/dev/null || true)"
+  if [ "$repo_name" = "rancher-cluster" ]; then
+    printf '%s\n' "$candidate"
+    return 0
+  fi
+
+  return 1
+}
+
+prepare_helm_upgrade_pvcs() {
+  local app="$1"
+  local namespace="$2"
+  local target_version="$3"
+  local fleet_file="$4"
+  local chart_name
+  local chart_label_name
+  local release_name
+  local target_chart_label
+  local pvc_names
+  local pvc_name
+  local current_chart_label
+  local storage_request
+  local objectset_id
+
+  chart_name="$(awk -F': *' '$1 == "  chart" {print $2; exit}' "$fleet_file")"
+  release_name="$(awk -F': *' '$1 == "  releaseName" {print $2; exit}' "$fleet_file")"
+  release_name="${release_name:-$app}"
+  if [ -z "$chart_name" ]; then
+    return 0
+  fi
+
+  # OCI chart refs include a URL prefix.  Helm's chart label uses only the
+  # chart name, e.g. youtubedl-material-15.18.2, never oci-15.18.2.
+  chart_label_name="${chart_name##*/}"
+  target_chart_label="${chart_label_name}-${target_version}"
+  objectset_id="default-${release_name}-cattle-fleet-local-system"
+  pvc_names="$(kubectl get pvc --kubeconfig "$kubeconfig_path" --namespace "$namespace" \
+    -l "app.kubernetes.io/instance=$release_name" \
+    -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>>"$log_file" || true)"
+
+  while IFS= read -r pvc_name; do
+    [ -z "$pvc_name" ] && continue
+    current_chart_label="$(kubectl get pvc "$pvc_name" \
+      --kubeconfig "$kubeconfig_path" --namespace "$namespace" \
+      -o jsonpath='{.metadata.labels.helm\.sh/chart}' 2>>"$log_file" || true)"
+    if [ -n "$current_chart_label" ] && [ "$current_chart_label" != "$target_chart_label" ]; then
+      log "$app: aligning PVC $pvc_name Helm chart label with target $target_chart_label" \
+        "$(color_blue "$app"): aligning PVC metadata before Fleet upgrade"
+      if ! printf 'apiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: %s\n  namespace: %s\n  labels:\n    helm.sh/chart: %s\n' \
+        "$pvc_name" "$namespace" "$target_chart_label" | kubectl apply \
+        --kubeconfig "$kubeconfig_path" \
+        --server-side --force-conflicts --field-manager=helm \
+        --filename - >>"$log_file" 2>&1; then
+        record_failure_and_maybe_abort "Unable to prepare PVC ($app)" \
+          "Could not transfer the Helm chart label on PVC $namespace/$pvc_name to Fleet's Helm manager. The PVC was not deleted."
+        return 1
+      fi
+    fi
+
+    # Fleet's Helm driver uses server-side apply.  A PVC created by an older
+    # Helm release can still own the storage request field, which makes the
+    # next Fleet reconciliation fail with a conflict such as:
+    #   conflict with "helm" using v1: .spec.resources.requests.storage
+    # Transfer only that mutable field to the same `helm` field manager.  Do
+    # not apply the complete PVC object, since most PVC fields are immutable.
+    storage_request="$(kubectl get pvc "$pvc_name" \
+      --kubeconfig "$kubeconfig_path" --namespace "$namespace" \
+      -o jsonpath='{.spec.resources.requests.storage}' 2>>"$log_file" || true)"
+    if [ -n "$storage_request" ]; then
+      log "$app: aligning PVC $pvc_name storage ownership for Fleet Helm" \
+        "$(color_blue "$app"): aligning PVC storage ownership before Fleet upgrade"
+      if ! printf 'apiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: %s\n  namespace: %s\nspec:\n  resources:\n    requests:\n      storage: %s\n' \
+        "$pvc_name" "$namespace" "$storage_request" | kubectl apply \
+        --kubeconfig "$kubeconfig_path" \
+        --server-side --force-conflicts --field-manager=helm \
+        --filename - >>"$log_file" 2>&1; then
+        record_failure_and_maybe_abort "Unable to prepare PVC storage ownership ($app)" \
+          "Could not transfer PVC $namespace/$pvc_name storage ownership to Fleet's Helm manager."
+        return 1
+      fi
+    fi
+
+    # Restored PVCs can retain Helm metadata while losing Fleet's objectset
+    # ownership marker.  Fleet's Helm driver then refuses to manage the PVC
+    # with "is not owned by us".  Restore only ownership metadata; never
+    # delete or recreate the data-bearing PVC.
+    log "$app: aligning PVC $pvc_name Fleet ownership metadata" \
+      "$(color_blue "$app"): aligning PVC Fleet ownership metadata"
+    if ! kubectl annotate pvc "$pvc_name" \
+      --kubeconfig "$kubeconfig_path" --namespace "$namespace" \
+      "objectset.rio.cattle.io/id=$objectset_id" \
+      "meta.helm.sh/release-name=$release_name" \
+      "meta.helm.sh/release-namespace=$namespace" \
+      --overwrite >>"$log_file" 2>&1; then
+      record_failure_and_maybe_abort "Unable to prepare PVC ownership ($app)" \
+        "Could not restore Fleet ownership metadata on PVC $namespace/$pvc_name. The PVC was not deleted."
+      return 1
+    fi
+    if ! kubectl label pvc "$pvc_name" \
+      --kubeconfig "$kubeconfig_path" --namespace "$namespace" \
+      app.kubernetes.io/managed-by=Helm --overwrite >>"$log_file" 2>&1; then
+      record_failure_and_maybe_abort "Unable to prepare PVC labels ($app)" \
+        "Could not restore Helm ownership labels on PVC $namespace/$pvc_name. The PVC was not deleted."
+      return 1
+    fi
+  done <<< "$pvc_names"
+}
+
+fleet_bundledeployment_failure_message() {
+  local bundledeployment_namespace="$1"
+  local bundledeployment_name="$2"
+  local message
+
+  message="$(kubectl get bundledeployment "$bundledeployment_name" \
+    --kubeconfig "$kubeconfig_path" --namespace "$bundledeployment_namespace" \
+    -o jsonpath='{range .status.conditions[?(@.status=="False")]}{.type}: {.reason}: {.message}{"\n"}{end}{.status.display.message}' \
+    2>>"$log_file" || true)"
+  # Fleet reports a transient Ready error while a Deployment is replacing its
+  # old pod, for example: "progressing ... minimum availability, Replicas:
+  # 0/1".  That is not a failed Helm reconciliation; allow the readiness loop
+  # to wait for the rollout.  Persistent conflicts and other actual errors are
+  # still returned immediately.
+  if printf '%s' "$message" | grep -Eiq 'failed|failure|error|conflict|unable|forbidden|invalid' && \
+    ! printf '%s' "$message" | grep -Eiq 'progressing|does not have minimum availability|replicas:[[:space:]]*[0-9]+/[1-9]|job in progress|status:[[:space:]]*inprogress|post-upgrade hooks failed.*context deadline exceeded'; then
+    printf '%s\n' "$message"
+  fi
+}
+
+apply_fleet_bundle() {
+  local app="$1"
+  local fleet_dir="$2"
+  local namespace="$3"
+  local target_version="$4"
+  local bundle_name
+  local relative_fleet_dir
+  local generated_bundle_file
+  local bundle_generation
+  local bundle_force_sync_generation
+  local previous_applied_deployment_id
+  local bundledeployment_namespace
+  local bundledeployment_name
+  local desired_deployment_id
+  local current_desired_deployment_id
+  local bundledeployment_lookup_attempts=0
+  local bundledeployment_wait_attempts=0
+  local applied_deployment_id
+  local bundledeployment_ready
+  local failure_message
+
+  bundle_name="$(fleet_bundle_name_for_app "$app")" || {
+    record_failure_and_maybe_abort "Fleet bundle not found ($app)" \
+      "Expected GitRepo-managed bundle named $app in namespace fleet-local."
+    return 1
+  }
+
+  relative_fleet_dir="${fleet_dir#"$bash_configs_root/"}"
+  if [ "$relative_fleet_dir" = "$fleet_dir" ]; then
+    record_failure_and_maybe_abort "Fleet path is outside repository ($app)" \
+      "Fleet CLI requires a repository-relative path for $fleet_dir."
+    return 1
+  fi
+
+  generated_bundle_file="$(mktemp "${TMPDIR:-/tmp}/fleet-bundle.XXXXXX.yaml")"
+  log "$app: generating local Fleet Bundle from $relative_fleet_dir" \
+    "$(color_blue "$app"): generating local Fleet Bundle"
+  if ! (cd "$bash_configs_root" && fleet apply \
+    --kubeconfig "$kubeconfig_path" \
+    --namespace fleet-local \
+    --output "$generated_bundle_file" \
+    "$bundle_name" "$relative_fleet_dir") >>"$log_file" 2>&1; then
+    rm -f "$generated_bundle_file"
+    record_failure_and_maybe_abort "Fleet apply failed ($app)" \
+      "fleet apply could not generate bundle $bundle_name. No cluster resources were changed."
+    return 1
+  fi
+
+  if ! prepare_helm_upgrade_pvcs "$app" "$namespace" "$target_version" "$fleet_dir/fleet.yaml"; then
+    rm -f "$generated_bundle_file"
+    return 1
+  fi
+
+  previous_applied_deployment_id="$(kubectl get bundledeployment -A \
+    --kubeconfig "$kubeconfig_path" \
+    -l "fleet.cattle.io/bundle-name=$bundle_name" \
+    -o jsonpath='{.items[0].status.appliedDeploymentID}' 2>>"$log_file" || true)"
+
+  log "$app: applying generated Fleet Bundle $bundle_name" \
+    "$(color_blue "$app"): applying generated Fleet Bundle $bundle_name"
+  if ! bundle_generation="$(kubectl apply \
+    --kubeconfig "$kubeconfig_path" \
+    --namespace fleet-local \
+    --server-side \
+    --force-conflicts \
+    --field-manager=codex-fleet-upgrade \
+    --filename "$generated_bundle_file" \
+    -o jsonpath='{.metadata.generation}' 2>>"$log_file")"; then
+    rm -f "$generated_bundle_file"
+    record_failure_and_maybe_abort "Fleet Bundle apply failed ($app)" \
+      "kubectl could not apply the generated bundle $bundle_name."
+    return 1
+  fi
+
+  # Applying the same chart version can leave the Bundle generation unchanged
+  # (for example after a failed retry).  An annotation does not change
+  # metadata.generation, so increment Fleet's forceSyncGeneration spec field
+  # to request a real reconciliation and avoid reading stale status.
+  bundle_force_sync_generation="$(kubectl get bundle "$bundle_name" \
+    --kubeconfig "$kubeconfig_path" --namespace fleet-local \
+    -o jsonpath='{.spec.forceSyncGeneration}' 2>>"$log_file" || true)"
+  if ! [[ "$bundle_force_sync_generation" =~ ^[0-9]+$ ]]; then
+    bundle_force_sync_generation=0
+  fi
+  bundle_force_sync_generation=$((bundle_force_sync_generation + 1))
+  if ! bundle_generation="$(kubectl patch bundle "$bundle_name" \
+    --kubeconfig "$kubeconfig_path" --namespace fleet-local \
+    --type=merge \
+    --patch "{\"spec\":{\"forceSyncGeneration\":$bundle_force_sync_generation}}" \
+    -o jsonpath='{.metadata.generation}' 2>>"$log_file")"; then
+    record_failure_and_maybe_abort "Fleet reconciliation request failed ($app)" \
+      "Could not request a fresh reconciliation for bundle $bundle_name."
+    return 1
+  fi
+  rm -f "$generated_bundle_file"
+
+  log "$app: waiting for Fleet to observe bundle generation $bundle_generation" \
+    "$(color_blue "$app"): waiting for Fleet to observe bundle generation $bundle_generation"
+  if ! kubectl wait \
+    --kubeconfig "$kubeconfig_path" \
+    --namespace fleet-local \
+    --timeout=10m \
+    --for="jsonpath={.status.observedGeneration}=$bundle_generation" \
+    "bundle/$bundle_name" >>"$log_file" 2>&1; then
+    record_failure_and_maybe_abort "Fleet reconciliation did not start ($app)" \
+      "Fleet did not observe generation $bundle_generation for bundle $bundle_name."
+    return 1
+  fi
+
+  bundledeployment_namespace=""
+  bundledeployment_name=""
+  while { [ -z "$bundledeployment_namespace" ] || [ -z "$bundledeployment_name" ]; } && \
+    [ "$bundledeployment_lookup_attempts" -lt 600 ]; do
+    bundledeployment_namespace="$(kubectl get bundledeployment -A \
+      --kubeconfig "$kubeconfig_path" \
+      -l "fleet.cattle.io/bundle-name=$bundle_name" \
+      -o jsonpath='{.items[0].metadata.namespace}' 2>>"$log_file" || true)"
+    bundledeployment_name="$(kubectl get bundledeployment -A \
+      --kubeconfig "$kubeconfig_path" \
+      -l "fleet.cattle.io/bundle-name=$bundle_name" \
+      -o jsonpath='{.items[0].metadata.name}' 2>>"$log_file" || true)"
+    if [ -n "$bundledeployment_namespace" ] && [ -n "$bundledeployment_name" ]; then
+      break
+    fi
+    bundledeployment_lookup_attempts=$((bundledeployment_lookup_attempts + 1))
+    sleep 1
+  done
+
+  if [ -z "$bundledeployment_namespace" ] || [ -z "$bundledeployment_name" ]; then
+    record_failure_and_maybe_abort "Fleet BundleDeployment not found ($app)" \
+      "No BundleDeployment appeared for bundle $bundle_name within 10 minutes."
+    return 1
+  fi
+
+  desired_deployment_id="$(kubectl -n "$bundledeployment_namespace" get bundledeployment "$bundledeployment_name" \
+    --kubeconfig "$kubeconfig_path" -o jsonpath='{.spec.deploymentID}')"
+
+  # Do not consume the previous deployment just because it is still exposed
+  # while Fleet is processing the forced Bundle generation.  Wait until Fleet
+  # publishes a different deployment ID before evaluating readiness/errors.
+  if [ -n "$previous_applied_deployment_id" ]; then
+    bundledeployment_wait_attempts=0
+    while [ "$desired_deployment_id" = "$previous_applied_deployment_id" ] && \
+      [ "$bundledeployment_wait_attempts" -lt 120 ]; do
+      sleep 1
+      current_desired_deployment_id="$(kubectl -n "$bundledeployment_namespace" get bundledeployment "$bundledeployment_name" \
+        --kubeconfig "$kubeconfig_path" -o jsonpath='{.spec.deploymentID}' 2>>"$log_file" || true)"
+      [ -n "$current_desired_deployment_id" ] && desired_deployment_id="$current_desired_deployment_id"
+      bundledeployment_wait_attempts=$((bundledeployment_wait_attempts + 1))
+    done
+  fi
+
+  if [ "$desired_deployment_id" = "$previous_applied_deployment_id" ]; then
+    record_failure_and_maybe_abort "Fleet did not create a new deployment ($app)" \
+      "Fleet kept the previous deployment ID after the reconciliation request."
+    return 1
+  fi
+
+  log "$app: waiting for Fleet BundleDeployment $bundledeployment_name to apply deployment $desired_deployment_id" \
+    "$(color_blue "$app"): waiting for Fleet BundleDeployment to apply the new deployment"
+
+  # `kubectl wait` cannot express "wait for appliedDeploymentID unless the
+  # BundleDeployment has already failed".  Poll both states so a failed Helm
+  # revision is reported immediately instead of leaving the script frozen for
+  # ten minutes.
+  while [ "$bundledeployment_wait_attempts" -lt 600 ]; do
+    applied_deployment_id="$(kubectl -n "$bundledeployment_namespace" get bundledeployment "$bundledeployment_name" \
+      --kubeconfig "$kubeconfig_path" -o jsonpath='{.status.appliedDeploymentID}' 2>>"$log_file" || true)"
+    bundledeployment_ready="$(kubectl -n "$bundledeployment_namespace" get bundledeployment "$bundledeployment_name" \
+      --kubeconfig "$kubeconfig_path" -o jsonpath='{.status.ready}' 2>>"$log_file" || true)"
+    failure_message="$(fleet_bundledeployment_failure_message "$bundledeployment_namespace" "$bundledeployment_name")"
+
+    # Ignore a failure belonging to the deployment that existed before this
+    # run.  Fleet may briefly expose that status while creating the new one.
+    if [ -n "$failure_message" ] && \
+      { [ -z "$previous_applied_deployment_id" ] || \
+        [ "$desired_deployment_id" != "$previous_applied_deployment_id" ]; }; then
+      log "$app: Fleet BundleDeployment reported failure: $failure_message" \
+        "$(color_blue "$app"): Fleet Helm reconciliation failed"
+      record_failure_and_maybe_abort "Fleet Helm reconciliation failed ($app)" \
+        "BundleDeployment $bundledeployment_name reported:\n$failure_message"
+      return 1
+    fi
+
+    if [ "$applied_deployment_id" = "$desired_deployment_id" ]; then
+      break
+    fi
+
+    bundledeployment_wait_attempts=$((bundledeployment_wait_attempts + 1))
+    sleep 1
+  done
+
+  if [ "$applied_deployment_id" != "$desired_deployment_id" ]; then
+    record_failure_and_maybe_abort "Fleet BundleDeployment did not apply ($app)" \
+      "Fleet did not apply deployment $desired_deployment_id for bundle $bundle_name."
+    return 1
+  fi
+
+  log "$app: waiting for Fleet BundleDeployment $bundledeployment_name to become Ready" \
+    "$(color_blue "$app"): waiting for Fleet BundleDeployment to become Ready"
+  bundledeployment_wait_attempts=0
+  while [ "$bundledeployment_wait_attempts" -lt 600 ]; do
+    bundledeployment_ready="$(kubectl -n "$bundledeployment_namespace" get bundledeployment "$bundledeployment_name" \
+      --kubeconfig "$kubeconfig_path" -o jsonpath='{.status.ready}' 2>>"$log_file" || true)"
+    failure_message="$(fleet_bundledeployment_failure_message "$bundledeployment_namespace" "$bundledeployment_name")"
+    if [ -n "$failure_message" ] && \
+      { [ -z "$previous_applied_deployment_id" ] || \
+        [ "$desired_deployment_id" != "$previous_applied_deployment_id" ]; }; then
+      log "$app: Fleet BundleDeployment reported failure: $failure_message" \
+        "$(color_blue "$app"): Fleet Helm reconciliation failed"
+      record_failure_and_maybe_abort "Fleet Helm reconciliation failed ($app)" \
+        "BundleDeployment $bundledeployment_name reported:\n$failure_message"
+      return 1
+    fi
+    if [ "$bundledeployment_ready" = "true" ]; then
+      break
+    fi
+    bundledeployment_wait_attempts=$((bundledeployment_wait_attempts + 1))
+    sleep 1
+  done
+
+  if [ "$bundledeployment_ready" != "true" ]; then
+    record_failure_and_maybe_abort "Fleet BundleDeployment failed ($app)" \
+      "Fleet BundleDeployment $bundledeployment_name did not become Ready."
+    return 1
+  fi
+
+  local fleet_resource_counts
+  fleet_resource_counts="$(kubectl get bundledeployment -A \
+    --kubeconfig "$kubeconfig_path" \
+    -l "fleet.cattle.io/bundle-name=$bundle_name" \
+    -o jsonpath='{range .items[*]}{.status.resourceCounts.desiredReady} {.status.resourceCounts.ready}{"\n"}{end}' \
+    2>>"$log_file" | awk 'NF {print; exit}')"
+  if [ -z "$fleet_resource_counts" ] || [ "$fleet_resource_counts" = "0 0" ] || \
+    [ "${fleet_resource_counts%% *}" != "${fleet_resource_counts##* }" ]; then
+    record_failure_and_maybe_abort "Fleet deployed no ready resources ($app)" \
+      "Bundle $bundle_name reported resource counts: ${fleet_resource_counts:-unknown}."
+    return 1
+  fi
+
+  log "$app: Fleet bundle $bundle_name is Ready" \
+    "$(color_blue "$app"): Fleet bundle $bundle_name is Ready"
+  return 0
+}
+
+stage_fleet_file() {
+  local fleet_file="$1"
+  local relative_file
+
+  relative_file="${fleet_file#"$bash_configs_root/"}"
+  if ! git -C "$bash_configs_root" add -- "$relative_file" >>"$log_file" 2>&1; then
+    record_failure_and_maybe_abort "Unable to stage Fleet file" "git add failed for $relative_file."
+    return 1
+  fi
+  log "Staged $relative_file after successful Fleet and ingress checks."
+  return 0
+}
+
 cleanup() {
   # Ensure cursor/screen is restored if dialog was used.
   if command -v dialog >/dev/null 2>&1; then
-    dialog --clear >/dev/tty 2>/dev/null || true
+    dialog --clear >/dev/null 2>&1 || true
   fi
 }
 
@@ -385,6 +878,7 @@ print_colored_summary() {
   printf 'Up-to-date: %b\n' "$(color_count "$up_to_date_count" "$green")"
   printf 'Skipped: %b\n' "$(color_count "$skipped_count" "$yellow")"
   printf 'Updated: %b\n' "$(color_count "$updated_count" "$green")"
+  printf 'Staged Fleet files: %b\n' "$(color_count "$staged_fleet_count" "$green")"
 
   if [ "$dry_run" -eq 1 ]; then
     printf 'Dry-run approved (not executed): %b\n' "$(color_count "$dry_run_approved_count" "$yellow")"
@@ -405,7 +899,8 @@ show_summary_modal() {
 Excluded: $excluded_count
 Up-to-date: $up_to_date_count
 Skipped: $skipped_count
-Updated: $updated_count"
+Updated: $updated_count
+Staged Fleet files: $staged_fleet_count"
 
   if [ "$dry_run" -eq 1 ]; then
     summary="${summary}
@@ -949,42 +1444,51 @@ perform_upgrade() {
   local app="$1"
   local namespace="$2"
   local target_version="$3"
-  local chart_ref="$4"
-  local previous_working_revision
+  local fleet_file="$4"
 
   if [ "$dry_run" -eq 1 ]; then
-    log "$app: DRY RUN enabled, skipping helm upgrade" "$(color_blue "$app"): DRY RUN enabled, skipping helm upgrade"
+    log "$app: DRY RUN enabled, skipping Fleet apply" "$(color_blue "$app"): DRY RUN enabled, skipping Fleet apply"
     return 0
   fi
 
-  if [ -z "$chart_ref" ]; then
-    record_failure_and_maybe_abort "Missing chart reference ($app)" "Chart repo/ref helper returned empty value."
+  if [ -z "$fleet_file" ]; then
+    record_failure_and_maybe_abort "Fleet file not found ($app)" "No matching fleet.yaml was found under $script_dir/fleet."
     return 1
   fi
 
-  log "$app: running helm upgrade to version $target_version using chart $chart_ref" "$(color_blue "$app"): running helm upgrade to version $target_version using chart $chart_ref"
-  previous_working_revision="$(last_deployed_revision "$app" "$namespace")"
-  if ! helm upgrade \
-    --kubeconfig "$kubeconfig_path" \
-    --history-max=5 \
-    --install=true \
-    --namespace="$namespace" \
-    --timeout=10m0s \
-    --version="$target_version" \
-    --wait=true \
-    "$app" "$chart_ref" >>"$log_file" 2>&1; then
-    exit_status=1
-    failure_events_count=$((failure_events_count + 1))
-    if [ -n "$current_app" ] && [ "$current_app_failed" -eq 0 ]; then
-      current_app_failed=1
-      failed_apps_count=$((failed_apps_count + 1))
-    fi
-    log "FAILURE: Helm upgrade failed ($app) - helm upgrade command failed (return_code=1)."
-    ask_on_helm_upgrade_failure "$app" "$namespace" "$previous_working_revision"
+  log "$app: updating Fleet version to $target_version in $fleet_file" \
+    "$(color_blue "$app"): updating Fleet version to $target_version"
+  if ! update_fleet_version "$fleet_file" "$target_version"; then
+    record_failure_and_maybe_abort "Unable to update Fleet file ($app)" \
+      "Could not replace the version field in $fleet_file."
     return 1
   fi
 
-  log "$app: helm upgrade completed (return_code=0)" "$(color_blue "$app"): helm upgrade completed (return_code=$(color_bash_return_code 0))"
+  apply_fleet_bundle "$app" "$(dirname "$fleet_file")" "$namespace" "$target_version"
+}
+
+ask_run_codex_commit() {
+  if [ "$staged_fleet_count" -eq 0 ]; then
+    return 0
+  fi
+
+  if [ "$yes_mode" -eq 1 ]; then
+    log "AUTO: running make codex-commit because --yes is set"
+  elif ! dialog \
+    --clear \
+    --title "Commit Fleet upgrades" \
+    --defaultno \
+    --yesno "Fleet upgrades passed their rollout and ingress checks and were staged.\n\nRun:\nmake -C $bash_configs_root codex-commit\n\nRun it now?" 14 90; then
+    log "User chose not to run make codex-commit; staged Fleet files were left in place."
+    return 0
+  fi
+
+  log "Running make -C $bash_configs_root codex-commit"
+  if ! make -C "$bash_configs_root" codex-commit >>"$log_file" 2>&1; then
+    record_failure_and_maybe_abort "codex-commit failed" "make codex-commit returned a failure."
+    return 1
+  fi
+  log "make codex-commit completed successfully."
   return 0
 }
 
@@ -993,7 +1497,24 @@ trap cleanup EXIT
 mkdir -p "$log_dir"
 : >"$log_file"
 
-if ! require_cmd dialog || ! require_cmd helm || ! require_cmd kubectl || ! require_cmd curl; then
+if ! command -v fleet >/dev/null 2>&1; then
+  if ! install_fleet_cli; then
+    cat >&2 <<'FLEET_MISSING'
+Missing required command: fleet
+
+Install the Fleet CLI on Debian with:
+  curl -L -o /tmp/fleet https://github.com/rancher/fleet/releases/latest/download/fleet-linux-amd64
+  chmod +x /tmp/fleet
+  sudo install -m 0755 /tmp/fleet /usr/local/bin/fleet
+  fleet --version
+
+The Fleet CLI is separate from the Fleet controllers already running in Rancher.
+FLEET_MISSING
+    exit 2
+  fi
+fi
+
+if ! require_cmd dialog || ! require_cmd helm || ! require_cmd kubectl || ! require_cmd curl || ! require_cmd git || ! require_cmd make; then
   echo "Setup error: required dependency is missing." >&2
   exit 2
 fi
@@ -1062,10 +1583,23 @@ for app in $apps; do
 
   local_version="$(get_local_chart_version "$app")"
   target_version="$(chart_version_for_app "$app" 2>>"$log_file")"
-  chart_ref="$(chart_ref_for_app "$app" 2>>"$log_file")"
+  fleet_file="$(fleet_file_for_app "$app" 2>/dev/null || true)"
 
   if [ -z "$target_version" ]; then
     record_failure_and_maybe_abort "Version lookup failed ($app)" "Current chart version helper returned empty version."
+    current_app=""
+    continue
+  fi
+
+  # The image checker can report an application-image update even when the
+  # configured Helm chart repository has no newer chart.  Never reconcile a
+  # no-op chart version through Fleet; it can create a new Helm revision and
+  # unnecessarily reprocess PVCs and other resources.
+  installed_chart_version="${local_version#"$app-"}"
+  if [ -n "$installed_chart_version" ] && [ "$installed_chart_version" = "$target_version" ]; then
+    log "$app: no chart update needed (installed=$installed_chart_version target=$target_version)" \
+      "$(color_blue "$app"): no chart update needed (installed=$installed_chart_version target=$target_version)"
+    up_to_date_count=$((up_to_date_count + 1))
     current_app=""
     continue
   fi
@@ -1084,7 +1618,7 @@ for app in $apps; do
     continue
   fi
 
-  if ! perform_upgrade "$app" "$namespace" "$target_version" "$chart_ref"; then
+  if ! perform_upgrade "$app" "$namespace" "$target_version" "$fleet_file"; then
     current_app=""
     continue
   fi
@@ -1095,11 +1629,23 @@ for app in $apps; do
     updated_count=$((updated_count + 1))
   fi
 
-  run_postchecks "$app" "$namespace" || true
+  if run_postchecks "$app" "$namespace"; then
+    if [ "$dry_run" -eq 0 ]; then
+      if stage_fleet_file "$fleet_file"; then
+        staged_fleet_count=$((staged_fleet_count + 1))
+      fi
+    fi
+  else
+    log "$app: postchecks did not pass; Fleet file was not staged" \
+      "$(color_blue "$app"): postchecks did not pass; Fleet file was not staged"
+  fi
   log "$app: processing complete" "$(color_blue "$app"): processing complete"
   current_app=""
 done
 
 log "Run finished with exit status $exit_status"
 show_summary_modal
+if [ "$exit_status" -eq 0 ]; then
+  ask_run_codex_commit || true
+fi
 exit "$exit_status"
