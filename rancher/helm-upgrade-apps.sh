@@ -501,12 +501,20 @@ prepare_helm_upgrade_pvcs() {
   local current_chart_label
   local storage_request
   local objectset_id
+  local values_file
+  local external_claims
 
-  chart_name="$(awk -F': *' '$1 == "  chart" {print $2; exit}' "$fleet_file")"
+  chart_name="$(sed -n 's/^[[:space:]]*chart:[[:space:]]*//p' "$fleet_file" | head -1)"
   release_name="$(awk -F': *' '$1 == "  releaseName" {print $2; exit}' "$fleet_file")"
   release_name="${release_name:-$app}"
   if [ -z "$chart_name" ]; then
     return 0
+  fi
+
+  values_file="$(dirname "$fleet_file")/values.yaml"
+  external_claims=""
+  if [ -f "$values_file" ]; then
+    external_claims="$(awk -F': *' '$1 ~ /existingClaim$/ {print $2}' "$values_file")"
   fi
 
   # OCI chart refs include a URL prefix.  Helm's chart label uses only the
@@ -520,6 +528,18 @@ prepare_helm_upgrade_pvcs() {
 
   while IFS= read -r pvc_name; do
     [ -z "$pvc_name" ] && continue
+    if printf '%s\n' "$external_claims" | grep -Fxq "$pvc_name"; then
+      if ! kubectl annotate pvc "$pvc_name" \
+        --kubeconfig "$kubeconfig_path" --namespace "$namespace" \
+        helm.sh/resource-policy=keep --overwrite >>"$log_file" 2>&1; then
+        record_failure_and_maybe_abort "Unable to protect external PVC ($app)" \
+          "Could not set Helm resource-policy=keep on restored PVC $namespace/$pvc_name."
+        return 1
+      fi
+      log "$app: leaving externally restored existingClaim PVC $pvc_name unmanaged" \
+        "$(color_blue "$app"): leaving restored PVC $pvc_name unmanaged"
+      continue
+    fi
     current_chart_label="$(kubectl get pvc "$pvc_name" \
       --kubeconfig "$kubeconfig_path" --namespace "$namespace" \
       -o jsonpath='{.metadata.labels.helm\.sh/chart}' 2>>"$log_file" || true)"
@@ -549,11 +569,11 @@ prepare_helm_upgrade_pvcs() {
     if [ -n "$storage_request" ]; then
       log "$app: aligning PVC $pvc_name storage ownership for Fleet Helm" \
         "$(color_blue "$app"): aligning PVC storage ownership before Fleet upgrade"
-      if ! printf 'apiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: %s\n  namespace: %s\nspec:\n  resources:\n    requests:\n      storage: %s\n' \
-        "$pvc_name" "$namespace" "$storage_request" | kubectl apply \
-        --kubeconfig "$kubeconfig_path" \
-        --server-side --force-conflicts --field-manager=helm \
-        --filename - >>"$log_file" 2>&1; then
+      if ! kubectl patch pvc "$pvc_name" \
+        --kubeconfig "$kubeconfig_path" --namespace "$namespace" \
+        --type=merge \
+        -p "{\"spec\":{\"resources\":{\"requests\":{\"storage\":\"$storage_request\"}}}}" \
+        >>"$log_file" 2>&1; then
         record_failure_and_maybe_abort "Unable to prepare PVC storage ownership ($app)" \
           "Could not transfer PVC $namespace/$pvc_name storage ownership to Fleet's Helm manager."
         return 1
@@ -578,7 +598,8 @@ prepare_helm_upgrade_pvcs() {
     fi
     if ! kubectl label pvc "$pvc_name" \
       --kubeconfig "$kubeconfig_path" --namespace "$namespace" \
-      app.kubernetes.io/managed-by=Helm --overwrite >>"$log_file" 2>&1; then
+      app.kubernetes.io/managed-by=Helm --overwrite \
+      --field-manager=helm >>"$log_file" 2>&1; then
       record_failure_and_maybe_abort "Unable to prepare PVC labels ($app)" \
         "Could not restore Helm ownership labels on PVC $namespace/$pvc_name. The PVC was not deleted."
       return 1
@@ -626,6 +647,8 @@ apply_fleet_bundle() {
   local applied_deployment_id
   local bundledeployment_ready
   local failure_message
+  local helm_status
+  local fleet_status_retry=0
 
   bundle_name="$(fleet_bundle_name_for_app "$app")" || {
     record_failure_and_maybe_abort "Fleet bundle not found ($app)" \
@@ -778,6 +801,19 @@ apply_fleet_bundle() {
       --kubeconfig "$kubeconfig_path" -o jsonpath='{.status.ready}' 2>>"$log_file" || true)"
     failure_message="$(fleet_bundledeployment_failure_message "$bundledeployment_namespace" "$bundledeployment_name")"
 
+    # Fleet can leave the previous deployment applied while Helm has already
+    # failed the new revision, without publishing Ready=False on the
+    # BundleDeployment. Detect that state directly so this loop cannot wait
+    # indefinitely for an appliedDeploymentID that will never arrive.
+    helm_status="$(helm list --kubeconfig "$kubeconfig_path" \
+      --namespace "$namespace" --filter "^${app}$" \
+      -o json 2>>"$log_file" | jq -r '.[0].status // empty' 2>>"$log_file" || true)"
+    if [ "$helm_status" = "failed" ]; then
+      record_failure_and_maybe_abort "Helm upgrade failed ($app)" \
+        "Helm release $namespace/$app is failed while Fleet still reports the previous deployment as applied."
+      return 1
+    fi
+
     # Ignore a failure belonging to the deployment that existed before this
     # run.  Fleet may briefly expose that status while creating the new one.
     if [ -n "$failure_message" ] && \
@@ -827,6 +863,52 @@ apply_fleet_bundle() {
     sleep 1
   done
 
+  # Fleet v0.16 can retain a stale Ready=False snapshot when the Deployment
+  # becomes available immediately after the BundleDeployment is applied.  A
+  # restarted local agent rebuilds its resource watches and reports the
+  # current workload status upstream.  Retry once before declaring failure.
+  if [ "$bundledeployment_ready" != "true" ] && [ "$fleet_status_retry" -eq 0 ]; then
+    fleet_status_retry=1
+    log "$app: Fleet readiness timed out; restarting local Fleet agent before retry" \
+      "$(color_blue "$app"): Fleet readiness timed out; restarting Fleet agent and retrying"
+    if ! kubectl -n cattle-fleet-local-system rollout restart deployment/fleet-agent \
+      --kubeconfig "$kubeconfig_path" >>"$log_file" 2>&1; then
+      record_failure_and_maybe_abort "Fleet agent restart failed ($app)" \
+        "Could not restart deployment fleet-agent in namespace cattle-fleet-local-system."
+      return 1
+    fi
+    if ! kubectl -n cattle-fleet-local-system rollout status deployment/fleet-agent \
+      --kubeconfig "$kubeconfig_path" --timeout=120s >>"$log_file" 2>&1; then
+      record_failure_and_maybe_abort "Fleet agent did not restart ($app)" \
+        "Fleet agent did not become Ready within 120 seconds."
+      return 1
+    fi
+
+    log "$app: retrying Fleet BundleDeployment readiness after Fleet agent restart" \
+      "$(color_blue "$app"): retrying Fleet BundleDeployment readiness"
+    bundledeployment_wait_attempts=0
+    bundledeployment_ready=""
+    while [ "$bundledeployment_wait_attempts" -lt 600 ]; do
+      bundledeployment_ready="$(kubectl -n "$bundledeployment_namespace" get bundledeployment "$bundledeployment_name" \
+        --kubeconfig "$kubeconfig_path" -o jsonpath='{.status.ready}' 2>>"$log_file" || true)"
+      failure_message="$(fleet_bundledeployment_failure_message "$bundledeployment_namespace" "$bundledeployment_name")"
+      if [ -n "$failure_message" ] && \
+        { [ -z "$previous_applied_deployment_id" ] || \
+          [ "$desired_deployment_id" != "$previous_applied_deployment_id" ]; }; then
+        log "$app: Fleet BundleDeployment reported failure after retry: $failure_message" \
+          "$(color_blue "$app"): Fleet Helm reconciliation failed after retry"
+        record_failure_and_maybe_abort "Fleet Helm reconciliation failed ($app)" \
+          "BundleDeployment $bundledeployment_name reported:\n$failure_message"
+        return 1
+      fi
+      if [ "$bundledeployment_ready" = "true" ]; then
+        break
+      fi
+      bundledeployment_wait_attempts=$((bundledeployment_wait_attempts + 1))
+      sleep 1
+    done
+  fi
+
   if [ "$bundledeployment_ready" != "true" ]; then
     record_failure_and_maybe_abort "Fleet BundleDeployment failed ($app)" \
       "Fleet BundleDeployment $bundledeployment_name did not become Ready."
@@ -848,6 +930,38 @@ apply_fleet_bundle() {
 
   log "$app: Fleet bundle $bundle_name is Ready" \
     "$(color_blue "$app"): Fleet bundle $bundle_name is Ready"
+  return 0
+}
+
+verify_fleet_upgrade_version() {
+  local app="$1"
+  local namespace="$2"
+  local target_version="$3"
+  local installed_chart
+  local installed_version
+  local bundle_name
+  local fleet_version
+
+  installed_chart="$(helm list \
+    --kubeconfig "$kubeconfig_path" \
+    --namespace "$namespace" \
+    --filter "^${app}$" 2>>"$log_file" | awk 'NR > 1 && $1 != "" {print $9; exit}')"
+  installed_version="${installed_chart#"$app-"}"
+  bundle_name="$(fleet_bundle_name_for_app "$app" 2>/dev/null || true)"
+  fleet_version=""
+  if [ -n "$bundle_name" ]; then
+    fleet_version="$(kubectl get bundle "$bundle_name" \
+      --kubeconfig "$kubeconfig_path" --namespace fleet-local \
+      -o jsonpath='{.spec.helm.version}' 2>>"$log_file" || true)"
+  fi
+
+  log "$app: verifying live versions after Fleet upgrade (helm=${installed_version:-unknown}, fleet=${fleet_version:-unknown}, target=$target_version)" \
+    "$(color_blue "$app"): verifying live Helm and Fleet versions"
+  if [ "$installed_version" != "$target_version" ] || [ "$fleet_version" != "$target_version" ]; then
+    record_failure_and_maybe_abort "Fleet upgrade version mismatch ($app)" \
+      "Requested chart version $target_version, but live Helm is ${installed_version:-unknown} and Fleet Bundle is ${fleet_version:-unknown}. The upgrade may have been reverted; the Fleet file was not staged."
+    return 1
+  fi
   return 0
 }
 
@@ -1626,6 +1740,10 @@ for app in $apps; do
   if [ "$dry_run" -eq 1 ]; then
     dry_run_approved_count=$((dry_run_approved_count + 1))
   else
+    if ! verify_fleet_upgrade_version "$app" "$namespace" "$target_version"; then
+      current_app=""
+      continue
+    fi
     updated_count=$((updated_count + 1))
   fi
 

@@ -1,7 +1,9 @@
-# Create the configuration PVC so CloudCasa can restore into it before startup.
+# Mount the externally restored configuration PVC. CloudCasa owns this claim;
+# Fleet/Helm must not render or adopt a PVC for it.
 persistence:
   config:
-    enabled: true
+    enabled: false
+    existingClaim: bookstack-config
 
 # Keep the MariaDB data mount tied to the PVC restored by CloudCasa.
 mariadb:

@@ -3,7 +3,7 @@ defaultNamespace: apps-adguard-home
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/adguard-home
-  version: 13.9.0
+  version: 13.10.0
   releaseName: adguard-home
   waitForJobs: true
   valuesFiles:

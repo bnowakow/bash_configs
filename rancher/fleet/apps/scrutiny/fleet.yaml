@@ -3,7 +3,7 @@ defaultNamespace: apps-scrutiny
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/scrutiny
-  version: 14.10.0
+  version: 14.11.0
   releaseName: scrutiny
   waitForJobs: true
   valuesFiles:
