@@ -2,8 +2,25 @@ persistence:
   config:
     enabled: true
     type: pvc
-    existingClaim: homer-test-config-longhorn
+    existingClaim: homer-test-config-longhorn-rwx
     mountPath: /www/assets
+
+podOptions:
+  defaultAffinity: false
+
+workload:
+  main:
+    replicas: 2
+    podSpec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/instance: homer-test
+              app.kubernetes.io/name: homer
+              pod.name: main
 
 ingress:
   main:
