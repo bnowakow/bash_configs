@@ -1,0 +1,3 @@
+name: homer-test-pvc-copy
+defaultNamespace: apps-homer
+

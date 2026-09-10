@@ -1,0 +1,13 @@
+name: homer-test
+defaultNamespace: apps-homer
+
+dependsOn:
+  - name: homer-test-pvc-copy
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/homer
+  version: 15.11.0
+  releaseName: homer-test
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
