@@ -2,7 +2,7 @@ persistence:
   config:
     enabled: true
     type: pvc
-    existingClaim: homer-test-config
+    existingClaim: homer-test-config-longhorn
     mountPath: /www/assets
 
 ingress:
@@ -28,4 +28,3 @@ ingress:
         entrypoints:
           - websecure
         forceTLS: true
-

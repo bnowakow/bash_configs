@@ -1,5 +1,5 @@
 name: homer-test
-defaultNamespace: apps-homer
+defaultNamespace: apps-homer-test
 
 dependsOn:
   - name: homer-test-pvc-copy
