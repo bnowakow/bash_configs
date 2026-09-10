@@ -410,6 +410,7 @@ zabbix_export:
           delay: 1h
           history: 90d
           value_type: TEXT
+          status: DISABLED
           tags:
             - tag: bnowakow
         - uuid: e5f96d20ed4b45609e5162dc350d0535
