@@ -627,6 +627,86 @@ fleet_bundledeployment_failure_message() {
   fi
 }
 
+ask_attempt_fleet_repair() {
+  local app="$1"
+  local namespace="$2"
+
+  if [ "$yes_mode" -eq 1 ]; then
+    log "AUTO: attempting one Fleet reconciliation retry for failed Helm release $app"
+    return 0
+  fi
+
+  dialog \
+    --clear \
+    --begin 0 0 \
+    --title "Helm Upgrade Log" \
+    --tailboxbg "$log_file" 18 120 \
+    --and-widget \
+    --begin 2 10 \
+    --title "Attempt recovery for $app?" \
+    --defaultno \
+    --yesno "Helm release $namespace/$app is failed, but Fleet still has the previous deployment applied.\n\nThe old deployment should remain available. Attempt one fresh Fleet reconciliation before marking this app failed?" 18 110
+}
+
+request_fleet_reconciliation_retry() {
+  local bundle_name="$1"
+  local bundledeployment_namespace="$2"
+  local bundledeployment_name="$3"
+  local previous_desired_deployment_id="$4"
+  local force_sync_generation
+  local bundle_generation
+  local retry_attempts=0
+  local current_desired_deployment_id
+
+  force_sync_generation="$(kubectl get bundle "$bundle_name" \
+    --kubeconfig "$kubeconfig_path" --namespace fleet-local \
+    -o jsonpath='{.spec.forceSyncGeneration}' 2>>"$log_file" || true)"
+  if ! [[ "$force_sync_generation" =~ ^[0-9]+$ ]]; then
+    force_sync_generation=0
+  fi
+  force_sync_generation=$((force_sync_generation + 1))
+
+  log "$bundle_name: requesting one fresh Fleet reconciliation after failed Helm release"
+  if ! bundle_generation="$(kubectl patch bundle "$bundle_name" \
+    --kubeconfig "$kubeconfig_path" --namespace fleet-local \
+    --type=merge \
+    --patch "{\"spec\":{\"forceSyncGeneration\":$force_sync_generation}}" \
+    -o jsonpath='{.metadata.generation}' 2>>"$log_file")"; then
+    log "$bundle_name: could not request Fleet reconciliation retry"
+    return 1
+  fi
+
+  while [ "$retry_attempts" -lt 120 ]; do
+    if kubectl wait \
+      --kubeconfig "$kubeconfig_path" \
+      --namespace fleet-local \
+      --timeout=2s \
+      --for="jsonpath={.status.observedGeneration}=$bundle_generation" \
+      "bundle/$bundle_name" >>"$log_file" 2>&1; then
+      break
+    fi
+    retry_attempts=$((retry_attempts + 1))
+    sleep 1
+  done
+
+  retry_attempts=0
+  while [ "$retry_attempts" -lt 120 ]; do
+    current_desired_deployment_id="$(kubectl -n "$bundledeployment_namespace" get bundledeployment "$bundledeployment_name" \
+      --kubeconfig "$kubeconfig_path" -o jsonpath='{.spec.deploymentID}' 2>>"$log_file" || true)"
+    if [ -n "$current_desired_deployment_id" ] && \
+      [ "$current_desired_deployment_id" != "$previous_desired_deployment_id" ]; then
+      desired_deployment_id="$current_desired_deployment_id"
+      bundledeployment_wait_attempts=0
+      return 0
+    fi
+    retry_attempts=$((retry_attempts + 1))
+    sleep 1
+  done
+
+  log "$bundle_name: Fleet did not publish a new deployment for the retry"
+  return 1
+}
+
 apply_fleet_bundle() {
   local app="$1"
   local fleet_dir="$2"
@@ -648,6 +728,7 @@ apply_fleet_bundle() {
   local bundledeployment_ready
   local failure_message
   local helm_status
+  local fleet_repair_attempted=0
   local fleet_status_retry=0
 
   bundle_name="$(fleet_bundle_name_for_app "$app")" || {
@@ -809,6 +890,18 @@ apply_fleet_bundle() {
       --namespace "$namespace" --filter "^${app}$" \
       -o json 2>>"$log_file" | jq -r '.[0].status // empty' 2>>"$log_file" || true)"
     if [ "$helm_status" = "failed" ]; then
+      if [ "$fleet_repair_attempted" -eq 0 ]; then
+        fleet_repair_attempted=1
+        if ask_attempt_fleet_repair "$app" "$namespace"; then
+          if request_fleet_reconciliation_retry \
+            "$bundle_name" "$bundledeployment_namespace" "$bundledeployment_name" "$desired_deployment_id"; then
+            log "$app: Fleet published a new deployment after the requested repair; resuming readiness checks" \
+              "$(color_blue "$app"): Fleet retry started; resuming readiness checks"
+            continue
+          fi
+          log "$app: requested Fleet repair did not start successfully"
+        fi
+      fi
       record_failure_and_maybe_abort "Helm upgrade failed ($app)" \
         "Helm release $namespace/$app is failed while Fleet still reports the previous deployment as applied."
       return 1
@@ -1257,8 +1350,9 @@ curl_error_looks_like_certificate_validity_issue() {
 }
 
 ask_retry_curl_with_insecure() {
-  local host="$1"
-  local curl_error_output="$2"
+  local scheme="$1"
+  local host="$2"
+  local curl_error_output="$3"
 
   if [ "$yes_mode" -eq 1 ]; then
     log "AUTO: not retrying curl with --insecure for $host because --yes is set"
@@ -1274,11 +1368,12 @@ ask_retry_curl_with_insecure() {
     --begin 2 10 \
     --title "Certificate Validity Issue" \
     --defaultno \
-    --yesno "curl failed for https://$host/ and it looks like the certificate may be out of date.\n\nError:\n$curl_error_output\n\nRetry this host with --insecure to skip certificate validity checks?" 18 100
+    --yesno "curl failed for ${scheme}://$host/ and it looks like the certificate may be out of date.\n\nError:\n$curl_error_output\n\nRetry this host with --insecure to skip certificate validity checks?" 18 100
 }
 
 run_curl_http_check() {
-  local host="$1"
+  local scheme="$1"
+  local host="$2"
   local curl_error_file
   local curl_args=(-L -sS -o /dev/null -w "%{http_code}")
 
@@ -1293,7 +1388,7 @@ run_curl_http_check() {
   fi
 
   curl_error_file="$(mktemp)"
-  if curl_http_code="$(curl "${curl_args[@]}" "https://$host/" 2>"$curl_error_file")"; then
+  if curl_http_code="$(curl "${curl_args[@]}" "${scheme}://$host/" 2>"$curl_error_file")"; then
     curl_return_code=0
     curl_error_output=""
     rm -f "$curl_error_file"
@@ -1305,16 +1400,16 @@ run_curl_http_check() {
   rm -f "$curl_error_file"
 
   if [ "$curl_used_insecure" -eq 0 ] && curl_error_looks_like_certificate_validity_issue "$curl_return_code" "$curl_error_output"; then
-    log "curl for https://$host/ failed due to certificate validity issue (return_code=$curl_return_code)"
-    if ask_retry_curl_with_insecure "$host" "$curl_error_output"; then
+    log "curl for ${scheme}://$host/ failed due to certificate validity issue (return_code=$curl_return_code)"
+    if ask_retry_curl_with_insecure "$scheme" "$host" "$curl_error_output"; then
       add_insecure_host "$host"
       curl_used_insecure=1
       curl_error_file="$(mktemp)"
-      if curl_http_code="$(curl -L -sS --insecure -o /dev/null -w "%{http_code}" "https://$host/" 2>"$curl_error_file")"; then
+      if curl_http_code="$(curl -L -sS --insecure -o /dev/null -w "%{http_code}" "${scheme}://$host/" 2>"$curl_error_file")"; then
         curl_return_code=0
         curl_error_output=""
         rm -f "$curl_error_file"
-        log "curl for https://$host/ succeeded after retry with --insecure"
+        log "curl for ${scheme}://$host/ succeeded after retry with --insecure"
         return 0
       fi
       curl_return_code=$?
@@ -1373,9 +1468,39 @@ get_local_chart_version() {
     | awk -v app="$app" '$1==app {print $9; exit}'
 }
 
-get_ingress_hosts() {
+get_ingress_targets() {
   local namespace="$1"
-  kubectl get ingress -n "$namespace" --kubeconfig "$kubeconfig_path" -o jsonpath='{range .items[*].spec.rules[*]}{.host}{"\n"}{end}' 2>/dev/null | awk 'NF' | sort -u
+  local ingress
+  local entrypoints
+  local hosts
+  local tls_hosts
+  local host
+  local scheme
+
+  while IFS= read -r ingress; do
+    [ -z "$ingress" ] && continue
+    entrypoints="$(kubectl get "$ingress" -n "$namespace" --kubeconfig "$kubeconfig_path" \
+      -o jsonpath='{.metadata.annotations.traefik\.ingress\.kubernetes\.io/router\.entrypoints}' 2>/dev/null || true)"
+    hosts="$(kubectl get "$ingress" -n "$namespace" --kubeconfig "$kubeconfig_path" \
+      -o jsonpath='{range .spec.rules[*]}{.host}{"\n"}{end}' 2>/dev/null || true)"
+    tls_hosts="$(kubectl get "$ingress" -n "$namespace" --kubeconfig "$kubeconfig_path" \
+      -o jsonpath='{range .spec.tls[*].hosts[*]}{.}{"\n"}{end}' 2>/dev/null || true)"
+
+    while IFS= read -r host; do
+      [ -z "$host" ] && continue
+      if printf '%s' "$entrypoints" | grep -F -q 'websecure'; then
+        scheme="https"
+      elif printf '%s' "$entrypoints" | grep -F -q 'web'; then
+        scheme="http"
+      elif printf '%s\n' "$tls_hosts" | grep -F -x -q "$host"; then
+        scheme="https"
+      else
+        scheme="http"
+      fi
+      printf '%s %s\n' "$scheme" "$host"
+    done <<< "$hosts"
+  done < <(kubectl get ingress -n "$namespace" --kubeconfig "$kubeconfig_path" \
+    -o name 2>/dev/null | sort -u)
 }
 
 get_release_pods() {
@@ -1436,42 +1561,44 @@ check_ingress_http_codes() {
   check_summary_kind="http"
   check_failed_ingress_summary=""
 
-  local hosts
-  hosts="$(get_ingress_hosts "$namespace")"
+  local ingress_targets
+  ingress_targets="$(get_ingress_targets "$namespace" | sort -u)"
 
-  if [ -z "$hosts" ]; then
+  if [ -z "$ingress_targets" ]; then
     collect_no_ingress_pod_log_summary "$app" "$namespace" "$phase"
     return 0
   fi
 
   local fail=0
   local summary=""
+  local scheme
   local host
   local http_code
   local dialog_code
   local insecure_suffix
   local failed_summary=""
-  while IFS= read -r host; do
+  while IFS=' ' read -r scheme host; do
+    [ -z "$scheme" ] && continue
     [ -z "$host" ] && continue
-    run_curl_http_check "$host"
+    run_curl_http_check "$scheme" "$host"
     http_code="$curl_http_code"
     dialog_code="$(dialog_color_http_code "$http_code")"
     insecure_suffix=""
     if [ "$curl_used_insecure" -eq 1 ]; then
       insecure_suffix=" (with --insecure)"
     fi
-    summary="${summary}\\Z0${host} -> ${dialog_code}${insecure_suffix}\\Z0"$'\n'
-    log "$app [$phase]: ingress https://$host/ returned $http_code${insecure_suffix}" "$(color_blue "$app") [$phase]: ingress https://$host/ returned $(color_http_code "$http_code")${insecure_suffix}"
+    summary="${summary}\\Z0${scheme}://${host} -> ${dialog_code}${insecure_suffix}\\Z0"$'\n'
+    log "$app [$phase]: ingress ${scheme}://$host/ returned $http_code${insecure_suffix}" "$(color_blue "$app") [$phase]: ingress ${scheme}://$host/ returned $(color_http_code "$http_code")${insecure_suffix}"
     if [ "$curl_return_code" != "0" ]; then
-      log "$app [$phase]: curl failed for https://$host/ (return_code=$curl_return_code) error=$curl_error_output" "$(color_blue "$app") [$phase]: curl failed for https://$host/ (return_code=$(color_bash_return_code "$curl_return_code"))"
-      failed_summary="${failed_summary}${host} -> ${http_code} (curl failed, return code ${curl_return_code})"$'\n'
+      log "$app [$phase]: curl failed for ${scheme}://$host/ (return_code=$curl_return_code) error=$curl_error_output" "$(color_blue "$app") [$phase]: curl failed for ${scheme}://$host/ (return_code=$(color_bash_return_code "$curl_return_code"))"
+      failed_summary="${failed_summary}${scheme}://${host} -> ${http_code} (curl failed, return code ${curl_return_code})"$'\n'
       fail=1
     elif [ "$http_code" != "200" ]; then
-      failed_summary="${failed_summary}${host} -> ${http_code}"$'\n'
+      failed_summary="${failed_summary}${scheme}://${host} -> ${http_code}"$'\n'
       fail=1
     fi
   done <<EOF_HOSTS
-$hosts
+$ingress_targets
 EOF_HOSTS
 
   check_summary_body="${summary%$'\n'}"

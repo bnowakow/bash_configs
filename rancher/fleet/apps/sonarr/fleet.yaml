@@ -3,7 +3,7 @@ defaultNamespace: apps-sonarr
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/sonarr
-  version: 26.10.0
+  version: 26.10.1
   releaseName: sonarr
   waitForJobs: true
   valuesFiles:

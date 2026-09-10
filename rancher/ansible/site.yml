@@ -296,7 +296,13 @@
               hostname: "{{ rancher_hostname }}"
               bootstrapPassword: "{{ rancher_bootstrap_password }}"
               ingress:
+                extraAnnotations:
+                  cert-manager.io/cluster-issuer: "{{ rancher_ingress_tls_cluster_issuer }}"
                 tls:
+                  source: "{{ rancher_ingress_tls_source }}"
+              gateway:
+                tls:
+                  secretName: tls-rancher-ingress
                   source: "{{ rancher_ingress_tls_source }}"
             owner: root
             group: root

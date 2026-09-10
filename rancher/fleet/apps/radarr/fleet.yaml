@@ -3,7 +3,7 @@ defaultNamespace: apps-radarr
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/radarr
-  version: 27.13.0
+  version: 27.13.1
   releaseName: radarr
   waitForJobs: true
   valuesFiles:
