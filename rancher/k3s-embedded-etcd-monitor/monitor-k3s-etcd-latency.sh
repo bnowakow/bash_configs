@@ -80,6 +80,23 @@ flock -n 9 || {
   exit 1
 }
 
+run_logrotate_retention() {
+  local logrotate_config="/etc/logrotate.d/k3s-etcd-monitor"
+  local logrotate_state="/var/lib/logrotate/k3s-etcd-monitor.status"
+
+  [[ "$output_dir" == "/var/log/k3s-etcd-monitor" ]] || return 0
+  [[ -x /usr/sbin/logrotate && -f "$logrotate_config" ]] || return 0
+
+  touch "$output_dir/.retention-trigger"
+  if /usr/sbin/logrotate -f -s "$logrotate_state" "$logrotate_config"; then
+    echo "Applied monitor log retention policy."
+  else
+    echo "WARNING: monitor log retention policy failed." >&2
+  fi
+}
+
+run_logrotate_retention
+
 last_capture=0
 metrics_history_dir="$output_dir/etcd-metrics-history"
 
