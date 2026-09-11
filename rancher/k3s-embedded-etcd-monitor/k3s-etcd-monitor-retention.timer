@@ -1,0 +1,11 @@
+[Unit]
+Description=Hourly k3s embedded-etcd monitor log retention
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+AccuracySec=1min
+Unit=k3s-etcd-monitor-retention.service
+
+[Install]
+WantedBy=timers.target

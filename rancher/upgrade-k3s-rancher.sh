@@ -4,6 +4,7 @@ set -Eeuo pipefail
 
 kubeconfig_path="/etc/rancher/k3s/k3s.yaml"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ansible_group_vars_file="$script_dir/ansible/group_vars/all.yml"
 log_dir="$script_dir/logs"
 timestamp="$(date +"%Y%m%d-%H%M%S")"
 log_file="$log_dir/upgrade-k3s-rancher-${timestamp}.log"
@@ -132,7 +133,7 @@ require_cmd() {
 require_dependencies() {
   local missing=0
   local cmd
-  for cmd in awk base64 chmod cp curl grep helm hostname kubectl mkdir sed sleep sort systemctl tail tee tr; do
+  for cmd in awk base64 chmod cp curl grep helm hostname kubectl mkdir mktemp mv rm sed sleep sort systemctl tail tee tr; do
     if ! require_cmd "$cmd"; then
       missing=1
     fi
@@ -413,6 +414,76 @@ helm_release_field() {
     head -n 1
 }
 
+update_ansible_rancher_chart_version() {
+  local chart_version="$1"
+  local file="$ansible_group_vars_file"
+  local temp_file
+  local matching_lines
+
+  if [ ! -f "$file" ]; then
+    log_error "Ansible group vars file not found: $file"
+    return 1
+  fi
+
+  matching_lines="$(grep -Ec '^[[:space:]]*rancher_chart_version:' "$file" || true)"
+  if [ "$matching_lines" -ne 1 ]; then
+    log_error "Expected exactly one rancher_chart_version entry in $file; found $matching_lines."
+    return 1
+  fi
+
+  temp_file="$(mktemp "${file}.XXXXXX")"
+  if ! sed -E "s#^([[:space:]]*rancher_chart_version:[[:space:]]*).*$#\1\"${chart_version#v}\"#" "$file" >"$temp_file"; then
+    rm -f "$temp_file"
+    log_error "Unable to update Rancher chart version in $file"
+    return 1
+  fi
+
+  chmod --reference="$file" "$temp_file"
+
+  if ! mv "$temp_file" "$file"; then
+    rm -f "$temp_file"
+    log_error "Unable to replace Ansible group vars file: $file"
+    return 1
+  fi
+
+  log_success "Updated Ansible rancher_chart_version to $(version_text "${chart_version#v}") in $file."
+}
+
+update_ansible_k3s_version() {
+  local k3s_version="$1"
+  local file="$ansible_group_vars_file"
+  local temp_file
+  local matching_lines
+
+  if [ ! -f "$file" ]; then
+    log_error "Ansible group vars file not found: $file"
+    return 1
+  fi
+
+  matching_lines="$(grep -Ec '^[[:space:]]*k3s_version:' "$file" || true)"
+  if [ "$matching_lines" -ne 1 ]; then
+    log_error "Expected exactly one k3s_version entry in $file; found $matching_lines."
+    return 1
+  fi
+
+  temp_file="$(mktemp "${file}.XXXXXX")"
+  if ! sed -E "s#^([[:space:]]*k3s_version:[[:space:]]*).*$#\1${k3s_version}#" "$file" >"$temp_file"; then
+    rm -f "$temp_file"
+    log_error "Unable to update K3s version in $file"
+    return 1
+  fi
+
+  chmod --reference="$file" "$temp_file"
+
+  if ! mv "$temp_file" "$file"; then
+    rm -f "$temp_file"
+    log_error "Unable to replace Ansible group vars file: $file"
+    return 1
+  fi
+
+  log_success "Updated Ansible k3s_version to $(version_text "$k3s_version") in $file."
+}
+
 installed_k3s_version() {
   if ! command -v k3s >/dev/null 2>&1; then
     return 1
@@ -671,6 +742,8 @@ About to run the upgrade with:
     run_cmd kubectl --kubeconfig "$kubeconfig_path" -n cattle-system rollout status deploy/rancher --timeout="$rollout_timeout"
     run_cmd kubectl --kubeconfig "$kubeconfig_path" -n cattle-system get deploy rancher
 
+    update_ansible_rancher_chart_version "$rancher_chart_version"
+
     setup_password="$(kubectl --kubeconfig "$kubeconfig_path" get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')"
     log_success "$(component_text "Rancher") setup URL: https://$hostname_fqdn/dashboard/?setup=$setup_password"
 
@@ -689,6 +762,8 @@ About to run the upgrade with:
     run_cmd systemctl stop k3s
     run_cmd systemctl start k3s
     wait_for_kubectl
+    update_ansible_k3s_version "$k3s_version"
+    log_error "IMPORTANT: Run Ansible to check and upgrade K3s on the other cluster nodes."
   else
     log_success "Skipping $(component_text "k3s"); installed version is $(version_text "${current_k3s_version:-not detected}") and target $(version_text "$k3s_version") is not newer."
   fi

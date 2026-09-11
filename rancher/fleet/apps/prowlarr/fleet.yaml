@@ -3,7 +3,7 @@ defaultNamespace: apps-prowlarr
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/prowlarr
-  version: 22.13.0
+  version: 22.13.1
   releaseName: prowlarr
   waitForJobs: true
   valuesFiles:

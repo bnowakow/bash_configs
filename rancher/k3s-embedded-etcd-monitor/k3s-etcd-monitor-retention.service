@@ -1,0 +1,9 @@
+[Unit]
+Description=Apply k3s embedded-etcd monitor log retention
+ConditionPathExists=/usr/sbin/logrotate
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/mkdir -p /var/log/k3s-etcd-monitor
+ExecStartPre=/usr/bin/touch /var/log/k3s-etcd-monitor/.retention-trigger
+ExecStart=/usr/sbin/logrotate -s /var/lib/logrotate/k3s-etcd-monitor.status /etc/logrotate.d/k3s-etcd-monitor
