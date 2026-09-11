@@ -57,6 +57,28 @@
         nodes.longhorn.io --all -n longhorn-system --timeout={{ health_timeout }}
       changed_when: false
 
+    - name: Read Longhorn node resources
+      kubernetes.core.k8s_info:
+        api_version: longhorn.io/v1beta2
+        kind: Node
+        namespace: longhorn-system
+      register: longhorn_nodes
+
+    - name: Enable scheduling on every Longhorn node
+      kubernetes.core.k8s:
+        state: patched
+        definition:
+          apiVersion: longhorn.io/v1beta2
+          kind: Node
+          metadata:
+            name: "{{ item.metadata.name }}"
+            namespace: longhorn-system
+          spec:
+            allowScheduling: true
+      loop: "{{ longhorn_nodes.resources }}"
+      loop_control:
+        label: "{{ item.metadata.name }}"
+
     - name: Wait for the Longhorn StorageClass
       ansible.builtin.command: kubectl get storageclass longhorn
       register: longhorn_storageclass

@@ -9,8 +9,9 @@ k3s_tls_sans:
   - proxmox3.tailscale.bnowakowski.pl
 
 # Longhorn requires an ext4 or XFS filesystem on a dedicated device.
-# This example matches the documented ZFS zvol path. Formatting is disabled by default.
-longhorn_device: /dev/zvol/rpool/longhorn
+# Resolve the device path on each host from this filesystem label. Formatting is
+# disabled by default.
+longhorn_filesystem_label: longhorn
 longhorn_mount_path: /var/lib/longhorn
 longhorn_filesystem: ext4
 longhorn_format_device: false

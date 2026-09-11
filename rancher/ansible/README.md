@@ -35,7 +35,9 @@ cp group_vars/all.yml.example group_vars/all.yml
 cp .env.sample .env
 ```
 
-Edit the inventory and variables. In particular, verify `longhorn_device`; formatting
+Edit the inventory and variables. In particular, verify that each Longhorn host's
+dedicated filesystem has the configured `longhorn_filesystem_label` (default:
+`longhorn`); the playbook resolves the device path per host with `blkid`. Formatting
 is disabled by default and the playbook fails if the device has no filesystem UUID.
 `dm_crypt` loading is also disabled by default because this cluster does not use
 Longhorn volume or backup encryption. Set `longhorn_dm_crypt_enabled: true` if that

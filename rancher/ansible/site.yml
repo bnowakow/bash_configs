@@ -48,6 +48,31 @@
   become: true
   gather_facts: false
   tasks:
+    - name: Find all Longhorn devices by filesystem label
+      ansible.builtin.command:
+        argv:
+          - blkid
+          - -o
+          - device
+          - -t
+          - "LABEL={{ longhorn_filesystem_label }}"
+      register: longhorn_device_lookup
+      changed_when: false
+
+    - name: Require exactly one Longhorn device
+      ansible.builtin.assert:
+        that:
+          - longhorn_device_lookup.rc == 0
+          - longhorn_device_lookup.stdout_lines | length == 1
+        fail_msg: >-
+          Expected exactly one device with filesystem label
+          '{{ longhorn_filesystem_label }}', found
+          {{ longhorn_device_lookup.stdout_lines | length }}.
+
+    - name: Set the unique host-specific Longhorn device path
+      ansible.builtin.set_fact:
+        longhorn_device: "{{ longhorn_device_lookup.stdout_lines[0] | trim }}"
+
     - name: Check Longhorn device exists
       ansible.builtin.stat:
         path: "{{ longhorn_device }}"
