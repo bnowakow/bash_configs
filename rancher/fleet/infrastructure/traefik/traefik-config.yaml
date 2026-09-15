@@ -19,7 +19,6 @@ spec:
       access:
         enabled: true
     deployment:
-      replicas: 2
       podAnnotations:
         prometheus.io/port: "8082"
         prometheus.io/scrape: "true"
