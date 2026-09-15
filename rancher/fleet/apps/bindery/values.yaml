@@ -1,0 +1,32 @@
+# Bindery's upstream chart is vendored under charts/bindery because it is
+# published as source in the application repository rather than a Helm repo.
+image:
+  tag: "1.36.1"
+
+persistence:
+  config:
+    enabled: true
+    # The cluster's local storage provisioner is named local-path.
+    storageClass: local-path
+    size: 4Gi
+    mountPath: /config
+
+# Keep downloads and the ebook/audiobook library on one NFS mount so Bindery
+# can use hardlinks and share paths with the media stack.
+nfs:
+  enabled: true
+  server: nas.localdomain.bnowakowski.pl
+  path: /mnt/PlexPool/plex
+  mountPath: /mnt/PlexPool/plex
+
+env:
+  BINDERY_DOWNLOAD_DIR: /mnt/PlexPool/plex/Bindery
+  BINDERY_LIBRARY_DIR: /mnt/PlexPool/plex/Books
+  BINDERY_AUDIOBOOK_DIR: /mnt/PlexPool/plex/Audiobooks
+
+ingress:
+  enabled: false
+
+hooks:
+  postsyncSmoke:
+    enabled: false

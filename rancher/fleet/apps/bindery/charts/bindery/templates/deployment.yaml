@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bindery.fullname" . }}
+  labels:
+    {{- include "bindery.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      {{- include "bindery.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: {{ .Values.strategy.type }}
+  template:
+    metadata:
+      labels:
+        {{- include "bindery.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "bindery.serviceAccountName" . }}
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: bindery
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - name: http
+              containerPort: 8787
+              protocol: TCP
+          env:
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            # Telemetry signal — distinguishes Helm-installed pods from raw
+            # k8s manifests / kustomize / operators in the public dashboard
+            # at https://getbindery.dev/stats. Only the bucket label is sent;
+            # the install ID and ping payload are unchanged.
+            - name: BINDERY_DEPLOY_METHOD
+              value: "helm"
+            {{- if or .Values.auth.existingSecret .Values.auth.apiKey }}
+            - name: BINDERY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-auth" (include "bindery.fullname" .)) .Values.auth.existingSecret }}
+                  key: {{ .Values.auth.apiKeySecretKey | default "api-key" }}
+            {{- end }}
+          startupProbe:
+            tcpSocket:
+              port: http
+            failureThreshold: 30
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+            failureThreshold: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+            failureThreshold: 5
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            {{- if .Values.persistence.config.enabled }}
+            - name: config
+              mountPath: {{ .Values.persistence.config.mountPath }}
+            {{- end }}
+            {{- if .Values.nfs.enabled }}
+            - name: media
+              mountPath: {{ .Values.nfs.mountPath }}
+            {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        {{- if .Values.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ include "bindery.fullname" . }}-config
+        {{- end }}
+        {{- if .Values.nfs.enabled }}
+        - name: media
+          nfs:
+            server: {{ .Values.nfs.server }}
+            path: {{ .Values.nfs.path }}
+        {{- end }}
+      terminationGracePeriodSeconds: 30

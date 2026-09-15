@@ -1,0 +1,12 @@
+apiVersion: v2
+name: bindery
+description: Automated book download manager for Usenet and Torrents
+type: application
+version: 0.9.12
+appVersion: "1.36.1"
+home: https://github.com/vavallee/bindery
+sources:
+  - https://github.com/vavallee/bindery
+maintainers:
+  - name: vavallee
+    url: https://github.com/vavallee

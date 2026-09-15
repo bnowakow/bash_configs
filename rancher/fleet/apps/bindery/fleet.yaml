@@ -1,0 +1,10 @@
+name: bindery
+defaultNamespace: apps-bindery
+
+helm:
+  chart: ./charts/bindery
+  releaseName: bindery
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
+

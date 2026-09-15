@@ -321,8 +321,8 @@ show_current_status() {
     run_cmd kubectl --kubeconfig "$kubeconfig_path" get nodes || true
     run_cmd kubectl --kubeconfig "$kubeconfig_path" get pods --namespace cert-manager || true
     run_cmd kubectl --kubeconfig "$kubeconfig_path" get pods --namespace cattle-system || true
-    run_cmd helm --kubeconfig "$kubeconfig_path" list --namespace cert-manager || true
-    run_cmd helm --kubeconfig "$kubeconfig_path" list --namespace cattle-system || true
+    run_cmd helm --kubeconfig "$kubeconfig_path" list --all --namespace cert-manager || true
+    run_cmd helm --kubeconfig "$kubeconfig_path" list --all --namespace cattle-system || true
   else
     log_warning "Kubeconfig does not exist yet: $kubeconfig_path"
   fi
@@ -408,9 +408,23 @@ helm_release_field() {
 
   helm --kubeconfig "$kubeconfig_path" list \
     --namespace "$namespace" \
+    --all \
     --filter "^${release}$" \
     --output json |
     sed -nE "s/.*\"$field\"[[:space:]]*:[[:space:]]*\"([^\"]+)\".*/\1/p" |
+    head -n 1
+}
+
+helm_release_status() {
+  local release="$1"
+  local namespace="$2"
+
+  helm --kubeconfig "$kubeconfig_path" list \
+    --namespace "$namespace" \
+    --all \
+    --filter "^${release}$" \
+    --output json |
+    sed -nE 's/.*"status"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p' |
     head -n 1
 }
 
@@ -538,13 +552,13 @@ verify_final_versions() {
 
   actual_cert_manager_version="$(helm_release_field cert-manager cert-manager app_version)"
   cert_manager_chart="$(helm_release_field cert-manager cert-manager chart)"
-  run_cmd helm --kubeconfig "$kubeconfig_path" list --namespace cert-manager --filter '^cert-manager$'
+  run_cmd helm --kubeconfig "$kubeconfig_path" list --all --namespace cert-manager --filter '^cert-manager$'
   require_equal_version "cert-manager app_version" "$expected_cert_manager_version" "$actual_cert_manager_version"
   log "$(component_text "cert-manager") chart version reported by Helm: $(version_text "${cert_manager_chart:-unknown}")"
 
   actual_rancher_version="$(helm_release_field rancher cattle-system app_version)"
   rancher_chart="$(helm_release_field rancher cattle-system chart)"
-  run_cmd helm --kubeconfig "$kubeconfig_path" list --namespace cattle-system --filter '^rancher$'
+  run_cmd helm --kubeconfig "$kubeconfig_path" list --all --namespace cattle-system --filter '^rancher$'
   require_equal_version "Rancher app_version" "$expected_rancher_version" "$actual_rancher_version"
   log "$(component_text "Rancher") chart version reported by Helm: $(version_text "${rancher_chart:-unknown}")"
 
@@ -605,6 +619,7 @@ main() {
   local current_k3s_version
   local current_cert_manager_version
   local current_rancher_version
+  local current_rancher_status
   local upgrade_k3s
   local upgrade_cert_manager
   local upgrade_rancher
@@ -664,6 +679,10 @@ main() {
   current_k3s_version="$(installed_k3s_version || true)"
   current_cert_manager_version="$(helm_release_field cert-manager cert-manager app_version || true)"
   current_rancher_version="$(helm_release_field rancher cattle-system app_version || true)"
+  current_rancher_status="$(helm_release_status rancher cattle-system || true)"
+  if [ -n "$current_rancher_status" ] && [ "$current_rancher_status" != "deployed" ]; then
+    log_warning "Rancher Helm release is present at $(version_text "${current_rancher_version:-unknown}") but has status $(version_text "$current_rancher_status")."
+  fi
   upgrade_k3s=0
   upgrade_cert_manager=0
   upgrade_rancher=0

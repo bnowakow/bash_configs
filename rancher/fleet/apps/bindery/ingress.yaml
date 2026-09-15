@@ -1,0 +1,48 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bindery-tailscale
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: bindery-tailscale-tls
+      hosts:
+        - bindery.rancher.tailscale.bnowakowski.pl
+  rules:
+    - host: bindery.rancher.tailscale.bnowakowski.pl
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bindery
+                port:
+                  number: 8787
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bindery-localdomain
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: bindery-localdomain-tls
+      hosts:
+        - bindery.rancher.localdomain.bnowakowski.pl
+  rules:
+    - host: bindery.rancher.localdomain.bnowakowski.pl
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bindery
+                port:
+                  number: 8787
+
