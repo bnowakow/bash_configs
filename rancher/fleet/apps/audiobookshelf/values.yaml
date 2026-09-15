@@ -1,0 +1,43 @@
+persistence:
+  config:
+    enabled: true
+    type: pvc
+    storageClass: local-path
+    size: 4Gi
+    mountPath: /config
+  metadata:
+    enabled: true
+    type: pvc
+    storageClass: local-path
+    size: 20Gi
+    mountPath: /metadata
+  audiobooks:
+    enabled: true
+    type: nfs
+    server: nas.localdomain.bnowakowski.pl
+    path: /mnt/PlexPool/plex/Audiobooks
+    mountPath: /audiobooks
+
+ingress:
+  main:
+    enabled: true
+    primary: true
+    ingressClassName: traefik
+    hosts:
+      - host: audiobookshelf.rancher.tailscale.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+      - host: audiobookshelf.rancher.localdomain.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt
+      traefik:
+        enabled: true
+        entrypoints:
+          - websecure
+        forceTLS: true

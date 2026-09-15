@@ -1,0 +1,10 @@
+name: audiobookshelf
+defaultNamespace: apps-audiobookshelf
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/audiobookshelf
+  version: 13.13.0
+  releaseName: audiobookshelf
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
