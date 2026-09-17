@@ -3,7 +3,7 @@ defaultNamespace: apps-ddclient
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/ddclient
-  version: 14.4.0
+  version: 14.10.2
   releaseName: ddclient
   waitForJobs: true
   valuesFiles:

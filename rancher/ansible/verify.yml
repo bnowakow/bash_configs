@@ -79,6 +79,32 @@
       loop_control:
         label: "{{ item.metadata.name }}"
 
+    - name: Refresh Longhorn engine-image pods after node reconciliation
+      ansible.builtin.shell: |
+        set -o pipefail
+        for resource in $(kubectl -n longhorn-system get daemonsets \
+          -l longhorn.io/component=engine-image -o name); do
+          kubectl -n longhorn-system rollout restart "$resource"
+        done
+      args:
+        executable: /bin/bash
+      changed_when: true
+
+    - name: Wait for Longhorn engine-image DaemonSets
+      ansible.builtin.shell: |
+        set -o pipefail
+        for resource in $(kubectl -n longhorn-system get daemonsets \
+          -l longhorn.io/component=engine-image -o name); do
+          kubectl -n longhorn-system rollout status "$resource" --timeout=10s
+        done
+      args:
+        executable: /bin/bash
+      register: longhorn_engine_images
+      retries: "{{ rollout_retries }}"
+      delay: "{{ resource_delay }}"
+      until: longhorn_engine_images.rc == 0
+      changed_when: false
+
     - name: Wait for the Longhorn StorageClass
       ansible.builtin.command: kubectl get storageclass longhorn
       register: longhorn_storageclass

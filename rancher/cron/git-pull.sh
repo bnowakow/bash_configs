@@ -2,11 +2,7 @@
 
 # possible conflicts while pulling: crashplan, docker-mailserver (docker-compose, Makefile), homer (config), medihunter, zabbix-scripts (.gitignore)
 
-dirs=("/home/sup/code/bash_configs/repos/truecharts" \
-    "/home/sup/code/bash_configs/repos/zabbix" \
-    "/home/sup/code/bash_configs/repos/aa-YoutubeDL-Material/youtubedl-material" \
-    "/home/sup/code/bash_configs/repos/docker-mailserver-helm" \
-    "/home/sup/code/bash_configs/repos/partner-charts" \
+dirs=("/home/sup/code/bash_configs/repos/bindery"
 )
 
 for dir in ${dirs[@]}; do

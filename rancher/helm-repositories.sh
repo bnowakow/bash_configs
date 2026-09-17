@@ -3,10 +3,10 @@
 # Shared chart sources. OCI charts are listed individually because Helm does
 # not index them through `helm repo add`.
 truecharts_apps=(
-  sonarr radarr bazarr jellyfin jellyseerr prowlarr plex homer flaresolverr scrutiny
+  sonarr radarr bazarr jellyfin jellyseerr prowlarr plex homer flaresolverr scrutiny ddclient
   adguard-home jellystat duckdns filebot maintainerr plextraktsync proxmox-backup-server
   smokeping youtubedl-material cloudnative-pg prometheus-operator nginx-proxy-manager
-  authelia pgadmin scrypted recyclarr readarr calibre bookstack
+  authelia pgadmin scrypted recyclarr readarr calibre bookstack audiobookshelf
 )
 
 helm_chart_ref_for_app() {

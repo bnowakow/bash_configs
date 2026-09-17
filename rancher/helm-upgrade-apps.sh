@@ -2,6 +2,12 @@
 
 set -u
 
+# Arrow keys are sent as multi-byte escape sequences.  Give ncurses enough
+# time to receive the complete sequence so the initial ESC is not mistaken
+# for dialog's cancel/abort action.
+ESCDELAY=1000
+export ESCDELAY
+
 kubeconfig_path="/etc/rancher/k3s/k3s.yaml"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 bash_configs_root="$(cd "$script_dir/.." && pwd)"
@@ -18,7 +24,11 @@ timestamp="$(date +"%Y%m%d-%H%M%S")"
 log_file="$log_dir/helm-upgrade-${timestamp}.log"
 yes_mode=0
 dry_run=0
-rollout_timeout="${ROLLOUT_TIMEOUT:-90s}"
+# Some charts run a lengthy entrypoint initialization (for example, recursive
+# permission fixes) before their startup probe can succeed.  Give rollouts
+# enough time to finish that initialization; ROLLOUT_TIMEOUT or the CLI option
+# can still override this per run.
+rollout_timeout="${ROLLOUT_TIMEOUT:-10m}"
 exit_status=0
 total_discovered_count=0
 excluded_count=0
@@ -59,6 +69,7 @@ exclude_patterns=(
   '^node-feature-discovery$'
   '^meshcommander$'
   '^plex$'
+  '^homer-test.*$'
   '^fleet$'
   '^fleet-agent-local$'
   '^fleet-crd$'
@@ -140,7 +151,7 @@ Options:
   --yes       Auto-approve upgrades and continue prompts.
   --dry-run   Do not apply Fleet changes; execute checks and prompts only.
   --rollout-timeout DURATION
-              Timeout for each rollout status check (default: 90s).
+              Timeout for each rollout status check (default: 10m).
   --help      Show this help message.
 
 Exit codes:
@@ -627,6 +638,19 @@ fleet_bundledeployment_failure_message() {
   fi
 }
 
+helm_release_failure_message() {
+  local app="$1"
+  local namespace="$2"
+  local message
+
+  message="$(helm status "$app" \
+    --kubeconfig "$kubeconfig_path" \
+    --namespace "$namespace" \
+    -o json 2>>"$log_file" | \
+    jq -r '.info.description // .info.status // empty' 2>>"$log_file" || true)"
+  printf '%s' "$message"
+}
+
 ask_attempt_fleet_repair() {
   local app="$1"
   local namespace="$2"
@@ -638,10 +662,6 @@ ask_attempt_fleet_repair() {
 
   dialog \
     --clear \
-    --begin 0 0 \
-    --title "Helm Upgrade Log" \
-    --tailboxbg "$log_file" 18 120 \
-    --and-widget \
     --begin 2 10 \
     --title "Attempt recovery for $app?" \
     --defaultno \
@@ -728,6 +748,7 @@ apply_fleet_bundle() {
   local bundledeployment_ready
   local failure_message
   local helm_status
+  local helm_failure_message
   local fleet_repair_attempted=0
   local fleet_status_retry=0
 
@@ -890,6 +911,12 @@ apply_fleet_bundle() {
       --namespace "$namespace" --filter "^${app}$" \
       -o json 2>>"$log_file" | jq -r '.[0].status // empty' 2>>"$log_file" || true)"
     if [ "$helm_status" = "failed" ]; then
+      helm_failure_message="$(helm_release_failure_message "$app" "$namespace")"
+      if [ -z "$helm_failure_message" ]; then
+        helm_failure_message="No Helm failure description was reported. See $log_file for command output."
+      fi
+      log "$app: Helm release is failed: $helm_failure_message" \
+        "$(color_blue "$app"): Helm release failed: $helm_failure_message"
       if [ "$fleet_repair_attempted" -eq 0 ]; then
         fleet_repair_attempted=1
         if ask_attempt_fleet_repair "$app" "$namespace"; then
@@ -903,7 +930,7 @@ apply_fleet_bundle() {
         fi
       fi
       record_failure_and_maybe_abort "Helm upgrade failed ($app)" \
-        "Helm release $namespace/$app is failed while Fleet still reports the previous deployment as applied."
+        "Helm release $namespace/$app is failed while Fleet still reports the previous deployment as applied.\n\nHelm reason: $helm_failure_message"
       return 1
     fi
 
@@ -1175,10 +1202,6 @@ show_app_modal() {
   dialog \
     "${dialog_color_flag[@]}" \
     --clear \
-    --begin 0 0 \
-    --title "Helm Upgrade Log" \
-    --tailboxbg "$log_file" 18 120 \
-    --and-widget \
     "${dialog_color_flag_yesno[@]}" \
     --begin 2 10 \
     --title "Upgrade $app?" \
@@ -1199,10 +1222,6 @@ show_postcheck_log_review_modal() {
 
   dialog \
     --clear \
-    --begin 0 0 \
-    --title "Helm Upgrade Log" \
-    --tailboxbg "$log_file" 18 120 \
-    --and-widget \
     --begin 2 10 \
     --title "Post-upgrade review for $app" \
     --yes-label "Looks good" \
@@ -1222,10 +1241,6 @@ ask_on_failure() {
 
   dialog \
     --clear \
-    --begin 0 0 \
-    --title "Helm Upgrade Log" \
-    --tailboxbg "$log_file" 18 120 \
-    --and-widget \
     --begin 2 10 \
     --title "$title" \
     --defaultno \
@@ -1261,10 +1276,6 @@ ask_on_helm_upgrade_failure() {
   choice_file="$(mktemp "${TMPDIR:-/tmp}/helm-upgrade-failure-choice.XXXXXX")"
   if dialog \
     --clear \
-    --begin 0 0 \
-    --title "Helm Upgrade Log" \
-    --tailboxbg "$log_file" 18 120 \
-    --and-widget \
     --begin 2 10 \
     --title "Helm upgrade failed ($app)" \
     --default-item 1 \
@@ -1361,10 +1372,6 @@ ask_retry_curl_with_insecure() {
 
   dialog \
     --clear \
-    --begin 0 0 \
-    --title "Helm Upgrade Log" \
-    --tailboxbg "$log_file" 18 120 \
-    --and-widget \
     --begin 2 10 \
     --title "Certificate Validity Issue" \
     --defaultno \
@@ -1768,6 +1775,21 @@ init_colors
 init_dialog_colors
 
 log "Run started. log_file=$log_file yes_mode=$yes_mode dry_run=$dry_run rollout_timeout=$rollout_timeout"
+repo_sync_script="$script_dir/cron/git-pull.sh"
+log "Refreshing chart repositories with $repo_sync_script"
+if [ ! -x "$repo_sync_script" ]; then
+  record_failure_and_maybe_abort "Repository refresh script unavailable" \
+    "Expected executable repository refresh script at $repo_sync_script."
+else
+  if ! "$repo_sync_script" >>"$log_file" 2>&1; then
+    record_failure_and_maybe_abort "Repository refresh failed" \
+      "$repo_sync_script failed. See $log_file for details."
+  else
+    log "Repository refresh completed (return_code=0)" \
+      "$(color_blue "repositories"): repository refresh completed"
+  fi
+fi
+
 log "Refreshing helm repos"
 if ! helm repo update >>"$log_file" 2>&1; then
   record_failure_and_maybe_abort "helm repo update failed" "Unable to refresh helm repos."

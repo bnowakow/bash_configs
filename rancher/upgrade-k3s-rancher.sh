@@ -14,6 +14,7 @@ rancher_chart_index_url="https://releases.rancher.com/server-charts/stable/index
 k3s_releases_api_url="https://api.github.com/repos/k3s-io/k3s/releases?per_page=100"
 cert_manager_releases_api_url="https://api.github.com/repos/cert-manager/cert-manager/releases?per_page=100"
 rollout_timeout="${ROLLOUT_TIMEOUT:-10m}"
+pending_rancher_upgrade_max_age_seconds="${PENDING_RANCHER_UPGRADE_MAX_AGE_SECONDS:-1800}"
 color_blue=""
 color_red=""
 color_yellow=""
@@ -33,6 +34,9 @@ waits for confirmation before making upgrade changes.
 
 Environment:
   ROLLOUT_TIMEOUT   kubectl rollout timeout for Rancher deployment (default: 10m)
+  PENDING_RANCHER_UPGRADE_MAX_AGE_SECONDS
+                   Treat pending-upgrade as stale after this many seconds
+                   (default: 1800 / 30 minutes).
 USAGE
 }
 
@@ -133,7 +137,7 @@ require_cmd() {
 require_dependencies() {
   local missing=0
   local cmd
-  for cmd in awk base64 chmod cp curl grep helm hostname kubectl mkdir mktemp mv rm sed sleep sort systemctl tail tee tr; do
+  for cmd in awk base64 chmod cp curl date grep helm hostname kubectl mkdir mktemp mv rm sed sleep sort systemctl tail tee tr; do
     if ! require_cmd "$cmd"; then
       missing=1
     fi
@@ -359,6 +363,30 @@ wait_for_kubectl() {
   return 1
 }
 
+verify_cert_manager_health() {
+  local deployment
+
+  log "Checking $(component_text "cert-manager") health after upgrade."
+
+  for deployment in cert-manager cert-manager-cainjector cert-manager-webhook; do
+    run_cmd kubectl --kubeconfig "$kubeconfig_path" \
+      --namespace cert-manager \
+      rollout status "deployment/$deployment" \
+      --timeout="$rollout_timeout"
+  done
+
+  log "Waiting for the $(component_text "cert-manager") startup API check to complete."
+  run_cmd kubectl --kubeconfig "$kubeconfig_path" \
+    --namespace cert-manager \
+    wait --for=condition=complete \
+    job/cert-manager-startupapicheck \
+    --timeout="$rollout_timeout"
+
+  run_cmd kubectl --kubeconfig "$kubeconfig_path" get pods --namespace cert-manager -o wide
+  run_cmd kubectl --kubeconfig "$kubeconfig_path" get issuers,clusterissuers,certificaterequests,certificates --all-namespaces
+  log_success "$(component_text "cert-manager") health checks passed."
+}
+
 normalize_leading_v() {
   local version="$1"
   printf 'v%s\n' "${version#v}"
@@ -426,6 +454,67 @@ helm_release_status() {
     --output json |
     sed -nE 's/.*"status"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p' |
     head -n 1
+}
+
+recover_pending_rancher_upgrade() {
+  local status="$1"
+  local previous_deployed_revision
+  local pending_upgrade_started
+  local pending_upgrade_epoch
+  local pending_upgrade_age
+
+  if [ "$status" != "pending-upgrade" ]; then
+    return 0
+  fi
+
+  pending_upgrade_started="$(helm --kubeconfig "$kubeconfig_path" history rancher \
+    --namespace cattle-system --max 20 2>/dev/null |
+    awk 'NR > 1 && $7 == "pending-upgrade" { print $2, $3, $4, $5, $6; exit }')"
+  pending_upgrade_epoch="$(date -d "$pending_upgrade_started" +%s 2>/dev/null || true)"
+  if [ -z "$pending_upgrade_epoch" ]; then
+    log_error "Unable to determine when Rancher entered pending-upgrade. Refusing automatic recovery."
+    return 1
+  fi
+  pending_upgrade_age=$(( $(date +%s) - pending_upgrade_epoch ))
+  if [ "$pending_upgrade_age" -lt 0 ]; then
+    pending_upgrade_age=0
+  fi
+  if [ "$pending_upgrade_age" -lt "$pending_rancher_upgrade_max_age_seconds" ]; then
+    log_warning "Rancher pending-upgrade started ${pending_upgrade_age}s ago; waiting until it is older than ${pending_rancher_upgrade_max_age_seconds}s before offering rollback."
+    return 1
+  fi
+
+  previous_deployed_revision="$(helm --kubeconfig "$kubeconfig_path" history rancher \
+    --namespace cattle-system --max 20 2>/dev/null |
+    awk 'NR > 1 && $7 == "deployed" { revision = $1 } END { print revision }')"
+  if [ -z "$previous_deployed_revision" ]; then
+    log_error "Rancher is pending-upgrade, but no previous deployed Helm revision was found."
+    return 1
+  fi
+
+  log_warning "Rancher Helm release is stuck in pending-upgrade. The latest deployed revision is $previous_deployed_revision."
+  if ! confirm "Roll Rancher back to deployed revision $previous_deployed_revision and wait for readiness?"; then
+    log_error "Pending Rancher upgrade was not repaired; aborting before upgrade changes."
+    return 1
+  fi
+
+  log "Rolling Rancher back to Helm revision $previous_deployed_revision."
+  if ! run_cmd helm --kubeconfig "$kubeconfig_path" rollback rancher "$previous_deployed_revision" \
+    --namespace cattle-system \
+    --wait \
+    --timeout "$rollout_timeout"; then
+    log_error "Rancher rollback to revision $previous_deployed_revision failed."
+    return 1
+  fi
+
+  status="$(helm_release_status rancher cattle-system || true)"
+  if [ "$status" != "deployed" ]; then
+    log_error "Rancher rollback completed but Helm status is ${status:-unknown}, not deployed."
+    return 1
+  fi
+
+  log_success "Rancher pending-upgrade state repaired; Helm status is deployed."
+  return 0
 }
 
 update_ansible_rancher_chart_version() {
@@ -683,6 +772,13 @@ main() {
   if [ -n "$current_rancher_status" ] && [ "$current_rancher_status" != "deployed" ]; then
     log_warning "Rancher Helm release is present at $(version_text "${current_rancher_version:-unknown}") but has status $(version_text "$current_rancher_status")."
   fi
+  if ! recover_pending_rancher_upgrade "$current_rancher_status"; then
+    exit 1
+  fi
+  if [ "$current_rancher_status" = "pending-upgrade" ]; then
+    current_rancher_status="$(helm_release_status rancher cattle-system || true)"
+    current_rancher_version="$(helm_release_field rancher cattle-system app_version || true)"
+  fi
   upgrade_k3s=0
   upgrade_cert_manager=0
   upgrade_rancher=0
@@ -797,7 +893,7 @@ About to run the upgrade with:
       --set crds.enabled=true
 
     run_cmd kubectl --kubeconfig "$kubeconfig_path" apply --validate=false -f "https://github.com/jetstack/cert-manager/releases/download/$cert_manager_version/cert-manager.crds.yaml"
-    run_cmd kubectl --kubeconfig "$kubeconfig_path" get pods --namespace cert-manager
+    verify_cert_manager_health
   else
     log_success "Skipping $(component_text "cert-manager"); installed version is $(version_text "${current_cert_manager_version:-not detected}") and target $(version_text "$cert_manager_version") is not newer."
   fi

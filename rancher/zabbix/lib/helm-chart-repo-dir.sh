@@ -23,6 +23,10 @@ for repo_dir in $(ls -1); do
             echo $charts_repo_dir/$(find $repo_dir -name Chart.yaml | grep -E "\/$name/chart/Chart.yaml" | sed 's/\/Chart.yaml$//')
             exit 0
         fi
+        if [ $(find $repo_dir -name Chart.yaml | grep -E "\/$name/charts\/$name/Chart.yaml" | wc -l) -gt 0 ]; then
+            echo $charts_repo_dir/$(find $repo_dir -name Chart.yaml | grep -E "\/$name/charts\/$name/Chart.yaml" | sed 's/\/Chart.yaml$//')
+            exit 0
+        fi
         if [ $(find $repo_dir -name $name*tgz | wc -l) -gt 0 ]; then
             echo $charts_repo_dir/$(find $repo_dir -name $name*tgz | head -n1 | sed "s/\/$name[^\/]*tgz$//" )
             exit 0
@@ -31,4 +35,3 @@ for repo_dir in $(ls -1); do
 done
 
 exit 1
-

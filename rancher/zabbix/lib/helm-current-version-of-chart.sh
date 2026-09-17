@@ -12,6 +12,28 @@ repositories_file="$script_dir/helm-repositories.sh"
 if [ -f "$repositories_file" ]; then
     # shellcheck source=/dev/null
     source "$repositories_file"
+
+    chart_repo_resolver="$script_dir/zabbix/lib/helm-chart-repo-dir.sh"
+    if [ ! -x "$chart_repo_resolver" ]; then
+        chart_repo_resolver="/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-chart-repo-dir.sh"
+    fi
+    chart_repo_dir="$($chart_repo_resolver "$name" 2>/dev/null || true)"
+
+    # Prefer a checked-out chart repository over the vendored Fleet copy.
+    if [ -n "$chart_repo_dir" ] && [ -f "$chart_repo_dir/Chart.yaml" ]; then
+        awk -F': *' '$1 == "version" { sub(/[[:space:]]+#.*/, "", $2); gsub(/[[:space:]]+$/, "", $2); print $2; exit }' "$chart_repo_dir/Chart.yaml"
+        exit 0
+    fi
+
+    # Fleet can package a chart directly in the application directory instead
+    # of pulling it from a Helm repository.  Use this only when no checked-out
+    # chart repository has a matching chart.
+    local_chart_file="$script_dir/fleet/apps/$name/charts/$name/Chart.yaml"
+    if [ -f "$local_chart_file" ]; then
+        awk -F': *' '$1 == "version" { sub(/[[:space:]]+#.*/, "", $2); gsub(/[[:space:]]+$/, "", $2); print $2; exit }' "$local_chart_file"
+        exit 0
+    fi
+
     chart_ref="$(helm_chart_ref_for_app "$name" 2>/dev/null || true)"
     if [ -n "$chart_ref" ]; then
         chart_metadata="$(helm show chart "$chart_ref" 2>/dev/null)"
@@ -80,7 +102,7 @@ else
     file_path=Chart.yaml
     if [ -f $file_path ]; then 
         helm dependency build . > /dev/null 2>&1
-        echo $(grep ^version $file_path | sed 's/.*: //' | sed 's/\ .*//')
+        awk -F': *' '$1 == "version" { sub(/[[:space:]]+#.*/, "", $2); gsub(/[[:space:]]+$/, "", $2); print $2; exit }' "$file_path"
         exit
     fi
 

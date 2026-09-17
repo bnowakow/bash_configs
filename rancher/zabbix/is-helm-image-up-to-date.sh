@@ -4,7 +4,7 @@ name="${1:-duckdns}"
 # in $2 there could be do_not_update_helm it'ss crap because it doesn't parse argument it will just pass $2 whenever it's empty or set
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-version_helper="$script_dir/lib/helm-current-version-of-chart.sh"
+version_helper="$script_dir/zabbix/lib/helm-current-version-of-chart.sh"
 if [ ! -x "$version_helper" ]; then
     version_helper="/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-current-version-of-chart.sh"
 fi

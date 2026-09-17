@@ -3,7 +3,7 @@ defaultNamespace: apps-bookstack
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/bookstack
-  version: 21.21.0
+  version: 21.21.1
   releaseName: bookstack
   waitForJobs: true
   valuesFiles:
