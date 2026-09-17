@@ -73,6 +73,48 @@ traefik.http.routers.traefik-dashboard.tls.certresolver=letsencrypt
 traefik.http.routers.traefik-dashboard.service=api@internal
 ```
 
+## TrueNAS web interface (`truenas`, HTTPS port `10443`)
+
+TrueNAS itself is a host service, rather than an application container. Add
+these labels to the **Traefik** app. The backend must be the NAS LAN address,
+not either public hostname, to avoid proxying back into Traefik. TrueNAS's
+default backend certificate does not match the LAN IP, so this configuration
+keeps TLS to the backend while disabling only its certificate verification. A
+`ServersTransport` cannot be defined through Docker labels, so define it in
+Traefik's mounted file-provider configuration first:
+
+The tracked file is [`traefik/truenas-transport.yaml`](traefik/truenas-transport.yaml).
+Install it on the TrueNAS host before applying the labels:
+
+```sh
+install -m 0644 nas/traefik/truenas-transport.yaml \
+  /mnt/.ix-apps/app_mounts/traefik/config/truenas-transport.yaml
+```
+
+Then add these labels to the **Traefik** app:
+
+```text
+traefik.enable=true
+traefik.http.routers.truenas.entrypoints=websecure
+traefik.http.routers.truenas.rule=Host(`truenas.nas.tailscale.bnowakowski.pl`) || Host(`truenas.nas.localdomain.bnowakowski.pl`)
+traefik.http.routers.truenas.tls=true
+traefik.http.routers.truenas.tls.certresolver=letsencrypt
+traefik.http.routers.truenas.service=truenas
+traefik.http.services.truenas.loadbalancer.server.url=https://10.0.0.20:10443
+traefik.http.services.truenas.loadbalancer.serverstransport=truenas-insecure@file
+```
+
+This exposes the UI on port 443 at:
+
+```text
+https://truenas.nas.tailscale.bnowakowski.pl/
+https://truenas.nas.localdomain.bnowakowski.pl/
+```
+
+Ensure both names resolve to the NAS/Traefik listener. Since this is the TrueNAS
+administration UI, limit access with a Tailscale ACL or Traefik authentication
+before exposing it beyond trusted networks.
+
 ## Emby (`emby`, port `8096`)
 
 ```text
