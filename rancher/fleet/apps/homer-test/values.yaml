@@ -5,6 +5,30 @@ persistence:
     existingClaim: homer-test-config-longhorn-rwx
     mountPath: /www/assets
 
+addons:
+  codeserver:
+    enabled: true
+    ingress:
+      enabled: true
+      hosts:
+        - host: homer-test-editor.rancher.tailscale.bnowakowski.pl
+          paths:
+            - path: /
+              pathType: Prefix
+        - host: homer-test-editor.rancher.localdomain.bnowakowski.pl
+          paths:
+            - path: /
+              pathType: Prefix
+      integrations:
+        certManager:
+          enabled: true
+          certificateIssuer: letsencrypt
+        traefik:
+          enabled: true
+          entrypoints:
+            - websecure
+          forceTLS: true
+
 podOptions:
   defaultAffinity: false
   defaultSpread: false
