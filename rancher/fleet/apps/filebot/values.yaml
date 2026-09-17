@@ -12,6 +12,10 @@ persistence:
     enabled: false
     mountPath: /watch
 
+workload:
+  main:
+    replicas: 0
+
 ingress:
   main:
     enabled: true
