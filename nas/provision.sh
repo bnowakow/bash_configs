@@ -231,6 +231,8 @@ sudo midclt call system.advanced.update '{"kernel_extra_options":  "amd_pstate=p
 sudo mkdir -p /run/screen; sudo chmod 777 /run/screen
 
 sudo service docker start
+docker network create --driver bridge proxy
+
 
 codex_installer=$(mktemp)
 if curl -fsSL -o "$codex_installer" https://chatgpt.com/codex/install.sh; then
@@ -248,3 +250,5 @@ if ((${#APT_CONFIG_WARNINGS[@]})); then
     printf '\n%bWARNING: package configuration completed with errors:%b\n' "$YELLOW" "$RESET" >&2
     printf '%b- %s%b\n' "$YELLOW" "${APT_CONFIG_WARNINGS[@]}" "$RESET" >&2
 fi
+
+
