@@ -12,17 +12,23 @@ entryPoints:
   web:
     address: ":80"
     http:
+      aliasHeadersStrategy: delete
       redirections:
         entryPoint:
           to: websecure
           scheme: https
           permanent: true
   websecure:
+    http:
+      aliasHeadersStrategy: delete
     address: ":443"
 
 providers:
   file:
+    # Proxmox VE default:
     filename: /home/sup/code/bash_configs/proxmox/traefik/dynamic/proxmox.yml
+    # Proxmox Backup Server alternative:
+    # filename: /home/sup/code/bash_configs/proxmox/traefik/dynamic/pbs.yml
     watch: true
 
 certificatesResolvers:
@@ -33,6 +39,8 @@ certificatesResolvers:
       keyType: EC256
       dnsChallenge:
         provider: cloudflare
+        propagation:
+          delayBeforeChecks: 30s
         resolvers:
           - "1.1.1.1:53"
           - "1.0.0.1:53"

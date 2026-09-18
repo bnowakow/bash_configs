@@ -1,5 +1,8 @@
 [Unit]
+# Proxmox VE default:
 Description=Traefik Edge Router for Proxmox VE
+# Proxmox Backup Server alternative:
+# Description=Traefik Edge Router for Proxmox Backup Server
 Documentation=https://doc.traefik.io/traefik/
 Wants=network-online.target
 After=network-online.target

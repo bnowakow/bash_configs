@@ -1,0 +1,48 @@
+http:
+  routers:
+    pbs:
+      rule: "Host(`proxmox-backup-server.localdomain.bnowakowski.pl`) || Host(`proxmox-backup-server.tailscale.bnowakowski.pl`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - pbs-client-networks
+        - security-headers
+      service: pbs
+      tls:
+        certResolver: cloudflare
+        domains:
+          - main: "proxmox-backup-server.localdomain.bnowakowski.pl"
+            sans:
+              - "proxmox-backup-server.tailscale.bnowakowski.pl"
+
+  middlewares:
+    # Both configured names are private. Do not make this administration UI
+    # accessible outside the LAN or Tailnet even if DNS later changes.
+    pbs-client-networks:
+      ipAllowList:
+        sourceRange:
+          - "10.0.0.0/8"
+          - "100.64.0.0/10"
+          - "127.0.0.1/32"
+          - "::1/128"
+    security-headers:
+      headers:
+        forceSTSHeader: true
+        stsSeconds: 31536000
+        stsIncludeSubdomains: false
+        contentTypeNosniff: true
+        referrerPolicy: "same-origin"
+
+  services:
+    pbs:
+      loadBalancer:
+        passHostHeader: true
+        serversTransport: pbs-backend
+        servers:
+          - url: "https://127.0.0.1:8007"
+
+  serversTransports:
+    # PBS's default certificate is locally generated and does not match 127.0.0.1.
+    # This affects only the loopback hop; client-to-Traefik TLS remains verified.
+    pbs-backend:
+      insecureSkipVerify: true

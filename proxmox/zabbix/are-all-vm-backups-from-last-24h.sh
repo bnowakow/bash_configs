@@ -11,9 +11,16 @@ now=$(date +%s)
 
 # These VMs do not need daily backup checks.
 ignored_backup_ids='["800", "900"]'
+backup_list_error=$(mktemp)
+trap 'rm -f "$backup_list_error"' EXIT
 
-if ! backups_json=$(proxmox-backup-client list --repository "$repository" --output-format json 2>/dev/null); then
-    echo false,proxmox-backup-client-list-error
+if ! backups_json=$(proxmox-backup-client list --repository "$repository" --output-format json 2>"$backup_list_error"); then
+    error_message=$(tr '\n' ' ' < "$backup_list_error")
+    if [[ "$error_message" == *"unable to open chunk store"* ]]; then
+        echo false,datastore-unavailable
+    else
+        echo false,proxmox-backup-client-list-error
+    fi
     exit 0
 fi
 

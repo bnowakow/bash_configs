@@ -1,5 +1,6 @@
 # Live configuration contains the ACME account email and is intentionally local.
 traefik.yml
+dynamic/pbs.yml
 dynamic/proxmox.yml
 cloudflare-dns-api-token
 
