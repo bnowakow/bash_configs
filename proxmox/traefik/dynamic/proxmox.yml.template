@@ -1,0 +1,48 @@
+http:
+  routers:
+    proxmox:
+      rule: "Host(`proxmox4.localdomain.bnowakowski.pl`) || Host(`proxmox4.tailscale.bnowakowski.pl`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - proxmox-client-networks
+        - security-headers
+      service: proxmox
+      tls:
+        certResolver: cloudflare
+        domains:
+          - main: "proxmox4.localdomain.bnowakowski.pl"
+            sans:
+              - "proxmox4.tailscale.bnowakowski.pl"
+
+  middlewares:
+    # Both configured names are private. Do not make this administration UI
+    # accessible outside the LAN or Tailnet even if DNS later changes.
+    proxmox-client-networks:
+      ipAllowList:
+        sourceRange:
+          - "10.0.0.0/10"
+          - "100.64.0.0/10"
+          - "127.0.0.1/32"
+          - "::1/128"
+    security-headers:
+      headers:
+        forceSTSHeader: true
+        stsSeconds: 31536000
+        stsIncludeSubdomains: false
+        contentTypeNosniff: true
+        referrerPolicy: "same-origin"
+
+  services:
+    proxmox:
+      loadBalancer:
+        passHostHeader: true
+        serversTransport: proxmox-backend
+        servers:
+          - url: "https://127.0.0.1:8006"
+
+  serversTransports:
+    # PVE's default certificate is locally generated and does not match 127.0.0.1.
+    # This affects only the loopback hop; client-to-Traefik TLS remains verified.
+    proxmox-backend:
+      insecureSkipVerify: true

@@ -1,0 +1,20 @@
+[Unit]
+Description=Traefik Edge Router for Proxmox VE
+Documentation=https://doc.traefik.io/traefik/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/traefik/traefik.env
+ExecStart=/usr/local/bin/traefik --configFile=/home/sup/code/bash_configs/proxmox/traefik/traefik.yml
+Restart=on-failure
+RestartSec=5s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=read-only
+ProtectSystem=full
+ReadWritePaths=/var/lib/traefik
+
+[Install]
+WantedBy=multi-user.target
