@@ -2,10 +2,24 @@
 
 This guide covers a native Traefik service that exposes the local Proxmox web
 interface on HTTPS/443. It applies to both Proxmox VE (PVE) and Proxmox Backup
-Server (PBS); select the appropriate local upstream and product-specific
-behavior below.
+Server (PBS); select the appropriate local upstream and product-specific behavior below.
 
-## What is shared
+## Choose the deployment model first
+
+### Model A — Proxmox VE or PBS without K3s
+
+This document's native systemd Traefik installation applies only when no K3s
+ingress owns ports 80/443. It proxies the local PVE (`:8006`) or PBS (`:8007`)
+listener.
+
+### Model B — Proxmox VE with K3s
+
+If the Proxmox VE host runs K3s and K3s Traefik owns ports 80/443, do **not**
+install or start the native `traefik.service`. Instead deploy
+`pve-proxy.yaml` and use `K3S_PVE_PROXY.md`. That route uses the existing K3s
+Traefik instance and preserves its entrypoints and application routes.
+
+## Model A — native Traefik details
 
 Both products use the same native Traefik service, Cloudflare DNS-01 ACME
 resolver, HTTP-to-HTTPS redirect, client-network allow-list, and security

@@ -1,0 +1,79 @@
+# Proxmox VE UI through the existing K3s Traefik instance.
+#
+# This host's two DNS names already resolve to the K3s Traefik ServiceLB IPs.
+# PVE itself stays on its native HTTPS listener at 10.0.0.72:8006; no process
+# other than K3s Traefik is bound to 80/443.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pve-proxy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pve-api
+  namespace: pve-proxy
+spec:
+  ports:
+    - name: https
+      port: 8006
+      protocol: TCP
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: pve-api-ipv4
+  namespace: pve-proxy
+  labels:
+    kubernetes.io/service-name: pve-api
+addressType: IPv4
+ports:
+  - name: https
+    protocol: TCP
+    port: 8006
+endpoints:
+  - addresses:
+      - 10.0.0.72
+---
+# PVE serves its own certificate on 8006.  Traefik terminates the public TLS
+# connection and deliberately does not validate that private backend cert.
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: pve-backend
+  namespace: pve-proxy
+spec:
+  insecureSkipVerify: true
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: pve-ui
+  namespace: pve-proxy
+spec:
+  secretName: pve-ui-tls
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+  dnsNames:
+    - proxmox2-old.localdomain.bnowakowski.pl
+    - proxmox2-old.tailscale.bnowakowski.pl
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: pve-ui
+  namespace: pve-proxy
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`proxmox2-old.localdomain.bnowakowski.pl`) || Host(`proxmox2-old.tailscale.bnowakowski.pl`)
+      services:
+        - name: pve-api
+          port: 8006
+          scheme: https
+          serversTransport: pve-backend
+  tls:
+    secretName: pve-ui-tls
