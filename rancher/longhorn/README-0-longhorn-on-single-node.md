@@ -5,7 +5,7 @@
 - K3s node: `proxmox3` (`10.0.0.50`), Kubernetes `v1.35.7+k3s1`.
 - Longhorn chart: `v1.12.0`, reconciled by K3s' Helm Controller.
 - Data engine: V1.
-- Longhorn data disk: a sparse 100 GiB ZFS zvol (`rpool/longhorn`), formatted as ext4 and mounted at `/var/lib/longhorn`.
+- Longhorn data disk: a sparse 100 GiB ZFS zvol (`rpool/longhorn`), formatted as ext4, labeled `longhorn`, and mounted at `/var/lib/longhorn`.
 - Replica count: `1`.
 - Backup target: `nfs://nas.localdomain.bnowakowski.pl:/mnt/MargokPool/archive/Backups/rancher/longhorn`.
 - Existing `local-path` remains the default StorageClass; applications must explicitly request `storageClassName: longhorn`.
@@ -33,6 +33,23 @@ The data-disk mount is persisted in `/etc/fstab` using its UUID:
 
 ```fstab
 UUID=<longhorn-zvol-uuid>  /var/lib/longhorn  ext4  defaults  0  2
+```
+
+The ext4 filesystem label is also `longhorn`. It provides a human-readable
+identity for discovery, but the persistent mount must continue to use the UUID.
+Check both before installation or after storage maintenance:
+
+```bash
+sudo blkid -o full /dev/zvol/rpool/longhorn
+sudo blkid -o device -t LABEL=longhorn
+```
+
+The latter command should return the device backing the filesystem (currently
+`/dev/zd0`). To label an existing ext4 Longhorn filesystem without formatting
+or changing its UUID, use:
+
+```bash
+sudo e2label /dev/zvol/rpool/longhorn longhorn
 ```
 
 Verify host prerequisites before installation:

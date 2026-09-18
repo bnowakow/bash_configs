@@ -50,6 +50,17 @@ For example:
 UUID=18ac8246-d16c-4dfd-873b-a53bc0348957  /var/lib/longhorn  ext4  defaults  0  2
 ```
 
+Set the ext4 filesystem label to `longhorn` as an additional, human-readable
+device identity. This does not replace the UUID in `/etc/fstab`:
+
+```bash
+sudo e2label /dev/zd240 longhorn
+sudo blkid -o device -t LABEL=longhorn
+```
+
+Run `e2label` only after confirming the target is the dedicated Longhorn ext4
+filesystem; it changes no data and does not format the device.
+
 Also check the backing pool before allocating a sparse zvol:
 
 ```bash
