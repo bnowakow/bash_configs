@@ -1,0 +1,37 @@
+# Adapted from ../../proxmox/traefik/dynamic/pbs.yml.template.
+http:
+  routers:
+    transmission:
+      rule: "Host(`transmission.localdomain.bnowakowski.pl`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - transmission-client-networks
+        - security-headers
+      service: transmission
+      tls:
+        certResolver: cloudflare
+        domains:
+          - main: "transmission.localdomain.bnowakowski.pl"
+
+  middlewares:
+    transmission-client-networks:
+      ipAllowList:
+        sourceRange:
+          - "10.0.0.0/8"
+          - "127.0.0.1/32"
+          - "::1/128"
+    security-headers:
+      headers:
+        forceSTSHeader: true
+        stsSeconds: 31536000
+        stsIncludeSubdomains: false
+        contentTypeNosniff: true
+        referrerPolicy: "same-origin"
+
+  services:
+    transmission:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: "http://127.0.0.1:9091"

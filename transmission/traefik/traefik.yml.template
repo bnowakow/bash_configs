@@ -1,0 +1,47 @@
+# Adapted from ../../proxmox/traefik/traefik.yml.template.
+# Copy to traefik.yml and set the ACME email before starting Traefik.
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+log:
+  level: INFO
+
+accessLog: {}
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      aliasHeadersStrategy: delete
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+  websecure:
+    http:
+      aliasHeadersStrategy: delete
+    address: ":443"
+
+providers:
+  file:
+    filename: /home/sup/code/bash_configs/transmission/traefik/dynamic/transmission.yml
+    watch: true
+
+certificatesResolvers:
+  cloudflare:
+    acme:
+      email: "LETSENCRYPT_EMAIL"
+      storage: /var/lib/traefik/acme.json
+      keyType: EC256
+      dnsChallenge:
+        provider: cloudflare
+        propagation:
+          delayBeforeChecks: 30s
+          # Authoritative DNS queries return REFUSED through this VPN path.
+          disableANSChecks: true
+          requireAllRNS: true
+        resolvers:
+          - "1.1.1.1:53"
+          - "1.0.0.1:53"
