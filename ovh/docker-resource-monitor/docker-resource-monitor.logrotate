@@ -1,0 +1,10 @@
+/var/log/docker-resource-monitor/*.log {
+    daily
+    rotate 21
+    missingok
+    notifempty
+    compress
+    delaycompress
+    copytruncate
+    create 0640 root adm
+}
