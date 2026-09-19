@@ -7,15 +7,20 @@ services:
     devices:
       - /dev/dri:/dev/dri
 
-    user: "${UID}:568"
-    group_add:
-      - "104"
-      - "44"
-      - "568"
+    environment:
+      # Let the official image's init process apply these IDs before it
+      # drops privileges. Do not use Compose's `user:` here: the image needs
+      # its init process to configure ownership and supplementary groups.
+      UID: "568"
+      GID: "568"
+      GIDLIST: "44,104,568,65534"
 
     volumes:
       - ./config:/config
-      - /mnt/PlexPool/plex:/mnt/PlexPool/plex
+      - type: bind
+        source: /mnt/PlexPool/plex
+        target: /mnt/PlexPool/plex
+        read_only: false
 
     ports:
       - "8096:8096"
