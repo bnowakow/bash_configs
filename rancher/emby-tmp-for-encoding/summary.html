@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Emby transcoding comparison summary</title>
+  <style>
+    body { font-family: sans-serif; line-height: 1.45; margin: 2rem; color: #222; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    th, td { border: 1px solid #bbb; padding: .45rem; vertical-align: top; }
+    th { background: #eee; }
+    code { white-space: nowrap; }
+  </style>
+</head>
+<body>
+<h1>Emby transcoding comparison summary</h1>
+<h2>Scope</h2>
+<p>Compared Proxmox local→local, Proxmox NAS→local, Proxmox NAS→NAS, and NAS-host NAS→NAS runs. Proxmox has 264 run folders and 228 ffmpeg logs per layout. The NAS host has 21 run folders and 21 ffmpeg logs.</p>
+<p>Values are median final ffmpeg <code>speed=</code> values, in multiples of realtime. <code>h264_qsv</code> and <code>h264_vaapi</code> are hardware encoders; <code>libx264</code> is software encoding.</p>
+<h2>Fastest method per input and output parameters</h2>
+<table>
+<thead><tr><th>Input file</th><th>Input resolution</th><th>Input bitrate</th><th>Output parameters</th><th>Proxmox local→local</th><th>Proxmox NAS→local</th><th>Proxmox NAS→NAS</th><th>NAS host NAS→NAS</th></tr></thead>
+<tbody>
+<tr><td>Tears of Steel</td><td>1920×1080</td><td>1.795 MB/s</td><td>960×540</td><td><code>h264_qsv</code> HW — <strong>16.20×</strong></td><td><code>h264_qsv</code> HW — <strong>16.70×</strong></td><td><code>h264_qsv</code> HW — <strong>16.80×</strong></td><td><code>libx264</code> SW — <strong>17.10×</strong></td></tr>
+<tr><td>LG Dolby Vision</td><td>3840×2160</td><td>31.974 MB/s</td><td>Native</td><td><code>h264_qsv</code> HW — <strong>2.38×</strong></td><td><code>h264_qsv</code> HW — <strong>2.26×</strong></td><td><code>h264_qsv</code> HW — <strong>2.10×</strong></td><td><code>libx264</code> SW — <strong>1.48×</strong></td></tr>
+<tr><td>Billy Lynn</td><td>3840×2076</td><td>63.790 MB/s</td><td>1920×1038</td><td><code>h264_vaapi</code> HW — <strong>1.02×</strong></td><td><code>h264_vaapi</code> HW — <strong>1.04×</strong></td><td><code>h264_vaapi</code> HW — <strong>1.10×</strong></td><td><code>libx264</code> SW — <strong>0.83×</strong></td></tr>
+<tr><td>Subtitle TS</td><td>720×576</td><td>6.010 MB/s</td><td>360×288</td><td><code>h264_vaapi</code> HW — <strong>31.25×</strong></td><td><code>h264_vaapi</code> HW — <strong>35.15×</strong></td><td><code>h264_vaapi</code> HW — <strong>29.40×</strong></td><td><code>libx264</code> SW — <strong>35.30×</strong></td></tr>
+<tr><td>Big Buck Bunny</td><td>3840×2160</td><td>7.980 MB/s</td><td>1920×1080</td><td><code>h264_qsv</code> HW — <strong>4.00×</strong></td><td><code>h264_qsv</code> HW — <strong>4.43×</strong></td><td><code>h264_qsv</code> HW — <strong>4.36×</strong></td><td><code>libx264</code> SW — <strong>4.09×</strong></td></tr>
+<tr><td>Tears of Steel</td><td>1920×1080</td><td>1.795 MB/s</td><td>426×240</td><td><code>h264_qsv</code> HW — <strong>19.60×</strong></td><td><code>h264_qsv</code> HW — <strong>20.80×</strong></td><td><code>h264_qsv</code> HW — <strong>18.60×</strong></td><td><code>libx264</code> SW — <strong>21.60×</strong></td></tr>
+<tr><td>Billy Lynn</td><td>3840×2076</td><td>63.790 MB/s</td><td>444×240</td><td><code>h264_vaapi</code> HW — <strong>1.36×</strong></td><td><code>h264_vaapi</code> HW — <strong>1.42×</strong></td><td><code>h264_vaapi</code> HW — <strong>1.42×</strong></td><td><code>libx264</code> SW — <strong>1.64×</strong></td></tr>
+<tr><td>Billy Lynn</td><td>3840×2076</td><td>63.790 MB/s</td><td>Native</td><td><code>h264_vaapi</code> HW — <strong>0.57×</strong></td><td><code>h264_vaapi</code> HW — <strong>0.57×</strong></td><td><code>h264_vaapi</code> HW — <strong>0.60×</strong></td><td><code>libx264</code> SW — <strong>0.43×</strong></td></tr>
+<tr><td>LG Dolby Vision</td><td>3840×2160</td><td>31.974 MB/s</td><td>1920×1080</td><td><code>h264_qsv</code> HW — <strong>3.81×</strong></td><td><code>h264_qsv</code> HW — <strong>3.77×</strong></td><td><code>h264_qsv</code> HW — <strong>3.42×</strong></td><td><code>libx264</code> SW — <strong>2.58×</strong></td></tr>
+<tr><td>Big Buck Bunny</td><td>3840×2160</td><td>7.980 MB/s</td><td>Native</td><td><code>h264_vaapi</code> HW — <strong>2.32×</strong></td><td><code>h264_qsv</code> HW — <strong>2.42×</strong></td><td><code>h264_qsv</code> HW — <strong>2.46×</strong></td><td><code>libx264</code> SW — <strong>1.56×</strong></td></tr>
+<tr><td>Big Buck Bunny</td><td>3840×2160</td><td>7.980 MB/s</td><td>426×240</td><td><code>h264_qsv</code> HW — <strong>5.42×</strong></td><td><code>h264_qsv</code> HW — <strong>5.84×</strong></td><td><code>h264_qsv</code> HW — <strong>5.77×</strong></td><td><code>libx264</code> SW — <strong>8.79×</strong></td></tr>
+<tr><td>Subtitle TS</td><td>720×576</td><td>6.010 MB/s</td><td>300×240</td><td><code>h264_vaapi</code> HW — <strong>35.80×</strong></td><td><code>h264_vaapi</code> HW — <strong>32.70×</strong></td><td><code>h264_vaapi</code> HW — <strong>34.05×</strong></td><td><code>libx264</code> SW — <strong>37.50×</strong></td></tr>
+<tr><td>Tears of Steel</td><td>1920×1080</td><td>1.795 MB/s</td><td>Native</td><td><code>h264_vaapi</code> HW — <strong>10.29×</strong></td><td><code>h264_qsv</code> HW — <strong>10.40×</strong></td><td><code>h264_qsv</code> HW — <strong>9.96×</strong></td><td><code>libx264</code> SW — <strong>8.29×</strong></td></tr>
+<tr><td>LG Dolby Vision</td><td>3840×2160</td><td>31.974 MB/s</td><td>426×240</td><td><code>h264_qsv</code> HW — <strong>4.78×</strong></td><td><code>h264_qsv</code> HW — <strong>4.79×</strong></td><td><code>h264_qsv</code> HW — <strong>4.46×</strong></td><td><code>libx264</code> SW — <strong>3.15×</strong></td></tr>
+<tr><td>Subtitle TS</td><td>720×576</td><td>6.010 MB/s</td><td>Native</td><td><code>h264_vaapi</code> HW — <strong>27.00×</strong></td><td><code>h264_vaapi</code> HW — <strong>24.30×</strong></td><td><code>h264_vaapi</code> HW — <strong>23.25×</strong></td><td><code>libx264</code> SW — <strong>22.80×</strong></td></tr>
+</tbody>
+</table>
+<h2>Full-log validation</h2>
+<ul>
+  <li>All 228 Proxmox ffmpeg logs have an <code>Lsize</code> line, muxing summary, and output file.</li>
+  <li>All 21 NAS-host ffmpeg logs have an <code>Lsize</code> line, muxing summary, and output file.</li>
+  <li>Proxmox runs 193–228 have no ffmpeg logs, although output files exist; these cannot be treated as clean ffmpeg passes.</li>
+  <li>Proxmox runs 121–144 and 157–168 contain repeated <code>Error while decoding stream #0:0: Input/output error</code> messages in all three storage layouts. They produced output but are errored/degraded, not clean passes.</li>
+  <li>The NAS-host ffmpeg logs contain no decoding or conversion failure markers.</li>
+</ul>
+<p>There are no asymmetric clean pass/fail results in the 21-test overlap. Proxmox has 48 decoding-I/O-error tests, common to all three Proxmox layouts, suggesting a host/input-side issue rather than a read/write-path issue.</p>
+<p>Input bitrates are decimal conversions of ffmpeg-reported container bitrates: 1 MB/s = 1,000 kb/s.</p>
+</body>
+</html>
