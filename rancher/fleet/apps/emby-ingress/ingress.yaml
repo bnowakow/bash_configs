@@ -1,0 +1,34 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: emby
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: emby-tls
+      hosts:
+        - emby.proxmox3.localdomain.bnowakowski.pl
+        - emby.proxmox3.tailscale.bnowakowski.pl
+  rules:
+    - host: emby.proxmox3.localdomain.bnowakowski.pl
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: emby
+                port:
+                  number: 8096
+    - host: emby.proxmox3.tailscale.bnowakowski.pl
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: emby
+                port:
+                  number: 8096
