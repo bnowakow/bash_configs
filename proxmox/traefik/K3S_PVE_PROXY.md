@@ -14,6 +14,8 @@ traffic to PVE's native listener at `10.0.0.72:8006`:
 - `proxmox2-old.localdomain.bnowakowski.pl`
 - `proxmox2-old.tailscale.bnowakowski.pl`
 
+The `/api2/` path has a dedicated CORS middleware allowing `GET` and `OPTIONS` from `https://homer.rancher.tailscale.bnowakowski.pl` and `https://homer.rancher.localdomain.bnowakowski.pl`, with the `Authorization` and `Content-Type` request headers.
+
 It uses a selectorless Service and EndpointSlice, so no PVE workload is added
 to Kubernetes. The `ServersTransport` accepts PVE's private backend
 certificate; the client-facing certificate is managed by cert-manager and the
