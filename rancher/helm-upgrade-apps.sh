@@ -452,6 +452,19 @@ fleet_file_for_app() {
   return 1
 }
 
+fleet_app_is_scaled_to_zero() {
+  local app="$1"
+  local fleet_file
+  local fleet_dir
+
+  fleet_file="$(fleet_file_for_app "$app" 2>/dev/null || true)"
+  [ -n "$fleet_file" ] || return 1
+  fleet_dir="$(dirname "$fleet_file")"
+
+  find "$fleet_dir" -type f \( -name '*.yaml' -o -name '*.yml' \) -print0 |
+    xargs -0 grep -Eq '^[[:space:]]*replicas:[[:space:]]*0([[:space:]]*(#.*)?)?$'
+}
+
 fleet_version_from_file() {
   local fleet_file="$1"
   awk -F': *' '$1 == "version" {print $2; exit}' "$fleet_file"
@@ -1811,6 +1824,14 @@ for app in $apps; do
   if should_exclude_app "$app"; then
   log "$app: excluded by pattern" "$(color_blue "$app"): excluded by pattern"
     excluded_count=$((excluded_count + 1))
+    current_app=""
+    continue
+  fi
+
+  if fleet_app_is_scaled_to_zero "$app"; then
+    log "$app: skipped because Fleet config sets replicas to 0" \
+      "$(color_blue "$app"): $(color_count "skipped because Fleet config sets replicas to 0" "$yellow")"
+    skipped_count=$((skipped_count + 1))
     current_app=""
     continue
   fi

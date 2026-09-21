@@ -4,7 +4,7 @@ defaultNamespace: apps-profilarr
 helm:
   chart: profilarr
   repo: https://media-servarr.shw.al/charts
-  version: 2.2.0
+  version: 2.3.1
   releaseName: profilarr
   waitForJobs: true
   valuesFiles:
