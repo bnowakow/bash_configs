@@ -7,6 +7,8 @@ ingress:
     enabled: true
     primary: true
     ingressClassName: traefik
+    annotations:
+      traefik.ingress.kubernetes.io/router.middlewares: apps-jellyseerr-jellyseerr-cors@kubernetescrd
     hosts:
       - host: jellyseerr.rancher.tailscale.bnowakowski.pl
         paths:
