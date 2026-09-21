@@ -1,0 +1,58 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: jellyseerr-cors
+  namespace: apps-jellyseerr
+spec:
+  headers:
+    accessControlAllowOriginList:
+      - https://homer.rancher.tailscale.bnowakowski.pl
+      - https://homer.rancher.localdomain.bnowakowski.pl
+    accessControlAllowMethods:
+      - GET
+      - OPTIONS
+    accessControlAllowHeaders:
+      - X-Api-Key
+      - Content-Type
+    accessControlMaxAge: 600
+    addVaryHeader: true
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jellyseerr-tailscale-cors
+  namespace: apps-jellyseerr
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`jellyseerr.rancher.tailscale.bnowakowski.pl`)
+      priority: 100
+      middlewares:
+        - name: jellyseerr-cors
+      services:
+        - name: jellyseerr
+          port: 10241
+  tls:
+    secretName: jellyseerr-tls-0
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jellyseerr-localdomain-cors
+  namespace: apps-jellyseerr
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`jellyseerr.rancher.localdomain.bnowakowski.pl`)
+      priority: 100
+      middlewares:
+        - name: jellyseerr-cors
+      services:
+        - name: jellyseerr
+          port: 10241
+  tls:
+    secretName: jellyseerr-tls-1
