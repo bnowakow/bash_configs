@@ -1,3 +1,21 @@
+ingressMiddlewares:
+  traefik:
+    jellyseerr-cors:
+      enabled: true
+      type: headers
+      data:
+        accessControlAllowOriginList:
+          - https://homer.rancher.tailscale.bnowakowski.pl
+          - https://homer.rancher.localdomain.bnowakowski.pl
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+        accessControlAllowHeaders:
+          - X-Api-Key
+          - Content-Type
+        accessControlMaxAge: 600
+        addVaryHeader: true
+
 persistence:
   config:
     existingClaim: jellyseerr-config
@@ -7,8 +25,6 @@ ingress:
     enabled: true
     primary: true
     ingressClassName: traefik
-    annotations:
-      traefik.ingress.kubernetes.io/router.middlewares: apps-jellyseerr-jellyseerr-cors@kubernetescrd
     hosts:
       - host: jellyseerr.rancher.tailscale.bnowakowski.pl
         paths:
@@ -27,3 +43,6 @@ ingress:
         entrypoints:
           - websecure
         forceTLS: true
+        middlewares:
+          - name: jellyseerr-cors
+            namespace: apps-jellyseerr
