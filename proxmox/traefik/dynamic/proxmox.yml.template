@@ -1,5 +1,21 @@
 http:
   routers:
+    proxmox-api:
+      rule: "(Host(`proxmox4.localdomain.bnowakowski.pl`) || Host(`proxmox4.tailscale.bnowakowski.pl`)) && PathPrefix(`/api2/`)"
+      priority: 100
+      entryPoints:
+        - websecure
+      middlewares:
+        - proxmox-client-networks
+        - proxmox-api-cors
+        - security-headers
+      service: proxmox
+      tls:
+        certResolver: cloudflare
+        domains:
+          - main: "proxmox4.localdomain.bnowakowski.pl"
+            sans:
+              - "proxmox4.tailscale.bnowakowski.pl"
     proxmox:
       rule: "Host(`proxmox4.localdomain.bnowakowski.pl`) || Host(`proxmox4.tailscale.bnowakowski.pl`)"
       entryPoints:
@@ -16,6 +32,19 @@ http:
               - "proxmox4.tailscale.bnowakowski.pl"
 
   middlewares:
+    proxmox-api-cors:
+      headers:
+        accessControlAllowOriginList:
+          - "https://homer.rancher.tailscale.bnowakowski.pl"
+          - "https://homer.rancher.localdomain.bnowakowski.pl"
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+        accessControlAllowHeaders:
+          - Authorization
+          - Content-Type
+        accessControlMaxAge: 600
+        addVaryHeader: true
     # Both configured names are private. Do not make this administration UI
     # accessible outside the LAN or Tailnet even if DNS later changes.
     proxmox-client-networks:
