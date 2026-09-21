@@ -1,0 +1,59 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: sonarr-cors
+  namespace: apps-sonarr
+spec:
+  headers:
+    accessControlAllowOriginList:
+      - https://homer.rancher.tailscale.bnowakowski.pl
+      - https://homer.rancher.localdomain.bnowakowski.pl
+    accessControlAllowMethods:
+      - GET
+      - OPTIONS
+    accessControlAllowHeaders:
+      - X-Api-Key
+      - Authorization
+      - Content-Type
+    accessControlMaxAge: 600
+    addVaryHeader: true
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: sonarr-tailscale-cors
+  namespace: apps-sonarr
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`sonarr.rancher.tailscale.bnowakowski.pl`)
+      priority: 100
+      middlewares:
+        - name: sonarr-cors
+      services:
+        - name: sonarr
+          port: main
+  tls:
+    secretName: sonarr-tls-0
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: sonarr-localdomain-cors
+  namespace: apps-sonarr
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`sonarr.rancher.localdomain.bnowakowski.pl`)
+      priority: 100
+      middlewares:
+        - name: sonarr-cors
+      services:
+        - name: sonarr
+          port: main
+  tls:
+    secretName: sonarr-tls-1
