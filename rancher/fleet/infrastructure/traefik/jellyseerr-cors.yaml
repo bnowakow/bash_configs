@@ -33,7 +33,7 @@ spec:
         - name: jellyseerr-cors
       services:
         - name: jellyseerr
-          port: 10241
+          port: main
   tls:
     secretName: jellyseerr-tls-0
 ---
@@ -53,6 +53,6 @@ spec:
         - name: jellyseerr-cors
       services:
         - name: jellyseerr
-          port: 10241
+          port: main
   tls:
     secretName: jellyseerr-tls-1
