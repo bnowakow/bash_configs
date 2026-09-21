@@ -7,6 +7,15 @@ Only clients in 10.0.0.0/8 and loopback are allowed; adjust this range if the LA
 uses another subnet. No Tailscale hostname or client range is configured because
 Tailscale currently does not work alongside NordVPN with its kill switch here.
 
+The route allows browser CORS requests from
+https://homer.rancher.tailscale.bnowakowski.pl and
+https://homer.rancher.localdomain.bnowakowski.pl. The `transmission-cors`
+middleware permits GET, POST, and OPTIONS with `Authorization`, `Content-Type`,
+and `X-Transmission-Session-Id`, allows credentials, and exposes the session ID
+response header so Homer can retry the Transmission RPC session handshake.
+Preflight responses are cached for 600 seconds. The client network allow-list
+still applies to requests from these origins.
+
 ## Source and symbolic links
 
 These files reuse the native service design from

@@ -8,6 +8,7 @@ http:
       middlewares:
         - transmission-client-networks
         - security-headers
+        - transmission-cors
       service: transmission
       tls:
         certResolver: cloudflare
@@ -15,6 +16,24 @@ http:
           - main: "transmission.localdomain.bnowakowski.pl"
 
   middlewares:
+    transmission-cors:
+      headers:
+        accessControlAllowOriginList:
+          - https://homer.rancher.tailscale.bnowakowski.pl
+          - https://homer.rancher.localdomain.bnowakowski.pl
+        accessControlAllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        accessControlAllowHeaders:
+          - Authorization
+          - Content-Type
+          - X-Transmission-Session-Id
+        accessControlExposeHeaders:
+          - X-Transmission-Session-Id
+        accessControlAllowCredentials: true
+        accessControlMaxAge: 600
+        addVaryHeader: true
     transmission-client-networks:
       ipAllowList:
         sourceRange:
