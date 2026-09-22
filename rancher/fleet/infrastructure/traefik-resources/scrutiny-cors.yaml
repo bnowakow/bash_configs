@@ -1,0 +1,59 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: scrutiny-cors
+  namespace: apps-scrutiny
+spec:
+  headers:
+    accessControlAllowOriginList:
+      - https://homer.rancher.tailscale.bnowakowski.pl
+      - https://homer.rancher.localdomain.bnowakowski.pl
+    accessControlAllowMethods:
+      - GET
+      - OPTIONS
+    accessControlAllowHeaders:
+      - X-Api-Key
+      - Authorization
+      - Content-Type
+    accessControlMaxAge: 600
+    addVaryHeader: true
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: scrutiny-tailscale-cors
+  namespace: apps-scrutiny
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`scrutiny.rancher.tailscale.bnowakowski.pl`)
+      priority: 100
+      middlewares:
+        - name: scrutiny-cors
+      services:
+        - name: scrutiny
+          port: main
+  tls:
+    secretName: scrutiny-tls-0
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: scrutiny-localdomain-cors
+  namespace: apps-scrutiny
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`scrutiny.rancher.localdomain.bnowakowski.pl`)
+      priority: 100
+      middlewares:
+        - name: scrutiny-cors
+      services:
+        - name: scrutiny
+          port: main
+  tls:
+    secretName: scrutiny-tls-1
