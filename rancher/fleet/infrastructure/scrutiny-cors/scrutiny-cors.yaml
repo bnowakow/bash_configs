@@ -3,6 +3,11 @@ kind: Middleware
 metadata:
   name: scrutiny-cors
   namespace: apps-scrutiny
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    meta.helm.sh/release-name: scrutiny-cors
+    meta.helm.sh/release-namespace: default
 spec:
   headers:
     accessControlAllowOriginList:
@@ -23,6 +28,11 @@ kind: IngressRoute
 metadata:
   name: scrutiny-tailscale-cors
   namespace: apps-scrutiny
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    meta.helm.sh/release-name: scrutiny-cors
+    meta.helm.sh/release-namespace: default
 spec:
   entryPoints:
     - websecure
@@ -43,6 +53,11 @@ kind: IngressRoute
 metadata:
   name: scrutiny-localdomain-cors
   namespace: apps-scrutiny
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    meta.helm.sh/release-name: scrutiny-cors
+    meta.helm.sh/release-namespace: default
 spec:
   entryPoints:
     - websecure
