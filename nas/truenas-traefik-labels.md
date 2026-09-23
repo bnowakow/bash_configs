@@ -149,7 +149,17 @@ traefik.http.routers.scrutiny.rule=Host(`scrutiny.nas.tailscale.bnowakowski.pl`)
 traefik.http.routers.scrutiny.tls=true
 traefik.http.routers.scrutiny.tls.certresolver=letsencrypt
 traefik.http.services.scrutiny.loadbalancer.server.port=8080
+
+# CORS middleware used only by Scrutiny for requests from the Homer instance.
+traefik.http.middlewares.scrutiny-cors.headers.accesscontrolalloworiginlist=https://homer.rancher.tailscale.bnowakowski.pl,https://homer.rancher.localdomain.bnowakowski.pl
+traefik.http.middlewares.scrutiny-cors.headers.accesscontrolallowmethods=GET,OPTIONS
+traefik.http.middlewares.scrutiny-cors.headers.accesscontrolallowheaders=Authorization,Content-Type
+traefik.http.middlewares.scrutiny-cors.headers.addvaryheader=true
+traefik.http.routers.scrutiny.middlewares=scrutiny-cors
 ```
+
+The `scrutiny-cors` middleware is specific to the Scrutiny router and should not
+be attached to other application routers.
 
 ## MinIO (`minio`)
 
