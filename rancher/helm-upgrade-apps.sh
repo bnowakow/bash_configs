@@ -80,6 +80,7 @@ exclude_patterns=(
   '^traefik-config$'
   '^traefik-crd$'
   '^cleanuparr-localdomain-ingress$'
+  '^emby-ingress$'
   '^profilarr-localdomain-ingress$'
 )
 

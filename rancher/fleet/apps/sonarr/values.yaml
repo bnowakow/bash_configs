@@ -17,6 +17,12 @@ resources:
   requests:
     cpu: 30m
 
+deployment:
+  container:
+    env:
+      - name: TZ
+        value: Europe/Warsaw
+
 metrics:
   main:
     enabled: false
