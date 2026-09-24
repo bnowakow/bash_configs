@@ -1,4 +1,17 @@
 - hosts: all
+  gather_facts: false
+
+  pre_tasks:
+    - name: Refuse the NAS-local inventory for VM setup
+      ansible.builtin.assert:
+        that: not (nas_local_inventory | default(false) | bool)
+        fail_msg: This playbook must not run with inventory/nas-local.yml.
+      become: false
+      tags: always
+
+    - name: Gather facts after the inventory safeguard
+      ansible.builtin.setup:
+      tags: always
 
   tasks:
     - name: Add authorized key from id_ecdsa.pub file
@@ -6,6 +19,16 @@
         user: sup
         state: present
         key: "{{ lookup('file', '/mnt/MargokPool/home/sup/.ssh/id_ecdsa.pub') }}"
+      tags: ssh_keys
+
+    - name: Add additional authorized SSH keys for sup
+      ansible.posix.authorized_key:
+        user: sup
+        state: present
+        key: "{{ item }}"
+      loop: "{{ sup_extra_authorized_keys | default([]) }}"
+      tags: ssh_keys
+
     - name: install packages
       apt:
         name:
@@ -24,12 +47,24 @@
           - openssh-client
           - ripgrep
           - screen
-          - software-properties-common
           - vim
           - zsh
         state: present
         update_cache: true
       become: true
+
+    - name: Check whether software-properties-common is available
+      ansible.builtin.command: apt-cache show software-properties-common
+      register: software_properties_package
+      changed_when: false
+      failed_when: false
+
+    - name: Install software-properties-common when available
+      ansible.builtin.apt:
+        name: software-properties-common
+        state: present
+      become: true
+      when: software_properties_package.rc == 0
 
     - name: check codex cli
       ansible.builtin.command: codex --version

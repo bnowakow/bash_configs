@@ -1,11 +1,23 @@
 ---
 - hosts: all
   become: no
+  gather_facts: false
   vars:
     github_ssh_host_keys:
       - "github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk="
       - "github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg="
       - "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl"
+
+  pre_tasks:
+    - name: Refuse the NAS-local inventory for VM setup
+      ansible.builtin.assert:
+        that: not (nas_local_inventory | default(false) | bool)
+        fail_msg: This playbook must not run with inventory/nas-local.yml.
+      tags: always
+
+    - name: Gather facts after the inventory safeguard
+      ansible.builtin.setup:
+      tags: always
 
   tasks:
     - name: setup git name
@@ -23,6 +35,28 @@
         path: "{{ ansible_env.HOME }}/.ssh"
         state: directory
         mode: "0700"
+    - name: install GitHub SSH private key
+      ansible.builtin.copy:
+        src: "{{ github_ssh_private_key_source }}"
+        dest: "{{ ansible_env.HOME }}/.ssh/id_ecdsa"
+        mode: "0600"
+      when: github_ssh_private_key_source is defined
+      no_log: true
+    - name: configure GitHub SSH over port 443
+      ansible.builtin.blockinfile:
+        path: "{{ ansible_env.HOME }}/.ssh/config"
+        create: true
+        mode: "0600"
+        insertbefore: BOF
+        block: |
+          Host github.com
+              HostName ssh.github.com
+              Port 443
+              User git
+              HostKeyAlias github.com
+              IdentityFile ~/.ssh/id_ecdsa
+              IdentitiesOnly yes
+      when: github_ssh_over_https_port | default(false)
     - name: ensure github is present in known_hosts file
       ansible.builtin.known_hosts:
         name: github.com
@@ -31,9 +65,35 @@
         key: "{{ item }}"
         hash_host: true
       loop: "{{ github_ssh_host_keys }}"
+    - name: Check whether bash_configs is already cloned
+      ansible.builtin.stat:
+        path: "{{ ansible_env.HOME }}/code/bash_configs/.git"
+      register: bash_configs_git_dir
+
+    - name: Check the existing checkout for local changes
+      ansible.builtin.command:
+        argv:
+          - git
+          - -C
+          - "{{ ansible_env.HOME }}/code/bash_configs"
+          - status
+          - --porcelain
+      register: bash_configs_status
+      changed_when: false
+      check_mode: false
+      when: bash_configs_git_dir.stat.exists
+
+    - name: Explain why the existing checkout will not be updated
+      ansible.builtin.debug:
+        msg: "Skipping bash_configs update: this host has local Git changes."
+      when:
+        - bash_configs_git_dir.stat.exists
+        - (bash_configs_status.stdout | default('')) != ''
+
     - name: clone bash_configs repository
       git:
         repo: git@github.com:bnowakow/bash_configs.git
         dest: ~/code/bash_configs/
         clone: yes
         update: yes
+      when: not bash_configs_git_dir.stat.exists or (bash_configs_status.stdout | default('')) == ''

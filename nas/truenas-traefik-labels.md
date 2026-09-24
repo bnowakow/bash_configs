@@ -102,6 +102,13 @@ traefik.http.routers.truenas.tls.certresolver=letsencrypt
 traefik.http.routers.truenas.service=truenas
 traefik.http.services.truenas.loadbalancer.server.url=https://10.0.0.20:10443
 traefik.http.services.truenas.loadbalancer.serverstransport=truenas-insecure@file
+
+# CORS used by requests from the Homer instances.
+traefik.http.middlewares.truenas-cors.headers.accesscontrolalloworiginlist=https://homer.rancher.tailscale.bnowakowski.pl,https://homer.rancher.localdomain.bnowakowski.pl
+traefik.http.middlewares.truenas-cors.headers.accesscontrolallowmethods=GET,OPTIONS
+traefik.http.middlewares.truenas-cors.headers.accesscontrolallowheaders=Authorization,Content-Type
+traefik.http.middlewares.truenas-cors.headers.addvaryheader=true
+traefik.http.routers.truenas.middlewares=truenas-cors
 ```
 
 This exposes the UI on port 443 at:

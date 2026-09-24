@@ -1,0 +1,49 @@
+- name: Install sup's dotfiles on NAS and Proxmox hosts
+  hosts: all
+  remote_user: sup
+  become: false
+  vars:
+    dotfiles_source_dir: /mnt/MargokPool/home/sup/code/bash_configs
+    sup_dotfiles:
+      - .gitconfig
+      - .p10k.zsh
+      - .vimrc
+      - .zpreztorc
+      - .zshrc
+
+  tasks:
+    - name: Confirm that localhost is the NAS controller and login is sup
+      ansible.builtin.assert:
+        that:
+          - ansible_user_id == 'sup'
+          - inventory_hostname == 'localhost' or inventory_hostname is match('^proxmox')
+          - inventory_hostname != 'localhost' or ansible_hostname == 'nas'
+        fail_msg: Run this playbook as sup, targeting a Proxmox host or localhost on NAS.
+
+    - name: Find sup's home directory
+      ansible.builtin.getent:
+        database: passwd
+        key: sup
+
+    - name: Copy shared dotfiles to sup's home
+      ansible.builtin.copy:
+        src: "{{ dotfiles_source_dir }}/{{ item }}"
+        dest: "{{ ansible_facts.getent_passwd['sup'][4] }}/{{ item }}"
+        owner: sup
+        group: sup
+        mode: '0644'
+        follow: false
+        backup: true
+      loop: "{{ sup_dotfiles }}"
+
+    - name: Copy the host-specific screen configuration
+      ansible.builtin.copy:
+        src: >-
+          {{ dotfiles_source_dir }}/{{ '.screenrc.nas' if inventory_hostname == 'localhost'
+          else '.screenrc.proxmox3and4' }}
+        dest: "{{ ansible_facts.getent_passwd['sup'][4] }}/.screenrc"
+        owner: sup
+        group: sup
+        mode: '0644'
+        follow: false
+        backup: true

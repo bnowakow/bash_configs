@@ -1,0 +1,7 @@
+# NAS-only local inventory. VM playbooks reject nas_local_inventory.
+all:
+  vars:
+    nas_local_inventory: true
+  hosts:
+    localhost:
+      ansible_connection: local

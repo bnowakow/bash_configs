@@ -1,0 +1,107 @@
+- name: Configure Proxmox VE 9 hosts in the VM inventory
+  hosts: all
+  become: true
+  gather_facts: false
+
+  pre_tasks:
+    - name: Refuse the NAS-local inventory for VM setup
+      ansible.builtin.assert:
+        that: not (nas_local_inventory | default(false) | bool)
+        fail_msg: This playbook must not run with inventory/nas-local.yml.
+      become: false
+      tags: always
+
+    - name: Gather facts after the inventory safeguard
+      ansible.builtin.setup:
+      tags: always
+
+    - name: Refuse to configure the NAS host
+      ansible.builtin.assert:
+        that: ansible_hostname != 'nas'
+        fail_msg: This playbook must not configure NAS.
+      become: false
+      tags: always
+
+  tasks:
+    - name: Check for Proxmox VE
+      ansible.builtin.command: pveversion
+      register: proxmox_version
+      changed_when: false
+      failed_when: false
+      check_mode: false
+
+    - name: Identify supported Proxmox VE 9 hosts
+      ansible.builtin.set_fact:
+        proxmox_ve9_supported: >-
+          {{ ansible_distribution == 'Debian'
+             and ansible_distribution_major_version == '13'
+             and proxmox_version.rc == 0
+             and 'pve-manager/9.' in (proxmox_version.stdout | default('')) }}
+
+    - name: Explain skipped hosts
+      ansible.builtin.debug:
+        msg: Skipping PVE 9 post-install changes on this non-PVE 9/Debian 13 host.
+      when: not proxmox_ve9_supported
+
+    - name: Configure supported Proxmox VE 9 hosts
+      when: proxmox_ve9_supported
+      block:
+        - name: Configure the Proxmox no-subscription repository
+          ansible.builtin.copy:
+            dest: /etc/apt/sources.list.d/proxmox.sources
+            content: |
+              Types: deb
+              URIs: http://download.proxmox.com/debian/pve
+              Suites: trixie
+              Components: pve-no-subscription
+              Signed-By: /usr/share/keyrings/proxmox-archive-keyring.gpg
+            owner: root
+            group: root
+            mode: '0644'
+            backup: true
+
+        - name: Disable the Proxmox enterprise repository
+          ansible.builtin.lineinfile:
+            path: /etc/apt/sources.list.d/pve-enterprise.sources
+            regexp: '^Enabled:'
+            line: 'Enabled: false'
+            backup: true
+
+        - name: Keep Proxmox HA services enabled and running
+          ansible.builtin.systemd:
+            name: "{{ item }}"
+            enabled: true
+            state: started
+          loop:
+            - pve-ha-lrm
+            - pve-ha-crm
+
+        - name: Keep Corosync enabled for future cluster use
+          ansible.builtin.systemd:
+            name: corosync
+            enabled: true
+
+        - name: Install the Proxmox subscription nag patch script
+          ansible.builtin.copy:
+            src: files/proxmox5-remove-subscription-nag.sh
+            dest: /usr/local/bin/pve-remove-nag.sh
+            owner: root
+            group: root
+            mode: '0755'
+            backup: true
+
+        - name: Reapply the subscription nag patch after package updates
+          ansible.builtin.copy:
+            dest: /etc/apt/apt.conf.d/no-nag-script
+            content: |
+              DPkg::Post-Invoke { "/usr/local/bin/pve-remove-nag.sh"; };
+            owner: root
+            group: root
+            mode: '0644'
+            backup: true
+
+        - name: Disable the subscription nag in the current Web UI files
+          ansible.builtin.command: /usr/local/bin/pve-remove-nag.sh
+          register: subscription_nag_patch
+          changed_when: "'Patching' in subscription_nag_patch.stdout"
+          when: not ansible_check_mode

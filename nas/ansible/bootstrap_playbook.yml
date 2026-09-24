@@ -1,0 +1,77 @@
+- name: Bootstrap one new VM host for sup
+  hosts: all
+  remote_user: root
+  become: false
+  gather_facts: false
+
+  pre_tasks:
+    - name: Require an explicitly selected non-NAS host
+      ansible.builtin.assert:
+        that:
+          - ansible_limit is defined
+          - ansible_play_hosts_all | length == 1
+          - not (nas_local_inventory | default(false) | bool)
+          - inventory_hostname != 'localhost'
+        fail_msg: Bootstrap requires --limit for exactly one VM host, not the NAS inventory.
+      tags: always
+
+    - name: Require a password hash for sup before changing the host
+      ansible.builtin.assert:
+        that:
+          - bootstrap_sup_password_hash is defined
+          - bootstrap_sup_password_hash | default('') | length > 0
+        fail_msg: Run bootstrap.sh to securely set a password for sup.
+      tags: always
+
+    - name: Identify the target before changing it
+      ansible.builtin.setup:
+      tags: always
+
+    - name: Refuse to bootstrap NAS
+      ansible.builtin.assert:
+        that: ansible_hostname != 'nas'
+        fail_msg: Bootstrap must not change the NAS host.
+      tags: always
+
+  tasks:
+    - name: Install sudo
+      ansible.builtin.apt:
+        name: sudo
+        state: present
+        update_cache: true
+
+    - name: Create sup with sudo group membership
+      ansible.builtin.user:
+        name: sup
+        groups: sudo
+        append: true
+        create_home: true
+        password: "{{ bootstrap_sup_password_hash }}"
+        update_password: always
+        state: present
+      no_log: true
+
+    - name: Require sup's password for sudo
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/90-sup-ansible
+        content: "sup ALL=(ALL:ALL) ALL\n"
+        owner: root
+        group: root
+        mode: '0440'
+        validate: /usr/sbin/visudo -cf %s
+
+    - name: Authorize local public SSH keys for sup
+      ansible.posix.authorized_key:
+        user: sup
+        state: present
+        key: "{{ lookup('file', item) }}"
+      loop:
+        - /mnt/MargokPool/home/sup/.ssh/id_ecdsa.pub
+        - /mnt/MargokPool/home/sup/.ssh/id_rsa.pub
+
+    - name: Authorize additional SSH keys for sup
+      ansible.posix.authorized_key:
+        user: sup
+        state: present
+        key: "{{ item }}"
+      loop: "{{ sup_extra_authorized_keys | default([]) }}"

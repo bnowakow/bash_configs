@@ -1,46 +1,51 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# git submodule add https://github.com/Revenni/zabbix_agent2.git nas/ansible/roles/zabbix_agent2
+if [[ $# -ne 0 ]]; then
+  echo "Usage: $0" >&2
+  exit 2
+fi
 
-# https://galaxy.ansible.com/revenni/zabbix_agent2
-#ansible-galaxy install revenni.zabbix_agent2
+script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+cd "$script_dir"
 
-# TODO automate below
-echo "[VM]                      on first use for a given host do:"
-echo "[VM][proxmox][as root]    adduser sup"
-echo "[VM]                      apt update; apt install sudo;"
-echo "[VM]                      usermod -a -G sudo sup"
-echo "press enter when done"
-read;
+inventory=inventory/proxmox-vms.yml
+temporary_become_password_file=
 
-# https://www.cherryservers.com/blog/how-to-set-up-ansible-inventory-file
-# TODO install nfs-common
-# TODO automate below
-echo "[VM]                      on first use for a given host do:"
-echo "[VM][as sup]              mkdir ~/.ssh"
-echo "[ansible_host e.g. nas]   scp ~/.ssh/id_ecdsa ~/.ssh/id_ecdsa.pub ~/.ssh/id_rsa ~/.ssh/id_rsa.pub sup@VMHOSTNAME:~/.ssh"
-echo "press enter when done"
-read;
+cleanup() {
+  if [[ -n "$temporary_become_password_file" && -f "$temporary_become_password_file" ]]; then
+    rm -- "$temporary_become_password_file"
+  fi
+}
+trap cleanup EXIT
 
-ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook initial-config_playbook.yml -i inventory/proxmox-vms.yml -kK
-ansible-inventory -i inventory/proxmox-vms.yml --list
-ansible -m ping all -i inventory/proxmox-vms.yml
+if [[ -z "${ANSIBLE_BECOME_PASSWORD_FILE:-}" ]]; then
+  umask 077
+  read -r -s -p 'Sudo password for sup (used on all inventory hosts): ' become_password
+  printf '\n'
+  if [[ -z "$become_password" ]]; then
+    echo 'A sudo password is required.' >&2
+    exit 2
+  fi
+  temporary_become_password_file=$(mktemp /tmp/ansible-become-password.XXXXXX)
+  printf '%s\n' "$become_password" >"$temporary_become_password_file"
+  unset become_password
+  export ANSIBLE_BECOME_PASSWORD_FILE=$temporary_become_password_file
+elif [[ ! -r "$ANSIBLE_BECOME_PASSWORD_FILE" ]]; then
+  echo "Cannot read ANSIBLE_BECOME_PASSWORD_FILE: $ANSIBLE_BECOME_PASSWORD_FILE" >&2
+  exit 2
+fi
 
+# The root-only bootstrap is a separate, one-time playbook.
+for playbook in initial-config_playbook.yml git-config_playbook.yml zabbix-agent2_playbook.yml proxmox-post-install_playbook.yml; do
+  ansible-playbook -i "$inventory" "$playbook"
+done
 
-ansible-playbook git-config_playbook.yml -i inventory/proxmox-vms.yml
-# TODO https://askubuntu.com/questions/13065/how-do-i-fix-the-gpg-error-no-pubkey
-# TODO automate below
-echo "add to playbook sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D913219AB5333005 before installing zabbix"
-ansible-playbook zabbix-agent2_playbook.yml -i inventory/proxmox-vms.yml -K
-# TODO automate below
-echo "[VM]              before it's not in ansible set /bin/bash for zabbix account and create its user directrory and chown it to zabbix"
-echo "[VM]              run ~/code/bash_configs/zabbix/update-zabbix-metadata.sh"
-echo '[VM][proxmox]     sudo bash -c "$(wget -qLO - https://github.com/tteck/Proxmox/raw/main/misc/post-pve-install.sh)"'
-echo "[VM]              follow https://github.com/sorin-ionescu/prezto"
-echo "[VM]              cd /etc/zabbix/zabbix_agent2.d; sudo ln -sf ~/code/bash_configs bash_configs"; cd bash_configs; mkdir -p repos; sudo chown zabbix:zabbix repos; cd zabbix; sudo ./update-zabbix-metadata.sh
-echo "[VM]              cd /home; chmod 775 sup" #for zabbix to have access to bash_configs
-echo "[VM]              cd /home/sup/code/bash_configs/nas; sudo ./zabbix-add-to-sudoers.sh
-# TODO add apt upgrade and upgrade zprezto"
-echo "press enter when done"
-read;
+# Prezto is currently configured only for proxmox5 in its playbook.
+ansible-playbook -i "$inventory" proxmox-prezto_playbook.yml
 
+# Dotfiles are for Proxmox hosts; non-Proxmox VMs are not targeted.
+ansible-playbook -i "$inventory" sup-dotfiles_playbook.yml --limit 'proxmox*'
+
+# Package and firmware upgrades remain separate because apt-upgrade_playbook.yml
+# may require a reboot confirmation.

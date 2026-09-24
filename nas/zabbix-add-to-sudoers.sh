@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # TODO after fresh install there is no zabbix installed. run provision first and reboot and check if zabbix would be added to sudoers automatically
-cd /mnt/MargokPool/home/sup/code/bash_configs/nas
+cd /etc/zabbix/zabbix_agent2.d/bash_configs/nas || exit 1
 if sudo grep -qF 'Cmnd_Alias ZABBIX_CMD=' /etc/sudoers; then
     echo "Zabbix sudoers rules are already present."
 else
