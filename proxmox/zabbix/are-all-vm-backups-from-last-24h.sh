@@ -2,7 +2,7 @@
 
 # on first run from particular user you need to accept fingerprint twice
 
-cd /home/sup/code/bash_configs/proxmox/zabbix || exit 1
+cd /etc/zabbix/zabbix_agent2.d/bash_configs/proxmox/zabbix || exit 1
 export PBS_PASSWORD="$(cat .pbs-password)"
 
 repository="backup@pbs@proxmox-backup-server.tailscale.bnowakowski.pl:margok-pbs-nfs"
