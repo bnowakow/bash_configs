@@ -55,11 +55,8 @@
         - zabbix_package
     
   tasks:
-    - name: Creating a symlink
-      ansible.builtin.file:
-        src: "/home/sup/code/bash_configs"
-        dest: "/etc/zabbix/zabbix_agent2.d/bash_configs"
-        state: link
+    - name: Clone or update the Zabbix repository
+      ansible.builtin.include_tasks: zabbix-repository_tasks.yml
     - name: copy zabbix-agent2 config
       ansible.builtin.copy:
         src: /etc/zabbix/zabbix_agent2.d/bash_configs/zabbix/zabbix_agent2.conf
@@ -84,64 +81,6 @@
         mode: '0440'
         validate: /usr/sbin/visudo -cf %s
       when: zabbix_sudoers_rules.rc == 1
-    - name: check zabbix account settings
-      ansible.builtin.command: getent passwd zabbix
-      register: zabbix_account
-      changed_when: false
-      check_mode: false
-      tags: zabbix_access
-    - name: check zabbix group membership
-      ansible.builtin.command: id -nG zabbix
-      register: zabbix_groups
-      changed_when: false
-      check_mode: false
-      tags: zabbix_access
-    - name: update zabbix account while its service is stopped
-      when: >-
-        zabbix_account.stdout.split(':')[5] != '/home/zabbix' or
-        zabbix_account.stdout.split(':')[6] != '/bin/bash' or
-        'sup' not in zabbix_groups.stdout.split()
-      tags: zabbix_access
-      block:
-        - name: stop zabbix-agent2 before changing its account
-          ansible.builtin.service:
-            name: zabbix-agent2
-            state: stopped
-        - name: configure zabbix account
-          ansible.builtin.user:
-            name: zabbix
-            groups: sup
-            append: true
-            home: /home/zabbix
-            create_home: true
-            shell: /bin/bash
-      always:
-        - name: start zabbix-agent2 after changing its account
-          ansible.builtin.service:
-            name: zabbix-agent2
-            state: started
-    - name: ensure zabbix home exists
-      ansible.builtin.file:
-        path: /home/zabbix
-        state: directory
-        owner: zabbix
-        group: zabbix
-        mode: '0750'
-      tags: zabbix_access
-    - name: allow zabbix to access sup's home
-      ansible.builtin.file:
-        path: /home/sup
-        state: directory
-        mode: '0750'
-      tags: zabbix_access
-    - name: create zabbix repository directory
-      ansible.builtin.file:
-        path: /home/sup/code/bash_configs/zabbix/repos
-        state: directory
-        owner: zabbix
-        group: zabbix
-        mode: '0755'
-      tags: zabbix_access
     - name: Find Zabbix metadata configs in the remote checkout
       ansible.builtin.command:
         argv:

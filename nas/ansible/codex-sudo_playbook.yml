@@ -1,0 +1,74 @@
+- name: Make sudo use sup's Codex CLI
+  hosts: all
+  remote_user: sup
+  gather_facts: false
+  tasks:
+    - name: Find sup's home directory
+      ansible.builtin.getent:
+        database: passwd
+        key: sup
+
+    - name: Check sup's Codex CLI
+      ansible.builtin.command: "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/codex --version"
+      register: sup_codex_cli
+      changed_when: false
+      failed_when: false
+      check_mode: false
+
+    - name: Install Codex CLI for sup when missing
+      ansible.builtin.command:
+        argv:
+          - npm
+          - install
+          - --global
+          - --prefix
+          - "{{ ansible_facts.getent_passwd['sup'][4] }}/.local"
+          - '@openai/codex'
+      when: sup_codex_cli.rc != 0
+
+    - name: Verify sup's Codex CLI
+      ansible.builtin.command: "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/codex --version"
+      changed_when: false
+      when: not ansible_check_mode or sup_codex_cli.rc == 0
+      check_mode: false
+
+    - name: Add sup's Codex directories to sudo's command path
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/90-sup-codex-path
+        content: |
+          Defaults:sup secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin:{{ ansible_facts.getent_passwd['sup'][4] }}/.local/codex/bin"
+        owner: root
+        group: root
+        mode: '0440'
+        validate: /usr/sbin/visudo -cf %s
+      become: true
+
+    - name: Check for a root-owned npm Codex installation
+      ansible.builtin.stat:
+        path: /usr/local/lib/node_modules/@openai/codex
+      register: root_codex_package
+      become: true
+
+    - name: Remove the root-owned npm Codex installation
+      ansible.builtin.command: npm uninstall --global --prefix /usr/local @openai/codex
+      when: root_codex_package.stat.exists
+      become: true
+
+    - name: Link sudo's Codex command to sup's installation
+      ansible.builtin.file:
+        src: "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/codex"
+        dest: /usr/local/bin/codex
+        state: link
+        force: true
+        follow: false
+      become: true
+
+    - name: Verify sudo resolves sup's Codex CLI
+      ansible.builtin.shell: |
+        set -e
+        command_path=$(command -v codex) || { printf 'sudo PATH=%s\n' "$PATH" >&2; exit 1; }
+        test "$(readlink -f "$command_path")" = "$(readlink -f "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/codex")"
+        codex --version
+      changed_when: false
+      become: true
+      when: not ansible_check_mode

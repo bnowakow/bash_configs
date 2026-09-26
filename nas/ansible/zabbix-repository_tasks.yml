@@ -1,0 +1,109 @@
+- name: Ensure Git is installed for the Zabbix checkout
+  ansible.builtin.package:
+    name: git
+    state: present
+
+- name: Check that the Zabbix account exists
+  ansible.builtin.getent:
+    database: passwd
+    key: zabbix
+
+- name: Ensure the Zabbix account has a home directory
+  ansible.builtin.file:
+    path: /home/zabbix
+    state: directory
+    owner: zabbix
+    group: zabbix
+    mode: '0750'
+
+- name: Check the existing Zabbix repository path
+  ansible.builtin.stat:
+    path: /etc/zabbix/zabbix_agent2.d/bash_configs
+    follow: false
+  register: zabbix_repository_path
+
+- name: Check whether an existing directory is a Git checkout
+  ansible.builtin.stat:
+    path: /etc/zabbix/zabbix_agent2.d/bash_configs/.git
+  register: zabbix_repository_git
+  when: zabbix_repository_path.stat.isdir | default(false)
+
+- name: Check whether an existing directory is empty
+  ansible.builtin.find:
+    paths: /etc/zabbix/zabbix_agent2.d/bash_configs
+    file_type: any
+    hidden: true
+    recurse: false
+  register: zabbix_repository_contents
+  when: zabbix_repository_path.stat.isdir | default(false)
+
+- name: Refuse to replace an unrelated directory
+  ansible.builtin.assert:
+    that:
+      - >-
+        not (zabbix_repository_path.stat.exists | default(false)) or
+        (zabbix_repository_path.stat.islnk | default(false)) or
+        (zabbix_repository_path.stat.isdir | default(false) and
+         ((zabbix_repository_git.stat.isdir | default(false)) or
+          (zabbix_repository_contents.matched | default(1)) == 0))
+    fail_msg: The Zabbix repository path is neither a symlink, an empty directory, nor a Git checkout.
+
+- name: Remove the old symlink into sup's home
+  ansible.builtin.file:
+    path: /etc/zabbix/zabbix_agent2.d/bash_configs
+    state: absent
+  when: zabbix_repository_path.stat.islnk | default(false)
+
+- name: Create the Zabbix-owned checkout directory
+  ansible.builtin.file:
+    path: /etc/zabbix/zabbix_agent2.d/bash_configs
+    state: directory
+    owner: zabbix
+    group: zabbix
+    mode: '0755'
+
+- name: Clone or update bash_configs as zabbix
+  ansible.builtin.git:
+    repo: https://github.com/bnowakow/bash_configs.git
+    dest: /etc/zabbix/zabbix_agent2.d/bash_configs
+    version: master
+    update: true
+    force: false
+  become_user: zabbix
+  vars:
+    ansible_pipelining: true
+    ansible_remote_tmp: /tmp
+  environment:
+    HOME: /home/zabbix
+
+- name: Ensure Zabbix has a directory for checked chart repositories
+  ansible.builtin.file:
+    path: /etc/zabbix/zabbix_agent2.d/bash_configs/repos
+    state: directory
+    owner: zabbix
+    group: zabbix
+    mode: '0755'
+
+- name: Read the Zabbix primary group
+  ansible.builtin.command: id -gn zabbix
+  register: zabbix_primary_group
+  changed_when: false
+
+- name: Read the Zabbix group memberships
+  ansible.builtin.command: id -nG zabbix
+  register: zabbix_groups
+  changed_when: false
+
+- name: Remove Zabbix access to sup's home through the sup group
+  ansible.builtin.user:
+    name: zabbix
+    groups: "{{ zabbix_groups.stdout.split() | difference([zabbix_primary_group.stdout, 'sup']) | join(',') }}"
+    append: false
+  when: "'sup' in zabbix_groups.stdout.split()"
+  register: zabbix_group_change
+
+- name: Restart Zabbix agent after group membership changes
+  ansible.builtin.service:
+    name: zabbix-agent2
+    state: restarted
+  when: zabbix_group_change.changed

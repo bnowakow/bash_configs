@@ -44,6 +44,11 @@
         shell: /usr/bin/zsh
       become: true
 
+    - name: Remove the old Ansible PATH block from Prezto's tracked zshenv
+      ansible.builtin.blockinfile:
+        path: /home/sup/.zprezto/runcoms/zshenv
+        state: absent
+
     - name: Update Prezto and its submodules
       ansible.builtin.git:
         repo: https://github.com/sorin-ionescu/prezto.git

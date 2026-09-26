@@ -4,13 +4,13 @@
   become: true
   become_method: sudo
   gather_facts: false
-  tasks:
-    - name: Refuse the NAS-local inventory for upgrades
-      ansible.builtin.assert:
-        that: not (nas_local_inventory | default(false) | bool)
-        fail_msg: This playbook must not run with inventory/nas-local.yml.
+  pre_tasks:
+    - name: Check that this is not NAS
+      ansible.builtin.import_tasks: apt-upgrade-guard_tasks.yml
       become: false
+      tags: always
 
+  tasks:
     - name: Update package lists and perform the Proxmox-recommended dist-upgrade
       ansible.builtin.apt:
         update_cache: true
@@ -44,20 +44,13 @@
   become: true
   become_method: sudo
   gather_facts: false
-  tasks:
-    - name: Refuse the NAS-local inventory for reboot checks
-      ansible.builtin.assert:
-        that: not (nas_local_inventory | default(false) | bool)
-        fail_msg: This playbook must not run with inventory/nas-local.yml.
+  pre_tasks:
+    - name: Check that this is not NAS
+      ansible.builtin.import_tasks: apt-upgrade-guard_tasks.yml
       become: false
+      tags: always
 
-    - name: Check whether this is a Proxmox VE host
-      ansible.builtin.command: pveversion
-      register: pve_version
-      changed_when: false
-      failed_when: false
-      check_mode: false
-
+  tasks:
     - name: Check that the kernel status script exists
       ansible.builtin.stat:
         path: /home/sup/code/bash_configs/proxmox/zabbix/is-proxmox-kernel-up-to-date.sh
@@ -66,16 +59,14 @@
     - name: Decide whether the kernel check applies
       ansible.builtin.set_fact:
         kernel_check_available: >-
-          {{ (run_kernel_reboot_check | default(false) | bool
-              or (pve_version.rc == 0
-                  and 'pve-manager/' in (pve_version.stdout | default(''))))
+          {{ (run_kernel_reboot_check | default(true) | bool)
              and kernel_status_script.stat.executable | default(false) }}
 
-    - name: Require the kernel check script when explicitly enabled
+    - name: Require the kernel check script when enabled
       ansible.builtin.assert:
         that: kernel_status_script.stat.executable | default(false)
         fail_msg: The kernel reboot check is enabled, but its script is missing or not executable.
-      when: run_kernel_reboot_check | default(false) | bool
+      when: run_kernel_reboot_check | default(true) | bool
 
     - name: Report hosts without an applicable kernel check
       ansible.builtin.debug:
@@ -167,12 +158,12 @@
 - name: Show package changes summary
   hosts: all
   gather_facts: false
-  tasks:
-    - name: Refuse the NAS-local inventory for upgrade reporting
-      ansible.builtin.assert:
-        that: not (nas_local_inventory | default(false) | bool)
-        fail_msg: This playbook must not run with inventory/nas-local.yml.
+  pre_tasks:
+    - name: Check that this is not NAS
+      ansible.builtin.import_tasks: apt-upgrade-guard_tasks.yml
+      tags: always
 
+  tasks:
     - name: Show package changes for this host
       ansible.builtin.debug:
         msg: |-

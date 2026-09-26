@@ -1,0 +1,16 @@
+- name: Refuse the NAS-local inventory for upgrades
+  ansible.builtin.assert:
+    that: not (nas_local_inventory | default(false) | bool)
+    fail_msg: This playbook must not run with inventory/nas-local.yml.
+
+- name: Read the target host's actual hostname
+  ansible.builtin.setup:
+    filter: ansible_hostname
+  register: apt_upgrade_host_identity
+
+- name: Refuse to upgrade NAS regardless of inventory
+  ansible.builtin.assert:
+    that:
+      - inventory_hostname != 'localhost'
+      - apt_upgrade_host_identity.ansible_facts.ansible_hostname | lower != 'nas'
+    fail_msg: This playbook must not run on NAS.

@@ -13,6 +13,10 @@
       ansible.builtin.setup:
       tags: always
 
+  handlers:
+    - name: Reconnect after changing sup's primary group
+      ansible.builtin.meta: reset_connection
+
   tasks:
     - name: Add authorized key from id_ecdsa.pub file
       authorized_key:
@@ -66,17 +70,103 @@
       become: true
       when: software_properties_package.rc == 0
 
-    - name: check codex cli
-      ansible.builtin.command: codex --version
+    - name: Find sup's home directory
+      ansible.builtin.getent:
+        database: passwd
+        key: sup
+      tags: sup_primary_group
+
+    - name: Give sup the standard primary group on proxmox2-old
+      ansible.builtin.user:
+        name: sup
+        group: sup
+        groups: docker
+        append: true
+      become: true
+      when: inventory_hostname == 'proxmox2-old.localdomain.bnowakowski.pl'
+      notify: Reconnect after changing sup's primary group
+      tags: sup_primary_group
+
+    - name: Apply sup's new group membership to the current connection
+      ansible.builtin.meta: flush_handlers
+      tags: sup_primary_group
+
+    - name: Give sup's home directory the standard group on proxmox2-old
+      ansible.builtin.file:
+        path: "{{ ansible_facts.getent_passwd['sup'][4] }}"
+        state: directory
+        owner: sup
+        group: sup
+      become: true
+      when: inventory_hostname == 'proxmox2-old.localdomain.bnowakowski.pl'
+      tags: sup_primary_group
+
+    - name: Configure sup's npm global prefix
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_facts.getent_passwd['sup'][4] }}/.npmrc"
+        regexp: '^prefix\s*='
+        line: "prefix={{ ansible_facts.getent_passwd['sup'][4] }}/.local"
+        create: true
+        owner: sup
+        group: sup
+        mode: '0600'
+      become: true
+
+    - name: Check sup's zshenv path
+      ansible.builtin.stat:
+        path: "{{ ansible_facts.getent_passwd['sup'][4] }}/.zshenv"
+        follow: false
+      register: sup_zshenv
+
+    - name: Refuse to replace an unrelated zshenv symlink
+      ansible.builtin.assert:
+        that:
+          - not (sup_zshenv.stat.islnk | default(false)) or sup_zshenv.stat.lnk_source == ansible_facts.getent_passwd['sup'][4] ~ '/.zprezto/runcoms/zshenv'
+        fail_msg: "{{ ansible_facts.getent_passwd['sup'][4] }}/.zshenv points outside Prezto. Review it before changing sup's PATH."
+
+    - name: Remove the zshenv symlink into Prezto
+      ansible.builtin.file:
+        path: "{{ ansible_facts.getent_passwd['sup'][4] }}/.zshenv"
+        state: absent
+      when: sup_zshenv.stat.islnk | default(false)
+      become: true
+
+    - name: Load Prezto from sup's independent zshenv
+      ansible.builtin.copy:
+        dest: "{{ ansible_facts.getent_passwd['sup'][4] }}/.zshenv"
+        content: |
+          if [[ -r "$HOME/.zprezto/runcoms/zshenv" ]]; then
+            source "$HOME/.zprezto/runcoms/zshenv"
+          fi
+        owner: sup
+        group: sup
+        mode: '0644'
+      when: sup_zshenv.stat.islnk | default(false)
+      become: true
+
+    - name: Put sup's local executables first in zsh
+      ansible.builtin.blockinfile:
+        path: "{{ ansible_facts.getent_passwd['sup'][4] }}/.zshenv"
+        block: 'export PATH="$HOME/.local/bin:$PATH"'
+        create: true
+        owner: sup
+        group: sup
+        mode: '0644'
+      become: true
+
+    - name: Check sup's Codex CLI
+      ansible.builtin.command: "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/codex --version"
       register: codex_cli_version
       changed_when: false
       failed_when: false
+      become: false
 
-    - name: install codex cli
+    - name: Install Codex CLI for sup
       ansible.builtin.command: npm install -g @openai/codex
       when: codex_cli_version.rc != 0
-      become: true
+      become: false
 
-    - name: verify codex cli
-      ansible.builtin.command: codex --version
+    - name: Verify sup's Codex CLI
+      ansible.builtin.command: "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/codex --version"
       changed_when: false
+      become: false

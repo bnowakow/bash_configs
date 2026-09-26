@@ -1,4 +1,4 @@
 all:
   hosts:
     ovh.bnowakowski.pl:
-      run_kernel_reboot_check: true
+      ansible_ssh_transfer_method: piped

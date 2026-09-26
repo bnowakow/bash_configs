@@ -1,0 +1,16 @@
+- hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Check that Zabbix agent 2 is installed
+      ansible.builtin.stat:
+        path: /etc/zabbix/zabbix_agent2.d
+      register: zabbix_agent_directory
+
+    - name: Refuse hosts without Zabbix agent 2
+      ansible.builtin.assert:
+        that: zabbix_agent_directory.stat.isdir | default(false)
+        fail_msg: Install zabbix-agent2 before migrating its script checkout.
+
+    - name: Migrate the Zabbix repository
+      ansible.builtin.include_tasks: zabbix-repository_tasks.yml
