@@ -20,7 +20,7 @@ zabbix_export:
         - name: 'Linux servers'
       interfaces:
         - useip: 'NO'
-          ip: ''
+          ip: 146.59.13.67
           dns: ovh.bnowakowski.pl
           interface_ref: if1
     - host: CrashPlan
@@ -32,7 +32,7 @@ zabbix_export:
         - name: 'Virtual machines'
       interfaces:
         - useip: 'NO'
-          ip: 192.168.0.240
+          ip: 10.0.0.240
           dns: crashplan.localdomain.bnowakowski.pl
           interface_ref: if1
     - host: 'Home Assistant'
@@ -43,7 +43,7 @@ zabbix_export:
         - name: 'Virtual machines'
       interfaces:
         - useip: 'NO'
-          ip: 192.168.0.230
+          ip: 10.0.0.230
           dns: home-assistant.localdomain.bnowakowski.pl
           interface_ref: if1
     - host: PBS
@@ -56,13 +56,13 @@ zabbix_export:
         - name: 'Virtual machines'
       interfaces:
         - useip: 'NO'
-          ip: 192.168.130.20
+          ip: 10.0.130.20
           dns: proxmox-backup-server.localdomain.bnowakowski.pl
           interface_ref: if1
       tags:
         - tag: bnowakow
-    - host: Proxmox2
-      name: Proxmox2
+    - host: Proxmox2-old
+      name: Proxmox2-old
       templates:
         - name: 'bnowakow homelab - Debian or Ubuntu'
         - name: 'bnowakow homelab - Proxmox'
@@ -73,12 +73,12 @@ zabbix_export:
         - name: Hypervisors
       interfaces:
         - useip: 'NO'
-          ip: 192.168.0.70
-          dns: proxmox2.localdomain.bnowakowski.pl
+          ip: 10.0.0.72
+          dns: proxmox2-old.localdomain.bnowakowski.pl
           interface_ref: if1
         - type: SNMP
           useip: 'NO'
-          ip: 192.168.0.70
+          ip: 10.0.0.72
           dns: proxmox2.localdomain.bnowakowski.pl
           port: '161'
           details:
@@ -104,12 +104,12 @@ zabbix_export:
         - name: Hypervisors
       interfaces:
         - useip: 'NO'
-          ip: 192.168.0.50
+          ip: 10.0.0.50
           dns: proxmox3.localdomain.bnowakowski.pl
           interface_ref: if1
         - type: SNMP
           useip: 'NO'
-          ip: 192.168.0.50
+          ip: 10.0.0.50
           dns: proxmox3.localdomain.bnowakowski.pl
           port: '161'
           details:
@@ -134,12 +134,12 @@ zabbix_export:
         - name: Hypervisors
       interfaces:
         - useip: 'NO'
-          ip: 192.168.0.120
+          ip: 10.0.0.120
           dns: proxmox4.localdomain.bnowakowski.pl
           interface_ref: if1
         - type: SNMP
           useip: 'NO'
-          ip: 192.168.0.120
+          ip: 10.0.0.120
           dns: proxmox4.localdomain.bnowakowski.pl
           port: '161'
           details:
@@ -159,7 +159,7 @@ zabbix_export:
         - name: 'Virtual machines'
       interfaces:
         - useip: 'NO'
-          ip: 192.168.0.210
+          ip: 10.0.0.210
           dns: transmission.localdomain.bnowakowski.pl
           interface_ref: if1
     - host: TrueNAS
@@ -173,13 +173,13 @@ zabbix_export:
         - name: 'Zabbix servers'
       interfaces:
         - useip: 'NO'
-          ip: 192.168.0.20
+          ip: 10.0.0.20
           dns: nas.localdomain.bnowakowski.pl
           interface_ref: if1
       inventory_mode: AUTOMATIC
       inventory:
         name: nas
-        os: 'Linux version 6.12.33-production+truenas (root@tnsbuilds02) (gcc (Debian 12.2.0-14+deb12u1) 12.2.0, GNU ld (GNU Binutils for Deb'
+        os: 'Linux version 6.12.105-production+truenas (root@tnsbuilds01.tn.ixsystems.net) (gcc (Debian 12.2.0-14+deb12u1) 12.2.0, GNU ld (GN'
         location_lat: '56.95387'
         location_lon: '24.22067'
     - host: 'TrueNAS - SNMP'
@@ -191,7 +191,7 @@ zabbix_export:
       interfaces:
         - type: SNMP
           useip: 'NO'
-          ip: 192.168.0.20
+          ip: 10.0.0.20
           dns: nas.localdomain.bnowakowski.pl
           port: '161'
           details:
