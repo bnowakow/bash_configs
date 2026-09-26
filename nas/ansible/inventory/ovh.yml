@@ -2,3 +2,4 @@ all:
   hosts:
     ovh.bnowakowski.pl:
       ansible_ssh_transfer_method: piped
+      ansible_ssh_retries: 3
