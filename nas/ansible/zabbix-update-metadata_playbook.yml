@@ -1,0 +1,8 @@
+- name: Update Zabbix metadata from the checked-out repository
+  hosts: all
+  become: true
+  become_method: sudo
+  gather_facts: false
+  tasks:
+    - name: Run the Zabbix metadata update script
+      ansible.builtin.command: /etc/zabbix/zabbix_agent2.d/bash_configs/zabbix/update-zabbix-metadata.sh
