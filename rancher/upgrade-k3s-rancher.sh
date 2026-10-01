@@ -872,10 +872,9 @@ About to run the upgrade with:
     log "+ curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=\"$k3s_install_version\" sh -s - server"
     curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="$k3s_install_version" sh -s - server 2>&1 | tee -a "$log_file"
 
-    run_cmd cp "$script_dir/config.yaml" /etc/rancher/k3s/config.yaml
-    run_cmd chmod 644 /etc/rancher/k3s/config.yaml
-    run_cmd systemctl stop k3s
-    run_cmd systemctl start k3s
+    # The installer restarts k3s and leaves its existing configuration intact.
+    # Preserve node-specific settings and permissions managed outside this script.
+    log "Preserving existing k3s configuration in /etc/rancher/k3s."
     wait_for_kubectl
     update_ansible_k3s_version "$k3s_version"
     log_error "IMPORTANT: Run Ansible to check and upgrade K3s on the other cluster nodes."
