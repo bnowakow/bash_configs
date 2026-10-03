@@ -15,7 +15,7 @@
     - name: Validate the requested repository action
       ansible.builtin.assert:
         that:
-          - ubuntu_repo_mode in ['plan', 'quiet', 'apply']
+          - ubuntu_repo_mode in ['plan', 'quiet', 'apply', 'resume']
           - ubuntu_target_series is match('^[a-z]+$')
 
     - name: Silence notices about temporary repository files during the release upgrade
@@ -32,13 +32,13 @@
         cmd: "files/ubuntu_release_repos.py {{ ubuntu_repo_mode }} {{ ubuntu_target_series }}"
         executable: /usr/bin/python3
       register: ubuntu_repo_result
-      changed_when: "ubuntu_repo_mode == 'apply' and 'REPOS_CHANGED=1' in ubuntu_repo_result.stdout"
-      when: ubuntu_repo_mode in ['plan', 'apply']
+      changed_when: "ubuntu_repo_mode in ['apply', 'resume'] and 'REPOS_CHANGED=1' in ubuntu_repo_result.stdout"
+      when: ubuntu_repo_mode in ['plan', 'apply', 'resume']
 
     - name: Show repository results
       ansible.builtin.debug:
         var: ubuntu_repo_result.stdout_lines
-      when: ubuntu_repo_mode in ['plan', 'apply']
+      when: ubuntu_repo_mode in ['plan', 'apply', 'resume']
 
     - name: Upgrade packages from restored repositories
       ansible.builtin.apt:
@@ -48,14 +48,16 @@
       environment:
         DEBIAN_FRONTEND: noninteractive
       when:
-        - ubuntu_repo_mode == 'apply'
+        - ubuntu_repo_mode in ['apply', 'resume']
         - ubuntu_repo_result.changed
 
     - name: Remove the temporary APT notice setting after the release upgrade
       ansible.builtin.file:
         path: /etc/apt/apt.conf.d/99-ubuntu-release-migrate
         state: absent
-      when: ubuntu_repo_mode == 'apply'
+      when: >-
+        ubuntu_repo_mode == 'apply' or
+        (ubuntu_repo_mode == 'resume' and 'RESUME_APPLIED=1' in ubuntu_repo_result.stdout)
 
     - name: Check installed versions and APT sources for packages flagged by the release upgrader
       ansible.builtin.command:
@@ -63,9 +65,9 @@
       become: false
       register: ubuntu_package_origins
       changed_when: false
-      when: ubuntu_repo_mode in ['plan', 'apply']
+      when: ubuntu_repo_mode in ['plan', 'apply', 'resume']
 
     - name: Show whether regular Ubuntu and ESM versions are available
       ansible.builtin.debug:
         var: ubuntu_package_origins.stdout_lines
-      when: ubuntu_repo_mode in ['plan', 'apply']
+      when: ubuntu_repo_mode in ['plan', 'apply', 'resume']

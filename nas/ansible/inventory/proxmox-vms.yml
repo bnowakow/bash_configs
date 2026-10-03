@@ -4,6 +4,7 @@ all:
 #    kibana.localdomain.bnowakowski.pl:
 #    home-assistant.localdomain.bnowakowski.pl:
     crashplan.localdomain.bnowakowski.pl:
+        ansible_become_exe: /usr/bin/sudo.ws
     proxmox2-old.localdomain.bnowakowski.pl:
         #ansible_user: root
     proxmox3.localdomain.bnowakowski.pl:

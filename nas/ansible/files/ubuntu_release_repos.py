@@ -238,7 +238,23 @@ def apply(target):
             else:
                 write_source(path, old_content, old_mode)
         raise
+    state["completed"] = True
+    write_private_json(STATE_FILE, state)
     print(f"REPOS_CHANGED={int(bool(previous))}")
+
+
+def resume(target):
+    if not STATE_FILE.exists():
+        print("No saved Ubuntu repository plan to resume")
+        print("REPOS_CHANGED=0")
+        return
+    state = json.loads(STATE_FILE.read_text(encoding="utf-8"))
+    if state.get("completed") or state["target"] != target or os_release()["VERSION_CODENAME"] != target:
+        print("No completed Ubuntu release upgrade with a pending repository plan")
+        print("REPOS_CHANGED=0")
+        return
+    apply(target)
+    print("RESUME_APPLIED=1")
 
 
 def main():
@@ -248,8 +264,10 @@ def main():
         plan(sys.argv[2])
     elif len(sys.argv) == 3 and sys.argv[1] == "apply":
         apply(sys.argv[2])
+    elif len(sys.argv) == 3 and sys.argv[1] == "resume":
+        resume(sys.argv[2])
     else:
-        raise SystemExit("Usage: ubuntu_release_repos.py target|plan SERIES|apply SERIES")
+        raise SystemExit("Usage: ubuntu_release_repos.py target|plan SERIES|apply SERIES|resume SERIES")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,7 @@
+- name: Configure sup's GitHub SSH connection
+  hosts: all
+  become: false
+  gather_facts: true
+  tasks:
+    - name: Install GitHub SSH settings
+      ansible.builtin.include_tasks: github-ssh_tasks.yml

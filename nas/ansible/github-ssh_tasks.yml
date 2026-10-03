@@ -1,0 +1,27 @@
+- name: Ensure sup's SSH configuration directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ssh"
+    state: directory
+    mode: '0700'
+
+- name: Trust GitHub's published SSH host key
+  ansible.builtin.known_hosts:
+    name: github.com
+    path: "{{ ansible_env.HOME }}/.ssh/known_hosts"
+    state: present
+    key: "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl"
+    hash_host: true
+
+- name: Configure GitHub SSH over port 443
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_env.HOME }}/.ssh/config"
+    create: true
+    mode: '0600'
+    insertbefore: BOF
+    block: |
+      Host github.com
+          HostName ssh.github.com
+          Port 443
+          User git
+          HostKeyAlias github.com
+          IdentitiesOnly yes
