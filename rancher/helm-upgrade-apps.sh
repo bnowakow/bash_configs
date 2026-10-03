@@ -82,6 +82,7 @@ exclude_patterns=(
   '^cleanuparr-localdomain-ingress$'
   '^emby-ingress$'
   '^profilarr-localdomain-ingress$'
+  '^scrutiny-cors$'
 )
 
 is_up_to_date_helper="$script_dir/zabbix/is-helm-image-up-to-date.sh"

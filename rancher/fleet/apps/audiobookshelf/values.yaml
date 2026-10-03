@@ -17,6 +17,12 @@ persistence:
     server: nas.localdomain.bnowakowski.pl
     path: /mnt/PlexPool/plex/Audiobooks
     mountPath: /audiobooks
+  audiobooks-for-kids:
+    enabled: true
+    type: nfs
+    server: nas.localdomain.bnowakowski.pl
+    path: /mnt/PlexPool/plex/Audiobooks-for-Kids
+    mountPath: /audiobooks-for-kids
 
 ingress:
   main:

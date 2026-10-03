@@ -48,9 +48,8 @@ Current source facts found during planning:
 - Upgrade k3s current node only:
   - URL-encode `+` in the selected k3s tag for `INSTALL_K3S_VERSION`.
   - run `curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="<encoded-tag>" sh -s - server`.
-  - copy `"$script_dir/config.yaml"` to `/etc/rancher/k3s/config.yaml`.
-  - `chmod 644 /etc/rancher/k3s/config.yaml`.
-  - restart with `systemctl stop k3s` then `systemctl start k3s`.
+  - preserve existing node configuration and permissions in `/etc/rancher/k3s`.
+  - rely on the installer to restart k3s.
   - wait until `kubectl get nodes` succeeds.
 - Helm repos:
   - add `rancher-stable` only if missing.
@@ -85,7 +84,7 @@ Current source facts found during planning:
 - current version/status display before changes.
 - all risky commands logged and printed.
 - timestamped run log.
-- portable `"$script_dir/config.yaml"` instead of hardcoded `/home/sup/...`.
+- preserve node-specific k3s configuration managed outside the upgrade script.
 - current-node-only upgrade for v1, no SSH multi-node automation.
 
 ## Test Plan
