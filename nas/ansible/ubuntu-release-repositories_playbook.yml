@@ -1,0 +1,71 @@
+- name: Review or restore Ubuntu third-party repositories
+  hosts: ubuntu_release_upgrade
+  become: true
+  become_method: sudo
+  gather_facts: false
+  vars:
+    ubuntu_release_origin_packages:
+      - libde265-0
+      - libsoup-2.4-1
+      - libsoup2.4-common
+      - node-lodash
+      - node-lodash-packages
+      - node-shell-quote
+  tasks:
+    - name: Validate the requested repository action
+      ansible.builtin.assert:
+        that:
+          - ubuntu_repo_mode in ['plan', 'quiet', 'apply']
+          - ubuntu_target_series is match('^[a-z]+$')
+
+    - name: Silence notices about temporary repository files during the release upgrade
+      ansible.builtin.copy:
+        dest: /etc/apt/apt.conf.d/99-ubuntu-release-migrate
+        content: 'Dir::Ignore-Files-Silently:: "[.]migrate$";'
+        owner: root
+        group: root
+        mode: '0644'
+      when: ubuntu_repo_mode == 'quiet'
+
+    - name: Review available repositories or restore the saved plan
+      ansible.builtin.script:
+        cmd: "files/ubuntu_release_repos.py {{ ubuntu_repo_mode }} {{ ubuntu_target_series }}"
+        executable: /usr/bin/python3
+      register: ubuntu_repo_result
+      changed_when: "ubuntu_repo_mode == 'apply' and 'REPOS_CHANGED=1' in ubuntu_repo_result.stdout"
+      when: ubuntu_repo_mode in ['plan', 'apply']
+
+    - name: Show repository results
+      ansible.builtin.debug:
+        var: ubuntu_repo_result.stdout_lines
+      when: ubuntu_repo_mode in ['plan', 'apply']
+
+    - name: Upgrade packages from restored repositories
+      ansible.builtin.apt:
+        upgrade: dist
+        force_apt_get: true
+        fail_on_autoremove: true
+      environment:
+        DEBIAN_FRONTEND: noninteractive
+      when:
+        - ubuntu_repo_mode == 'apply'
+        - ubuntu_repo_result.changed
+
+    - name: Remove the temporary APT notice setting after the release upgrade
+      ansible.builtin.file:
+        path: /etc/apt/apt.conf.d/99-ubuntu-release-migrate
+        state: absent
+      when: ubuntu_repo_mode == 'apply'
+
+    - name: Check installed versions and APT sources for packages flagged by the release upgrader
+      ansible.builtin.command:
+        argv: "{{ ['apt-cache', 'policy'] + ubuntu_release_origin_packages }}"
+      become: false
+      register: ubuntu_package_origins
+      changed_when: false
+      when: ubuntu_repo_mode in ['plan', 'apply']
+
+    - name: Show whether regular Ubuntu and ESM versions are available
+      ansible.builtin.debug:
+        var: ubuntu_package_origins.stdout_lines
+      when: ubuntu_repo_mode in ['plan', 'apply']

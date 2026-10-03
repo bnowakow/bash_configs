@@ -15,4 +15,9 @@ all:
     proxmox-backup-server.localdomain.bnowakowski.pl:
         #ansible_user: root
 
+  children:
+    ubuntu_release_upgrade:
+      hosts:
+        crashplan.localdomain.bnowakowski.pl:
+
 #    ovh.bnowakowskipl:
