@@ -5,12 +5,20 @@ export LC_ALL=C.utf8
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 cd "$script_dir"
 
+bold_blue=
+normal=
+if [[ -t 1 ]]; then
+  bold_blue=$'\033[1;34m'
+  normal=$'\033[0m'
+fi
+
 run_ubuntu_repo_playbook() {
   local host=$1
   local mode=$2
   local series=$3
 
-  printf '\nSudo password for %s (Ubuntu repository %s):\n' "$host" "$mode"
+  printf '\nSudo password for %s%s%s (Ubuntu repository %s):\n' \
+    "$bold_blue" "$host" "$normal" "$mode"
   ansible-playbook -i inventory/proxmox-vms.yml ubuntu-release-repositories_playbook.yml \
     --limit "$host" -e "ubuntu_repo_mode=$mode" -e "ubuntu_target_series=$series" \
     --ask-become-pass
@@ -19,7 +27,8 @@ run_ubuntu_repo_playbook() {
 for inventory_file in inventory/proxmox-vms.yml inventory/ovh.yml; do
   inventory_hosts=$(ansible-inventory -i "$inventory_file" --list |
     jq -r '[.[] | objects | .hosts[]?] | unique | join(", ")')
-  printf '\nSudo password for hosts in %s: %s\n' "$inventory_file" "$inventory_hosts"
+  printf '\nSudo password for hosts in %s%s%s: %s\n' \
+    "$bold_blue" "$inventory_file" "$normal" "$inventory_hosts"
   ansible-playbook -i "$inventory_file" apt-upgrade_playbook.yml --ask-become-pass
 done
 
@@ -77,7 +86,8 @@ for host in "${ubuntu_hosts[@]}"; do
   run_ubuntu_repo_playbook "$host" quiet "$target_series"
 
   upgrade_result=0
-  printf '\nSudo password for %s (interactive Ubuntu release upgrade):\n' "$host"
+  printf '\nSudo password for %s%s%s (interactive Ubuntu release upgrade):\n' \
+    "$bold_blue" "$host" "$normal"
   ssh -tt -o BatchMode=yes -o ConnectTimeout=10 "$host" 'sudo do-release-upgrade' || upgrade_result=$?
 
   current_series=
