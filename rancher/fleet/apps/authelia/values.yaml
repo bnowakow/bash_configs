@@ -9,10 +9,14 @@ authelia:
     rules:
       - domain: '*.rancher.tailscale.bnowakowski.pl'
         policy: two_factor
+      - domain: '*.rancher.localdomain.bnowakowski.pl'
+        policy: two_factor
   session:
     cookies:
       - domain: rancher.tailscale.bnowakowski.pl
         authelia_url: https://authelia.rancher.tailscale.bnowakowski.pl
+      - domain: rancher.localdomain.bnowakowski.pl
+        authelia_url: https://authelia.rancher.localdomain.bnowakowski.pl
   storage:
     local:
       path: /config/db.sqlite3
@@ -81,6 +85,10 @@ ingress:
     ingressClassName: traefik
     hosts:
       - host: authelia.rancher.tailscale.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+      - host: authelia.rancher.localdomain.bnowakowski.pl
         paths:
           - path: /
             pathType: Prefix
