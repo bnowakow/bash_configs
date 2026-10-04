@@ -11,6 +11,12 @@ script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 cd "$script_dir"
 
 inventory=inventory/proxmox-vms.yml
+bold_blue=
+normal=
+if [[ -t 1 ]]; then
+  bold_blue=$'\033[1;34m'
+  normal=$'\033[0m'
+fi
 temporary_become_password_files=()
 selected_become_password_file=
 
@@ -37,7 +43,7 @@ select_become_password_file() {
   fi
 
   umask 077
-  read -r -s -p "Sudo password for $host_group: " become_password
+  read -r -s -p "Sudo password for ${bold_blue}${host_group}${normal}: " become_password
   printf '\n'
   if [[ -z "$become_password" ]]; then
     echo 'A sudo password is required.' >&2

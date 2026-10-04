@@ -1,0 +1,83 @@
+- name: Upgrade sup's Codex CLI
+  hosts: all
+  remote_user: sup
+  become: false
+  gather_facts: false
+  tasks:
+    - name: Verify that Ansible is connected as sup
+      ansible.builtin.command: id -un
+      register: codex_account
+      changed_when: false
+      check_mode: false
+
+    - name: Refuse to update another user's Codex installation
+      ansible.builtin.assert:
+        that: codex_account.stdout == 'sup'
+
+    - name: Find sup's home directory
+      ansible.builtin.getent:
+        database: passwd
+        key: sup
+
+    - name: Resolve sup's Codex executable
+      ansible.builtin.command:
+        argv:
+          - readlink
+          - -f
+          - "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/codex"
+      register: codex_executable
+      changed_when: false
+      check_mode: false
+
+    - name: Require a supported sup-owned Codex installation
+      ansible.builtin.assert:
+        that:
+          - >-
+            codex_executable.stdout.startswith(ansible_facts.getent_passwd['sup'][4] ~ '/.codex/packages/standalone/') or
+            codex_executable.stdout.startswith(ansible_facts.getent_passwd['sup'][4] ~ '/.local/lib/node_modules/@openai/codex/')
+        fail_msg: "Unexpected Codex installation at {{ codex_executable.stdout }}; review its update method."
+
+    - name: Read the installed Codex version
+      ansible.builtin.command: "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/codex --version"
+      register: codex_version_before
+      changed_when: false
+      check_mode: false
+
+    - name: Update a standalone Codex installation
+      ansible.builtin.command:
+        argv:
+          - "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/codex"
+          - update
+      environment:
+        HOME: "{{ ansible_facts.getent_passwd['sup'][4] }}"
+      changed_when: false
+      when:
+        - not ansible_check_mode
+        - "'/.codex/packages/standalone/' in codex_executable.stdout"
+
+    - name: Update an npm Codex installation
+      ansible.builtin.command:
+        argv:
+          - npm
+          - install
+          - --global
+          - --prefix
+          - "{{ ansible_facts.getent_passwd['sup'][4] }}/.local"
+          - '@openai/codex@latest'
+      environment:
+        HOME: "{{ ansible_facts.getent_passwd['sup'][4] }}"
+      changed_when: false
+      when:
+        - not ansible_check_mode
+        - "'/.local/lib/node_modules/@openai/codex/' in codex_executable.stdout"
+
+    - name: Verify the updated Codex version
+      ansible.builtin.command: "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/codex --version"
+      register: codex_version_after
+      changed_when: false
+      check_mode: false
+
+    - name: Report the Codex version change
+      ansible.builtin.debug:
+        msg: "{{ codex_version_before.stdout }} -> {{ codex_version_after.stdout }}"
+      changed_when: codex_version_before.stdout != codex_version_after.stdout
