@@ -1,0 +1,6 @@
+name: homer-config-auth
+defaultNamespace: apps-homer
+
+dependsOn:
+  - name: homer
+  - name: authelia

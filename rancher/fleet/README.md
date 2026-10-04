@@ -16,6 +16,8 @@ Each child directory containing a `fleet.yaml` is a separate Fleet bundle:
   customized values.
 - `apps/authelia` installs Authelia from the TrueCharts OCI registry. Create its
   external credential and user Secrets as described in `apps/authelia/README.md`.
+- `apps/homer-config-auth` requires Authelia for Homer's configuration files on
+  both main HTTPS hostnames while leaving the dashboard shell public.
 
 The chart versions are deliberately pinned. Upgrade them through a reviewed Git change.
 
