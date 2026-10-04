@@ -1,9 +1,24 @@
-# Keep the mailserver stopped while CloudCasa restores all four mail PVCs.
+# The chart mounts this TLS Secret and sets SSL_TYPE=manual and the certificate paths.
+certificate: docker-mailserver-tls
+
+extraDeploy:
+  - apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: docker-mailserver
+    spec:
+      secretName: docker-mailserver-tls
+      issuerRef:
+        kind: ClusterIssuer
+        name: letsencrypt
+      dnsNames:
+        - mailserver.rancher.localdomain.bnowakowski.pl
+        - mailserver.rancher.tailscale.bnowakowski.pl
+
 deployment:
   replicas: 1
   env:
     OVERRIDE_HOSTNAME: mailserver.rancher.tailscale.bnowakowski.pl
-    SSL_TYPE: self-signed
 
 service:
   type: LoadBalancer
