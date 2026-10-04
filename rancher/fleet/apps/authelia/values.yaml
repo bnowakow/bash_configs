@@ -32,14 +32,17 @@ workload:
             AUTHELIA_SESSION_SECRET:
               secretKeyRef:
                 name: authelia-secrets
+                expandObjectName: false
                 key: session-secret
             AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET:
               secretKeyRef:
                 name: authelia-secrets
+                expandObjectName: false
                 key: jwt-secret
             AUTHELIA_STORAGE_ENCRYPTION_KEY:
               secretKeyRef:
                 name: authelia-secrets
+                expandObjectName: false
                 key: storage-encryption-key
             AUTHELIA_STORAGE_POSTGRES_ADDRESS: null
             AUTHELIA_STORAGE_POSTGRES_DATABASE: null

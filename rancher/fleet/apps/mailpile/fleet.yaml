@@ -1,0 +1,10 @@
+name: mailpile
+defaultNamespace: apps-mailpile
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/mailpile
+  version: 9.10.0
+  releaseName: mailpile
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
