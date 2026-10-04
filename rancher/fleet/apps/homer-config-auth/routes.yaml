@@ -23,7 +23,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`homer.rancher.tailscale.bnowakowski.pl`) && (PathPrefix(`/assets/config.yml`) || PathPrefix(`/assets/config.yaml`))
+      match: Host(`homer.rancher.tailscale.bnowakowski.pl`)
       priority: 1000
       middlewares:
         - name: homer-config-authelia
@@ -43,7 +43,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`homer.rancher.localdomain.bnowakowski.pl`) && (PathPrefix(`/assets/config.yml`) || PathPrefix(`/assets/config.yaml`))
+      match: Host(`homer.rancher.localdomain.bnowakowski.pl`)
       priority: 1000
       middlewares:
         - name: homer-config-authelia
