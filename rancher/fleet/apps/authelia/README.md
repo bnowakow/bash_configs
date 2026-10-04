@@ -1,0 +1,31 @@
+# Authelia
+
+Installs the [TrueCharts Authelia chart](https://truecharts.org/charts/stable/authelia/)
+at https://authelia.rancher.tailscale.bnowakowski.pl using Traefik and the existing
+`letsencrypt` ClusterIssuer. Chart 32.19.4 requires Kubernetes 1.33 or newer.
+
+Before Fleet starts the pod, create two external Secrets in `apps-authelia`:
+
+- `authelia-secrets`: keys `session-secret`, `jwt-secret`, and
+  `storage-encryption-key`, each containing an independently generated random
+  secret of at least 64 characters. Retain the encryption key across upgrades
+  and restores; changing it makes existing encrypted database records unreadable.
+- `authelia-users`: key `users_database.yaml` containing an Authelia
+  [file user database](https://www.authelia.com/configuration/first-factor/file/)
+  with password hashes, display names, and email addresses. Mounting the whole
+  Secret directory allows Kubernetes to propagate user updates.
+
+Do not commit these Secrets. Generate password hashes with Authelia's
+`authelia crypto hash generate argon2` command.
+
+One replica uses a 1Gi local-path PVC for SQLite and notification output.
+Sessions are held in memory and reset when the pod restarts. Back up the PVC
+and the Secrets together. Password resets are disabled because the user database
+is read-only. Enrollment notifications are written to `/config/notification.txt`;
+retrieve them with `kubectl -n apps-authelia exec deploy/authelia -- cat
+/config/notification.txt`. Configure an SMTP notifier for email delivery.
+
+The access policy requires two factors for `*.rancher.tailscale.bnowakowski.pl`
+and denies other domains. Adding this bundle alone does not protect existing apps:
+attach an Authelia forward-auth middleware to selected app ingresses separately.
+Never attach that middleware to Authelia's own ingress.

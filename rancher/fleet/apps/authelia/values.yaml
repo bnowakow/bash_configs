@@ -1,0 +1,92 @@
+authelia:
+  authentication_backend:
+    password_reset:
+      disable: true
+    file:
+      path: /users/users_database.yaml
+  access_control:
+    default_policy: deny
+    rules:
+      - domain: '*.rancher.tailscale.bnowakowski.pl'
+        policy: two_factor
+  session:
+    cookies:
+      - domain: rancher.tailscale.bnowakowski.pl
+        authelia_url: https://authelia.rancher.tailscale.bnowakowski.pl
+  storage:
+    local:
+      path: /config/db.sqlite3
+  notifier:
+    filesystem:
+      filename: /config/notification.txt
+
+# A single instance owns the SQLite database and in-memory sessions.
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate
+    podSpec:
+      containers:
+        main:
+          env:
+            AUTHELIA_SESSION_SECRET:
+              secretKeyRef:
+                name: authelia-secrets
+                key: session-secret
+            AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET:
+              secretKeyRef:
+                name: authelia-secrets
+                key: jwt-secret
+            AUTHELIA_STORAGE_ENCRYPTION_KEY:
+              secretKeyRef:
+                name: authelia-secrets
+                key: storage-encryption-key
+            AUTHELIA_STORAGE_POSTGRES_ADDRESS: null
+            AUTHELIA_STORAGE_POSTGRES_DATABASE: null
+            AUTHELIA_STORAGE_POSTGRES_USERNAME: null
+            AUTHELIA_STORAGE_POSTGRES_PASSWORD: null
+            AUTHELIA_SESSION_REDIS_HOST: null
+            AUTHELIA_SESSION_REDIS_PORT: null
+            AUTHELIA_SESSION_REDIS_DATABASE_INDEX: null
+            AUTHELIA_SESSION_REDIS_PASSWORD: null
+
+cnpg:
+  main:
+    enabled: false
+redis:
+  enabled: false
+
+persistence:
+  config:
+    enabled: true
+    type: pvc
+    storageClass: local-path
+    size: 1Gi
+    mountPath: /config
+  users:
+    enabled: true
+    type: secret
+    objectName: authelia-users
+    expandObjectName: false
+    mountPath: /users
+    readOnly: true
+
+ingress:
+  main:
+    enabled: true
+    primary: true
+    ingressClassName: traefik
+    hosts:
+      - host: authelia.rancher.tailscale.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt
+      traefik:
+        enabled: true
+        entrypoints:
+          - websecure
+        forceTLS: true

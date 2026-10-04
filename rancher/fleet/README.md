@@ -14,6 +14,8 @@ Each child directory containing a `fleet.yaml` is a separate Fleet bundle:
   added after cert-manager is healthy.
 - `apps/sonarr` installs Sonarr from the TrueCharts OCI registry with the repository's
   customized values.
+- `apps/authelia` installs Authelia from the TrueCharts OCI registry. Create its
+  external credential and user Secrets as described in `apps/authelia/README.md`.
 
 The chart versions are deliberately pinned. Upgrade them through a reviewed Git change.
 
