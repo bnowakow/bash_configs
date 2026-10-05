@@ -70,6 +70,7 @@ exclude_patterns=(
   '^meshcommander$'
   '^plex$'
   '^homer-test.*$'
+  '^homer-config-auth$'
   '^fleet$'
   '^fleet-agent-local$'
   '^fleet-crd$'
