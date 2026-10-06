@@ -520,16 +520,22 @@ prepare_helm_upgrade_pvcs() {
   local target_version="$3"
   local fleet_file="$4"
   local chart_name
-  local chart_label_name
+  local target_app_label
+  local target_app_version
   local release_name
   local target_chart_label
   local pvc_names
   local pvc_name
-  local current_chart_label
   local storage_request
   local objectset_id
   local values_file
   local external_claims
+  local rendered_pvcs=""
+  local rendered_chart
+  local pvc_labels
+  local pvc_label
+  local render_args=()
+  local pvc_version_labels=()
 
   chart_name="$(sed -n 's/^[[:space:]]*chart:[[:space:]]*//p' "$fleet_file" | head -1)"
   release_name="$(awk -F': *' '$1 == "  releaseName" {print $2; exit}' "$fleet_file")"
@@ -544,10 +550,6 @@ prepare_helm_upgrade_pvcs() {
     external_claims="$(awk -F': *' '$1 ~ /existingClaim$/ {print $2}' "$values_file")"
   fi
 
-  # OCI chart refs include a URL prefix.  Helm's chart label uses only the
-  # chart name, e.g. youtubedl-material-15.18.2, never oci-15.18.2.
-  chart_label_name="${chart_name##*/}"
-  target_chart_label="${chart_label_name}-${target_version}"
   objectset_id="default-${release_name}-cattle-fleet-local-system"
   pvc_names="$(kubectl get pvc --kubeconfig "$kubeconfig_path" --namespace "$namespace" \
     -l "app.kubernetes.io/instance=$release_name" \
@@ -567,19 +569,47 @@ prepare_helm_upgrade_pvcs() {
         "$(color_blue "$app"): leaving restored PVC $pvc_name unmanaged"
       continue
     fi
-    current_chart_label="$(kubectl get pvc "$pvc_name" \
-      --kubeconfig "$kubeconfig_path" --namespace "$namespace" \
-      -o jsonpath='{.metadata.labels.helm\.sh/chart}' 2>>"$log_file" || true)"
-    if [ -n "$current_chart_label" ] && [ "$current_chart_label" != "$target_chart_label" ]; then
-      log "$app: aligning PVC $pvc_name Helm chart label with target $target_chart_label" \
-        "$(color_blue "$app"): aligning PVC metadata before Fleet upgrade"
-      if ! printf 'apiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: %s\n  namespace: %s\n  labels:\n    helm.sh/chart: %s\n' \
-        "$pvc_name" "$namespace" "$target_chart_label" | kubectl apply \
-        --kubeconfig "$kubeconfig_path" \
-        --server-side --force-conflicts --field-manager=helm \
-        --filename - >>"$log_file" 2>&1; then
-        record_failure_and_maybe_abort "Unable to prepare PVC ($app)" \
-          "Could not transfer the Helm chart label on PVC $namespace/$pvc_name to Fleet's Helm manager. The PVC was not deleted."
+    # Use each PVC's rendered labels, including dependency charts such as
+    # MongoDB. Parent chart versions are not valid labels for dependency PVCs.
+    if [ -z "$rendered_pvcs" ]; then
+      render_args=("$release_name" "$chart_name" --version "$target_version" --namespace "$namespace")
+      if [ -f "$values_file" ]; then
+        render_args+=(-f "$values_file")
+      fi
+      if ! rendered_chart="$(helm template "${render_args[@]}" 2>>"$log_file")"; then
+        record_failure_and_maybe_abort "Unable to render PVC labels ($app)" \
+          "Could not render the pinned target chart before PVC preparation."
+        return 1
+      fi
+      if ! rendered_pvcs="$(set -o pipefail
+        printf '%s\n' "$rendered_chart" |
+          awk 'BEGIN { RS="---\n" } /(^|\n)kind: PersistentVolumeClaim\n/ { printf "---\n%s", $0 }' |
+          kubectl create --kubeconfig "$kubeconfig_path" --namespace "$namespace" \
+            --dry-run=client --validate=false -f - \
+            -o go-template='{{define "pvc"}}{{.metadata.name}}{{"|"}}{{index .metadata.labels "helm.sh/chart"}}{{"|"}}{{index .metadata.labels "app"}}{{"|"}}{{index .metadata.labels "app.kubernetes.io/version"}}{{"\n"}}{{end}}{{if .items}}{{range .items}}{{template "pvc" .}}{{end}}{{else}}{{template "pvc" .}}{{end}}' 2>>"$log_file")"; then
+        record_failure_and_maybe_abort "Unable to read PVC labels ($app)" \
+          "Could not read PVC metadata from the rendered target chart."
+        return 1
+      fi
+    fi
+    pvc_labels="$(printf '%s\n' "$rendered_pvcs" | awk -F'|' -v name="$pvc_name" '$1 == name {print; exit}')"
+    if [ -z "$pvc_labels" ]; then
+      log "$app: PVC $pvc_name is absent from the target chart; leaving it unmanaged"
+      continue
+    fi
+    IFS='|' read -r pvc_label target_chart_label target_app_label target_app_version <<< "$pvc_labels"
+    pvc_version_labels=()
+    [ -z "$target_chart_label" ] || [ "$target_chart_label" = '<no value>' ] || pvc_version_labels+=("helm.sh/chart=$target_chart_label")
+    [ -z "$target_app_label" ] || [ "$target_app_label" = '<no value>' ] || pvc_version_labels+=("app=$target_app_label")
+    [ -z "$target_app_version" ] || [ "$target_app_version" = '<no value>' ] || pvc_version_labels+=("app.kubernetes.io/version=$target_app_version")
+    # A metadata-only label update preserves immutable bound-PVC spec fields.
+    if [ "${#pvc_version_labels[@]}" -gt 0 ]; then
+      log "$app: aligning PVC $pvc_name with its rendered target labels"
+      if ! kubectl label pvc "$pvc_name" \
+        --kubeconfig "$kubeconfig_path" --namespace "$namespace" \
+        "${pvc_version_labels[@]}" --overwrite --field-manager=helm >>"$log_file" 2>&1; then
+        record_failure_and_maybe_abort "Unable to prepare PVC labels ($app)" \
+          "Could not align target labels on PVC $namespace/$pvc_name."
         return 1
       fi
     fi
@@ -637,12 +667,18 @@ prepare_helm_upgrade_pvcs() {
 fleet_bundledeployment_failure_message() {
   local bundledeployment_namespace="$1"
   local bundledeployment_name="$2"
+  local since="${3:-}"
   local message
 
   message="$(kubectl get bundledeployment "$bundledeployment_name" \
     --kubeconfig "$kubeconfig_path" --namespace "$bundledeployment_namespace" \
-    -o jsonpath='{range .status.conditions[?(@.status=="False")]}{.type}: {.reason}: {.message}{"\n"}{end}{.status.display.message}' \
-    2>>"$log_file" || true)"
+    -o json 2>>"$log_file" | jq -r --arg since "$since" '
+      (.status.conditions[]? |
+        select(.status == "False") |
+        select($since == "" or (.lastUpdateTime // "") >= $since) |
+        "\(.type): \(.reason): \(.message)"),
+      (if $since == "" then (.status.display.message // empty) else empty end)
+    ' 2>>"$log_file" || true)"
   # Fleet reports a transient Ready error while a Deployment is replacing its
   # old pod, for example: "progressing ... minimum availability, Replicas:
   # 0/1".  That is not a failed Helm reconciliation; allow the readiness loop
@@ -765,6 +801,13 @@ apply_fleet_bundle() {
   local failure_message
   local helm_status
   local helm_failure_message
+  local previous_helm_revision
+  local current_helm_revision
+  local helm_status_json
+  local reconciliation_started_at
+  local native_apply_labels=()
+  local existing_label
+  local prune_candidates
   local fleet_repair_attempted=0
   local fleet_status_retry=0
 
@@ -807,17 +850,36 @@ apply_fleet_bundle() {
 
   log "$app: applying generated Fleet Bundle $bundle_name" \
     "$(color_blue "$app"): applying generated Fleet Bundle $bundle_name"
-  if ! bundle_generation="$(kubectl apply \
-    --kubeconfig "$kubeconfig_path" \
-    --namespace fleet-local \
-    --server-side \
-    --force-conflicts \
-    --field-manager=codex-fleet-upgrade \
-    --filename "$generated_bundle_file" \
-    -o jsonpath='{.metadata.generation}' 2>>"$log_file")"; then
+  previous_helm_revision="$(helm status "$app" --kubeconfig "$kubeconfig_path" \
+    --namespace "$namespace" -o json 2>>"$log_file" | jq -r '.version // 0' 2>>"$log_file" || true)"
+  [[ "$previous_helm_revision" =~ ^[0-9]+$ ]] || previous_helm_revision=0
+  reconciliation_started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  # Offline output does not refresh Fleet's separate Helm values Secret.
+  # Native apply updates the Bundle, values hash, and Secret together.
+  # Its pruning scope is the positional repo name: refuse any unrelated bundle
+  # in that scope, and preserve the existing GitRepo ownership labels.
+  prune_candidates="$(kubectl get bundles --kubeconfig "$kubeconfig_path" \
+    --namespace fleet-local -l "fleet.cattle.io/repo-name=$bundle_name" \
+    -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>>"$log_file")" || return 1
+  while IFS= read -r existing_label; do
+    [ -z "$existing_label" ] || [ "$existing_label" = "$bundle_name" ] || {
+      rm -f "$generated_bundle_file"
+      record_failure_and_maybe_abort "Unsafe Fleet apply scope ($app)" \
+        "Native apply could prune unrelated bundle $existing_label; refusing to proceed."
+      return 1
+    }
+  done <<< "$prune_candidates"
+  while IFS= read -r existing_label; do
+    [ -z "$existing_label" ] || native_apply_labels+=(--label "$existing_label")
+  done < <(kubectl get bundle "$bundle_name" --kubeconfig "$kubeconfig_path" \
+    --namespace fleet-local -o json 2>>"$log_file" | jq -r \
+    '.metadata.labels | to_entries[] | select(.key != "fleet.cattle.io/commit") | "\(.key)=\(.value)"')
+  if ! (cd "$bash_configs_root" && fleet apply --kubeconfig "$kubeconfig_path" \
+    --namespace fleet-local "${native_apply_labels[@]}" \
+    "$bundle_name" "$relative_fleet_dir") >>"$log_file" 2>&1; then
     rm -f "$generated_bundle_file"
     record_failure_and_maybe_abort "Fleet Bundle apply failed ($app)" \
-      "kubectl could not apply the generated bundle $bundle_name."
+      "Fleet could not update bundle $bundle_name and its Helm values Secret."
     return 1
   fi
 
@@ -917,16 +979,20 @@ apply_fleet_bundle() {
       --kubeconfig "$kubeconfig_path" -o jsonpath='{.status.appliedDeploymentID}' 2>>"$log_file" || true)"
     bundledeployment_ready="$(kubectl -n "$bundledeployment_namespace" get bundledeployment "$bundledeployment_name" \
       --kubeconfig "$kubeconfig_path" -o jsonpath='{.status.ready}' 2>>"$log_file" || true)"
-    failure_message="$(fleet_bundledeployment_failure_message "$bundledeployment_namespace" "$bundledeployment_name")"
+    failure_message="$(fleet_bundledeployment_failure_message "$bundledeployment_namespace" "$bundledeployment_name" "$reconciliation_started_at")"
 
     # Fleet can leave the previous deployment applied while Helm has already
     # failed the new revision, without publishing Ready=False on the
     # BundleDeployment. Detect that state directly so this loop cannot wait
     # indefinitely for an appliedDeploymentID that will never arrive.
-    helm_status="$(helm list --kubeconfig "$kubeconfig_path" \
-      --namespace "$namespace" --filter "^${app}$" \
-      -o json 2>>"$log_file" | jq -r '.[0].status // empty' 2>>"$log_file" || true)"
-    if [ "$helm_status" = "failed" ]; then
+    helm_status_json="$(helm status "$app" --kubeconfig "$kubeconfig_path" \
+      --namespace "$namespace" -o json 2>>"$log_file" || true)"
+    helm_status="$(printf '%s' "$helm_status_json" | jq -r '.info.status // empty' 2>>"$log_file" || true)"
+    current_helm_revision="$(printf '%s' "$helm_status_json" | jq -r '.version // 0' 2>>"$log_file" || true)"
+    [[ "$current_helm_revision" =~ ^[0-9]+$ ]] || current_helm_revision=0
+    # A failed revision predating this reconciliation is not its outcome.
+    # Wait for Fleet to create a newer Helm revision before reporting failure.
+    if [ "$helm_status" = "failed" ] && [ "$current_helm_revision" -gt "$previous_helm_revision" ]; then
       helm_failure_message="$(helm_release_failure_message "$app" "$namespace")"
       if [ -z "$helm_failure_message" ]; then
         helm_failure_message="No Helm failure description was reported. See $log_file for command output."
@@ -936,6 +1002,8 @@ apply_fleet_bundle() {
       if [ "$fleet_repair_attempted" -eq 0 ]; then
         fleet_repair_attempted=1
         if ask_attempt_fleet_repair "$app" "$namespace"; then
+          previous_helm_revision="$current_helm_revision"
+          reconciliation_started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           if request_fleet_reconciliation_retry \
             "$bundle_name" "$bundledeployment_namespace" "$bundledeployment_name" "$desired_deployment_id"; then
             log "$app: Fleet published a new deployment after the requested repair; resuming readiness checks" \
@@ -982,7 +1050,7 @@ apply_fleet_bundle() {
   while [ "$bundledeployment_wait_attempts" -lt 600 ]; do
     bundledeployment_ready="$(kubectl -n "$bundledeployment_namespace" get bundledeployment "$bundledeployment_name" \
       --kubeconfig "$kubeconfig_path" -o jsonpath='{.status.ready}' 2>>"$log_file" || true)"
-    failure_message="$(fleet_bundledeployment_failure_message "$bundledeployment_namespace" "$bundledeployment_name")"
+    failure_message="$(fleet_bundledeployment_failure_message "$bundledeployment_namespace" "$bundledeployment_name" "$reconciliation_started_at")"
     if [ -n "$failure_message" ] && \
       { [ -z "$previous_applied_deployment_id" ] || \
         [ "$desired_deployment_id" != "$previous_applied_deployment_id" ]; }; then
@@ -1027,7 +1095,7 @@ apply_fleet_bundle() {
     while [ "$bundledeployment_wait_attempts" -lt 600 ]; do
       bundledeployment_ready="$(kubectl -n "$bundledeployment_namespace" get bundledeployment "$bundledeployment_name" \
         --kubeconfig "$kubeconfig_path" -o jsonpath='{.status.ready}' 2>>"$log_file" || true)"
-      failure_message="$(fleet_bundledeployment_failure_message "$bundledeployment_namespace" "$bundledeployment_name")"
+      failure_message="$(fleet_bundledeployment_failure_message "$bundledeployment_namespace" "$bundledeployment_name" "$reconciliation_started_at")"
       if [ -n "$failure_message" ] && \
         { [ -z "$previous_applied_deployment_id" ] || \
           [ "$desired_deployment_id" != "$previous_applied_deployment_id" ]; }; then
@@ -1844,6 +1912,19 @@ for app in $apps; do
   update_check_return_code=$?
   helper_status="$(helper_status_label "$update_check_return_code")"
 
+  repair_failed_release=0
+  if [ "$update_check_return_code" -eq 0 ] || [ "$update_check_return_code" -eq 2 ]; then
+    namespace="$(get_namespace_for_app "$app")"
+    release_status="$(helm list --kubeconfig "$kubeconfig_path" \
+      --namespace "$namespace" --all --filter "^${app}$" \
+      -o json 2>>"$log_file" | jq -r '.[0].status // empty' 2>>"$log_file" || true)"
+    if [ "$release_status" = failed ]; then
+      log "$app: target version is current but Helm release failed; retrying Fleet reconciliation"
+      repair_failed_release=1
+      update_check_return_code=1
+    fi
+  fi
+
   if [ "$update_check_return_code" -eq 0 ] || [ "$update_check_return_code" -eq 2 ]; then
     log "$app: no update needed (helper status: $helper_status, return_code: $update_check_return_code)" "$(color_blue "$app"): no update needed (helper status: $(color_helper_status "$update_check_return_code"), return_code: $(color_helper_code "$update_check_return_code"))"
     up_to_date_count=$((up_to_date_count + 1))
@@ -1883,7 +1964,7 @@ for app in $apps; do
   # no-op chart version through Fleet; it can create a new Helm revision and
   # unnecessarily reprocess PVCs and other resources.
   installed_chart_version="${local_version#"$app-"}"
-  if [ -n "$installed_chart_version" ] && [ "$installed_chart_version" = "$target_version" ]; then
+  if [ "$repair_failed_release" -eq 0 ] && [ -n "$installed_chart_version" ] && [ "$installed_chart_version" = "$target_version" ]; then
     log "$app: no chart update needed (installed=$installed_chart_version target=$target_version)" \
       "$(color_blue "$app"): no chart update needed (installed=$installed_chart_version target=$target_version)"
     up_to_date_count=$((up_to_date_count + 1))

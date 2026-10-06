@@ -3,7 +3,7 @@ defaultNamespace: apps-duckdns
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/duckdns
-  version: 13.10.1
+  version: 13.10.3
   releaseName: duckdns
   waitForJobs: true
   valuesFiles:
