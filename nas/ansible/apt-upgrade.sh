@@ -29,7 +29,8 @@ for inventory_file in inventory/proxmox-vms.yml inventory/ovh.yml; do
     jq -r '[.[] | objects | .hosts[]?] | unique | join(", ")')
   printf '\nSudo password for hosts in %s%s%s: %s\n' \
     "$bold_blue" "$inventory_file" "$normal" "$inventory_hosts"
-  ansible-playbook -i "$inventory_file" apt-upgrade_playbook.yml --ask-become-pass
+  APT_UPGRADE_HOST_COLOR="$bold_blue" APT_UPGRADE_HOST_RESET="$normal" \
+    ansible-playbook -i "$inventory_file" apt-upgrade_playbook.yml --ask-become-pass
   printf '\nUpgrading Codex for sup on hosts in %s%s%s: %s\n' \
     "$bold_blue" "$inventory_file" "$normal" "$inventory_hosts"
   ansible-playbook -i "$inventory_file" codex-upgrade_playbook.yml

@@ -100,7 +100,7 @@
     - name: Ask whether this host may be rebooted
       ansible.builtin.pause:
         prompt: >-
-          {{ inventory_hostname }} needs a reboot to activate its newer kernel
+          {{ lookup('ansible.builtin.env', 'APT_UPGRADE_HOST_COLOR') }}{{ inventory_hostname }}{{ lookup('ansible.builtin.env', 'APT_UPGRADE_HOST_RESET') }} needs a reboot to activate its newer kernel
           (kernel check returned {{ kernel_status_before_reboot.stdout | trim | default('no output', true) }}).
           Continue with reboot on this host? [yes/no]
       register: reboot_confirmation
