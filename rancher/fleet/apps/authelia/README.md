@@ -13,16 +13,24 @@ Before Fleet starts the pod, create two external Secrets in `apps-authelia`:
   and restores; changing it makes existing encrypted database records unreadable.
 - `authelia-users`: key `users_database.yaml` containing an Authelia
   [file user database](https://www.authelia.com/configuration/first-factor/file/)
-  with password hashes, display names, and email addresses. Mounting the whole
-  Secret directory allows Kubernetes to propagate user updates.
+  with password hashes, display names, and email addresses. This Secret seeds
+  `/config/users_database.yaml` on the PVC only when that file does not exist.
+  Later changes to the Secret do not overwrite the persistent user database.
 
 Do not commit these Secrets. Generate password hashes with Authelia's
 `authelia crypto hash generate argon2` command.
 
-One replica uses a 1Gi local-path PVC for SQLite and notification output.
+One replica uses a 1Gi local-path PVC for the writable user database, SQLite,
+and notification output. The init container copies the initial user database
+atomically with owner-only permissions, using the same image and user as Authelia.
+Password changes through Settings → Security are saved to the PVC and survive
+pod restarts and Fleet upgrades. On the first rollout of this configuration,
+the current Secret supplies the initial password; change it again in Settings
+after the rollout if an earlier change was lost.
 Sessions are held in memory and reset when the pod restarts. Back up the PVC
-and the Secrets together. Password resets are disabled because the user database
-is read-only.
+and the Secrets together. Password resets remain disabled; authenticated password
+changes are supported. Manage subsequent user additions and edits in the PVC's
+user database rather than in the seed Secret.
 
 When the Identity Verification dialog says a One-Time Code was sent to your email,
 the filesystem notifier writes it to `/config/notification.txt` instead. This is

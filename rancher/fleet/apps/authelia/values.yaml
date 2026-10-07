@@ -3,7 +3,7 @@ authelia:
     password_reset:
       disable: true
     file:
-      path: /users/users_database.yaml
+      path: /config/users_database.yaml
   access_control:
     default_policy: deny
     rules:
@@ -30,6 +30,23 @@ workload:
     replicas: 1
     strategy: Recreate
     podSpec:
+      initContainers:
+        seed-users:
+          enabled: true
+          type: init
+          imageSelector: image
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              # Seed once; never replace passwords saved by Authelia.
+              if [ ! -e /config/users_database.yaml ]; then
+                umask 077
+                cp /users/users_database.yaml /config/users_database.yaml.seed
+                chmod 600 /config/users_database.yaml.seed
+                mv /config/users_database.yaml.seed /config/users_database.yaml
+              fi
       containers:
         main:
           env:
@@ -70,6 +87,10 @@ persistence:
     storageClass: local-path
     size: 1Gi
     mountPath: /config
+    targetSelector:
+      main:
+        main: {}
+        seed-users: {}
   users:
     enabled: true
     type: secret
@@ -77,6 +98,9 @@ persistence:
     expandObjectName: false
     mountPath: /users
     readOnly: true
+    targetSelector:
+      main:
+        seed-users: {}
 
 ingress:
   main:
