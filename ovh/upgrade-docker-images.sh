@@ -264,16 +264,17 @@ for deployment in "${DEPLOYMENTS[@]}"; do
 done
 
 if ((${#dirty_repositories[@]} > 0)); then
-  if confirm "Commit Docker repository changes" "$completed_summary"$'\n'"$dirty_summary"$'Commit all listed changes now?'; then
+  if confirm "Commit and push Docker repository changes" "$completed_summary"$'\n'"$dirty_summary"$'Commit and push all listed changes now?'; then
     for project_dir in "${!dirty_repositories[@]}"; do
       directory=${dirty_repositories[$project_dir]}
       git -C "$project_dir" add -A || die "Could not stage changes in $directory"
-      if make -C "$project_dir" -qp 2>/dev/null | grep -q '^codex-commit:'; then
+      if make -C "$project_dir" -p 2>/dev/null | grep -q '^codex-commit:'; then
         make -C "$project_dir" codex-commit || die "codex-commit failed in $directory"
       else
         log "codex-commit target missing directory=$directory; using git commit"
         git -C "$project_dir" commit -m "Update Docker deployment in $directory" || die "git commit failed in $directory"
       fi
+      git -C "$project_dir" push || die "git push failed in $directory"
     done
   else
     show_message "Docker image upgrade" "$completed_summary"$'\nRepository changes were not committed.'
