@@ -514,12 +514,50 @@ fleet_bundle_name_for_app() {
   return 1
 }
 
+render_chart_for_pvc_preparation() {
+  local app="$1"
+  shift
+  local error_file
+  local render_error
+  local recovery_message
+  local attempt
+
+  error_file="$(mktemp "${TMPDIR:-/tmp}/helm-render-error.XXXXXX")" || return 1
+  for attempt in 1 2; do
+    if helm template "$@" 2>"$error_file"; then
+      cat "$error_file" >>"$log_file"
+      rm -f "$error_file"
+      return 0
+    fi
+    render_error="$(cat "$error_file")"
+    printf '%s\n' "$render_error" >>"$log_file"
+    if [ "$attempt" -eq 2 ]; then
+      break
+    fi
+    recovery_message="Helm could not render the target chart.\n\n${render_error:0:1800}\n\nProposed recovery: refresh the configured Helm repository indexes and retry the same pinned chart once. This does not change PVCs or the chart version.\n\nRefresh and retry?"
+    if [ "$yes_mode" -eq 1 ]; then
+      log "$app: automatically refreshing Helm repositories and retrying chart rendering" >&2
+    elif ! dialog --clear --title "Repair chart rendering ($app)" \
+      --yes-label "Refresh and retry" --no-label "Skip repair" --defaultno \
+      --yesno "$recovery_message" 22 110; then
+      break
+    fi
+    # Keep recovery output out of the captured manifest stream.
+    helm repo update >>"$log_file" 2>&1 || true
+  done
+  rm -f "$error_file"
+  record_failure_and_maybe_abort "Unable to render PVC labels ($app)" \
+    "Could not render the pinned target chart before PVC preparation.\n\nHelm error:\n${render_error:0:1800}\n\nCheck the chart repository, pinned version, network access and values file. Full output: $log_file" >&2
+  return 1
+}
+
 prepare_helm_upgrade_pvcs() {
   local app="$1"
   local namespace="$2"
   local target_version="$3"
   local fleet_file="$4"
   local chart_name
+  local chart_repo
   local target_app_label
   local target_app_version
   local release_name
@@ -532,12 +570,14 @@ prepare_helm_upgrade_pvcs() {
   local external_claims
   local rendered_pvcs=""
   local rendered_chart
+  local render_file
   local pvc_labels
   local pvc_label
   local render_args=()
   local pvc_version_labels=()
 
   chart_name="$(sed -n 's/^[[:space:]]*chart:[[:space:]]*//p' "$fleet_file" | head -1)"
+  chart_repo="$(sed -n 's/^[[:space:]]*repo:[[:space:]]*//p' "$fleet_file" | head -1)"
   release_name="$(awk -F': *' '$1 == "  releaseName" {print $2; exit}' "$fleet_file")"
   release_name="${release_name:-$app}"
   if [ -z "$chart_name" ]; then
@@ -573,13 +613,25 @@ prepare_helm_upgrade_pvcs() {
     # MongoDB. Parent chart versions are not valid labels for dependency PVCs.
     if [ -z "$rendered_pvcs" ]; then
       render_args=("$release_name" "$chart_name" --version "$target_version" --namespace "$namespace")
+      if [ -n "$chart_repo" ]; then
+        render_args+=(--repo "$chart_repo")
+      fi
       if [ -f "$values_file" ]; then
         render_args+=(-f "$values_file")
       fi
-      if ! rendered_chart="$(helm template "${render_args[@]}" 2>>"$log_file")"; then
-        record_failure_and_maybe_abort "Unable to render PVC labels ($app)" \
-          "Could not render the pinned target chart before PVC preparation."
+      render_file="$(mktemp "${TMPDIR:-/tmp}/helm-pvc-manifests.XXXXXX")" || return 1
+      if ! render_chart_for_pvc_preparation "$app" "${render_args[@]}" >"$render_file"; then
+        rm -f "$render_file"
         return 1
+      fi
+      rendered_chart="$(cat "$render_file")"
+      rm -f "$render_file"
+      if ! printf '%s\n' "$rendered_chart" | awk '
+        /^kind: PersistentVolumeClaim$/ { found = 1 }
+        END { exit !found }
+      '; then
+        log "$app: target chart renders no PVCs; leaving existing PVCs unmanaged"
+        return 0
       fi
       if ! rendered_pvcs="$(set -o pipefail
         printf '%s\n' "$rendered_chart" |
