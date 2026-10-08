@@ -19,5 +19,5 @@ for log_file in `ls -1t /usr/local/crashplan/log | grep $log_file_name_prefix`; 
     fi
 done
 
-echo false
+echo empty
 
