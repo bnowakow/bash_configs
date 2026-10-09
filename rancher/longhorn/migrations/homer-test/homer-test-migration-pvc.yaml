@@ -3,13 +3,10 @@ kind: PersistentVolumeClaim
 metadata:
   name: homer-test-config-longhorn-rwx
   namespace: apps-homer-test
-  labels:
-    recurring-job.longhorn.io/source: enabled
-    recurring-job-group.longhorn.io/nas-backup: enabled
 spec:
   accessModes:
     - ReadWriteMany
   storageClassName: longhorn
   resources:
     requests:
-      storage: 10Mi
+      storage: 1273Ki

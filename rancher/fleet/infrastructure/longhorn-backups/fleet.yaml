@@ -1,0 +1,4 @@
+name: longhorn-backups
+defaultNamespace: longhorn-system
+dependsOn:
+  - name: longhorn

@@ -831,6 +831,71 @@ request_fleet_reconciliation_retry() {
   return 1
 }
 
+apply_fleet_bundle_with_repair() {
+  local app="$1"
+  shift
+  local error_file
+  local apply_error
+  local recovery_message
+  local webhook_unavailable=0
+  local attempt
+  local endpoint_attempt
+  local webhook_endpoints=""
+
+  error_file="$(mktemp "${TMPDIR:-/tmp}/fleet-apply-error.XXXXXX")" || return 1
+  for attempt in 1 2; do
+    if (cd "$bash_configs_root" && fleet apply "$@") >"$error_file" 2>&1; then
+      cat "$error_file" >>"$log_file"
+      rm -f "$error_file"
+      return 0
+    fi
+    apply_error="$(cat "$error_file")"
+    cat "$error_file" >>"$log_file"
+    [ "$attempt" -eq 1 ] || break
+
+    if [[ "$apply_error" == *'failed calling webhook'* &&
+          "$apply_error" == *'no endpoints available for service "rancher-webhook"'* ]]; then
+      webhook_unavailable=1
+      recovery_message="Fleet apply failed because rancher-webhook has no available endpoints.\n\n${apply_error:0:1800}\n\nAttempt repair by restarting deployment cattle-system/rancher-webhook, waiting for its rollout and service endpoint, then retrying Fleet apply once?"
+    else
+      recovery_message="Fleet apply failed.\n\n${apply_error:0:1800}\n\nAttempt recovery by retrying the same Fleet apply once?"
+    fi
+    if [ "$yes_mode" -eq 1 ]; then
+      log "$app: automatically attempting recovery after Fleet apply failure"
+    elif ! dialog --clear --title "Repair Fleet Bundle apply ($app)" \
+      --yes-label "Attempt repair" --no-label "Skip repair" --defaultno \
+      --yesno "$recovery_message" 24 110; then
+      break
+    fi
+
+    if [ "$webhook_unavailable" -eq 1 ]; then
+      log "$app: restarting rancher-webhook to restore admission webhook endpoints"
+      if ! kubectl --kubeconfig "$kubeconfig_path" --namespace cattle-system \
+        rollout restart deployment/rancher-webhook >>"$log_file" 2>&1 || \
+        ! kubectl --kubeconfig "$kubeconfig_path" --namespace cattle-system \
+        rollout status deployment/rancher-webhook --timeout=180s >>"$log_file" 2>&1; then
+        apply_error="$apply_error"$'\n\n'"Repair failed: rancher-webhook could not restart or become ready."
+        break
+      fi
+      for ((endpoint_attempt=0; endpoint_attempt<30; endpoint_attempt++)); do
+        webhook_endpoints="$(kubectl --kubeconfig "$kubeconfig_path" --namespace cattle-system \
+          get endpoints rancher-webhook -o jsonpath='{.subsets[*].addresses[*].ip}' 2>>"$log_file" || true)"
+        [ -z "$webhook_endpoints" ] || break
+        sleep 2
+      done
+      if [ -z "$webhook_endpoints" ]; then
+        apply_error="$apply_error"$'\n\n'"Repair failed: rancher-webhook still has no ready service endpoints."
+        break
+      fi
+    fi
+    log "$app: retrying Fleet Bundle apply once"
+  done
+  rm -f "$error_file"
+  record_failure_and_maybe_abort "Fleet Bundle apply failed ($app)" \
+    "Fleet could not update the Bundle and its Helm values Secret.\n\n${apply_error:0:2200}\n\nFull output: $log_file"
+  return 1
+}
+
 apply_fleet_bundle() {
   local app="$1"
   local fleet_dir="$2"
@@ -926,12 +991,10 @@ apply_fleet_bundle() {
   done < <(kubectl get bundle "$bundle_name" --kubeconfig "$kubeconfig_path" \
     --namespace fleet-local -o json 2>>"$log_file" | jq -r \
     '.metadata.labels | to_entries[] | select(.key != "fleet.cattle.io/commit") | "\(.key)=\(.value)"')
-  if ! (cd "$bash_configs_root" && fleet apply --kubeconfig "$kubeconfig_path" \
+  if ! apply_fleet_bundle_with_repair "$app" --kubeconfig "$kubeconfig_path" \
     --namespace fleet-local "${native_apply_labels[@]}" \
-    "$bundle_name" "$relative_fleet_dir") >>"$log_file" 2>&1; then
+    "$bundle_name" "$relative_fleet_dir"; then
     rm -f "$generated_bundle_file"
-    record_failure_and_maybe_abort "Fleet Bundle apply failed ($app)" \
-      "Fleet could not update bundle $bundle_name and its Helm values Secret."
     return 1
   fi
 
