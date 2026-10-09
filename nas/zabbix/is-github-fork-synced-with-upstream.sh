@@ -37,21 +37,19 @@ if [ "$repo_name" = "truenas-charts" ]; then
     dir="bash_configs/repos/truenas"
 fi
 
-sha_upstream=$(gh api -H "Accept: application/vnd.github+json" /repos/bnowakow/$repo_name/branches | jq "map(select(.name == \"$source_branch\"))" | jq .[0].commit.sha | sed 's/"//g')
+sha_remote_master=$(gh api -H "Accept: application/vnd.github+json" /repos/bnowakow/$repo_name/branches/$source_branch --jq .commit.sha)
 cd /mnt/MargokPool/home/sup/code/$dir
 
-# comparing if master of upstream repo is the same as master of forked repo
+# compare local master with the fork's remote master
 sha_local_of_master=$(git rev-parse $source_branch)
-if [ "$sha_upstream" != "$sha_local_of_master" ]; then
+if [ "$sha_remote_master" != "$sha_local_of_master" ]; then
     echo "false,$source_branch"
 fi
 
-# checking if master of upstream repo is merged into $branch of forked repo
-sha_local_of_branch=$(git merge-base master $branch)
-if [ "$sha_upstream" = "$sha_local_of_branch" ]; then
+# check whether the fork's remote master is included in the local branch
+if git merge-base --is-ancestor "$sha_remote_master" "$branch"; then
     echo "true"
 else
     echo "false,$branch"
 fi
-
 

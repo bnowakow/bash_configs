@@ -1,0 +1,61 @@
+- name: Install Tailscale
+  hosts: all
+  become: true
+  gather_facts: true
+  vars:
+    tailscale_repo_family: "{{ ansible_distribution | lower }}"
+    tailscale_repo_release: "{{ ansible_distribution_release | lower }}"
+    tailscale_repo_url: "https://pkgs.tailscale.com/stable/{{ tailscale_repo_family }}"
+  tasks:
+    - name: Require Debian or Ubuntu
+      ansible.builtin.assert:
+        that: ansible_distribution in ['Debian', 'Ubuntu']
+        fail_msg: Tailscale's apt repository requires Debian or Ubuntu.
+
+    - name: Create apt keyring directory
+      ansible.builtin.file:
+        path: /usr/share/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Install curl and CA certificates
+      ansible.builtin.apt:
+        name:
+          - curl
+          - ca-certificates
+        state: present
+
+    - name: Install Tailscale repository key and apt source
+      ansible.builtin.shell: |
+        set -e
+        temp_file=$(mktemp)
+        trap 'rm -f "$temp_file"' EXIT
+        curl -fsSL --output "$temp_file" "$TAILSCALE_URL"
+        if ! cmp -s "$temp_file" "$TAILSCALE_DEST"; then
+          install -m 0644 "$temp_file" "$TAILSCALE_DEST"
+          echo changed
+        fi
+      environment:
+        TAILSCALE_URL: "{{ tailscale_repo_url }}/{{ tailscale_repo_release }}.{{ item.suffix }}"
+        TAILSCALE_DEST: "{{ item.dest }}"
+      loop:
+        - suffix: noarmor.gpg
+          dest: /usr/share/keyrings/tailscale-archive-keyring.gpg
+        - suffix: tailscale-keyring.list
+          dest: /etc/apt/sources.list.d/tailscale.list
+      loop_control:
+        label: "{{ item.dest }}"
+      register: tailscale_repository_file
+      changed_when: tailscale_repository_file.stdout == 'changed'
+
+    - name: Install Tailscale
+      ansible.builtin.apt:
+        name: tailscale
+        state: present
+        update_cache: true
+
+    - name: Enable and start tailscaled
+      ansible.builtin.service:
+        name: tailscaled
+        enabled: true
+        state: started

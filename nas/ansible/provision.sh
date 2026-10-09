@@ -65,6 +65,7 @@ for playbook in initial-config_playbook.yml git-config_playbook.yml; do
 done
 ansible-playbook -i "$inventory" zabbix-agent2_playbook.yml
 ansible-playbook -i "$inventory" zabbix-update-metadata_playbook.yml
+ansible-playbook -i "$inventory" tailscale_playbook.yml
 ansible-playbook -i "$inventory" proxmox-post-install_playbook.yml
 ansible-playbook -i "$inventory" codex-sudo_playbook.yml
 
@@ -83,6 +84,7 @@ ansible-playbook -i inventory/ovh.yml github-ssh_playbook.yml
 ansible-playbook -i inventory/ovh.yml zabbix-agent2_playbook.yml
 ansible-playbook -i inventory/ovh.yml zabbix-repository-migration_playbook.yml
 ansible-playbook -i inventory/ovh.yml zabbix-update-metadata_playbook.yml
+ansible-playbook -i inventory/ovh.yml tailscale_playbook.yml
 ansible-playbook -i inventory/ovh.yml codex-sudo_playbook.yml
 
 export ANSIBLE_BECOME_PASSWORD_FILE=$proxmox_become_password_file
