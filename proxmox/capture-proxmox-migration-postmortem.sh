@@ -29,7 +29,20 @@ capture last last -x
 capture pveversion pveversion -v
 capture pvesm-status pvesm status
 capture zpool-status zpool status -v
-capture ip-link ip -s link
+capture ip-link ip -s -s link
+capture ip-address ip -br address
+capture ip-route ip route show table all
+capture ip-neighbours ip -s neigh show
+capture sockets ss -tin
+for nic in /sys/class/net/*; do
+    [[ -e $nic/device ]] || continue
+    interface=${nic##*/}
+    capture "$interface-driver" ethtool -i "$interface"
+    capture "$interface-offloads" ethtool -k "$interface"
+    capture "$interface-stats" ethtool -S "$interface"
+    capture "$interface-eee" ethtool --show-eee "$interface"
+    capture "$interface-pause" ethtool -a "$interface"
+done
 
 journalctl -b -1 -o short-precise > "$output/journal-previous-boot.log" 2>&1 || true
 journalctl -b 0 -o short-precise > "$output/journal-current-boot.log" 2>&1 || true

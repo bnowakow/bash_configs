@@ -103,7 +103,7 @@ The change is **not persistent**. Recheck after reboot or driver reload. If it p
     post-up /usr/sbin/ethtool -K nic0 tso off gso off
 ```
 
-The persistent edit has not been applied. To reverse the runtime experiment to its observed original settings:
+The persistent edit was applied on October 10; see the recurrence follow-up below. To reverse the runtime experiment to its observed original settings:
 
 ```bash
 sudo ethtool -K nic0 tso on gso on
@@ -235,3 +235,16 @@ Migration writes appear to overwhelm an already worn, thermally stressed SSD. Be
 Verify recoverable backups and plan replacement of this SSD before another heavy migration. Inspect NVMe cooling, heatsink contact, and airflow. Replacement and cooling changes have **not** been performed as part of this investigation.
 
 None of the five existing runs contains `nvme-health.log`, so individual latency spikes cannot be directly matched to contemporaneous SMART temperatures or controller error snapshots. If further collection is needed, ensure `nvme-cli` is available and use the current migration monitor to capture that file, alongside ZFS, process, and disk-latency evidence. Prefer preserving evidence and replacing the suspect drive over repeated stress tests on the only root-pool device.
+
+## proxmox5 recurrence and follow-up, 2026-10-10
+
+Capture: `/var/log/proxmox-migration-monitor/proxmox5-postmortem-20261010T083547Z`.
+At October 9 23:40:43 CEST both Corosync links failed and e1000e began reporting hardware-unit hangs. There are 19,603 reports through October 10 10:34:07, with unchanged TDH 1, TDT 1c, next_to_use 1c and next_to_clean 0. NFS timeouts started at 23:44:29. Local logging continued for almost eleven hours, supporting a NIC transmit stall rather than a complete host freeze. Both boots used 7.0.14-23-pve. No actual panic, lockup, OOM or disk I/O error was found; post-reset rpool was ONLINE without reported errors. A migration trigger was not established.
+
+The four existing NIC captures had no hardware hangs and zero sampled RX/TX/CRC errors or TX timeouts. TSO/GSO remained off in all settings samples after reapplication on October 1 through the final October 7 12:24 CEST capture. No collector covered the failed October 9 boot. TSO/GSO were on after the October 10 reboot; incident-time settings are unknown.
+
+On October 10 TSO/GSO were disabled again and verified off. `/etc/network/interfaces` now has `post-up /usr/sbin/ethtool -K nic0 tso off gso off` in the nic0 stanza. A timestamped backup is alongside that file. No network reload or reboot was used to apply this change.
+
+The collector now adds `network-events.log` (link/address/route/neighbour changes) and `network-state.log` (routing, neighbour counters, bridge state, queue statistics, TCP sockets, interrupt/softirq/softnet counters, PCI AER and runtime power state), approximately every twelve samples. The postmortem collector additionally records physical-interface identity, offloads, driver counters, EEE and pause settings; these are post-reset readings, not incident-time state.
+
+`proxmox-nic-monitor.service` runs the collector on proxmox5 across reboots, with gateway 10.1.1.1 and NAS 10.0.0.20 probes. Each start creates a new private local capture directory. Check with `systemctl status proxmox-nic-monitor`; stop with `systemctl stop proxmox-nic-monitor`. Logs accumulate while enabled; monitor local free space and archive old captures. This service does not change NIC settings. The boot-time offload hook is independent of the collector.

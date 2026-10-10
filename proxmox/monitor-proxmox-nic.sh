@@ -55,10 +55,12 @@ fi
 umask 077
 mkdir -p -m 0700 "$output" || exit 1
 journal_pid=''
+link_pid=''
 cleanup() {
     local status=$?
     trap - EXIT INT TERM
     [[ -z $journal_pid ]] || kill "$journal_pid" 2>/dev/null || true
+    [[ -z $link_pid ]] || kill "$link_pid" 2>/dev/null || true
     printf '%s stopped status=%s\n' "$(date -Ins)" "$status" >> "$output/monitor-events.log"
     echo "Logs saved in: $output"
 }
@@ -92,6 +94,8 @@ capture() {
 } > "$output/nic-baseline.log" 2>&1
 journalctl -b -k -f -o short-precise > "$output/kernel-follow.log" 2>&1 &
 journal_pid=$!
+ip -ts monitor link address route neigh > "$output/network-events.log" 2>&1 &
+link_pid=$!
 echo "Monitoring $node interface $interface; Ctrl-C to stop."
 echo "Log directory: $output"
 iteration=0
@@ -122,6 +126,25 @@ while :; do
             capture ethtool --show-eee "$interface"
             capture ethtool -a "$interface"
         } >> "$output/nic-settings.log" 2>&1
+    fi
+    if (( iteration % 12 == 0 )); then
+        {
+            capture ip route show table all
+            capture ip -6 route show table all
+            capture ip -s neigh show
+            capture bridge -s link show
+            capture tc -s qdisc show dev "$interface"
+            capture ss -s
+            capture ss -tin state established
+            printf '%s interrupt and softirq counters\n' "$(date -Ins)"
+            cat /proc/interrupts /proc/softirqs /proc/net/softnet_stat
+            for counter in /sys/class/net/"$interface"/device/aer_* /sys/class/net/"$interface"/device/power/{control,runtime_status}; do
+                [[ -r $counter ]] || continue
+                printf '%s\n' "$counter"
+                cat "$counter"
+            done
+            kill -0 "$link_pid" 2>/dev/null || echo 'WARNING: network event follower has exited'
+        } >> "$output/network-state.log" 2>&1
     fi
     for peer in "${peers[@]}"; do
         # Use host routing: records host reachability, not a forced physical-port path.
