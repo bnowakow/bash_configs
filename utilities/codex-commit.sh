@@ -21,16 +21,23 @@ resolve_codex_command() {
 		return 0
 	fi
 
-	local candidate
-	for candidate in \
-		"/Applications/Codex.app/Contents/Resources/codex" \
-		"/Applications/ChatGPT.app/Contents/Resources/codex" \
-		"$HOME/Applications/ChatGPT.app/Contents/Resources/codex" \
-		"$HOME/Applications/Codex.app/Contents/Resources/codex"; do
-		if [ -x "$candidate" ]; then
-			codex_command=("$candidate")
-			return 0
-		fi
+	local app_path relative_path candidate
+	for app_path in \
+		"/Applications/Codex.app" \
+		"/Applications/ChatGPT.app" \
+		"$HOME/Applications/ChatGPT.app" \
+		"$HOME/Applications/Codex.app"; do
+		# Support both the original bundle layout and the nested CLI bundle.
+		for relative_path in \
+			"Contents/Resources/codex" \
+			"Contents/Resources/codex-cli/bin/codex" \
+			"Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex"; do
+			candidate="$app_path/$relative_path"
+			if [ -x "$candidate" ]; then
+				codex_command=("$candidate")
+				return 0
+			fi
+		done
 	done
 
 	return 1
