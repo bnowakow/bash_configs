@@ -12,6 +12,17 @@
         that: ansible_distribution in ['Debian', 'Ubuntu']
         fail_msg: Tailscale's apt repository requires Debian or Ubuntu.
 
+    - name: Check for an existing Tailscale deb822 apt source
+      ansible.builtin.stat:
+        path: /etc/apt/sources.list.d/tailscale.sources
+      register: tailscale_deb822_source
+
+    - name: Remove the duplicate Tailscale list when a deb822 source exists
+      ansible.builtin.file:
+        path: /etc/apt/sources.list.d/tailscale.list
+        state: absent
+      when: tailscale_deb822_source.stat.exists
+
     - name: Create apt keyring directory
       ansible.builtin.file:
         path: /usr/share/keyrings
@@ -25,7 +36,7 @@
           - ca-certificates
         state: present
 
-    - name: Install Tailscale repository key and apt source
+    - name: Install Tailscale repository key and apt source when needed
       ansible.builtin.shell: |
         set -e
         temp_file=$(mktemp)
@@ -47,12 +58,24 @@
         label: "{{ item.dest }}"
       register: tailscale_repository_file
       changed_when: tailscale_repository_file.stdout == 'changed'
+      when: item.suffix == 'noarmor.gpg' or not tailscale_deb822_source.stat.exists
 
     - name: Install Tailscale
       ansible.builtin.apt:
         name: tailscale
         state: present
         update_cache: true
+
+    - name: Check whether Tailscale installed a deb822 apt source
+      ansible.builtin.stat:
+        path: /etc/apt/sources.list.d/tailscale.sources
+      register: tailscale_deb822_source_after_install
+
+    - name: Remove the duplicate Tailscale list after installation
+      ansible.builtin.file:
+        path: /etc/apt/sources.list.d/tailscale.list
+        state: absent
+      when: tailscale_deb822_source_after_install.stat.exists
 
     - name: Enable and start tailscaled
       ansible.builtin.service:
