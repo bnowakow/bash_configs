@@ -3,7 +3,7 @@ defaultNamespace: apps-flaresolverr
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/flaresolverr
-  version: 17.11.1
+  version: 18.0.0
   releaseName: flaresolverr
   waitForJobs: true
   valuesFiles:
