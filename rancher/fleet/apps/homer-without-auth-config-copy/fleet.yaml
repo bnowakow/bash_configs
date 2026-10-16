@@ -1,0 +1,5 @@
+name: homer-without-auth-config-copy
+defaultNamespace: apps-homer
+
+dependsOn:
+  - name: homer

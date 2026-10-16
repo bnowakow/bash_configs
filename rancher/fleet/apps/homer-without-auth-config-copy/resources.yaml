@@ -1,0 +1,118 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: homer-without-auth-config
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homer-without-auth-config-copy
+data:
+  copy-config.sh: |
+    #!/bin/sh
+    set -eu
+    test -f /source/config.yml
+    # Stage outside the served directory, so the original config is never served.
+    mkdir -p /work/assets
+    cp -a /source/. /work/assets/
+    sed '/type:/d; /api_token:/d; /apikey:/d; /libraryType:/d; /auth:/d; /node:/d' \
+      /source/config.yml > /work/assets/config.yml
+    cp -a /work/assets/. /destination/
+    echo 'Copied Homer assets and removed the requested configuration lines.'
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: homer-without-auth-config-copy
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      containers:
+        - name: copy-config
+          image: alpine:3.22.1
+          command:
+            - /bin/sh
+            - /scripts/copy-config.sh
+          volumeMounts:
+            - name: source
+              mountPath: /source
+              readOnly: true
+            - name: destination
+              mountPath: /destination
+            - name: script
+              mountPath: /scripts
+              readOnly: true
+            - name: work
+              mountPath: /work
+      volumes:
+        - name: source
+          persistentVolumeClaim:
+            claimName: homer-config
+            readOnly: true
+        - name: destination
+          persistentVolumeClaim:
+            claimName: homer-without-auth-config
+        - name: script
+          configMap:
+            name: homer-without-auth-config-copy
+        - name: work
+          emptyDir: {}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: homer-without-auth-config-copy
+spec:
+  schedule: "0 * * * *"
+  timeZone: Europe/Warsaw
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 600
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+        backoffLimit: 3
+        template:
+          spec:
+            restartPolicy: Never
+            automountServiceAccountToken: false
+            containers:
+              - name: copy-config
+                image: alpine:3.22.1
+                command:
+                  - /bin/sh
+                  - /scripts/copy-config.sh
+                volumeMounts:
+                  - name: source
+                    mountPath: /source
+                    readOnly: true
+                  - name: destination
+                    mountPath: /destination
+                  - name: script
+                    mountPath: /scripts
+                    readOnly: true
+                  - name: work
+                    mountPath: /work
+            volumes:
+              - name: source
+                persistentVolumeClaim:
+                  claimName: homer-config
+                  readOnly: true
+              - name: destination
+                persistentVolumeClaim:
+                  claimName: homer-without-auth-config
+              - name: script
+                configMap:
+                  name: homer-without-auth-config-copy
+              - name: work
+                emptyDir: {}

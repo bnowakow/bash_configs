@@ -1,0 +1,13 @@
+name: homer-without-auth
+defaultNamespace: apps-homer
+
+dependsOn:
+  - name: homer-without-auth-config-copy
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/homer
+  version: 16.0.0
+  releaseName: homer-without-auth
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
