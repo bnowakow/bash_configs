@@ -1,0 +1,67 @@
+TZ: Europe/Warsaw
+
+persistence:
+  config:
+    enabled: true
+    type: pvc
+    storageClass: local-path
+    size: 1Gi
+    mountPath: /config
+  books:
+    enabled: true
+    type: nfs
+    server: nas.localdomain.bnowakowski.pl
+    path: /mnt/PlexPool/plex/Books
+    mountPath: /books
+  comics:
+    enabled: false
+  files:
+    enabled: false
+
+ingress:
+  main:
+    enabled: true
+    primary: true
+    ingressClassName: traefik
+    hosts:
+      - host: ubooquity.rancher.tailscale.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+      - host: ubooquity.rancher.localdomain.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt
+      traefik:
+        enabled: true
+        entrypoints:
+          - websecure
+        forceTLS: true
+  admin:
+    enabled: true
+    primary: false
+    targetSelector:
+      admin: admin
+    ingressClassName: traefik
+    hosts:
+      - host: ubooquity-admin.rancher.tailscale.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+      - host: ubooquity-admin.rancher.localdomain.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt
+      traefik:
+        enabled: true
+        entrypoints:
+          - websecure
+        forceTLS: true

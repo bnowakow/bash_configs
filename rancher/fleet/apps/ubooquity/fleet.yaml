@@ -1,0 +1,10 @@
+name: ubooquity
+defaultNamespace: apps-ubooquity
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/ubooquity
+  version: 16.0.0
+  releaseName: ubooquity
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml

@@ -1,0 +1,5 @@
+name: ubooquity-admin-redirect
+defaultNamespace: apps-ubooquity
+
+dependsOn:
+  - name: ubooquity

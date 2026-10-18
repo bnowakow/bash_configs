@@ -1,0 +1,47 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: ubooquity-admin-canonical
+spec:
+  redirectRegex:
+    regex: '^(https?://[^/]+/ubooquity/admin)/$'
+    replacement: '${1}'
+    permanent: false
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ubooquity-admin-canonical-tailscale
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`ubooquity-admin.rancher.tailscale.bnowakowski.pl`) && Path(`/ubooquity/admin/`)
+      priority: 1000
+      middlewares:
+        - name: ubooquity-admin-canonical
+      services:
+        - name: ubooquity-admin
+          port: 2203
+  tls:
+    secretName: ubooquity-admin-tls-0
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ubooquity-admin-canonical-localdomain
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`ubooquity-admin.rancher.localdomain.bnowakowski.pl`) && Path(`/ubooquity/admin/`)
+      priority: 1000
+      middlewares:
+        - name: ubooquity-admin-canonical
+      services:
+        - name: ubooquity-admin
+          port: 2203
+  tls:
+    secretName: ubooquity-admin-tls-1
