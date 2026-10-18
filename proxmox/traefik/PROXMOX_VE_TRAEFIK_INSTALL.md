@@ -51,21 +51,24 @@ file that points to `http://<ui-hostname>:3128`; keep `spiceproxy.service`
 running and protect TCP/3128 with the PVE firewall or an equivalent host
 firewall. Traefik protects only the HTTPS UI.
 
-## Current PBS deployment
+## Current host: proxmox5 (PVE)
 
-This host runs PBS, not PVE. The installed configuration is:
+This host currently runs PVE without K3s. The native profile uses:
 
 | Setting | Value |
 | --- | --- |
-| Upstream | `https://127.0.0.1:8007` |
-| LAN name | `proxmox-backup-server.localdomain.bnowakowski.pl` |
-| Tailnet name | `proxmox-backup-server.tailscale.bnowakowski.pl` |
-| Permitted clients | `10.0.0.0/8` and `100.64.0.0/10` |
-| Certificate | One DNS-01 Let’s Encrypt certificate with both names as SANs |
+| Upstream | `https://127.0.0.1:8006` |
+| LAN name | `proxmox5.localdomain.bnowakowski.pl` |
+| Tailnet name | `proxmox5.tailscale.bnowakowski.pl` |
+| Permitted clients | `10.0.0.0/10`, `100.64.0.0/10`, and loopback |
+| Certificate | Cloudflare DNS-01 with both names as SANs |
 
-The 30-second DNS propagation delay is intentional: Cloudflare DNS updates for
-the Tailnet name required additional time before Let’s Encrypt could observe
-the TXT challenge record.
+Traefik v3.7.15 is installed, enabled at boot, and running. Both names have
+been verified with trusted HTTPS GET requests returning the PVE UI. The
+Cloudflare token is stored only at
+`/etc/traefik/credentials/cloudflare-dns-api-token` (root-owned, mode 0600).
+ACME state is stored at `/var/lib/traefik/acme.json` (mode 0600).
+The 30-second DNS propagation delay allows TXT records to propagate.
 
 ## Native installation
 
@@ -83,7 +86,8 @@ the required PVE names. Point its service at `https://127.0.0.1:8006`. noVNC
 requires no additional Traefik configuration; retain the PVE TCP/3128 firewall
 rule separately if SPICE is needed.
 
-Install the verified upstream binary, then provision the service files:
+Install the checksum-verified upstream Traefik v3.7.15 binary at
+`/usr/local/bin/traefik`, then provision the service files:
 
 ```sh
 install -d -m 0700 /var/lib/traefik /etc/traefik/credentials
@@ -116,5 +120,5 @@ openssl s_client -connect YOUR_PROXMOX_NAME:443 -servername YOUR_PROXMOX_NAME </
   | openssl x509 -noout -subject -issuer -ext subjectAltName
 ```
 
-For PBS on this host, both configured names must return the PBS UI through
-Traefik and the certificate SAN list must contain both PBS names.
+For this PVE host, both configured names must return the PVE UI through
+Traefik and the certificate SAN list must contain both proxmox5 names.

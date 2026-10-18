@@ -1,7 +1,7 @@
 http:
   routers:
     proxmox-api:
-      rule: "(Host(`proxmox4.localdomain.bnowakowski.pl`) || Host(`proxmox4.tailscale.bnowakowski.pl`)) && PathPrefix(`/api2/`)"
+      rule: "(Host(`proxmox5.localdomain.bnowakowski.pl`) || Host(`proxmox5.tailscale.bnowakowski.pl`)) && PathPrefix(`/api2/`)"
       priority: 100
       entryPoints:
         - websecure
@@ -13,11 +13,11 @@ http:
       tls:
         certResolver: cloudflare
         domains:
-          - main: "proxmox4.localdomain.bnowakowski.pl"
+          - main: "proxmox5.localdomain.bnowakowski.pl"
             sans:
-              - "proxmox4.tailscale.bnowakowski.pl"
+              - "proxmox5.tailscale.bnowakowski.pl"
     proxmox:
-      rule: "Host(`proxmox4.localdomain.bnowakowski.pl`) || Host(`proxmox4.tailscale.bnowakowski.pl`)"
+      rule: "Host(`proxmox5.localdomain.bnowakowski.pl`) || Host(`proxmox5.tailscale.bnowakowski.pl`)"
       entryPoints:
         - websecure
       middlewares:
@@ -27,9 +27,9 @@ http:
       tls:
         certResolver: cloudflare
         domains:
-          - main: "proxmox4.localdomain.bnowakowski.pl"
+          - main: "proxmox5.localdomain.bnowakowski.pl"
             sans:
-              - "proxmox4.tailscale.bnowakowski.pl"
+              - "proxmox5.tailscale.bnowakowski.pl"
 
   middlewares:
     proxmox-api-cors:
