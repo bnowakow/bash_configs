@@ -29,6 +29,14 @@ if (( ${#selected_hosts[@]} == 0 )); then
   printf 'No hosts match %s.\n' "$limit_pattern" >&2
   exit 2
 fi
+
+log_dir="$script_dir/logs"
+mkdir -p -m 700 -- "$log_dir"
+log_file=$(umask 077; mktemp "$log_dir/apt-upgrade-$(date +%Y%m%d-%H%M%S).XXXXXXXX.log")
+export ANSIBLE_LOG_PATH="$log_file"
+printf 'Ansible log: %s\n' "$log_file"
+trap 'printf "Ansible log: %s\n" "$log_file" >&2' EXIT
+
 declare -A selected_host_set=()
 for host in "${selected_hosts[@]}"; do
   selected_host_set["$host"]=1
