@@ -1563,6 +1563,7 @@ ask_retry_curl_with_insecure() {
   local scheme="$1"
   local host="$2"
   local curl_error_output="$3"
+  local path="${4:-/}"
 
   if [ "$yes_mode" -eq 1 ]; then
     log "AUTO: not retrying curl with --insecure for $host because --yes is set"
@@ -1574,12 +1575,13 @@ ask_retry_curl_with_insecure() {
     --begin 2 10 \
     --title "Certificate Validity Issue" \
     --defaultno \
-    --yesno "curl failed for ${scheme}://$host/ and it looks like the certificate may be out of date.\n\nError:\n$curl_error_output\n\nRetry this host with --insecure to skip certificate validity checks?" 18 100
+    --yesno "curl failed for ${scheme}://${host}${path} and it looks like the certificate may be out of date.\n\nError:\n$curl_error_output\n\nRetry this host with --insecure to skip certificate validity checks?" 18 100
 }
 
 run_curl_http_check() {
   local scheme="$1"
   local host="$2"
+  local path="${3:-/}"
   local curl_error_file
   local curl_args=(-L -sS -o /dev/null -w "%{http_code}")
 
@@ -1594,7 +1596,7 @@ run_curl_http_check() {
   fi
 
   curl_error_file="$(mktemp)"
-  if curl_http_code="$(curl "${curl_args[@]}" "${scheme}://$host/" 2>"$curl_error_file")"; then
+  if curl_http_code="$(curl "${curl_args[@]}" "${scheme}://${host}${path}" 2>"$curl_error_file")"; then
     curl_return_code=0
     curl_error_output=""
     rm -f "$curl_error_file"
@@ -1606,16 +1608,16 @@ run_curl_http_check() {
   rm -f "$curl_error_file"
 
   if [ "$curl_used_insecure" -eq 0 ] && curl_error_looks_like_certificate_validity_issue "$curl_return_code" "$curl_error_output"; then
-    log "curl for ${scheme}://$host/ failed due to certificate validity issue (return_code=$curl_return_code)"
-    if ask_retry_curl_with_insecure "$scheme" "$host" "$curl_error_output"; then
+    log "curl for ${scheme}://${host}${path} failed due to certificate validity issue (return_code=$curl_return_code)"
+    if ask_retry_curl_with_insecure "$scheme" "$host" "$curl_error_output" "$path"; then
       add_insecure_host "$host"
       curl_used_insecure=1
       curl_error_file="$(mktemp)"
-      if curl_http_code="$(curl -L -sS --insecure -o /dev/null -w "%{http_code}" "${scheme}://$host/" 2>"$curl_error_file")"; then
+      if curl_http_code="$(curl -L -sS --insecure -o /dev/null -w "%{http_code}" "${scheme}://${host}${path}" 2>"$curl_error_file")"; then
         curl_return_code=0
         curl_error_output=""
         rm -f "$curl_error_file"
-        log "curl for ${scheme}://$host/ succeeded after retry with --insecure"
+        log "curl for ${scheme}://${host}${path} succeeded after retry with --insecure"
         return 0
       fi
       curl_return_code=$?
@@ -1682,11 +1684,15 @@ get_ingress_targets() {
   local tls_hosts
   local host
   local scheme
+  local check_path
 
   while IFS= read -r ingress; do
     [ -z "$ingress" ] && continue
     entrypoints="$(kubectl get "$ingress" -n "$namespace" --kubeconfig "$kubeconfig_path" \
       -o jsonpath='{.metadata.annotations.traefik\.ingress\.kubernetes\.io/router\.entrypoints}' 2>/dev/null || true)"
+    check_path="$(kubectl get "$ingress" -n "$namespace" --kubeconfig "$kubeconfig_path" \
+      -o jsonpath='{.metadata.annotations.helm-upgrade\.bnowakowski\.pl/check-path}' 2>/dev/null || true)"
+    check_path="${check_path:-/}"
     hosts="$(kubectl get "$ingress" -n "$namespace" --kubeconfig "$kubeconfig_path" \
       -o jsonpath='{range .spec.rules[*]}{.host}{"\n"}{end}' 2>/dev/null || true)"
     tls_hosts="$(kubectl get "$ingress" -n "$namespace" --kubeconfig "$kubeconfig_path" \
@@ -1703,7 +1709,7 @@ get_ingress_targets() {
       else
         scheme="http"
       fi
-      printf '%s %s\n' "$scheme" "$host"
+      printf '%s %s %s\n' "$scheme" "$host" "$check_path"
     done <<< "$hosts"
   done < <(kubectl get ingress -n "$namespace" --kubeconfig "$kubeconfig_path" \
     -o name 2>/dev/null | sort -u)
@@ -1779,28 +1785,30 @@ check_ingress_http_codes() {
   local summary=""
   local scheme
   local host
+  local path
   local http_code
   local dialog_code
   local insecure_suffix
   local failed_summary=""
-  while IFS=' ' read -r scheme host; do
+  while IFS=' ' read -r scheme host path; do
     [ -z "$scheme" ] && continue
     [ -z "$host" ] && continue
-    run_curl_http_check "$scheme" "$host"
+    path="${path:-/}"
+    run_curl_http_check "$scheme" "$host" "$path"
     http_code="$curl_http_code"
     dialog_code="$(dialog_color_http_code "$http_code")"
     insecure_suffix=""
     if [ "$curl_used_insecure" -eq 1 ]; then
       insecure_suffix=" (with --insecure)"
     fi
-    summary="${summary}\\Z0${scheme}://${host} -> ${dialog_code}${insecure_suffix}\\Z0"$'\n'
-    log "$app [$phase]: ingress ${scheme}://$host/ returned $http_code${insecure_suffix}" "$(color_blue "$app") [$phase]: ingress ${scheme}://$host/ returned $(color_http_code "$http_code")${insecure_suffix}"
+    summary="${summary}\\Z0${scheme}://${host}${path} -> ${dialog_code}${insecure_suffix}\\Z0"$'\n'
+    log "$app [$phase]: ingress ${scheme}://${host}${path} returned $http_code${insecure_suffix}" "$(color_blue "$app") [$phase]: ingress ${scheme}://${host}${path} returned $(color_http_code "$http_code")${insecure_suffix}"
     if [ "$curl_return_code" != "0" ]; then
-      log "$app [$phase]: curl failed for ${scheme}://$host/ (return_code=$curl_return_code) error=$curl_error_output" "$(color_blue "$app") [$phase]: curl failed for ${scheme}://$host/ (return_code=$(color_bash_return_code "$curl_return_code"))"
-      failed_summary="${failed_summary}${scheme}://${host} -> ${http_code} (curl failed, return code ${curl_return_code})"$'\n'
+      log "$app [$phase]: curl failed for ${scheme}://${host}${path} (return_code=$curl_return_code) error=$curl_error_output" "$(color_blue "$app") [$phase]: curl failed for ${scheme}://${host}${path} (return_code=$(color_bash_return_code "$curl_return_code"))"
+      failed_summary="${failed_summary}${scheme}://${host}${path} -> ${http_code} (curl failed, return code ${curl_return_code})"$'\n'
       fail=1
     elif [ "$http_code" != "200" ]; then
-      failed_summary="${failed_summary}${scheme}://${host} -> ${http_code}"$'\n'
+      failed_summary="${failed_summary}${scheme}://${host}${path} -> ${http_code}"$'\n'
       fail=1
     fi
   done <<EOF_HOSTS

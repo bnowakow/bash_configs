@@ -107,3 +107,33 @@ It was subsequently changed to `/books`, as verified in the saved preferences.
 Keep Raw Files restricted to `/books`, or disable Raw Files if it is unnecessary.
 This setting is managed through Ubooquity's admin interface and stored on the
 config PVC; changing the NFS mount does not update the share automatically.
+
+### Helm upgrade HTTP precheck returned 500
+
+The upgrade script originally requested `/` on every ingress host, which triggers
+Ubooquity's wrong-URL error even when the app is healthy. Its TCP readiness
+probes do not provide an HTTP path for checking the public reader/admin routes.
+
+Each ingress now declares `helm-upgrade.bnowakowski.pl/check-path` in its chart
+values: `/ubooquity/` for the reader and `/ubooquity/admin` for administration.
+`helm-upgrade-apps.sh` reads this annotation for both prechecks and postchecks,
+including certificate retries. Other ingresses default to `/` when the annotation
+is absent. The script contains no Ubooquity-specific path mapping.
+
+### Helm upgrade reported Fleet bundle not found
+
+The Bundle existed, but its `fleet.cattle.io/repo-name: rancher-cluster` label
+was missing after a direct local `fleet apply`. The upgrade script requires
+this label before upgrading a GitRepo-managed release, so it rejected the Bundle.
+
+After confirming the app belongs to the `rancher-cluster` GitRepo path, the
+label was restored:
+
+```sh
+kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n fleet-local \
+  label bundle ubooquity fleet.cattle.io/repo-name=rancher-cluster --overwrite
+```
+
+Preserve existing Bundle labels when applying local changes. Do not bypass the
+upgrade script's ownership check or use the shared GitRepo name as the pruning
+scope of a single-bundle `fleet apply`.

@@ -22,6 +22,8 @@ ingress:
   main:
     enabled: true
     primary: true
+    annotations:
+      helm-upgrade.bnowakowski.pl/check-path: /ubooquity/
     ingressClassName: traefik
     hosts:
       - host: ubooquity.rancher.tailscale.bnowakowski.pl
@@ -44,6 +46,8 @@ ingress:
   admin:
     enabled: true
     primary: false
+    annotations:
+      helm-upgrade.bnowakowski.pl/check-path: /ubooquity/admin
     targetSelector:
       admin: admin
     ingressClassName: traefik
