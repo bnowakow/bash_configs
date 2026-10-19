@@ -1,0 +1,44 @@
+TZ: Europe/Warsaw
+
+persistence:
+  config:
+    enabled: true
+    type: pvc
+    storageClass: local-path
+    size: 1Gi
+    mountPath: /config
+  books:
+    enabled: true
+    type: nfs
+    server: nas.localdomain.bnowakowski.pl
+    path: /mnt/PlexPool/plex/Books
+    mountPath: /books
+  library:
+    enabled: true
+    type: pvc
+    existingClaim: calibre-library
+    mountPath: /library
+
+ingress:
+  main:
+    enabled: true
+    primary: true
+    ingressClassName: traefik
+    hosts:
+      - host: calibre.rancher.tailscale.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+      - host: calibre.rancher.localdomain.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt
+      traefik:
+        enabled: true
+        entrypoints:
+          - websecure
+        forceTLS: true

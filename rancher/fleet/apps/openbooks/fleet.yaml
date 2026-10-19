@@ -1,0 +1,10 @@
+name: openbooks
+defaultNamespace: apps-openbooks
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/openbooks
+  version: 9.0.0
+  releaseName: openbooks
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml

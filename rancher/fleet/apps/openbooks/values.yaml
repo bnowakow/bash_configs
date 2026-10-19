@@ -1,0 +1,39 @@
+TZ: Europe/Warsaw
+
+persistence:
+  books:
+    enabled: true
+    type: pvc
+    storageClass: local-path
+    size: 5Gi
+    mountPath: /books/books
+  logs:
+    enabled: true
+    type: pvc
+    storageClass: local-path
+    size: 1Gi
+    mountPath: /books/logs
+
+ingress:
+  main:
+    enabled: true
+    primary: true
+    ingressClassName: traefik
+    hosts:
+      - host: openbooks.rancher.tailscale.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+      - host: openbooks.rancher.localdomain.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt
+      traefik:
+        enabled: true
+        entrypoints:
+          - websecure
+        forceTLS: true

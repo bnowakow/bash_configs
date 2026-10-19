@@ -1,0 +1,13 @@
+name: calibre-web
+defaultNamespace: apps-calibre
+
+dependsOn:
+  - name: calibre-storage
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/calibre-web
+  version: 23.0.1
+  releaseName: calibre-web
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
