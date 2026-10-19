@@ -1,0 +1,167 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: calibre-cover-maintenance
+data:
+  extract.py: |
+    import json
+    import os
+    from pathlib import Path
+    import signal
+    import sqlite3
+    import ssl
+    import time
+    import urllib.request
+    
+    LIBRARY = Path('/library')
+    
+    def candidates(library):
+        with sqlite3.connect(f'file:{library}/metadata.db?mode=ro', uri=True) as conn:
+            return [book_id for book_id, path, has_cover in conn.execute('SELECT id, path, has_cover FROM books')
+                    if not has_cover or not (library / path / 'cover.jpg').is_file()]
+    
+    def extract(library, ids):
+        from calibre.db.legacy import LibraryDatabase
+        from calibre.ebooks.metadata.meta import get_metadata
+        db = LibraryDatabase(str(library))
+        api = db.new_api
+        updated = 0
+        errors = 0
+        try:
+            for book_id in ids:
+                # Recheck after stopping the GUI; never replace an existing cover.
+                path = api.field_for('path', book_id)
+                if api.cover(book_id) or (path and (library / path / 'cover.jpg').is_file()):
+                    continue
+                for fmt in (api.formats(book_id) or ()):
+                    try:
+                        path = api.format_abspath(book_id, fmt)
+                        if not path:
+                            continue
+                        with open(path, 'rb') as stream:
+                            mi = get_metadata(stream, fmt.lower())
+                        cover = mi.cover_data[1] if mi.cover_data else None
+                        if cover:
+                            api.set_cover({book_id: cover})
+                            updated += 1
+                            print(f'Extracted embedded cover for book id {book_id}', flush=True)
+                            break
+                    except Exception as exc:
+                        errors += 1
+                        print(f'Book id {book_id}, format {fmt}: {exc}', flush=True)
+            print(f'Cover extraction complete: {updated} updated, {errors} format errors', flush=True)
+        finally:
+            db.close()
+        if errors:
+            raise RuntimeError('Some formats could not be processed; see preceding errors')
+    
+    class Cluster:
+        def __init__(self):
+            base = Path('/var/run/secrets/kubernetes.io/serviceaccount')
+            self.token = (base / 'token').read_text().strip()
+            self.namespace = (base / 'namespace').read_text().strip()
+            self.context = ssl.create_default_context(cafile=str(base / 'ca.crt'))
+            self.url = 'https://kubernetes.default.svc'
+    
+        def request(self, path, data=None):
+            headers = {'Authorization': f'Bearer {self.token}'}
+            if data is not None:
+                headers['Content-Type'] = 'application/merge-patch+json'
+            req = urllib.request.Request(self.url + path, headers=headers,
+                                         data=json.dumps(data).encode() if data is not None else None,
+                                         method='PATCH' if data is not None else 'GET')
+            with urllib.request.urlopen(req, context=self.context, timeout=30) as response:
+                return json.load(response)
+    
+        @property
+        def scale_path(self):
+            return f'/apis/apps/v1/namespaces/{self.namespace}/deployments/calibre/scale'
+    
+        def wait_stopped(self):
+            path = f'/api/v1/namespaces/{self.namespace}/pods?labelSelector=app.kubernetes.io%2Finstance%3Dcalibre'
+            deadline = time.monotonic() + 240
+            while self.request(path)['items']:
+                if time.monotonic() >= deadline:
+                    raise TimeoutError('Calibre did not stop within 240 seconds; library not modified')
+                time.sleep(3)
+    
+    
+    def main():
+        if not (LIBRARY / 'metadata.db').is_file():
+            print('No library database yet; skipping extraction', flush=True)
+            return
+        ids = candidates(LIBRARY)
+        if not ids:
+            print('All books already have covers; desktop left running', flush=True)
+            return
+        cluster = Cluster()
+        replicas = cluster.request(cluster.scale_path)['spec']['replicas']
+        def interrupted(signum, frame):
+            raise SystemExit(f'Interrupted by signal {signum}')
+        signal.signal(signal.SIGTERM, interrupted)
+        signal.signal(signal.SIGINT, interrupted)
+        try:
+            print(f'{len(ids)} books need covers; stopping Calibre before writing', flush=True)
+            cluster.request(cluster.scale_path, {'spec': {'replicas': 0}})
+            cluster.wait_stopped()
+            extract(LIBRARY, ids)
+        finally:
+            cluster.request(cluster.scale_path, {'spec': {'replicas': replicas}})
+            print(f'Restored Calibre deployment replicas to {replicas}', flush=True)
+    
+    if __name__ == '__main__':
+        main()
+  thumbnails.py: |
+    import os
+    from pathlib import Path
+    import sys
+    
+    if not Path('/library/metadata.db').is_file():
+        print('No library database yet; skipping thumbnail refresh', flush=True)
+        sys.exit(0)
+    
+    # Initialize the installed app's DB/config layer only. Do not start another
+    # web server, scheduler, or background worker against the same config database.
+    sys.path.insert(0, '/app/calibre-web')
+    sys.argv = ['cover-maintenance', '-p', '/config/app.db', '-g', '/config/gdrive.db']
+    from cps import app, cli_param, ub, config, config_sql, db
+    cli_param.init()
+    ub.init_db(cli_param.settings_path)
+    key, error = config_sql.get_encryption_key('/config')
+    if error:
+        raise RuntimeError(error)
+    config_sql.load_configuration(ub.session, key)
+    config.init_config(ub.session, key, cli_param)
+    if os.path.realpath(config.config_calibre_dir or '') != '/library' or os.path.realpath(config.get_book_path() or '') != '/library':
+        raise RuntimeError('Calibre Web must be configured to use /library')
+    db.CalibreDB.update_config(config, '/library', cli_param.settings_path)
+    from cps.tasks.thumbnail import TaskGenerateCoverThumbnails, use_IM
+    from cps.constants import CACHE_TYPE_THUMBNAILS
+    from cps.services.worker import STAT_FAIL
+    if not use_IM:
+        raise RuntimeError('ImageMagick is unavailable; cannot generate thumbnails')
+    with app.app_context():
+        task = TaskGenerateCoverThumbnails()
+        generate = task.generate_book_thumbnail
+        def checked_generate(book, thumbnail):
+            try:
+                return generate(book, thumbnail)
+            except Exception:
+                import traceback
+                traceback.print_exc()
+                raise
+        task.generate_book_thumbnail = checked_generate
+        task.run(None)
+        if task.stat == STAT_FAIL:
+            raise RuntimeError('Thumbnail refresh failed; check task logs')
+        missing = []
+        for book in task.get_books_with_covers():
+            thumbs = task.get_book_cover_thumbnails(book.id)
+            if len(thumbs) != len(task.resolutions) or any(
+                not task.cache.get_cache_file_exists(t.filename, CACHE_TYPE_THUMBNAILS) for t in thumbs
+            ):
+                missing.append(book.id)
+        task.app_db_session.remove()
+        if missing:
+            raise RuntimeError(f'Thumbnails missing for book ids {missing}')
+    print('Calibre Web missing/outdated cover thumbnails refreshed', flush=True)

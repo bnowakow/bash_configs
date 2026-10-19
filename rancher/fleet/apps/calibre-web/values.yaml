@@ -42,3 +42,11 @@ ingress:
         entrypoints:
           - websecure
         forceTLS: true
+
+workload:
+  main:
+    podSpec:
+      containers:
+        main:
+          env:
+            CACHE_DIRECTORY: /config/thumbnail-cache

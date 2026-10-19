@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: calibre-cover-maintenance
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: calibre-cover-maintenance
+rules:
+  - apiGroups: [apps]
+    resources: [deployments/scale]
+    resourceNames: [calibre]
+    verbs: [get, patch]
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [list]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: calibre-cover-maintenance
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: calibre-cover-maintenance
+subjects:
+  - kind: ServiceAccount
+    name: calibre-cover-maintenance
+    namespace: apps-calibre
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: calibre-cover-maintenance
+spec:
+  schedule: "0 3 * * *"
+  timeZone: Europe/Warsaw
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 3600
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          serviceAccountName: calibre-cover-maintenance
+          restartPolicy: Never
+          enableServiceLinks: false
+          terminationGracePeriodSeconds: 60
+          initContainers:
+            - name: extract-missing-covers
+              image: ghcr.io/linuxserver/calibre:9.16.0@sha256:48c8a5ba2a20c303012b1d4b2815a2b99b362a634a571fbec101b85bfa203ba3
+              command:
+                - calibre-debug
+                - -c
+                - 'scope={"__name__":"__main__"}; exec(compile(open("/scripts/extract.py").read(), "/scripts/extract.py", "exec"), scope)'
+              securityContext:
+                runAsUser: 568
+                runAsGroup: 568
+                allowPrivilegeEscalation: false
+              env:
+                - name: HOME
+                  value: /tmp
+                - name: CALIBRE_CONFIG_DIRECTORY
+                  value: /tmp/calibre-maintenance
+                - name: QT_QPA_PLATFORM
+                  value: offscreen
+              volumeMounts:
+                - name: library
+                  mountPath: /library
+                - name: scripts
+                  mountPath: /scripts
+                  readOnly: true
+          containers:
+            - name: refresh-thumbnails
+              image: oci.trueforge.org/containerforge/calibre-web:0.6.27@sha256:de470a91dd0bbef215fdc43ddf746d671a259e245944347fc62672ce41f8e023
+              command: [python3, /scripts/thumbnails.py]
+              workingDir: /app/calibre-web
+              env:
+                - name: CACHE_DIRECTORY
+                  value: /config/thumbnail-cache
+              volumeMounts:
+                - name: library
+                  mountPath: /library
+                  readOnly: true
+                - name: web-config
+                  mountPath: /config
+                - name: scripts
+                  mountPath: /scripts
+                  readOnly: true
+              securityContext:
+                runAsUser: 0
+                runAsGroup: 0
+          volumes:
+            - name: library
+              persistentVolumeClaim:
+                claimName: calibre-library
+            - name: web-config
+              persistentVolumeClaim:
+                claimName: calibre-web-config
+            - name: scripts
+              configMap:
+                name: calibre-cover-maintenance

@@ -25,3 +25,15 @@ or reorganized as part of this move.
 
 Default upstream login is `admin` / `admin123`; change it after signing in.
 See https://github.com/janeczku/calibre-web#quick-start for database setup.
+
+## Covers and thumbnails
+
+The `calibre-cover-maintenance` Fleet bundle extracts missing embedded covers
+and refreshes thumbnails daily at 03:00 Europe/Warsaw. Both the web deployment
+and Job use the persistent `/config/thumbnail-cache` directory.
+See [maintenance details](../calibre-cover-maintenance/README.md).
+
+Keep split-library mode disabled: both the Calibre database and its managed
+book/cover files are in `/library`. `/books` is the separate NAS import source.
+An earlier split-library setting pointed file lookups at `/books`, causing
+missing cover errors even though `/library` contained valid covers.

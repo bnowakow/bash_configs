@@ -3,7 +3,7 @@ defaultNamespace: apps-openbooks
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/openbooks
-  version: 9.0.0
+  version: 9.0.1
   releaseName: openbooks
   waitForJobs: true
   valuesFiles:
