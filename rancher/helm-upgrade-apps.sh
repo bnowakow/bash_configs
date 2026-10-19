@@ -56,12 +56,11 @@ red=""
 yellow=""
 nc=""
 
-# Keep excludes explicit and easy to maintain.
+# Intentional exclusions; plain-resource Fleet bundles are detected separately.
 exclude_patterns=(
   '^cattle-'
   '^kube-system$'
   '^cert-manager$'
-  '^cert-manager-resources$'
   '^cloudnative-pg$'
   '^longhorn-crd$'
   '^shinobi$'
@@ -70,7 +69,6 @@ exclude_patterns=(
   '^meshcommander$'
   '^plex$'
   '^homer-test.*$'
-  '^homer-config-auth$'
   '^fleet$'
   '^fleet-agent-local$'
   '^fleet-crd$'
@@ -80,10 +78,6 @@ exclude_patterns=(
   '^traefik$'
   '^traefik-config$'
   '^traefik-crd$'
-  '^cleanuparr-localdomain-ingress$'
-  '^emby-ingress$'
-  '^profilarr-localdomain-ingress$'
-  '^scrutiny-cors$'
 )
 
 is_up_to_date_helper="$script_dir/zabbix/is-helm-image-up-to-date.sh"
@@ -453,6 +447,35 @@ fleet_file_for_app() {
   done < <(find "$script_dir/fleet" -type f -name fleet.yaml -print)
 
   return 1
+}
+
+fleet_app_is_plain_resources() {
+  local app="$1"
+  local fleet_file
+  local fleet_dir
+
+  # An unknown release is not evidence of a plain-resource bundle.
+  fleet_file="$(fleet_file_for_app "$app" 2>/dev/null || true)"
+  [ -n "$fleet_file" ] || return 1
+  fleet_dir="$(dirname "$fleet_file")"
+
+  if awk '
+    /^helm:[[:space:]]*$/ { in_helm=1; next }
+    /^[^[:space:]#]/ { in_helm=0 }
+    in_helm && /^[[:space:]]+chart:[[:space:]]*/ {
+      value=$0
+      sub(/^[[:space:]]+chart:[[:space:]]*/, "", value)
+      sub(/[[:space:]]+#.*/, "", value)
+      gsub(/[\042\047[:space:]]/, "", value)
+      if (value != "" && value != "null" && value !~ /^#/) found=1
+    }
+    END { exit !found }
+  ' "$fleet_file"; then
+    return 1
+  fi
+
+  # Fleet also supports charts stored directly in the bundle directory.
+  [ -z "$(find "$fleet_dir" -type f -name Chart.yaml -print -quit)" ]
 }
 
 fleet_app_is_scaled_to_zero() {
@@ -1678,6 +1701,7 @@ get_local_chart_version() {
 
 get_ingress_targets() {
   local namespace="$1"
+  local app="$2"
   local ingress
   local entrypoints
   local hosts
@@ -1712,7 +1736,12 @@ get_ingress_targets() {
       printf '%s %s %s\n' "$scheme" "$host" "$check_path"
     done <<< "$hosts"
   done < <(kubectl get ingress -n "$namespace" --kubeconfig "$kubeconfig_path" \
-    -o name 2>/dev/null | sort -u)
+    -o json 2>/dev/null | jq -r --arg app "$app" '
+      .items[]
+      | select((.metadata.annotations["meta.helm.sh/release-name"]
+          // .metadata.labels["app.kubernetes.io/instance"]) == $app)
+      | "ingress/" + .metadata.name
+    ' | sort -u)
 }
 
 get_release_pods() {
@@ -1774,7 +1803,7 @@ check_ingress_http_codes() {
   check_failed_ingress_summary=""
 
   local ingress_targets
-  ingress_targets="$(get_ingress_targets "$namespace" | sort -u)"
+  ingress_targets="$(get_ingress_targets "$namespace" "$app" | sort -u)"
 
   if [ -z "$ingress_targets" ]; then
     collect_no_ingress_pod_log_summary "$app" "$namespace" "$phase"
@@ -2014,6 +2043,14 @@ for app in $apps; do
   total_discovered_count=$((total_discovered_count + 1))
   current_app="$app"
   current_app_failed=0
+
+  if fleet_app_is_plain_resources "$app"; then
+    log "$app: excluded because Fleet bundle contains plain resources without a Helm chart" \
+      "$(color_blue "$app"): excluded because Fleet bundle contains plain resources without a Helm chart"
+    excluded_count=$((excluded_count + 1))
+    current_app=""
+    continue
+  fi
 
   if should_exclude_app "$app"; then
   log "$app: excluded by pattern" "$(color_blue "$app"): excluded by pattern"

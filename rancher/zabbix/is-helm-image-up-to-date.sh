@@ -9,8 +9,11 @@ if [ ! -x "$version_helper" ]; then
     version_helper="/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-current-version-of-chart.sh"
 fi
 version_current="$($version_helper "$name" "$2")"
-# TODO for external-service we run multiple of the same helm but we check version of only first one
-version_local=$(/bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep $name- | head -1 | awk '{print $9}')
+# Release names can differ from chart names (for example homer-without-auth).
+# Select the release exactly and read its installed chart from structured output.
+installed_chart=$(helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml -o json |
+    jq -r --arg name "$name" '[.[] | select(.name == $name)][0].chart // empty')
+version_local="${installed_chart##*-}"
 
 version_is_numeric() {
     local version="$1"
@@ -32,7 +35,7 @@ fi
 
 # https://www.truenas.com/community/threads/install-helm-chart-via-command-line.97191/
 # https://github.com/k3s-io/k3s/issues/1126
-if /bin/helm ls --all-namespaces --kubeconfig /etc/rancher/k3s/k3s.yaml | grep $name | awk '{print $9}' | sed 's/.*-//' | grep $version_current > /dev/null; then
+if [ "$version_local" = "$version_current" ]; then
     echo true;
     exit 0
 else
