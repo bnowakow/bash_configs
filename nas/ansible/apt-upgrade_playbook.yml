@@ -12,14 +12,38 @@
 
   tasks:
     - name: Update package lists and perform the Proxmox-recommended dist-upgrade
-      ansible.builtin.apt:
-        update_cache: true
-        upgrade: dist
-        force_apt_get: true
-        fail_on_autoremove: true
-      environment:
-        DEBIAN_FRONTEND: noninteractive
-      register: apt_package_changes
+      block:
+        - name: Run dist-upgrade
+          ansible.builtin.apt:
+            update_cache: true
+            upgrade: dist
+            force_apt_get: true
+            fail_on_autoremove: true
+          environment:
+            DEBIAN_FRONTEND: noninteractive
+          register: apt_package_changes
+      rescue:
+        - name: Stop if the upgrade failed for a reason other than a missing package on the mirror
+          ansible.builtin.fail:
+            msg: "{{ ansible_failed_result.msg | default('The dist-upgrade failed without an error message.') }}"
+          when: (ansible_failed_result.msg | default('')) is not search('404\s+Not Found')
+
+        - name: Refresh package lists without HTTP cache after a mirror 404
+          ansible.builtin.command:
+            argv:
+              - apt-get
+              - -o
+              - Acquire::http::No-Cache=true
+              - update
+
+        - name: Retry dist-upgrade after refreshing the package lists
+          ansible.builtin.apt:
+            upgrade: dist
+            force_apt_get: true
+            fail_on_autoremove: true
+          environment:
+            DEBIAN_FRONTEND: noninteractive
+          register: apt_package_changes
 
     - name: Remove unused packages only when explicitly requested
       ansible.builtin.apt:

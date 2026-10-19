@@ -5,11 +5,42 @@ export LC_ALL=C.utf8
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 cd "$script_dir"
 
+usage() {
+  printf 'Usage: %s [--limit HOST_PATTERN]\n' "$0" >&2
+}
+
+limit_pattern=all
+if [[ $# -gt 0 ]]; then
+  if [[ $# -ne 2 || $1 != --limit || -z $2 ]]; then
+    usage
+    exit 2
+  fi
+  limit_pattern=$2
+fi
+
+inventory_files=(inventory/proxmox-vms.yml inventory/ovh.yml)
+matched_hosts_text=$(ansible -i "${inventory_files[0]}" -i "${inventory_files[1]}" \
+  all --list-hosts --limit "$limit_pattern")
+selected_hosts=()
+while IFS= read -r line; do
+  [[ $line == '    '* ]] && selected_hosts+=("${line#    }")
+done <<< "$matched_hosts_text"
+if (( ${#selected_hosts[@]} == 0 )); then
+  printf 'No hosts match %s.\n' "$limit_pattern" >&2
+  exit 2
+fi
+declare -A selected_host_set=()
+for host in "${selected_hosts[@]}"; do
+  selected_host_set["$host"]=1
+done
+
 bold_blue=
 normal=
+ansible_force_color=false
 if [[ -t 1 ]]; then
   bold_blue=$'\033[1;34m'
   normal=$'\033[0m'
+  ansible_force_color=true
 fi
 
 run_ubuntu_repo_playbook() {
@@ -24,16 +55,27 @@ run_ubuntu_repo_playbook() {
     --ask-become-pass
 }
 
-for inventory_file in inventory/proxmox-vms.yml inventory/ovh.yml; do
-  inventory_hosts=$(ansible-inventory -i "$inventory_file" --list |
-    jq -r '[.[] | objects | .hosts[]?] | unique | join(", ")')
+for inventory_file in "${inventory_files[@]}"; do
+  inventory_hosts_text=$(ansible-inventory -i "$inventory_file" --list |
+    jq -r '[.[] | objects | .hosts[]?] | unique | .[]')
+  inventory_targets=()
+  while IFS= read -r host; do
+    if [[ -n $host && -n ${selected_host_set[$host]:-} ]]; then
+      inventory_targets+=("$host")
+    fi
+  done <<< "$inventory_hosts_text"
+  (( ${#inventory_targets[@]} > 0 )) || continue
+  inventory_limit=$(IFS=,; printf '%s' "${inventory_targets[*]}")
   printf '\nSudo password for hosts in %s%s%s: %s\n' \
-    "$bold_blue" "$inventory_file" "$normal" "$inventory_hosts"
+    "$bold_blue" "$inventory_file" "$normal" "$inventory_limit"
   APT_UPGRADE_HOST_COLOR="$bold_blue" APT_UPGRADE_HOST_RESET="$normal" \
-    ansible-playbook -i "$inventory_file" apt-upgrade_playbook.yml --ask-become-pass
+    ANSIBLE_FORCE_COLOR="$ansible_force_color" \
+    ansible-playbook -i "$inventory_file" apt-upgrade_playbook.yml \
+    --limit "$inventory_limit" --ask-become-pass
   printf '\nUpgrading Codex for sup on hosts in %s%s%s: %s\n' \
-    "$bold_blue" "$inventory_file" "$normal" "$inventory_hosts"
-  ansible-playbook -i "$inventory_file" codex-upgrade_playbook.yml
+    "$bold_blue" "$inventory_file" "$normal" "$inventory_limit"
+  ansible-playbook -i "$inventory_file" codex-upgrade_playbook.yml \
+    --limit "$inventory_limit"
 done
 
 # Ubuntu release upgrades are interactive and apply only to opted-in hosts.
@@ -48,6 +90,7 @@ if [[ -n "$ubuntu_hosts_text" ]]; then
 fi
 
 for host in "${ubuntu_hosts[@]}"; do
+  [[ -n ${selected_host_set[$host]:-} ]] || continue
   if ! ssh -o BatchMode=yes -o ConnectTimeout=10 "$host" \
     'test "$(. /etc/os-release; printf %s "$ID")" = ubuntu'; then
     printf 'Skipping Ubuntu release check on %s: host is unreachable or is not Ubuntu.\n' "$host" >&2
