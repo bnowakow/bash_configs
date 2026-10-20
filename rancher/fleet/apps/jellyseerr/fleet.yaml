@@ -3,7 +3,7 @@ defaultNamespace: apps-jellyseerr
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/jellyseerr
-  version: 16.0.2
+  version: 16.0.3
   releaseName: jellyseerr
   waitForJobs: true
   valuesFiles:

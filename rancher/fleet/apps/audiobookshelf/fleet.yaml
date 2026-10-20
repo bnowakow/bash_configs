@@ -3,7 +3,7 @@ defaultNamespace: apps-audiobookshelf
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/audiobookshelf
-  version: 14.0.2
+  version: 14.0.3
   releaseName: audiobookshelf
   waitForJobs: true
   valuesFiles:
