@@ -3,7 +3,7 @@ defaultNamespace: apps-authelia
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/authelia
-  version: 34.0.2
+  version: 34.0.4
   releaseName: authelia
   waitForJobs: true
   valuesFiles:
