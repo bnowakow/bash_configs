@@ -748,9 +748,22 @@ fleet_bundledeployment_failure_message() {
   message="$(kubectl get bundledeployment "$bundledeployment_name" \
     --kubeconfig "$kubeconfig_path" --namespace "$bundledeployment_namespace" \
     -o json 2>>"$log_file" | jq -r --arg since "$since" '
+      # A chart upgrade can briefly leave PVC version labels behind. Wait
+      # for Ready rather than treating that metadata-only drift as fatal.
+      def pvc_label_drift:
+        .type == "Ready" and
+        ((try (
+          .message
+          | capture("^persistentvolumeclaim[.]v1 [^ ]+ modified\\s+(?<patch>\\{[\\s\\S]*\\})$")
+          | .patch | fromjson
+          | (keys == ["metadata"] and
+             (.metadata | keys) == ["labels"] and
+             (.metadata.labels | type) == "object")
+        ) catch false) // false);
       (.status.conditions[]? |
         select(.status == "False") |
         select($since == "" or (.lastUpdateTime // "") >= $since) |
+        select(pvc_label_drift | not) |
         "\(.type): \(.reason): \(.message)"),
       (if $since == "" then (.status.display.message // empty) else empty end)
     ' 2>>"$log_file" || true)"
