@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nubile
+spec:
+  ports:
+    - name: http
+      port: 8097
+      protocol: TCP
+      targetPort: 8097
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: nubile-host
+  labels:
+    kubernetes.io/service-name: nubile
+addressType: IPv4
+ports:
+  - name: http
+    protocol: TCP
+    port: 8097
+endpoints:
+  - addresses:
+      - 10.0.0.50
+    conditions: {}

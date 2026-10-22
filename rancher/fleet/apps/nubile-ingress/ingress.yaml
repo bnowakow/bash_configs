@@ -1,0 +1,34 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nubile
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: nubile-tls
+      hosts:
+        - nubile.proxmox3.localdomain.bnowakowski.pl
+        - nubile.proxmox3.tailscale.bnowakowski.pl
+  rules:
+    - host: nubile.proxmox3.localdomain.bnowakowski.pl
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nubile
+                port:
+                  number: 8097
+    - host: nubile.proxmox3.tailscale.bnowakowski.pl
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nubile
+                port:
+                  number: 8097
