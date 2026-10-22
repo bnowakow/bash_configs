@@ -3,7 +3,7 @@ defaultNamespace: apps-ubooquity
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/ubooquity
-  version: 16.0.4
+  version: 16.0.5
   releaseName: ubooquity
   waitForJobs: true
   valuesFiles:

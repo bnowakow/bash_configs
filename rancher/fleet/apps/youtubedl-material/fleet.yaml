@@ -3,7 +3,7 @@ defaultNamespace: apps-youtubedl-material
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/youtubedl-material
-  version: 17.0.7
+  version: 17.0.8
   releaseName: youtubedl-material
   waitForJobs: true
   valuesFiles:

@@ -574,6 +574,29 @@ render_chart_for_pvc_preparation() {
   return 1
 }
 
+apply_pvc_version_labels() {
+  local namespace="$1"
+  local pvc_name="$2"
+  shift 2
+  local manifest
+
+  manifest="$(jq -n --arg namespace "$namespace" --arg name "$pvc_name" \
+    --args '
+      {apiVersion: "v1", kind: "PersistentVolumeClaim", metadata: {
+        name: $name, namespace: $namespace,
+        labels: ($ARGS.positional | map(capture("^(?<key>[^=]+)=(?<value>.*)$")) | from_entries)
+      }}
+    ' "$@")" || return 1
+
+  # Use a dedicated Apply manager, never the full-chart Helm manager: omitted
+  # fields previously applied by that manager could otherwise be removed.
+  # Force ownership only for these rendered version labels. Fleet can then
+  # apply the same values without conflicting with legacy Helm Update owners.
+  printf '%s\n' "$manifest" | kubectl apply \
+    --kubeconfig "$kubeconfig_path" --namespace "$namespace" \
+    --server-side --force-conflicts --field-manager=helm-pvc-version-labels -f -
+}
+
 prepare_helm_upgrade_pvcs() {
   local app="$1"
   local namespace="$2"
@@ -680,9 +703,8 @@ prepare_helm_upgrade_pvcs() {
     # A metadata-only label update preserves immutable bound-PVC spec fields.
     if [ "${#pvc_version_labels[@]}" -gt 0 ]; then
       log "$app: aligning PVC $pvc_name with its rendered target labels"
-      if ! kubectl label pvc "$pvc_name" \
-        --kubeconfig "$kubeconfig_path" --namespace "$namespace" \
-        "${pvc_version_labels[@]}" --overwrite --field-manager=helm >>"$log_file" 2>&1; then
+      if ! apply_pvc_version_labels "$namespace" "$pvc_name" \
+        "${pvc_version_labels[@]}" >>"$log_file" 2>&1; then
         record_failure_and_maybe_abort "Unable to prepare PVC labels ($app)" \
           "Could not align target labels on PVC $namespace/$pvc_name."
         return 1

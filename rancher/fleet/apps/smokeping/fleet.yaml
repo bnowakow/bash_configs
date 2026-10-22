@@ -3,7 +3,7 @@ defaultNamespace: apps-smokeping
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/smokeping
-  version: 15.0.3
+  version: 15.0.4
   releaseName: smokeping
   waitForJobs: true
   valuesFiles:
