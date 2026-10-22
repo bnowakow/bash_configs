@@ -34,6 +34,8 @@ log_dir="$script_dir/logs"
 mkdir -p -m 700 -- "$log_dir"
 log_file=$(umask 077; mktemp "$log_dir/apt-upgrade-$(date +%Y%m%d-%H%M%S).XXXXXXXX.log")
 export ANSIBLE_LOG_PATH="$log_file"
+skipped_hosts_file=$(umask 077; mktemp "$log_dir/apt-upgrade-skipped.XXXXXXXX")
+export APT_UPGRADE_SKIPPED_HOSTS_FILE="$skipped_hosts_file"
 printf 'Ansible log: %s\n' "$log_file"
 trap 'printf "Ansible log: %s\n" "$log_file" >&2' EXIT
 
@@ -80,6 +82,15 @@ for inventory_file in "${inventory_files[@]}"; do
     ANSIBLE_FORCE_COLOR="$ansible_force_color" \
     ansible-playbook -i "$inventory_file" apt-upgrade_playbook.yml \
     --limit "$inventory_limit" --ask-become-pass
+
+  remaining_targets=()
+  for host in "${inventory_targets[@]}"; do
+    if ! grep -qxF -- "$host" "$skipped_hosts_file"; then
+      remaining_targets+=("$host")
+    fi
+  done
+  (( ${#remaining_targets[@]} > 0 )) || continue
+  inventory_limit=$(IFS=,; printf '%s' "${remaining_targets[*]}")
   printf '\nUpgrading Codex for sup on hosts in %s%s%s: %s\n' \
     "$bold_blue" "$inventory_file" "$normal" "$inventory_limit"
   ansible-playbook -i "$inventory_file" codex-upgrade_playbook.yml \
@@ -99,6 +110,10 @@ fi
 
 for host in "${ubuntu_hosts[@]}"; do
   [[ -n ${selected_host_set[$host]:-} ]] || continue
+  if grep -qxF -- "$host" "$skipped_hosts_file"; then
+    printf 'Skipping Ubuntu release upgrade on %s: NordVPN reboot was declined.\n' "$host"
+    continue
+  fi
   if ! ssh -o BatchMode=yes -o ConnectTimeout=10 "$host" \
     'test "$(. /etc/os-release; printf %s "$ID")" = ubuntu'; then
     printf 'Skipping Ubuntu release check on %s: host is unreachable or is not Ubuntu.\n' "$host" >&2

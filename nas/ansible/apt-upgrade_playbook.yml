@@ -1,5 +1,5 @@
 ---
-- name: Upgrade apt packages and firmware
+- name: Plan apt upgrades before asking about NordVPN
   hosts: all
   become: true
   become_method: sudo
@@ -11,11 +11,167 @@
       tags: always
 
   tasks:
+    - name: Refresh package lists before planning the upgrade
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Simulate the dist-upgrade
+      ansible.builtin.command:
+        argv: [apt-get, -s, --no-remove, dist-upgrade]
+      register: apt_upgrade_plan
+      changed_when: false
+      check_mode: false
+
+    - name: Identify a planned NordVPN update
+      ansible.builtin.set_fact:
+        nordvpn_upgrade_planned: "{{ apt_upgrade_plan.stdout is search('(?m)^Inst nordvpn ') }}"
+
+    - name: Check whether NordVPN is installed
+      ansible.builtin.command:
+        argv: [dpkg-query, -W, '-f=${Status}', nordvpn]
+      register: nordvpn_package_status
+      changed_when: false
+      failed_when: false
+      check_mode: false
+
+    - name: Record whether NordVPN is installed
+      ansible.builtin.set_fact:
+        nordvpn_installed: "{{ nordvpn_package_status.stdout | trim == 'install ok installed' }}"
+
+- name: Approve NordVPN reboots before upgrading
+  hosts: all
+  serial: 1
+  gather_facts: false
+  tasks:
+    - name: Ask before upgrading NordVPN and rebooting this host
+      ansible.builtin.pause:
+        prompt: >-
+          {{ lookup('ansible.builtin.env', 'APT_UPGRADE_HOST_COLOR') }}{{ inventory_hostname }}{{ lookup('ansible.builtin.env', 'APT_UPGRADE_HOST_RESET') }} will upgrade NordVPN.
+          The VPN kill switch may disconnect Ansible during the upgrade.
+          May apt upgrade this host and immediately reboot it on success? [yes/no]
+      register: nordvpn_reboot_confirmation
+      when:
+        - nordvpn_upgrade_planned
+        - not ansible_check_mode
+
+    - name: Record declined NordVPN upgrades
+      ansible.builtin.set_fact:
+        apt_upgrade_declined: >-
+          {{ nordvpn_upgrade_planned and not ansible_check_mode and
+             (nordvpn_reboot_confirmation.user_input | default('') | trim | lower) not in ['yes', 'y'] }}
+
+    - name: Save declined hosts for the shell wrapper
+      ansible.builtin.lineinfile:
+        path: "{{ lookup('ansible.builtin.env', 'APT_UPGRADE_SKIPPED_HOSTS_FILE') }}"
+        line: "{{ inventory_hostname }}"
+        mode: '0600'
+      delegate_to: localhost
+      become: false
+      when:
+        - apt_upgrade_declined
+        - lookup('ansible.builtin.env', 'APT_UPGRADE_SKIPPED_HOSTS_FILE') | length > 0
+
+    - name: Report that this host will not be upgraded
+      ansible.builtin.debug:
+        msg: Skipping all upgrades on {{ inventory_hostname }} because the NordVPN reboot was declined.
+      when: apt_upgrade_declined
+
+- name: Upgrade apt packages and firmware
+  hosts: all
+  become: true
+  become_method: sudo
+  gather_facts: false
+  pre_tasks:
+    - name: Skip hosts whose NordVPN reboot was declined
+      ansible.builtin.meta: end_host
+      when: apt_upgrade_declined | default(false)
+
+    - name: Check that this is not NAS
+      ansible.builtin.import_tasks: apt-upgrade-guard_tasks.yml
+      become: false
+      tags: always
+
+  tasks:
+    - name: Read NordVPN auto-connect setting before upgrading
+      ansible.builtin.command: nordvpn settings
+      become: false
+      register: nordvpn_settings_before_upgrade
+      changed_when: false
+      when:
+        - nordvpn_installed or nordvpn_upgrade_planned
+        - not ansible_check_mode
+
+    - name: Enable NordVPN auto-connect before upgrading
+      ansible.builtin.command: nordvpn set autoconnect on
+      become: false
+      when:
+        - nordvpn_installed or nordvpn_upgrade_planned
+        - not ansible_check_mode
+        - "nordvpn_settings_before_upgrade.stdout is not search('(?m)^Auto-connect: enabled')"
+
+    - name: Verify NordVPN auto-connect is enabled before upgrading
+      ansible.builtin.command: nordvpn settings
+      become: false
+      register: nordvpn_settings_for_reboot
+      changed_when: false
+      when:
+        - nordvpn_installed or nordvpn_upgrade_planned
+        - not ansible_check_mode
+
+    - name: Refuse upgrade of a NordVPN host without auto-connect
+      ansible.builtin.assert:
+        that: "nordvpn_settings_for_reboot.stdout is search('(?m)^Auto-connect: enabled')"
+        fail_msg: NordVPN auto-connect is not enabled; this host was not upgraded.
+      when:
+        - nordvpn_installed or nordvpn_upgrade_planned
+        - not ansible_check_mode
+
+    - name: Upgrade NordVPN and reboot in one remote command
+      ansible.builtin.reboot:
+        reboot_command: >-
+          /usr/bin/systemd-run --unit=apt-upgrade-nordvpn --collect --property=Type=exec
+          /bin/sh -c 'umask 077; DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y --no-remove
+          -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold
+          dist-upgrade > /var/log/apt-upgrade-nordvpn.log 2>&1 && /usr/sbin/reboot'
+        reboot_timeout: 1800
+        post_reboot_delay: 15
+      when:
+        - nordvpn_upgrade_planned
+        - not ansible_check_mode
+
+    - name: Confirm NordVPN reconnects after reboot
+      ansible.builtin.command: nordvpn status
+      become: false
+      register: nordvpn_status_after_reboot
+      changed_when: false
+      until: "nordvpn_status_after_reboot.stdout is search('(?m)^Status: Connected')"
+      retries: 18
+      delay: 10
+      when:
+        - nordvpn_upgrade_planned
+        - not ansible_check_mode
+
+    - name: Read the NordVPN upgrade output after reboot
+      ansible.builtin.command:
+        argv: [tail, -n, '100', /var/log/apt-upgrade-nordvpn.log]
+      register: nordvpn_upgrade_output
+      changed_when: false
+      when:
+        - nordvpn_upgrade_planned
+        - not ansible_check_mode
+
+    - name: Include NordVPN upgrade output in the package summary
+      ansible.builtin.set_fact:
+        apt_package_changes:
+          stdout: "{{ nordvpn_upgrade_output.stdout }}"
+      when:
+        - nordvpn_upgrade_planned
+        - not ansible_check_mode
+
     - name: Update package lists and perform the Proxmox-recommended dist-upgrade
       block:
         - name: Run dist-upgrade
           ansible.builtin.apt:
-            update_cache: true
             upgrade: dist
             force_apt_get: true
             fail_on_autoremove: true
@@ -36,6 +192,18 @@
               - Acquire::http::No-Cache=true
               - update
 
+        - name: Check the new apt plan after refreshing the mirror
+          ansible.builtin.command:
+            argv: [apt-get, -s, --no-remove, dist-upgrade]
+          register: refreshed_apt_upgrade_plan
+          changed_when: false
+          check_mode: false
+
+        - name: Refuse an unapproved NordVPN update after a mirror refresh
+          ansible.builtin.assert:
+            that: refreshed_apt_upgrade_plan.stdout is not search('(?m)^Inst nordvpn ')
+            fail_msg: The mirror refresh added a NordVPN update; rerun apt-upgrade.sh to approve a reboot before upgrading.
+
         - name: Retry dist-upgrade after refreshing the package lists
           ansible.builtin.apt:
             upgrade: dist
@@ -44,6 +212,7 @@
           environment:
             DEBIAN_FRONTEND: noninteractive
           register: apt_package_changes
+      when: not nordvpn_upgrade_planned or ansible_check_mode
 
     - name: Remove unused packages only when explicitly requested
       ansible.builtin.apt:
@@ -69,6 +238,10 @@
   become_method: sudo
   gather_facts: false
   pre_tasks:
+    - name: Skip hosts whose NordVPN reboot was declined
+      ansible.builtin.meta: end_host
+      when: apt_upgrade_declined | default(false)
+
     - name: Check that this is not NAS
       ansible.builtin.import_tasks: apt-upgrade-guard_tasks.yml
       become: false
@@ -157,6 +330,21 @@
         - kernel_status_before_reboot.stdout | trim != 'true'
         - reboot_confirmation.user_input | lower in ['yes', 'y']
 
+    - name: Confirm NordVPN reconnects after a kernel reboot
+      ansible.builtin.command: nordvpn status
+      become: false
+      register: nordvpn_status_after_kernel_reboot
+      changed_when: false
+      until: "nordvpn_status_after_kernel_reboot.stdout is search('(?m)^Status: Connected')"
+      retries: 18
+      delay: 10
+      when:
+        - nordvpn_installed
+        - kernel_check_available
+        - not ansible_check_mode
+        - kernel_status_before_reboot.stdout | trim != 'true'
+        - reboot_confirmation.user_input | lower in ['yes', 'y']
+
     - name: Fail if the newer kernel is still not active
       ansible.builtin.assert:
         that:
@@ -183,6 +371,10 @@
   hosts: all
   gather_facts: false
   pre_tasks:
+    - name: Skip hosts whose NordVPN reboot was declined
+      ansible.builtin.meta: end_host
+      when: apt_upgrade_declined | default(false)
+
     - name: Check that this is not NAS
       ansible.builtin.import_tasks: apt-upgrade-guard_tasks.yml
       tags: always
