@@ -1,0 +1,13 @@
+name: kavita
+defaultNamespace: apps-calibre
+
+dependsOn:
+  - name: calibre-storage
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/kavita
+  version: 14.0.3
+  releaseName: kavita
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml
