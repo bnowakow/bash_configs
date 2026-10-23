@@ -1,0 +1,44 @@
+name: emby
+
+x-emby-common: &emby-common
+  image: emby/embyserver:latest
+  restart: unless-stopped
+  devices:
+    - /dev/dri:/dev/dri
+  environment: &emby-environment
+    # The official image needs root initialization before dropping privileges.
+    UID: "568"
+    GID: "568"
+    GIDLIST: "44,104,568,65534"
+
+services:
+  emby:
+    <<: *emby-common
+    container_name: emby
+    volumes:
+      - ./config:/config
+      - type: bind
+        source: /mnt/PlexPool/plex
+        target: /mnt/PlexPool/plex
+        read_only: false
+    ports:
+      - "8096:8096"
+
+  nubile:
+    <<: *emby-common
+    container_name: nubile
+    environment:
+      <<: *emby-environment
+      # NAS Movies is owned by group 1000 with mode 770.
+      GIDLIST: "44,104,568,1000,65534"
+    volumes:
+      - ./nubile-config:/config
+      - movies:/mnt/MargokPool/archive/Movies
+    ports:
+      - "8097:8096"
+
+volumes:
+  movies:
+    # Preserve the existing Docker-managed NFS volume during project migration.
+    external: true
+    name: nubile_movies

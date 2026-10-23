@@ -13,3 +13,6 @@
 *.log
 tmp/
 temp/
+
+# Nubile private runtime data
+/nubile-config/
