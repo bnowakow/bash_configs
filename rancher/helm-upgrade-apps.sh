@@ -597,6 +597,27 @@ apply_pvc_version_labels() {
     --server-side --force-conflicts --field-manager=helm-pvc-version-labels -f -
 }
 
+extract_pvc_manifests() {
+  # Helm charts may quote YAML kind values. Match the scalar value rather
+  # than requiring the exact spelling "kind: PersistentVolumeClaim".
+  awk '
+    BEGIN { RS="---\n" }
+    {
+      count=split($0, lines, "\n")
+      for (i=1; i<=count; i++) {
+        if (lines[i] ~ /^kind:[[:space:]]*/) {
+          kind=lines[i]
+          sub(/^kind:[[:space:]]*/, "", kind)
+          sub(/[[:space:]]+#.*/, "", kind)
+          gsub(/[\042\047[:space:]]/, "", kind)
+          if (kind == "PersistentVolumeClaim") printf "---\n%s", $0
+          break
+        }
+      }
+    }
+  '
+}
+
 prepare_helm_upgrade_pvcs() {
   local app="$1"
   local namespace="$2"
@@ -670,18 +691,14 @@ prepare_helm_upgrade_pvcs() {
         rm -f "$render_file"
         return 1
       fi
-      rendered_chart="$(cat "$render_file")"
+      rendered_chart="$(extract_pvc_manifests < "$render_file")"
       rm -f "$render_file"
-      if ! printf '%s\n' "$rendered_chart" | awk '
-        /^kind: PersistentVolumeClaim$/ { found = 1 }
-        END { exit !found }
-      '; then
+      if [ -z "$rendered_chart" ]; then
         log "$app: target chart renders no PVCs; leaving existing PVCs unmanaged"
         return 0
       fi
       if ! rendered_pvcs="$(set -o pipefail
         printf '%s\n' "$rendered_chart" |
-          awk 'BEGIN { RS="---\n" } /(^|\n)kind: PersistentVolumeClaim\n/ { printf "---\n%s", $0 }' |
           kubectl create --kubeconfig "$kubeconfig_path" --namespace "$namespace" \
             --dry-run=client --validate=false -f - \
             -o go-template='{{define "pvc"}}{{.metadata.name}}{{"|"}}{{index .metadata.labels "helm.sh/chart"}}{{"|"}}{{index .metadata.labels "app"}}{{"|"}}{{index .metadata.labels "app.kubernetes.io/version"}}{{"\n"}}{{end}}{{if .items}}{{range .items}}{{template "pvc" .}}{{end}}{{else}}{{template "pvc" .}}{{end}}' 2>>"$log_file")"; then
