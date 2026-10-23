@@ -18,12 +18,12 @@ On a new host, create it before starting:
 docker volume create --driver local --opt type=nfs --opt o=addr=nas.localdomain.bnowakowski.pl,rw,nfsvers=4 --opt device=:/mnt/MargokPool/archive/Movies nubile_movies
 ```
 
-From the rancher directory:
+From the repository root:
 
 ```sh
-docker compose -f emby/compose.yaml up -d
-docker compose -f emby/compose.yaml logs --tail=100 emby
-docker compose -f emby/compose.yaml logs --tail=100 nubile
+docker compose -f proxmox/emby/compose.yaml up -d
+docker compose -f proxmox/emby/compose.yaml logs --tail=100 emby
+docker compose -f proxmox/emby/compose.yaml logs --tail=100 nubile
 ```
 
 Append a service name to `up -d` to manage one instance. The old
@@ -37,3 +37,16 @@ Existing Fleet ingress bundles and URLs remain:
 - https://emby.proxmox3.tailscale.bnowakowski.pl/
 - https://nubile.proxmox3.localdomain.bnowakowski.pl/
 - https://nubile.proxmox3.tailscale.bnowakowski.pl/
+
+## Image updates
+
+Run `make` in this directory for help. `make upgrade` checks the configured
+image tags and updates both services if needed. It downloads images before
+recreating containers, preserves configuration and media mounts, and prevents
+overlapping upgrades. Updates briefly interrupt playback. Compose waits for
+containers to run; the services currently have no application healthcheck.
+
+`make install-cron` installs an idempotent root cron job in
+`/etc/cron.d/emby-upgrade`, scheduled daily at 04:30 host local time. The job calls
+the same `upgrade.sh` as `make upgrade`. Installation requires sudo. Output is
+written to `/var/log/emby-upgrade.log`, with weekly log rotation.
