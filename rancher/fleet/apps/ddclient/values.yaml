@@ -6,8 +6,7 @@ persistence:
   config:
     enabled: true
     type: pvc
-    storageClass: local-path
-    size: 100Gi
+    existingClaim: ddclient-config-longhorn-rwo
     mountPath: /config
 
 service:
@@ -17,6 +16,7 @@ service:
 workload:
   main:
     replicas: 1
+    strategy: Recreate
 
 securityContext:
   container:

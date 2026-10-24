@@ -1,6 +1,9 @@
 name: flaresolverr
 defaultNamespace: apps-flaresolverr
 
+dependsOn:
+  - name: longhorn-dns-proxy-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/flaresolverr
   version: 18.0.3

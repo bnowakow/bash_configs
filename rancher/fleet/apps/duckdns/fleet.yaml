@@ -1,6 +1,9 @@
 name: duckdns
 defaultNamespace: apps-duckdns
 
+dependsOn:
+  - name: longhorn-dns-proxy-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/duckdns
   version: 14.0.5

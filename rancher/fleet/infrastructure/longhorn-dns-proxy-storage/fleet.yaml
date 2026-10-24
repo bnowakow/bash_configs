@@ -1,0 +1,5 @@
+name: longhorn-dns-proxy-storage
+defaultNamespace: apps-ddclient
+
+dependsOn:
+  - name: longhorn-pilot-storage

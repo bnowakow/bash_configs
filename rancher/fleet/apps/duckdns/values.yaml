@@ -1,5 +1,13 @@
+persistence:
+  config:
+    enabled: true
+    type: pvc
+    existingClaim: duckdns-config-longhorn-rwo
+
 workload:
   main:
+    replicas: 1
+    strategy: Recreate
     podSpec:
       containers:
         main:

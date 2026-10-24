@@ -1,6 +1,9 @@
 name: ddclient
 defaultNamespace: apps-ddclient
 
+dependsOn:
+  - name: longhorn-dns-proxy-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/ddclient
   version: 15.0.4

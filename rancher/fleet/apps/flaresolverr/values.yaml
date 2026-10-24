@@ -1,6 +1,6 @@
 persistence:
   config:
-    existingClaim: flaresolverr-config
+    existingClaim: flaresolverr-config-longhorn-rwo
 
 ingress:
   main:
@@ -25,3 +25,9 @@ ingress:
         entrypoints:
           - web
         forceTLS: false
+
+# Keep browser sessions / DNS updates owned by a single process.
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate
