@@ -2,6 +2,7 @@ name: homer-without-auth
 defaultNamespace: apps-homer
 
 dependsOn:
+  - name: longhorn-pilot-storage
   - name: homer-without-auth-config-copy
 
 helm:

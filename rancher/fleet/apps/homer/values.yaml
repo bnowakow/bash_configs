@@ -2,8 +2,7 @@ persistence:
   config:
     enabled: true
     type: pvc
-    storageClass: local-path
-    size: 1Gi
+    existingClaim: homer-config-longhorn-rwo
     mountPath: /www/assets
 
 addons:
@@ -53,3 +52,15 @@ ingress:
         entrypoints:
           - websecure
         forceTLS: true
+
+# RWO permits same-node sharing; both editors and the copy job must co-locate.
+podOptions:
+  affinity:
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/instance
+                operator: In
+                values: [homer, homer-without-auth]
+          topologyKey: kubernetes.io/hostname

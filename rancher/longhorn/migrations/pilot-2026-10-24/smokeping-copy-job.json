@@ -1,0 +1,97 @@
+{
+  "apiVersion": "batch/v1",
+  "kind": "Job",
+  "metadata": {
+    "name": "smokeping-longhorn-pilot-20261024",
+    "namespace": "apps-smokeping"
+  },
+  "spec": {
+    "backoffLimit": 0,
+    "activeDeadlineSeconds": 900,
+    "template": {
+      "metadata": {
+        "labels": {
+          "migration.bnowakowski.pl/pilot": "2026-10-24"
+        }
+      },
+      "spec": {
+        "restartPolicy": "Never",
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "name": "copy-0",
+            "image": "alpine:3.22.1",
+            "command": [
+              "sh",
+              "-ec"
+            ],
+            "args": [
+              "test -d /source\ntest -d /target\ncp -a /source/. /target/\nsync\ncd /source\nfind . -type f -exec sha256sum {} + | sort > /tmp/source.sha256\ncd /target\nsha256sum -c /tmp/source.sha256\nprintf 'Copy and SHA256 verification completed\\n'\n"
+            ],
+            "volumeMounts": [
+              {
+                "name": "source-0",
+                "mountPath": "/source",
+                "readOnly": true
+              },
+              {
+                "name": "target-0",
+                "mountPath": "/target"
+              }
+            ]
+          },
+          {
+            "name": "copy-1",
+            "image": "alpine:3.22.1",
+            "command": [
+              "sh",
+              "-ec"
+            ],
+            "args": [
+              "test -d /source\ntest -d /target\ncp -a /source/. /target/\nsync\ncd /source\nfind . -type f -exec sha256sum {} + | sort > /tmp/source.sha256\ncd /target\nsha256sum -c /tmp/source.sha256\nprintf 'Copy and SHA256 verification completed\\n'\n"
+            ],
+            "volumeMounts": [
+              {
+                "name": "source-1",
+                "mountPath": "/source",
+                "readOnly": true
+              },
+              {
+                "name": "target-1",
+                "mountPath": "/target"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "source-0",
+            "persistentVolumeClaim": {
+              "claimName": "smokeping-config",
+              "readOnly": true
+            }
+          },
+          {
+            "name": "target-0",
+            "persistentVolumeClaim": {
+              "claimName": "smokeping-config-longhorn"
+            }
+          },
+          {
+            "name": "source-1",
+            "persistentVolumeClaim": {
+              "claimName": "smokeping-data",
+              "readOnly": true
+            }
+          },
+          {
+            "name": "target-1",
+            "persistentVolumeClaim": {
+              "claimName": "smokeping-data-longhorn"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

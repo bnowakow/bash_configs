@@ -1,8 +1,8 @@
 persistence:
   config:
-    existingClaim: smokeping-config
+    existingClaim: smokeping-config-longhorn
   data:
-    existingClaim: smokeping-data
+    existingClaim: smokeping-data-longhorn
 
 ingress:
   main:

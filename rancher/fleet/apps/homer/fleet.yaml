@@ -1,6 +1,9 @@
 name: homer
 defaultNamespace: apps-homer
 
+dependsOn:
+  - name: longhorn-pilot-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/homer
   version: 16.0.3

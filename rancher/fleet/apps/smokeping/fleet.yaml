@@ -1,6 +1,9 @@
 name: smokeping
 defaultNamespace: apps-smokeping
 
+dependsOn:
+  - name: longhorn-pilot-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/smokeping
   version: 15.0.4
