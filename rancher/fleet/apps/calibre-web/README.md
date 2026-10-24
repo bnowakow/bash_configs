@@ -1,16 +1,18 @@
 # Calibre Web
 
-TrueCharts chart `23.0.1` deploys into `apps-calibre`. Configuration is stored
-on a 1Gi local-path PVC at `/config`, supplied by `calibre-storage`. The same export as Ubooquity,
+TrueCharts chart `23.0.4` deploys into `apps-calibre`. Configuration is stored
+on the 256Mi Longhorn RWO `calibre-web-config-longhorn-rwo` PVC at `/config`,
+supplied by `longhorn-calibre-arr-storage`. The same export as Ubooquity,
 `nas.localdomain.bnowakowski.pl:/mnt/PlexPool/plex/Books`, is mounted at `/books`.
 
 - https://calibre-web.rancher.tailscale.bnowakowski.pl/
 - https://calibre-web.rancher.localdomain.bnowakowski.pl/
 
-The `calibre-library` 10Gi local-path PVC is shared with Calibre. It is mounted
+The `calibre-library-longhorn-rwo` 1Gi Longhorn RWO PVC is shared with Calibre. It is mounted
 read-only at `/library` in Calibre Web and read/write at `/library` in Calibre.
 Both run in `apps-calibre` because PVCs cannot be mounted across namespaces.
-Local volume node affinity keeps both apps on the same node.
+Explicit proxmox2-old selectors keep Calibre, Calibre Web, Kavita and maintenance
+on the same node for shared RWO access; coordinated placement changes are required.
 
 Create a Calibre library at `/library` through the Calibre desktop and import
 books from `/books`. Once `/library/metadata.db` exists, select `/library` in

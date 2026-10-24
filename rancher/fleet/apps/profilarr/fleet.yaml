@@ -1,6 +1,9 @@
 name: profilarr
 defaultNamespace: apps-profilarr
 
+dependsOn:
+  - name: longhorn-calibre-arr-storage
+
 helm:
   chart: profilarr
   repo: https://media-servarr.shw.al/charts

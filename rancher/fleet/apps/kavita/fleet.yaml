@@ -2,6 +2,7 @@ name: kavita
 defaultNamespace: apps-calibre
 
 dependsOn:
+  - name: longhorn-calibre-arr-storage
   - name: calibre-storage
 
 helm:

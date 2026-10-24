@@ -1,16 +1,16 @@
 # Current app storage summary — 2026-10-24
 
 Refreshed from live PVCs, Deployments/StatefulSets and Longhorn node/volume
-objects after the Audiobookshelf/Scrutiny/Prowlarr batch. Proposed sizes come from the conservative
+objects after the Calibre group/Profilarr/Radarr batch. Proposed sizes come from the conservative
 [measured inventory](local-pvc-usage-2026-10-24.csv) and assessment, not a new
 measurement of remaining app data. Re-measure each source before migrating.
 The latest batch was applied and validated; see the migration evidence below.
 
 ## On Longhorn
 
-Eighteen migrated apps use **24 RWO PVCs**, all configured with **two storage
-replicas**. Total PVC requests are **8.25Gi**, approximately 8.25Gi of nominal replica
-scheduling per node / 16.5Gi aggregate, excluding older tests. Requests are not
+Twenty-three migrated apps use **30 RWO PVCs**, all configured with **two storage
+replicas**. Total PVC requests are **12Gi**, approximately 12Gi of nominal replica
+scheduling per node / 24Gi aggregate, excluding older tests. Requests are not
 physical bytes used. All active migrated workloads have one application replica.
 
 | App | PVC mode | Longhorn claims / total request | State and write constraints |
@@ -33,6 +33,12 @@ physical bytes used. All active migrated workloads have one application replica.
 | Audiobookshelf | RWO | config 256Mi + metadata 1Gi = 1.25Gi | Running; SQLite, one instance, Recreate; media stays NAS |
 | Scrutiny | RWO | config 256Mi + InfluxDB 1Gi = 1.25Gi | Running; one omnibus instance, Recreate, retained proxmox3 hardware scope |
 | Prowlarr | RWO | config 256Mi | Running; SQLite, one writer, Recreate |
+| Calibre | RWO | config 256Mi | Running; Recreate, writable shared library, proxmox2-old |
+| Calibre Web | RWO | config 256Mi | Running; Recreate, shared library read-only, proxmox2-old |
+| Kavita | RWO | config 256Mi | Running; Recreate, shared library read-only, proxmox2-old |
+| Shared Calibre library (counted once) | RWO | library 1Gi | Calibre + maintenance writes coordinated; all consumers on proxmox2-old |
+| Profilarr | RWO | config 1Gi | Running; SQLite, one writer, Recreate |
+| Radarr | RWO | config 1Gi | Running; SQLite, one writer, Recreate; media stays NAS |
 
 Homer-test was already on a separate **10Mi Longhorn RWX** claim with two app
 replicas. A separate 10Mi native-restore test claim also remains. These are tests,
@@ -43,7 +49,7 @@ RWO allows mounting on one node (potentially several co-located pods); RWX allow
 mounting from multiple nodes. Longhorn storage replica count is independent of
 these modes. The planned RWO rows do not imply shared-writer RWX compatibility.
 
-Original local-path PVCs for all eighteen migrated apps remain as rollback copies.
+Original local-path PVCs for all twenty-three migrated apps remain as rollback copies.
 Their presence does **not** mean these apps still run on local-path. Filebot's
 inactive mounts have target references prepared, although only config is in its
 zero-replica Deployment template. Its initial backups completed while a temporary
@@ -61,42 +67,35 @@ No shared-writer RWX conversion is recommended for these current deployments.
 | --- | --- | --- | --- | --- | ---: |
 | AdGuard Home | RWO | RWO | bbolt stats/session state, config/query logs; not SQLite | config 256Mi + data 4Gi | 4.25 |
 | BookStack | RWO | RWO | MariaDB + app config/uploads | DB 1Gi + provisional config 256Mi | 1.25* |
-| Calibre | RWO | RWO | Private config; uses shared SQLite library below | private config 256Mi | 0.25 |
-| Calibre Web | RWO | RWO | SQLite private config; reads shared library | private config 256Mi | 0.25 |
-| Kavita | RWO | RWO | SQLite private config; reads shared library | private config 256Mi | 0.25 |
-| Shared Calibre library | RWO | RWO | SQLite metadata.db + library files | library 1Gi, counted once | 1.00 |
 | Docker Mailserver | RWO | RWO | Mailboxes, queues, indexes and mail-state files | data 28Gi + config/state/logs 256Mi each | 28.75 |
 | Mailpile | RWO | RWO | Mail/index state + GnuPG keyring; not identified as SQLite | data 9Gi + keys 256Mi | 9.25 |
-| Profilarr | RWO | RWO | SQLite confirmed | config 1Gi | 1.00 |
-| Radarr | RWO | RWO | SQLite confirmed | config 1Gi | 1.00 |
 | Sonarr | RWO | RWO | SQLite confirmed | config 1Gi | 1.00 |
 | youtube-dl Material | RWO | RWO | MongoDB + app/user state | MongoDB 1Gi + appdata/users 256Mi each | 1.50 |
 | Zabbix | RWO | RWO | PostgreSQL 16 | PostgreSQL 18Gi | 18.00 |
-| **Total remaining** | — | — | **12 apps + one shared library, 21 source claims** |  | **67.75** |
+| **Total remaining** | — | — | **7 apps, 15 source claims** |  | **64.00** |
 
 *BookStack's local MariaDB claim is mounted, but its `bookstack-config` PVC is
 currently **not mounted**. The config/uploads target is provisional: locate,
 measure and protect current container-layer data before any migration. Merely
 copying that old claim would not prove complete data preservation.
 
-Calibre's four-claim group totals **1.75Gi** (three private configs plus one
-shared library). Calibre, Calibre Web, Kavita and cover-maintenance Jobs require
-coordinated writer shutdown and explicit same-node placement for shared RWO.
-Their books import NFS mounts remain separate from the shared PVC library.
+Calibre's four-claim group now runs on Longhorn and totals **1.75Gi** (three
+private configs plus one shared library). Calibre, Calibre Web, Kavita and
+cover-maintenance Jobs explicitly share proxmox2-old placement for shared RWO.
+Maintenance resumed after verification. Future moves must stop/co-locate every
+consumer together. Their books import NFS mounts remain separate.
 
 The largest remaining requests are mailserver (28.75Gi), Zabbix (18Gi), and
-Mailpile (9.25Gi): together **56Gi** of the 67.75Gi remaining proposal.
+Mailpile (9.25Gi): together **56Gi** of the 64Gi remaining proposal.
 
 ## Remaining migration priority
 
-User confirmed the Bindery/Bazarr/Authelia batch works. The next approved
-size-ranked batch (Audiobookshelf/Scrutiny/Prowlarr) is now migrated.
-Remaining units are prioritized by summed **measured apparent data size**,
-keeping dependent claims together; see the [ranked plan](remaining-migration-priority-2026-10-24.md).
-The smallest remaining complete unit is the Calibre/Calibre Web/Kavita/shared
-library group (1.75Gi). BookStack follows by measured size but remains blocked
-on locating current uploads; Profilarr follows after that. Re-measure before
-execution and retain the shared-library ownership/placement constraints.
+The approved Calibre group, Profilarr and Radarr batch has completed. Remaining
+units are ranked by summed historical apparent data size in the
+[priority plan](remaining-migration-priority-2026-10-24.md) and CSV
+`remaining_size_rank`. BookStack is smallest but held until current uploads are
+located/protected; Sonarr is the next independent unit. Re-measure before every
+migration and apply database-specific shutdown/restore checks.
 
 ## Other storage types retained
 
@@ -120,19 +119,31 @@ persistent RWO/RWX claims.
 
 ## Capacity and scope
 
-With two replicas on these two nodes, remaining 67.75Gi of requests normally means
-67.75Gi of additional nominal scheduling on **each** node, not 33.875Gi each. Current
+With two replicas on these two nodes, remaining 64Gi of requests normally means
+64Gi of additional nominal scheduling on **each** node, not 32Gi each. Current
 remaining nominal budgets are approximately:
 
 | Node | Remaining nominal budget |
 | --- | ---: |
-| proxmox2-old | 62.11Gi |
-| proxmox3 | 89.60Gi |
+| proxmox2-old | 58.36Gi |
+| proxmox3 | 85.85Gi |
+
+Latest Longhorn disk snapshot (**2026-10-24 19:50 UTC**):
+
+| Node | Total GiB | Physically used GiB | Physically free GiB | Reserved GiB | Scheduled GiB | Nominal remaining GiB |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| proxmox2-old | 78.19 | 3.29 | 74.90 | 7.82 | 12.01 | 58.36 |
+| proxmox3 | 97.87 | 3.24 | 94.63 | 0.00 | 12.02 | 85.85 |
+
+Physical free is Longhorn `storageAvailable`; scheduled is `storageScheduled`.
+Nominal remaining is total minus reserved minus scheduled. Both disks report
+Ready/Schedulable. Assigned capacity includes older test claims; physical
+allocation grows with writes and snapshots.
 
 Thus all remaining proposed targets do not fit on the smaller node unchanged.
 This is not an instruction to enlarge disks or migrate everything: keep the
 staged plan, re-measure, review retention and choose a later batch explicitly.
-The overall 76Gi proposal comprises 8.25Gi migrated plus 67.75Gi remaining; physical
+The overall 76Gi proposal comprises 12Gi migrated plus 64Gi remaining; physical
 allocation, snapshots and required free-space margins are separate constraints.
 The previous administrative 55Gi migration cap remains a further admission gate.
 
@@ -147,6 +158,7 @@ Docker Compose services, outside this Kubernetes PVC inventory.
 - [Homer/Smokeping pilot](migrations/pilot-2026-10-24/RESULTS.md)
 - [ddclient/DuckDNS/FlareSolverr](migrations/dns-proxy-2026-10-24/RESULTS.md)
 - [OpenBooks/Ubooquity](migrations/books-2026-10-24/RESULTS.md)
+- [Calibre group/Profilarr/Radarr](migrations/calibre-arr-2026-10-24/RESULTS.md)
 - [Audiobookshelf/Scrutiny/Prowlarr](migrations/media-small-2026-10-24/RESULTS.md)
 - [Bindery/Bazarr/Authelia](migrations/sqlite-next-2026-10-24/RESULTS.md)
 - [Small SQLite batch](migrations/sqlite-small-2026-10-24/RESULTS.md)

@@ -1,6 +1,6 @@
 persistence:
   config:
-    existingClaim: radarr-config
+    existingClaim: radarr-config-longhorn-rwo
   plex-nfs-persistence:
     enabled: true
     path: /mnt/PlexPool/plex
@@ -44,3 +44,9 @@ ingress:
         entrypoints:
           - websecure
         forceTLS: true
+
+# One instance owns the SQLite databases.
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate

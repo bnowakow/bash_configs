@@ -1,6 +1,9 @@
 name: radarr
 defaultNamespace: apps-radarr
 
+dependsOn:
+  - name: longhorn-calibre-arr-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/radarr
   version: 28.0.5

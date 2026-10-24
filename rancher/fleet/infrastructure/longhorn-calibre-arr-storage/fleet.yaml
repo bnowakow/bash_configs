@@ -1,0 +1,4 @@
+name: longhorn-calibre-arr-storage
+defaultNamespace: apps-calibre
+dependsOn:
+  - name: longhorn-pilot-storage

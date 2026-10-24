@@ -3,6 +3,8 @@ application:
   urlBase: ''
 
 deployment:
+  strategy:
+    type: Recreate
   container:
     env:
       - name: PUID
@@ -21,14 +23,10 @@ deployment:
   volumes:
     config:
       persistentVolumeClaim:
-        claimName: profilarr-config
+        claimName: profilarr-config-longhorn-rwo
 
-persistentVolumeClaims:
-  profilarr-config:
-    accessMode: ReadWriteOnce
-    # The restored data volume is 100Gi; PVC capacity cannot be reduced.
-    requestStorage: 100Gi
-    selector: {}
+# The dedicated Fleet storage bundle owns the new claim.
+persistentVolumeClaims: null
 
 ingress:
   enabled: true

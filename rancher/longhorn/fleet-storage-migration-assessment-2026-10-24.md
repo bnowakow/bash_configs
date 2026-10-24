@@ -89,6 +89,30 @@ checks. See [execution and backup/restore evidence](migrations/media-small-2026-
 Migrated production requests total 8.25Gi/24 claims across 18 apps; remaining
 conservative requests total 67.75Gi/21 claims. Original claims remain retained.
 
+## Next batch proposal after successful user tests
+
+User confirmed the Audiobookshelf/Scrutiny/Prowlarr batch works. The next
+size-prioritized executable proposal is the coordinated Calibre/Calibre Web/
+Kavita/library unit (1.75Gi), Profilarr (1Gi) and Radarr (1Gi): five apps/six
+claims, 3.75Gi per host / 7.5Gi aggregate replicas. BookStack remains rank 2 by
+historical measured size but is held pending protection of its real uploads.
+See the [priority table and capacity snapshot](remaining-migration-priority-2026-10-24.md).
+Re-measure first; preserve same-node placement for all Calibre RWO consumers.
+This proposal update changes no app manifests or live workloads.
+
+## Calibre group, Profilarr and Radarr completed — 2026-10-24
+
+The approved five-app/six-claim batch has now moved to Longhorn RWO with two
+storage replicas. All file checksums and eleven SQLite checks passed. All
+Calibre shared-library consumers, including cover maintenance, explicitly stay
+on proxmox2-old; Calibre Web/Kavita retain read-only library mounts. Maintenance
+was suspended during the coordinated move and resumed afterward. Original
+claims remain retained. Migrated production requests now total 12Gi/30 claims
+across 23 apps; remaining proposals total 64Gi/15 claims across seven apps.
+See [execution and backup/restore evidence](migrations/calibre-arr-2026-10-24/RESULTS.md).
+The preceding proposal sections are historical; use the remaining size ranks
+for future work. BookStack remains held pending discovery of current uploads.
+
 ## Revised migration order: shared-state restrictions go last
 
 User decision after the pilot: **defer every app whose persistent state is not
@@ -579,10 +603,10 @@ all-claims fallback scenario. Neither total is the initial migration scope.
 | `apps-bindery/bindery-config` | 4Gi | 0.0101 | 0.0245 | 0.25 | 0.2255 | completed-sqlite-next-rwo |
 | `apps-bookstack/bookstack-config` | 100Gi | 0.0128 | 0.1003 | 0.25 | 0.1497 | final-single-owner-group |
 | `apps-bookstack/bookstack-mariadb-data` | 100Gi | 0.0090 | 0.3000 | 1 | 0.7000 | final-single-owner-group |
-| `apps-calibre/calibre-config` | 1Gi | 0.0115 | 0.0190 | 0.25 | 0.2310 | final-single-owner-group |
-| `apps-calibre/calibre-library` | 10Gi | 0.2263 | 0.2272 | 1 | 0.7728 | final-single-owner-group |
-| `apps-calibre/calibre-web-config` | 1Gi | 0.0015 | 0.0016 | 0.25 | 0.2484 | final-single-owner-group |
-| `apps-calibre/kavita-config` | 1Gi | 0.0308 | 0.0353 | 0.25 | 0.2147 | final-single-owner-group |
+| `apps-calibre/calibre-config` | 1Gi | 0.0115 | 0.0190 | 0.25 | 0.2310 | completed-calibre-arr-rwo |
+| `apps-calibre/calibre-library` | 10Gi | 0.2263 | 0.2272 | 1 | 0.7728 | completed-calibre-arr-rwo |
+| `apps-calibre/calibre-web-config` | 1Gi | 0.0015 | 0.0016 | 0.25 | 0.2484 | completed-calibre-arr-rwo |
+| `apps-calibre/kavita-config` | 1Gi | 0.0308 | 0.0353 | 0.25 | 0.2147 | completed-calibre-arr-rwo |
 | `apps-cleanuparr/cleanuparr-config` | 1Gi | 0.0033 | 0.0097 | 0.25 | 0.2403 | completed-sqlite-small-rwo |
 | `apps-ddclient/ddclient-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | completed-batch2-rwo |
 | `apps-docker-mailserver/docker-mailserver-mail-config` | 1Mi | 0.0001 | 0.0000 | 0.25 | 0.2499 | final-single-owner-group |
@@ -601,9 +625,9 @@ all-claims fallback scenario. Neither total is the initial migration scope.
 | `apps-mailpile/mailpile-path2` | 1Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | final-single-owner-group |
 | `apps-openbooks/openbooks-books` | 5Gi | 0.0000 | 0.0000 | 1 | 1.0000 | completed-batch3-rwo |
 | `apps-openbooks/openbooks-logs` | 1Gi | 0.0001 | 0.0001 | 0.25 | 0.2499 | completed-batch3-rwo |
-| `apps-profilarr/profilarr-config` | 100Gi | 0.4500 | 0.4693 | 1 | 0.5307 | final-single-owner-group |
+| `apps-profilarr/profilarr-config` | 100Gi | 0.4500 | 0.4693 | 1 | 0.5307 | completed-calibre-arr-rwo |
 | `apps-prowlarr/prowlarr-config` | 100Gi | 0.0460 | 0.1577 | 0.25 | 0.0923 | completed-media-small-rwo |
-| `apps-radarr/radarr-config` | 100Gi | 0.5437 | 0.5916 | 1 | 0.4084 | final-single-owner-group |
+| `apps-radarr/radarr-config` | 100Gi | 0.5437 | 0.5916 | 1 | 0.4084 | completed-calibre-arr-rwo |
 | `apps-scrutiny/scrutiny-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | completed-media-small-rwo |
 | `apps-scrutiny/scrutiny-influxdb` | 100Gi | 0.0022 | 0.1571 | 1 | 0.8429 | completed-media-small-rwo |
 | `apps-smokeping/smokeping-config` | 100Gi | 0.0001 | 0.0000 | 0.25 | 0.2499 | completed-pilot |

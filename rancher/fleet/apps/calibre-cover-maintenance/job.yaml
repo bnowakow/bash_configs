@@ -34,6 +34,8 @@ kind: CronJob
 metadata:
   name: calibre-cover-maintenance
 spec:
+  # All shared-library consumers must move together before maintenance resumes.
+  suspend: false
   schedule: "0 3 * * *"
   timeZone: Europe/Warsaw
   concurrencyPolicy: Forbid
@@ -45,6 +47,8 @@ spec:
       backoffLimit: 0
       template:
         spec:
+          nodeSelector:
+            kubernetes.io/hostname: proxmox2-old
           serviceAccountName: calibre-cover-maintenance
           restartPolicy: Never
           enableServiceLinks: false
@@ -96,10 +100,10 @@ spec:
           volumes:
             - name: library
               persistentVolumeClaim:
-                claimName: calibre-library
+                claimName: calibre-library-longhorn-rwo
             - name: web-config
               persistentVolumeClaim:
-                claimName: calibre-web-config
+                claimName: calibre-web-config-longhorn-rwo
             - name: scripts
               configMap:
                 name: calibre-cover-maintenance

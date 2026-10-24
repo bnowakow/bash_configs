@@ -4,8 +4,7 @@ persistence:
   config:
     enabled: true
     type: pvc
-    storageClass: local-path
-    size: 1Gi
+    existingClaim: kavita-config-longhorn-rwo
     mountPath: /config
   manga:
     enabled: false
@@ -18,7 +17,7 @@ persistence:
   library:
     enabled: true
     type: pvc
-    existingClaim: calibre-library
+    existingClaim: calibre-library-longhorn-rwo
     mountPath: /library
     readOnly: true
 
@@ -45,3 +44,12 @@ ingress:
         entrypoints:
           - websecure
         forceTLS: true
+
+# Keep all shared-library RWO consumers together.
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate
+    podSpec:
+      nodeSelector:
+        kubernetes.io/hostname: proxmox2-old

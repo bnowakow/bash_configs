@@ -1,7 +1,7 @@
 # Daily Calibre cover maintenance
 
 Runs at **03:00 Europe/Warsaw** (`0 3 * * *`). Fleet installs this bundle after
-Calibre and Calibre Web. A single CronJob performs two sequential steps:
+Calibre, Calibre Web, Kavita and the Longhorn storage bundle. A single CronJob performs two sequential steps:
 
 1. Extract missing embedded covers using the same pinned Calibre image and its
    library API. Existing covers are preserved. Only books already in `/library`
@@ -55,3 +55,12 @@ from `/library`. The refresh script validates both paths to catch regressions.
 The corrected live run completed both steps and verified all 27 thumbnail files
 (three resolutions for each of nine books) on the shared persistent cache. The
 extractor runs as UID/GID 568, matching the Calibre desktop's library ownership.
+
+## Storage placement
+
+The Job uses `calibre-library-longhorn-rwo` (1Gi) and
+`calibre-web-config-longhorn-rwo` (256Mi). It shares explicit proxmox2-old
+placement with Calibre, Calibre Web and Kavita so shared RWO mounts stay on one
+node. Suspend this CronJob before a grouped storage/placement move; update every
+consumer together and resume only after the app mounts and rollouts validate.
+Original local claims remain rollback copies, not active maintenance mounts.

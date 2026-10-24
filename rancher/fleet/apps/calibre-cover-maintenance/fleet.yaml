@@ -2,5 +2,7 @@ name: calibre-cover-maintenance
 defaultNamespace: apps-calibre
 
 dependsOn:
+  - name: longhorn-calibre-arr-storage
+  - name: kavita
   - name: calibre
   - name: calibre-web

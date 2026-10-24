@@ -1,0 +1,56 @@
+{
+  "apiVersion": "batch/v1",
+  "kind": "Job",
+  "metadata": {
+    "name": "profilarr-longhorn-20261024",
+    "namespace": "apps-profilarr"
+  },
+  "spec": {
+    "backoffLimit": 0,
+    "activeDeadlineSeconds": 900,
+    "template": {
+      "spec": {
+        "restartPolicy": "Never",
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "name": "copy-and-check",
+            "image": "python:3.13-alpine",
+            "command": [
+              "python",
+              "-u",
+              "-c",
+              "\"\"\"Copy all claims of a stopped app; verify bytes before checking target SQLite.\"\"\"\nimport hashlib\nfrom pathlib import Path\nimport sqlite3\nimport subprocess\n\n\ndef digest(path):\n    value = hashlib.sha256()\n    with path.open('rb') as stream:\n        for block in iter(lambda: stream.read(1024 * 1024), b''):\n            value.update(block)\n    return value.digest()\n\n\nfor source in sorted(Path('/source').iterdir()):\n    target = Path('/target') / source.name\n    subprocess.run(['cp', '-a', str(source) + '/.', str(target) + '/'], check=True)\n    subprocess.run(['sync'], check=True)\n    count = 0\n    for path in source.rglob('*'):\n        if path.is_file() and not path.is_symlink():\n            relative = path.relative_to(source)\n            if digest(path) != digest(target / relative):\n                raise RuntimeError(f'Checksum mismatch: {source.name}/{relative}')\n            count += 1\n    print(f'{source.name}: SHA256 verified {count} files including WAL/SHM', flush=True)\n\ncount = 0\nfor path in Path('/target').rglob('*'):\n    if path.is_symlink() or not path.is_file() or path.suffix not in {'.db', '.sqlite', '.sqlite3'}:\n        continue\n    with path.open('rb') as stream:\n        if stream.read(16) != b'SQLite format 3\\x00':\n            continue\n    conn = sqlite3.connect(path.as_uri() + '?mode=ro', uri=True)\n    try:\n        if conn.execute('PRAGMA quick_check').fetchall() != [('ok',)]:\n            raise RuntimeError(f'SQLite quick_check failed: {path.relative_to(\"/target\")}')\n    finally:\n        conn.close()\n    count += 1\n    print(f'SQLite quick_check OK: {path.relative_to(\"/target\")}', flush=True)\nif not count:\n    raise RuntimeError('No SQLite database verified; refusing cutover')\nprint(f'{count} SQLite databases verified', flush=True)\n"
+            ],
+            "volumeMounts": [
+              {
+                "name": "source0",
+                "mountPath": "/source/profilarr-config",
+                "readOnly": true
+              },
+              {
+                "name": "target0",
+                "mountPath": "/target/profilarr-config"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "source0",
+            "persistentVolumeClaim": {
+              "claimName": "profilarr-config",
+              "readOnly": true
+            }
+          },
+          {
+            "name": "target0",
+            "persistentVolumeClaim": {
+              "claimName": "profilarr-config-longhorn-rwo"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
