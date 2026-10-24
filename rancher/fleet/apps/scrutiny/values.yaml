@@ -21,3 +21,17 @@ ingress:
         entrypoints:
           - websecure
         forceTLS: true
+
+# Move both state volumes together; preserve the hardware collector's host.
+persistence:
+  config:
+    existingClaim: scrutiny-config-longhorn-rwo
+  influxdb:
+    existingClaim: scrutiny-influxdb-longhorn-rwo
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate
+    podSpec:
+      nodeSelector:
+        kubernetes.io/hostname: proxmox3

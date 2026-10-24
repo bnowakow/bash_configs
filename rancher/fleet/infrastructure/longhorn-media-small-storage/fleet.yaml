@@ -1,0 +1,4 @@
+name: longhorn-media-small-storage
+defaultNamespace: apps-audiobookshelf
+dependsOn:
+  - name: longhorn-pilot-storage

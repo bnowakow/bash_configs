@@ -1,6 +1,6 @@
 persistence:
   config:
-    existingClaim: prowlarr-config
+    existingClaim: prowlarr-config-longhorn-rwo
 
 metrics:
   main:
@@ -29,3 +29,9 @@ ingress:
         entrypoints:
           - websecure
         forceTLS: true
+
+# One instance owns the SQLite databases.
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate

@@ -68,6 +68,27 @@ claims remain retained. All six HTTPS endpoint checks passed and Fleet is ready.
 Migrated production requests now total 5.5Gi (nominal per node); remaining
 conservative proposals total 70.5Gi. See [execution and backup/restore evidence](migrations/sqlite-next-2026-10-24/RESULTS.md).
 
+## Current remaining size priority
+
+The user confirmed the completed SQLite batches work. For the remaining apps,
+use the [size-ranked migration proposal](remaining-migration-priority-2026-10-24.md)
+and CSV `remaining_size_rank`, ordered by aggregate measured apparent bytes per
+complete migration unit. Audiobookshelf, Scrutiny and Prowlarr have now completed
+that size-ranked batch (2.75Gi per node, two replicas). The remaining ranking supersedes
+the older wave ordering below for remaining work; dependencies/blockers and
+single-owner RWO constraints still apply. Re-measure before execution.
+
+## Audiobookshelf, Scrutiny and Prowlarr completed — 2026-10-24
+
+Five PVCs (2.75Gi) were migrated to singleton RWO with two storage replicas.
+All stopped-copy checksums and five SQLite checks passed; Scrutiny also passed
+InfluxDB TSM/WAL/series-file offline checks. Its hardware collector remains on
+proxmox3. The three original summary device records are retained; the restarted
+collector additionally found three virtual SCSI disks with unsupported SMART
+checks. See [execution and backup/restore evidence](migrations/media-small-2026-10-24/RESULTS.md).
+Migrated production requests total 8.25Gi/24 claims across 18 apps; remaining
+conservative requests total 67.75Gi/21 claims. Original claims remain retained.
+
 ## Revised migration order: shared-state restrictions go last
 
 User decision after the pilot: **defer every app whose persistent state is not
@@ -551,8 +572,8 @@ all-claims fallback scenario. Neither total is the initial migration scope.
 | --- | --- | ---: | ---: | ---: | ---: | --- |
 | `apps-adguard-home/adguard-home-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | final-single-owner-group |
 | `apps-adguard-home/adguard-home-data` | 100Gi | 0.7681 | 2.9500 | 4 | 1.0500 | final-single-owner-group |
-| `apps-audiobookshelf/audiobookshelf-config` | 4Gi | 0.0004 | 0.0016 | 0.25 | 0.2484 | final-single-owner-group |
-| `apps-audiobookshelf/audiobookshelf-metadata` | 20Gi | 0.0019 | 0.0162 | 1 | 0.9838 | final-single-owner-group |
+| `apps-audiobookshelf/audiobookshelf-config` | 4Gi | 0.0004 | 0.0016 | 0.25 | 0.2484 | completed-media-small-rwo |
+| `apps-audiobookshelf/audiobookshelf-metadata` | 20Gi | 0.0019 | 0.0162 | 1 | 0.9838 | completed-media-small-rwo |
 | `apps-authelia/authelia-config` | 1Gi | 0.0001 | 0.0003 | 0.25 | 0.2497 | completed-sqlite-next-rwo |
 | `apps-bazarr/bazarr-config` | 100Gi | 0.0448 | 0.0652 | 0.25 | 0.1848 | completed-sqlite-next-rwo |
 | `apps-bindery/bindery-config` | 4Gi | 0.0101 | 0.0245 | 0.25 | 0.2255 | completed-sqlite-next-rwo |
@@ -581,10 +602,10 @@ all-claims fallback scenario. Neither total is the initial migration scope.
 | `apps-openbooks/openbooks-books` | 5Gi | 0.0000 | 0.0000 | 1 | 1.0000 | completed-batch3-rwo |
 | `apps-openbooks/openbooks-logs` | 1Gi | 0.0001 | 0.0001 | 0.25 | 0.2499 | completed-batch3-rwo |
 | `apps-profilarr/profilarr-config` | 100Gi | 0.4500 | 0.4693 | 1 | 0.5307 | final-single-owner-group |
-| `apps-prowlarr/prowlarr-config` | 100Gi | 0.0460 | 0.1577 | 0.25 | 0.0923 | final-single-owner-group |
+| `apps-prowlarr/prowlarr-config` | 100Gi | 0.0460 | 0.1577 | 0.25 | 0.0923 | completed-media-small-rwo |
 | `apps-radarr/radarr-config` | 100Gi | 0.5437 | 0.5916 | 1 | 0.4084 | final-single-owner-group |
-| `apps-scrutiny/scrutiny-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | final-single-owner-group |
-| `apps-scrutiny/scrutiny-influxdb` | 100Gi | 0.0022 | 0.1571 | 1 | 0.8429 | final-single-owner-group |
+| `apps-scrutiny/scrutiny-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | completed-media-small-rwo |
+| `apps-scrutiny/scrutiny-influxdb` | 100Gi | 0.0022 | 0.1571 | 1 | 0.8429 | completed-media-small-rwo |
 | `apps-smokeping/smokeping-config` | 100Gi | 0.0001 | 0.0000 | 0.25 | 0.2499 | completed-pilot |
 | `apps-smokeping/smokeping-data` | 100Gi | 0.0368 | 0.0810 | 0.25 | 0.1690 | completed-pilot |
 | `apps-sonarr/sonarr-config` | 100Gi | 0.3880 | 0.6823 | 1 | 0.3177 | final-single-owner-group |

@@ -2,14 +2,12 @@ persistence:
   config:
     enabled: true
     type: pvc
-    storageClass: local-path
-    size: 4Gi
+    existingClaim: audiobookshelf-config-longhorn-rwo
     mountPath: /config
   metadata:
     enabled: true
     type: pvc
-    storageClass: local-path
-    size: 20Gi
+    existingClaim: audiobookshelf-metadata-longhorn-rwo
     mountPath: /metadata
   audiobooks:
     enabled: true
@@ -47,3 +45,9 @@ ingress:
         entrypoints:
           - websecure
         forceTLS: true
+
+# SQLite and metadata are owned by one instance.
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate

@@ -1,6 +1,9 @@
 name: prowlarr
 defaultNamespace: apps-prowlarr
 
+dependsOn:
+  - name: longhorn-media-small-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/prowlarr
   version: 23.0.5

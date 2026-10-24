@@ -1,6 +1,9 @@
 name: scrutiny
 defaultNamespace: apps-scrutiny
 
+dependsOn:
+  - name: longhorn-media-small-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/scrutiny
   version: 15.0.3
