@@ -1,0 +1,127 @@
+{
+  "apiVersion": "batch/v1",
+  "kind": "Job",
+  "metadata": {
+    "name": "filebot-longhorn-20261024",
+    "namespace": "apps-filebot"
+  },
+  "spec": {
+    "backoffLimit": 0,
+    "activeDeadlineSeconds": 900,
+    "template": {
+      "spec": {
+        "restartPolicy": "Never",
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "name": "copy-config",
+            "image": "alpine:3.22.1",
+            "command": [
+              "sh",
+              "-ec"
+            ],
+            "args": [
+              "cp -a /source/. /target/\nsync\ncd /source\nfind . -type f -exec sha256sum {} + | sort > /tmp/checksums\nif [ -s /tmp/checksums ]; then\n  cd /target\n  sha256sum -c /tmp/checksums\nelse\n  test -z \"$(find /target -type f -print -quit)\"\n  echo 'Empty source and target verified'\nfi\necho 'Copy and SHA256 verification completed'\n"
+            ],
+            "volumeMounts": [
+              {
+                "name": "source-config",
+                "mountPath": "/source",
+                "readOnly": true
+              },
+              {
+                "name": "target-config",
+                "mountPath": "/target"
+              }
+            ]
+          },
+          {
+            "name": "copy-output",
+            "image": "alpine:3.22.1",
+            "command": [
+              "sh",
+              "-ec"
+            ],
+            "args": [
+              "cp -a /source/. /target/\nsync\ncd /source\nfind . -type f -exec sha256sum {} + | sort > /tmp/checksums\nif [ -s /tmp/checksums ]; then\n  cd /target\n  sha256sum -c /tmp/checksums\nelse\n  test -z \"$(find /target -type f -print -quit)\"\n  echo 'Empty source and target verified'\nfi\necho 'Copy and SHA256 verification completed'\n"
+            ],
+            "volumeMounts": [
+              {
+                "name": "source-output",
+                "mountPath": "/source",
+                "readOnly": true
+              },
+              {
+                "name": "target-output",
+                "mountPath": "/target"
+              }
+            ]
+          },
+          {
+            "name": "copy-watch",
+            "image": "alpine:3.22.1",
+            "command": [
+              "sh",
+              "-ec"
+            ],
+            "args": [
+              "cp -a /source/. /target/\nsync\ncd /source\nfind . -type f -exec sha256sum {} + | sort > /tmp/checksums\nif [ -s /tmp/checksums ]; then\n  cd /target\n  sha256sum -c /tmp/checksums\nelse\n  test -z \"$(find /target -type f -print -quit)\"\n  echo 'Empty source and target verified'\nfi\necho 'Copy and SHA256 verification completed'\n"
+            ],
+            "volumeMounts": [
+              {
+                "name": "source-watch",
+                "mountPath": "/source",
+                "readOnly": true
+              },
+              {
+                "name": "target-watch",
+                "mountPath": "/target"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "source-config",
+            "persistentVolumeClaim": {
+              "claimName": "filebot-config",
+              "readOnly": true
+            }
+          },
+          {
+            "name": "target-config",
+            "persistentVolumeClaim": {
+              "claimName": "filebot-config-longhorn-rwo"
+            }
+          },
+          {
+            "name": "source-output",
+            "persistentVolumeClaim": {
+              "claimName": "filebot-output",
+              "readOnly": true
+            }
+          },
+          {
+            "name": "target-output",
+            "persistentVolumeClaim": {
+              "claimName": "filebot-output-longhorn-rwo"
+            }
+          },
+          {
+            "name": "source-watch",
+            "persistentVolumeClaim": {
+              "claimName": "filebot-watch",
+              "readOnly": true
+            }
+          },
+          {
+            "name": "target-watch",
+            "persistentVolumeClaim": {
+              "claimName": "filebot-watch-longhorn-rwo"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

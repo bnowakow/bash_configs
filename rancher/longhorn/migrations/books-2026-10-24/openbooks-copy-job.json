@@ -1,0 +1,92 @@
+{
+  "apiVersion": "batch/v1",
+  "kind": "Job",
+  "metadata": {
+    "name": "openbooks-longhorn-20261024",
+    "namespace": "apps-openbooks"
+  },
+  "spec": {
+    "backoffLimit": 0,
+    "activeDeadlineSeconds": 600,
+    "template": {
+      "spec": {
+        "restartPolicy": "Never",
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "name": "copy-books",
+            "image": "alpine:3.22.1",
+            "command": [
+              "sh",
+              "-ec"
+            ],
+            "args": [
+              "set -eu\ncp -a /source/. /target/\nsync\ncd /source\nfind . -type f -exec sha256sum {} + | sort > /tmp/checksums\nif [ -s /tmp/checksums ]; then\n  cd /target\n  sha256sum -c /tmp/checksums\nelse\n  test -z \"$(find /target -type f -print -quit)\"\n  echo 'Empty source and target verified'\nfi\necho 'Stopped-source copy and checksum verification completed'\n"
+            ],
+            "volumeMounts": [
+              {
+                "name": "source-books",
+                "mountPath": "/source",
+                "readOnly": true
+              },
+              {
+                "name": "target-books",
+                "mountPath": "/target"
+              }
+            ]
+          },
+          {
+            "name": "copy-logs",
+            "image": "alpine:3.22.1",
+            "command": [
+              "sh",
+              "-ec"
+            ],
+            "args": [
+              "set -eu\ncp -a /source/. /target/\nsync\ncd /source\nfind . -type f -exec sha256sum {} + | sort > /tmp/checksums\nif [ -s /tmp/checksums ]; then\n  cd /target\n  sha256sum -c /tmp/checksums\nelse\n  test -z \"$(find /target -type f -print -quit)\"\n  echo 'Empty source and target verified'\nfi\necho 'Stopped-source copy and checksum verification completed'\n"
+            ],
+            "volumeMounts": [
+              {
+                "name": "source-logs",
+                "mountPath": "/source",
+                "readOnly": true
+              },
+              {
+                "name": "target-logs",
+                "mountPath": "/target"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "source-books",
+            "persistentVolumeClaim": {
+              "claimName": "openbooks-books",
+              "readOnly": true
+            }
+          },
+          {
+            "name": "target-books",
+            "persistentVolumeClaim": {
+              "claimName": "openbooks-books-longhorn-rwo"
+            }
+          },
+          {
+            "name": "source-logs",
+            "persistentVolumeClaim": {
+              "claimName": "openbooks-logs",
+              "readOnly": true
+            }
+          },
+          {
+            "name": "target-logs",
+            "persistentVolumeClaim": {
+              "claimName": "openbooks-logs-longhorn-rwo"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

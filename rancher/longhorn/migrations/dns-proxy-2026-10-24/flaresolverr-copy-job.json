@@ -1,0 +1,57 @@
+{
+  "apiVersion": "batch/v1",
+  "kind": "Job",
+  "metadata": {
+    "name": "flaresolverr-longhorn-20261024",
+    "namespace": "apps-flaresolverr"
+  },
+  "spec": {
+    "backoffLimit": 0,
+    "activeDeadlineSeconds": 600,
+    "template": {
+      "spec": {
+        "restartPolicy": "Never",
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "name": "copy",
+            "image": "alpine:3.22.1",
+            "command": [
+              "sh",
+              "-ec"
+            ],
+            "args": [
+              "set -eu\ncp -a /source/. /target/\nsync\ncd /source\nfind . -type f -exec sha256sum {} + | sort > /tmp/checksums\nif [ -s /tmp/checksums ]; then\n  cd /target\n  sha256sum -c /tmp/checksums\nelse\n  test -z \"$(find /target -type f -print -quit)\"\n  echo 'Empty source/target verified'\nfi\necho 'Stopped-source copy and checksum verification completed'\n"
+            ],
+            "volumeMounts": [
+              {
+                "name": "source",
+                "mountPath": "/source",
+                "readOnly": true
+              },
+              {
+                "name": "target",
+                "mountPath": "/target"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "source",
+            "persistentVolumeClaim": {
+              "claimName": "flaresolverr-config",
+              "readOnly": true
+            }
+          },
+          {
+            "name": "target",
+            "persistentVolumeClaim": {
+              "claimName": "flaresolverr-config-longhorn-rwo"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "name": "filebot-backup-holder-20261024",
+    "namespace": "apps-filebot",
+    "labels": {
+      "migration.bnowakowski.pl/helper": "filebot-backup"
+    }
+  },
+  "spec": {
+    "restartPolicy": "Never",
+    "automountServiceAccountToken": false,
+    "nodeSelector": {
+      "kubernetes.io/hostname": "proxmox3"
+    },
+    "containers": [
+      {
+        "name": "verify",
+        "image": "alpine:3.22.1",
+        "command": [
+          "sh",
+          "-ec"
+        ],
+        "args": [
+          "echo \"Read-only backup helper ready\"; sleep 3600"
+        ],
+        "volumeMounts": [
+          {
+            "name": "config",
+            "mountPath": "/verify/config",
+            "readOnly": true
+          },
+          {
+            "name": "output",
+            "mountPath": "/verify/output",
+            "readOnly": true
+          },
+          {
+            "name": "watch",
+            "mountPath": "/verify/watch",
+            "readOnly": true
+          }
+        ]
+      }
+    ],
+    "volumes": [
+      {
+        "name": "config",
+        "persistentVolumeClaim": {
+          "claimName": "filebot-config-longhorn-rwo",
+          "readOnly": true
+        }
+      },
+      {
+        "name": "output",
+        "persistentVolumeClaim": {
+          "claimName": "filebot-output-longhorn-rwo",
+          "readOnly": true
+        }
+      },
+      {
+        "name": "watch",
+        "persistentVolumeClaim": {
+          "claimName": "filebot-watch-longhorn-rwo",
+          "readOnly": true
+        }
+      }
+    ]
+  }
+}

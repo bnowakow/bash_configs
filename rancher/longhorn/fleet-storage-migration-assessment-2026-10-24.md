@@ -14,6 +14,75 @@ claims remain for rollback. See [pilot results](migrations/pilot-2026-10-24/RESU
 for copy, readiness, backup and isolated restore evidence. The inventory and
 remaining-wave estimates below describe the pre-migration measurement.
 
+### Second batch implemented as an explicit singleton-RWO exception
+
+After the RWX audit, the user authorized RWO for ddclient, DuckDNS and
+FlareSolverr. All three are now migrated: 256Mi per app, two storage replicas,
+one application instance each. They add 0.75Gi per host; total migrated app
+requests are now 1.75Gi per host including the first pilot. Source claims are
+retained. See [second-batch results](migrations/dns-proxy-2026-10-24/RESULTS.md).
+This does not establish shared-writer RWX safety or change the final-group rule
+for the other single-owner applications. Measurements below remain historical.
+
+### Third batch implemented: OpenBooks and Ubooquity
+
+User explicitly selected OpenBooks and Ubooquity for singleton RWO migration.
+Both are now deployed: OpenBooks books 1Gi and logs 256Mi; Ubooquity config
+256Mi. Each volume has two healthy storage replicas, and all source claims are
+retained. Added capacity is 1.5Gi per host, bringing migrated application PVC
+requests to 3.25Gi per host. Ubooquity's NAS books mount is unchanged. See
+[third-batch results](migrations/books-2026-10-24/RESULTS.md) for checksum,
+ingress, replica and backup evidence. Ubooquity's completed migration is an
+explicit exception to the earlier single-owner-state ordering; it is not an
+approval for multi-writer RWX. Source measurements below remain historical.
+
+### Filebot retained storage migrated while the app stays disabled
+
+User explicitly requested migration of Filebot. Its config, unused output and
+unused watch claims have been copied to three 256Mi two-replica RWO targets.
+Filebot remains at zero replicas; output/watch stay disabled. Added nominal
+capacity is 0.75Gi per host, bringing all migrated app requests to 4Gi per host.
+Original claims remain for rollback. Initial NAS backups completed using a
+temporary read-only helper; detached volumes are skipped by the current recurring
+backup policy while Filebot stays disabled. See
+[Filebot results](migrations/filebot-2026-10-24/RESULTS.md). This is not an RWX
+safety or runtime/license validation, and the usage inventory is historical.
+
+## Revised migration order: shared-state restrictions go last
+
+User decision after the pilot: **defer every app whose persistent state is not
+safe for independent concurrent writers on Longhorn RWX to the same final
+migration group as SQLite apps**, regardless of database engine. This ordering
+supersedes the previous waves 2/3; capacities remain planning estimates.
+
+The final group includes all apps in B, C and D: AdGuard Home (bbolt), SQLite
+apps, Ubooquity's embedded database, Mailpile's index/keyring state, BookStack/
+MariaDB, Zabbix/PostgreSQL, Scrutiny/InfluxDB, youtube-dl/MongoDB, mailserver state,
+and the entire shared Calibre group including Kavita and maintenance Jobs.
+Do not promote an app to an earlier batch merely because it does not use SQLite.
+Unknown shared-write behavior stays in review, rather than being assumed safe.
+
+RWX access mode permits mounting from multiple nodes; it does not certify
+application-level concurrent writes. “Final group” here means unsafe or
+unverified **shared-state multi-instance use**, not a blanket claim that every
+one of these applications can never use an NFS volume with a single owner.
+The default eventual migration for this group remains singleton Longhorn RWO.
+
+The [RWX safety audit](rwx-safety-audit-2026-10-24.md) is now complete for
+ddclient, DuckDNS and FlareSolverr: no active-active shared-writer migration
+is approved; configuration-only or unnecessary PVCs should be redesigned first.
+
+Remaining persistence/ownership review covers ddclient, DuckDNS, FlareSolverr,
+OpenBooks and disabled Filebot. Their low-value PVCs may be unnecessary. None
+is approved as an active-active RWX workload; confirm what writes the volume
+before choosing persistence or a migration batch. There is currently **no
+additional pre-approved batch of proven shared-writer-safe applications**.
+
+Completed pilot stays unchanged: Homer pair and Smokeping already use RWO.
+Smokeping's RRD files require one writer, and Homer editors/copy Jobs have
+controlled writers; neither pilot result establishes generic multi-writer RWX
+safety. No re-migration, scaling or storage change is implied by this regrouping.
+
 ## Decision
 
 Most persistent application configuration and databases are reasonable candidates
@@ -44,9 +113,8 @@ not minimum requirements, and are superseded as the starting plan.
 
 The lean proposal is **73Gi for core candidates**, **76Gi including optional
 claims**. These are fallback sizes if every listed claim is eventually retained,
-not authorization to migrate them all. The starting waves use only **14.25Gi per
-node**, with two replicas, and defer mail, shared Calibre and the BookStack
-storage mismatch. Keep the current Longhorn disk sizes and expand only after
+not authorization to migrate them all. The completed pilot uses **1Gi per node** with two replicas. The former
+14.25Gi initial scope is now deferred under the revised final-group ordering. Keep the current Longhorn disk sizes and expand only after
 observed growth justifies it. All database/access-mode recommendations below
 remain applicable.
 
@@ -281,28 +349,26 @@ scheduling guard, not a permanent per-volume write quota.
 | Two-replica scenario | New nominal capacity on EACH node | Fits existing node budgets? |
 | --- | ---: | --- |
 | Wave 1: Homer pair and Smokeping | 1Gi | Yes: low-risk pilot; includes cross-claim copy Job scheduling work. |
-| Waves 1–2: small candidates | 14.25Gi cumulative | Yes: leaves 56.111Gi / 83.602Gi nominal scheduling room. |
+| Former waves 1–2 (now deferred) | 14.25Gi cumulative | Fits nominally, but is not the next batch under the revised ordering. |
 | Add Mailpile after verifying growth | 23.5Gi cumulative | Yes, gated on health/backups and actual usage. |
 | Add Zabbix after DB benchmark/restore | 41.5Gi cumulative | Yes nominally; physical/snapshot gates below still apply. |
 | Every lean core candidate | 73Gi | No on the smaller node: exceeds its 70.361Gi remaining budget by 2.639Gi, without operational reserve. Do not attempt this as a single wave. |
 | Every lean fallback claim | 76Gi | No on the smaller node; includes optional work we do not currently recommend. |
 
-### Starting waves on current disks
+### Current implementation order
 
-| Wave | Apps / work | Increment per node | Cumulative per node |
-| --- | --- | ---: | ---: |
-| 1 | `homer`, `homer-without-auth`, `smokeping`; coordinate Homer copy Job | 1Gi | 1Gi |
-| 2 | `adguard-home`, `audiobookshelf`, `authelia`, `bazarr`, `bindery`, `cleanuparr`, `jellyseerr`, `profilarr`, `prowlarr`, `radarr`, `scrutiny`, `sonarr`, `ubooquity`, `uptime-kuma`, `youtubedl-material` | 13.25Gi | 14.25Gi |
-| 3a, optional later | Mailpile's two claims, only after monitoring its growth and testing key/index restore | 9.25Gi | 23.5Gi |
-| 3b, optional later | Zabbix PostgreSQL, only after DB backup/restore and latency validation | 18Gi | 41.5Gi |
-| Deferred | Docker mailserver (28.75Gi), Calibre shared group (1.75Gi), BookStack (1.25Gi), remaining optional/cache/log/disabled volumes (2.75Gi, excluding mail logs already counted) | Not reserved now | Not included |
+| Stage | Scope | Additional capacity per node |
+| --- | --- | ---: |
+| Completed pilot | Homer pair and Smokeping on singleton/co-located RWO | 1Gi already deployed |
+| Completed singleton batch 2 | ddclient, DuckDNS, FlareSolverr; explicit RWO authorization | 0.75Gi deployed |
+| Completed singleton batch 3 | OpenBooks and Ubooquity; explicit RWO authorization | 1.5Gi deployed |
+| Completed retained-storage migration | Filebot config/output/watch copied; app still disabled | 0.75Gi deployed |
+| Final group | All B/C/D apps, including AdGuard bbolt, SQLite, other embedded stores and server databases; retain their respective RWO/co-location requirements | Select one batch later; existing per-PVC sizing remains applicable |
 
-Wave 2 is a ceiling for the initial scope, not a batch apply: migrate one app
-at a time and check actual replica use after each. Choose a noncritical small
-app before AdGuard/Authelia. Keep independent DNS and authentication recovery
-available. Scrutiny and youtube-dl include their database claims in these totals;
-all database consistency gates still apply. Calibre/Kavita are deferred together
-because their placement depends on the shared library.
+The former 13.25Gi wave 2, Mailpile wave 3a and Zabbix wave 3b are no longer
+approved sequencing recommendations. Their sizes remain useful for future
+budgeting, but all belong to the final group. Shared Calibre topology and
+BookStack's unmounted-config finding must still be resolved before their turn.
 
 ### Budget gates before every app
 
@@ -330,7 +396,7 @@ because their placement depends on the shared library.
 ### When to consider resizing (not a prerequisite)
 
 Do **not** resize to 256/320Gi per host for this starting plan. Existing disks
-have ample nominal capacity for the 14.25Gi initial scope. Mail and PostgreSQL
+have ample capacity for the completed 1Gi pilot; later scope is pending review. Mail and PostgreSQL
 account for much of the full-data footprint; moving them is a later value/risk
 choice, not a requirement to finish the first phase.
 
@@ -463,51 +529,51 @@ all-claims fallback scenario. Neither total is the initial migration scope.
 
 | Namespace / PVC | Current request | Allocated GiB | Apparent GiB | Lean GiB | Headroom GiB | Wave |
 | --- | --- | ---: | ---: | ---: | ---: | --- |
-| `apps-adguard-home/adguard-home-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | wave-2 |
-| `apps-adguard-home/adguard-home-data` | 100Gi | 0.7681 | 2.9500 | 4 | 1.0500 | wave-2 |
-| `apps-audiobookshelf/audiobookshelf-config` | 4Gi | 0.0004 | 0.0016 | 0.25 | 0.2484 | wave-2 |
-| `apps-audiobookshelf/audiobookshelf-metadata` | 20Gi | 0.0019 | 0.0162 | 1 | 0.9838 | wave-2 |
-| `apps-authelia/authelia-config` | 1Gi | 0.0001 | 0.0003 | 0.25 | 0.2497 | wave-2 |
-| `apps-bazarr/bazarr-config` | 100Gi | 0.0448 | 0.0652 | 0.25 | 0.1848 | wave-2 |
-| `apps-bindery/bindery-config` | 4Gi | 0.0101 | 0.0245 | 0.25 | 0.2255 | wave-2 |
-| `apps-bookstack/bookstack-config` | 100Gi | 0.0128 | 0.1003 | 0.25 | 0.1497 | defer |
-| `apps-bookstack/bookstack-mariadb-data` | 100Gi | 0.0090 | 0.3000 | 1 | 0.7000 | defer |
-| `apps-calibre/calibre-config` | 1Gi | 0.0115 | 0.0190 | 0.25 | 0.2310 | defer |
-| `apps-calibre/calibre-library` | 10Gi | 0.2263 | 0.2272 | 1 | 0.7728 | defer |
-| `apps-calibre/calibre-web-config` | 1Gi | 0.0015 | 0.0016 | 0.25 | 0.2484 | defer |
-| `apps-calibre/kavita-config` | 1Gi | 0.0308 | 0.0353 | 0.25 | 0.2147 | defer |
-| `apps-cleanuparr/cleanuparr-config` | 1Gi | 0.0033 | 0.0097 | 0.25 | 0.2403 | wave-2 |
-| `apps-ddclient/ddclient-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | defer |
-| `apps-docker-mailserver/docker-mailserver-mail-config` | 1Mi | 0.0001 | 0.0000 | 0.25 | 0.2499 | defer |
-| `apps-docker-mailserver/docker-mailserver-mail-data` | 10Gi | 19.4706 | 22.2377 | 28 | 5.7623 | defer |
-| `apps-docker-mailserver/docker-mailserver-mail-log` | 1Gi | 0.0027 | 0.0063 | 0.25 | 0.2437 | defer |
-| `apps-docker-mailserver/docker-mailserver-mail-state` | 1Gi | 0.0193 | 0.0907 | 0.25 | 0.1593 | defer |
-| `apps-duckdns/duckdns-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | defer |
-| `apps-filebot/filebot-config` | 100Gi | 0.0065 | 0.0072 | 0.25 | 0.2428 | defer |
-| `apps-filebot/filebot-output` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | defer |
-| `apps-filebot/filebot-watch` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | defer |
-| `apps-flaresolverr/flaresolverr-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | defer |
-| `apps-homer/homer-config` | 1Gi | 0.0009 | 0.0008 | 0.25 | 0.2491 | wave-1 |
-| `apps-homer/homer-without-auth-config` | 1Gi | 0.0009 | 0.0008 | 0.25 | 0.2491 | wave-1 |
-| `apps-jellyseerr/jellyseerr-config` | 100Gi | 0.0026 | 0.0092 | 0.25 | 0.2408 | wave-2 |
-| `apps-mailpile/mailpile-path1` | 20Gi | 5.6533 | 6.4459 | 9 | 2.5541 | wave-3a |
-| `apps-mailpile/mailpile-path2` | 1Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | wave-3a |
-| `apps-openbooks/openbooks-books` | 5Gi | 0.0000 | 0.0000 | 1 | 1.0000 | defer |
-| `apps-openbooks/openbooks-logs` | 1Gi | 0.0001 | 0.0001 | 0.25 | 0.2499 | defer |
-| `apps-profilarr/profilarr-config` | 100Gi | 0.4500 | 0.4693 | 1 | 0.5307 | wave-2 |
-| `apps-prowlarr/prowlarr-config` | 100Gi | 0.0460 | 0.1577 | 0.25 | 0.0923 | wave-2 |
-| `apps-radarr/radarr-config` | 100Gi | 0.5437 | 0.5916 | 1 | 0.4084 | wave-2 |
-| `apps-scrutiny/scrutiny-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | wave-2 |
-| `apps-scrutiny/scrutiny-influxdb` | 100Gi | 0.0022 | 0.1571 | 1 | 0.8429 | wave-2 |
-| `apps-smokeping/smokeping-config` | 100Gi | 0.0001 | 0.0000 | 0.25 | 0.2499 | wave-1 |
-| `apps-smokeping/smokeping-data` | 100Gi | 0.0368 | 0.0810 | 0.25 | 0.1690 | wave-1 |
-| `apps-sonarr/sonarr-config` | 100Gi | 0.3880 | 0.6823 | 1 | 0.3177 | wave-2 |
-| `apps-ubooquity/ubooquity-config` | 1Gi | 0.0047 | 0.0046 | 0.25 | 0.2453 | wave-2 |
-| `apps-uptime-kuma/uptime-kuma-config` | 1Gi | 0.0060 | 0.0145 | 0.25 | 0.2355 | wave-2 |
-| `apps-youtubedl-material/youtubedl-material-appdata` | 100Gi | 0.0030 | 0.0037 | 0.25 | 0.2463 | wave-2 |
-| `apps-youtubedl-material/youtubedl-material-mongodb-data` | 100Gi | 0.4896 | 0.6918 | 1 | 0.3082 | wave-2 |
-| `apps-youtubedl-material/youtubedl-material-users` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | wave-2 |
-| `apps-zabbix/postgresql-data-zabbix-postgresql-0` | 5Gi | 5.5744 | 13.6149 | 18 | 4.3851 | wave-3b |
+| `apps-adguard-home/adguard-home-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | final-single-owner-group |
+| `apps-adguard-home/adguard-home-data` | 100Gi | 0.7681 | 2.9500 | 4 | 1.0500 | final-single-owner-group |
+| `apps-audiobookshelf/audiobookshelf-config` | 4Gi | 0.0004 | 0.0016 | 0.25 | 0.2484 | final-single-owner-group |
+| `apps-audiobookshelf/audiobookshelf-metadata` | 20Gi | 0.0019 | 0.0162 | 1 | 0.9838 | final-single-owner-group |
+| `apps-authelia/authelia-config` | 1Gi | 0.0001 | 0.0003 | 0.25 | 0.2497 | final-single-owner-group |
+| `apps-bazarr/bazarr-config` | 100Gi | 0.0448 | 0.0652 | 0.25 | 0.1848 | final-single-owner-group |
+| `apps-bindery/bindery-config` | 4Gi | 0.0101 | 0.0245 | 0.25 | 0.2255 | final-single-owner-group |
+| `apps-bookstack/bookstack-config` | 100Gi | 0.0128 | 0.1003 | 0.25 | 0.1497 | final-single-owner-group |
+| `apps-bookstack/bookstack-mariadb-data` | 100Gi | 0.0090 | 0.3000 | 1 | 0.7000 | final-single-owner-group |
+| `apps-calibre/calibre-config` | 1Gi | 0.0115 | 0.0190 | 0.25 | 0.2310 | final-single-owner-group |
+| `apps-calibre/calibre-library` | 10Gi | 0.2263 | 0.2272 | 1 | 0.7728 | final-single-owner-group |
+| `apps-calibre/calibre-web-config` | 1Gi | 0.0015 | 0.0016 | 0.25 | 0.2484 | final-single-owner-group |
+| `apps-calibre/kavita-config` | 1Gi | 0.0308 | 0.0353 | 0.25 | 0.2147 | final-single-owner-group |
+| `apps-cleanuparr/cleanuparr-config` | 1Gi | 0.0033 | 0.0097 | 0.25 | 0.2403 | final-single-owner-group |
+| `apps-ddclient/ddclient-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | completed-batch2-rwo |
+| `apps-docker-mailserver/docker-mailserver-mail-config` | 1Mi | 0.0001 | 0.0000 | 0.25 | 0.2499 | final-single-owner-group |
+| `apps-docker-mailserver/docker-mailserver-mail-data` | 10Gi | 19.4706 | 22.2377 | 28 | 5.7623 | final-single-owner-group |
+| `apps-docker-mailserver/docker-mailserver-mail-log` | 1Gi | 0.0027 | 0.0063 | 0.25 | 0.2437 | final-single-owner-group |
+| `apps-docker-mailserver/docker-mailserver-mail-state` | 1Gi | 0.0193 | 0.0907 | 0.25 | 0.1593 | final-single-owner-group |
+| `apps-duckdns/duckdns-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | completed-batch2-rwo |
+| `apps-filebot/filebot-config` | 100Gi | 0.0065 | 0.0072 | 0.25 | 0.2428 | completed-filebot-inactive-rwo |
+| `apps-filebot/filebot-output` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | completed-filebot-inactive-rwo |
+| `apps-filebot/filebot-watch` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | completed-filebot-inactive-rwo |
+| `apps-flaresolverr/flaresolverr-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | completed-batch2-rwo |
+| `apps-homer/homer-config` | 1Gi | 0.0009 | 0.0008 | 0.25 | 0.2491 | completed-pilot |
+| `apps-homer/homer-without-auth-config` | 1Gi | 0.0009 | 0.0008 | 0.25 | 0.2491 | completed-pilot |
+| `apps-jellyseerr/jellyseerr-config` | 100Gi | 0.0026 | 0.0092 | 0.25 | 0.2408 | final-single-owner-group |
+| `apps-mailpile/mailpile-path1` | 20Gi | 5.6533 | 6.4459 | 9 | 2.5541 | final-single-owner-group |
+| `apps-mailpile/mailpile-path2` | 1Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | final-single-owner-group |
+| `apps-openbooks/openbooks-books` | 5Gi | 0.0000 | 0.0000 | 1 | 1.0000 | completed-batch3-rwo |
+| `apps-openbooks/openbooks-logs` | 1Gi | 0.0001 | 0.0001 | 0.25 | 0.2499 | completed-batch3-rwo |
+| `apps-profilarr/profilarr-config` | 100Gi | 0.4500 | 0.4693 | 1 | 0.5307 | final-single-owner-group |
+| `apps-prowlarr/prowlarr-config` | 100Gi | 0.0460 | 0.1577 | 0.25 | 0.0923 | final-single-owner-group |
+| `apps-radarr/radarr-config` | 100Gi | 0.5437 | 0.5916 | 1 | 0.4084 | final-single-owner-group |
+| `apps-scrutiny/scrutiny-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | final-single-owner-group |
+| `apps-scrutiny/scrutiny-influxdb` | 100Gi | 0.0022 | 0.1571 | 1 | 0.8429 | final-single-owner-group |
+| `apps-smokeping/smokeping-config` | 100Gi | 0.0001 | 0.0000 | 0.25 | 0.2499 | completed-pilot |
+| `apps-smokeping/smokeping-data` | 100Gi | 0.0368 | 0.0810 | 0.25 | 0.1690 | completed-pilot |
+| `apps-sonarr/sonarr-config` | 100Gi | 0.3880 | 0.6823 | 1 | 0.3177 | final-single-owner-group |
+| `apps-ubooquity/ubooquity-config` | 1Gi | 0.0047 | 0.0046 | 0.25 | 0.2453 | completed-batch3-rwo |
+| `apps-uptime-kuma/uptime-kuma-config` | 1Gi | 0.0060 | 0.0145 | 0.25 | 0.2355 | final-single-owner-group |
+| `apps-youtubedl-material/youtubedl-material-appdata` | 100Gi | 0.0030 | 0.0037 | 0.25 | 0.2463 | final-single-owner-group |
+| `apps-youtubedl-material/youtubedl-material-mongodb-data` | 100Gi | 0.4896 | 0.6918 | 1 | 0.3082 | final-single-owner-group |
+| `apps-youtubedl-material/youtubedl-material-users` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | final-single-owner-group |
+| `apps-zabbix/postgresql-data-zabbix-postgresql-0` | 5Gi | 5.5744 | 13.6149 | 18 | 4.3851 | final-single-owner-group |
 
 ### Observed database evidence
 
