@@ -1,6 +1,9 @@
 name: openbooks
 defaultNamespace: apps-openbooks
 
+dependsOn:
+  - name: longhorn-books-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/openbooks
   version: 9.0.3

@@ -1,6 +1,12 @@
 persistence:
+  config:
+    enabled: true
+    type: pvc
+    existingClaim: filebot-config-longhorn-rwo
   output:
     enabled: false
+    type: pvc
+    existingClaim: filebot-output-longhorn-rwo
     mountPath: /output
   storage:
     enabled: true
@@ -10,11 +16,14 @@ persistence:
     mountPath: /storage
   watch:
     enabled: false
+    type: pvc
+    existingClaim: filebot-watch-longhorn-rwo
     mountPath: /watch
 
 workload:
   main:
     replicas: 0
+    strategy: Recreate
 
 ingress:
   main:

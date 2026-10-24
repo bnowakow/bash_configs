@@ -1,6 +1,9 @@
 name: filebot
 defaultNamespace: apps-filebot
 
+dependsOn:
+  - name: longhorn-filebot-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/filebot
   version: 15.12.0

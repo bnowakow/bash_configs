@@ -1,0 +1,5 @@
+name: longhorn-filebot-storage
+defaultNamespace: apps-filebot
+
+dependsOn:
+  - name: longhorn-pilot-storage

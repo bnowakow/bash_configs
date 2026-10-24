@@ -1,6 +1,9 @@
 name: ubooquity
 defaultNamespace: apps-ubooquity
 
+dependsOn:
+  - name: longhorn-books-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/ubooquity
   version: 16.0.5

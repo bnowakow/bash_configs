@@ -4,14 +4,12 @@ persistence:
   books:
     enabled: true
     type: pvc
-    storageClass: local-path
-    size: 5Gi
+    existingClaim: openbooks-books-longhorn-rwo
     mountPath: /books/books
   logs:
     enabled: true
     type: pvc
-    storageClass: local-path
-    size: 1Gi
+    existingClaim: openbooks-logs-longhorn-rwo
     mountPath: /books/logs
 
 ingress:
@@ -37,3 +35,9 @@ ingress:
         entrypoints:
           - websecure
         forceTLS: true
+
+# One active owner for downloads/logs or the embedded Ubooquity database.
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate

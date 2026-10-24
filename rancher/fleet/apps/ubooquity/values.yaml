@@ -4,8 +4,7 @@ persistence:
   config:
     enabled: true
     type: pvc
-    storageClass: local-path
-    size: 1Gi
+    existingClaim: ubooquity-config-longhorn-rwo
     mountPath: /config
   books:
     enabled: true
@@ -69,3 +68,9 @@ ingress:
         entrypoints:
           - websecure
         forceTLS: true
+
+# One active owner for downloads/logs or the embedded Ubooquity database.
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate
