@@ -1,6 +1,9 @@
 name: authelia
 defaultNamespace: apps-authelia
 
+dependsOn:
+  - name: longhorn-sqlite-next-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/authelia
   version: 34.0.6

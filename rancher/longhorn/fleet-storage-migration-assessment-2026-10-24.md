@@ -48,6 +48,26 @@ backup policy while Filebot stays disabled. See
 [Filebot results](migrations/filebot-2026-10-24/RESULTS.md). This is not an RWX
 safety or runtime/license validation, and the usage inventory is historical.
 
+## Small SQLite batch completed — 2026-10-24
+
+With explicit approval, Jellyseerr, Cleanuparr and Uptime Kuma were migrated
+to 256Mi RWO claims with two Longhorn replicas each. All remain singleton
+writers with Recreate deployments. Offline copy checksums and five SQLite
+quick checks passed; HTTPS/API checks and NAS backups completed.
+Total migrated production requests are now 4.75Gi (nominal per node), with
+71.25Gi still proposed for remaining local apps. Original source PVCs are retained.
+See [execution and restore evidence](migrations/sqlite-small-2026-10-24/RESULTS.md).
+The original measurements below remain historical; sources are re-measured at cutover.
+
+## Bindery, Bazarr and Authelia completed — 2026-10-24
+
+The next approved batch moved these three apps to 256Mi RWO claims each,
+with two Longhorn storage replicas, singleton writers and Recreate deployments.
+Offline SHA256 copies and all three SQLite checks passed. Original source
+claims remain retained. All six HTTPS endpoint checks passed and Fleet is ready.
+Migrated production requests now total 5.5Gi (nominal per node); remaining
+conservative proposals total 70.5Gi. See [execution and backup/restore evidence](migrations/sqlite-next-2026-10-24/RESULTS.md).
+
 ## Revised migration order: shared-state restrictions go last
 
 User decision after the pilot: **defer every app whose persistent state is not
@@ -533,16 +553,16 @@ all-claims fallback scenario. Neither total is the initial migration scope.
 | `apps-adguard-home/adguard-home-data` | 100Gi | 0.7681 | 2.9500 | 4 | 1.0500 | final-single-owner-group |
 | `apps-audiobookshelf/audiobookshelf-config` | 4Gi | 0.0004 | 0.0016 | 0.25 | 0.2484 | final-single-owner-group |
 | `apps-audiobookshelf/audiobookshelf-metadata` | 20Gi | 0.0019 | 0.0162 | 1 | 0.9838 | final-single-owner-group |
-| `apps-authelia/authelia-config` | 1Gi | 0.0001 | 0.0003 | 0.25 | 0.2497 | final-single-owner-group |
-| `apps-bazarr/bazarr-config` | 100Gi | 0.0448 | 0.0652 | 0.25 | 0.1848 | final-single-owner-group |
-| `apps-bindery/bindery-config` | 4Gi | 0.0101 | 0.0245 | 0.25 | 0.2255 | final-single-owner-group |
+| `apps-authelia/authelia-config` | 1Gi | 0.0001 | 0.0003 | 0.25 | 0.2497 | completed-sqlite-next-rwo |
+| `apps-bazarr/bazarr-config` | 100Gi | 0.0448 | 0.0652 | 0.25 | 0.1848 | completed-sqlite-next-rwo |
+| `apps-bindery/bindery-config` | 4Gi | 0.0101 | 0.0245 | 0.25 | 0.2255 | completed-sqlite-next-rwo |
 | `apps-bookstack/bookstack-config` | 100Gi | 0.0128 | 0.1003 | 0.25 | 0.1497 | final-single-owner-group |
 | `apps-bookstack/bookstack-mariadb-data` | 100Gi | 0.0090 | 0.3000 | 1 | 0.7000 | final-single-owner-group |
 | `apps-calibre/calibre-config` | 1Gi | 0.0115 | 0.0190 | 0.25 | 0.2310 | final-single-owner-group |
 | `apps-calibre/calibre-library` | 10Gi | 0.2263 | 0.2272 | 1 | 0.7728 | final-single-owner-group |
 | `apps-calibre/calibre-web-config` | 1Gi | 0.0015 | 0.0016 | 0.25 | 0.2484 | final-single-owner-group |
 | `apps-calibre/kavita-config` | 1Gi | 0.0308 | 0.0353 | 0.25 | 0.2147 | final-single-owner-group |
-| `apps-cleanuparr/cleanuparr-config` | 1Gi | 0.0033 | 0.0097 | 0.25 | 0.2403 | final-single-owner-group |
+| `apps-cleanuparr/cleanuparr-config` | 1Gi | 0.0033 | 0.0097 | 0.25 | 0.2403 | completed-sqlite-small-rwo |
 | `apps-ddclient/ddclient-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | completed-batch2-rwo |
 | `apps-docker-mailserver/docker-mailserver-mail-config` | 1Mi | 0.0001 | 0.0000 | 0.25 | 0.2499 | final-single-owner-group |
 | `apps-docker-mailserver/docker-mailserver-mail-data` | 10Gi | 19.4706 | 22.2377 | 28 | 5.7623 | final-single-owner-group |
@@ -555,7 +575,7 @@ all-claims fallback scenario. Neither total is the initial migration scope.
 | `apps-flaresolverr/flaresolverr-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | completed-batch2-rwo |
 | `apps-homer/homer-config` | 1Gi | 0.0009 | 0.0008 | 0.25 | 0.2491 | completed-pilot |
 | `apps-homer/homer-without-auth-config` | 1Gi | 0.0009 | 0.0008 | 0.25 | 0.2491 | completed-pilot |
-| `apps-jellyseerr/jellyseerr-config` | 100Gi | 0.0026 | 0.0092 | 0.25 | 0.2408 | final-single-owner-group |
+| `apps-jellyseerr/jellyseerr-config` | 100Gi | 0.0026 | 0.0092 | 0.25 | 0.2408 | completed-sqlite-small-rwo |
 | `apps-mailpile/mailpile-path1` | 20Gi | 5.6533 | 6.4459 | 9 | 2.5541 | final-single-owner-group |
 | `apps-mailpile/mailpile-path2` | 1Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | final-single-owner-group |
 | `apps-openbooks/openbooks-books` | 5Gi | 0.0000 | 0.0000 | 1 | 1.0000 | completed-batch3-rwo |
@@ -569,7 +589,7 @@ all-claims fallback scenario. Neither total is the initial migration scope.
 | `apps-smokeping/smokeping-data` | 100Gi | 0.0368 | 0.0810 | 0.25 | 0.1690 | completed-pilot |
 | `apps-sonarr/sonarr-config` | 100Gi | 0.3880 | 0.6823 | 1 | 0.3177 | final-single-owner-group |
 | `apps-ubooquity/ubooquity-config` | 1Gi | 0.0047 | 0.0046 | 0.25 | 0.2453 | completed-batch3-rwo |
-| `apps-uptime-kuma/uptime-kuma-config` | 1Gi | 0.0060 | 0.0145 | 0.25 | 0.2355 | final-single-owner-group |
+| `apps-uptime-kuma/uptime-kuma-config` | 1Gi | 0.0060 | 0.0145 | 0.25 | 0.2355 | completed-sqlite-small-rwo |
 | `apps-youtubedl-material/youtubedl-material-appdata` | 100Gi | 0.0030 | 0.0037 | 0.25 | 0.2463 | final-single-owner-group |
 | `apps-youtubedl-material/youtubedl-material-mongodb-data` | 100Gi | 0.4896 | 0.6918 | 1 | 0.3082 | final-single-owner-group |
 | `apps-youtubedl-material/youtubedl-material-users` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | final-single-owner-group |

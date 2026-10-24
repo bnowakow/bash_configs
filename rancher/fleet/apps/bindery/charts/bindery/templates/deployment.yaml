@@ -95,7 +95,7 @@ spec:
         {{- if .Values.persistence.config.enabled }}
         - name: config
           persistentVolumeClaim:
-            claimName: {{ include "bindery.fullname" . }}-config
+            claimName: {{ .Values.persistence.config.existingClaim | default (printf "%s-config" (include "bindery.fullname" .)) }}
         {{- end }}
         {{- if .Values.nfs.enabled }}
         - name: media

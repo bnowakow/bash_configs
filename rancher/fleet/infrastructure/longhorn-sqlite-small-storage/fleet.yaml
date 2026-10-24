@@ -1,0 +1,5 @@
+name: longhorn-sqlite-small-storage
+defaultNamespace: apps-jellyseerr
+
+dependsOn:
+  - name: longhorn-pilot-storage

@@ -1,6 +1,9 @@
 name: jellyseerr
 defaultNamespace: apps-jellyseerr
 
+dependsOn:
+  - name: longhorn-sqlite-small-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/jellyseerr
   version: 16.0.3

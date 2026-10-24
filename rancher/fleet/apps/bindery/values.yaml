@@ -6,9 +6,7 @@ image:
 persistence:
   config:
     enabled: true
-    # The cluster's local storage provisioner is named local-path.
-    storageClass: local-path
-    size: 4Gi
+    existingClaim: bindery-config-longhorn-rwo
     mountPath: /config
 
 # Keep downloads and the ebook/audiobook library on one NFS mount so Bindery
@@ -30,3 +28,8 @@ ingress:
 hooks:
   postsyncSmoke:
     enabled: false
+
+# One writer owns the SQLite database.
+replicaCount: 1
+strategy:
+  type: Recreate

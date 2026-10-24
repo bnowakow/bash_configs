@@ -1,0 +1,56 @@
+{
+  "apiVersion": "batch/v1",
+  "kind": "Job",
+  "metadata": {
+    "name": "cleanuparr-sqlite-longhorn-20261024",
+    "namespace": "apps-cleanuparr"
+  },
+  "spec": {
+    "backoffLimit": 0,
+    "activeDeadlineSeconds": 900,
+    "template": {
+      "spec": {
+        "restartPolicy": "Never",
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "name": "copy-and-check",
+            "image": "python:3.13-alpine",
+            "command": [
+              "python",
+              "-u",
+              "-c",
+              "\"\"\"Copy stopped application state and validate the copied SQLite databases.\"\"\"\nimport hashlib\nfrom pathlib import Path\nimport sqlite3\nimport subprocess\n\nsource = Path('/source')\ntarget = Path('/target')\nsubprocess.run(['cp', '-a', str(source) + '/.', str(target) + '/'], check=True)\nsubprocess.run(['sync'], check=True)\n\ndef digest(path):\n    value = hashlib.sha256()\n    with path.open('rb') as stream:\n        for block in iter(lambda: stream.read(1024 * 1024), b''):\n            value.update(block)\n    return value.digest()\n\nchecked = 0\nfor path in source.rglob('*'):\n    if path.is_file() and not path.is_symlink():\n        relative = path.relative_to(source)\n        if digest(path) != digest(target / relative):\n            raise RuntimeError(f'Copy checksum mismatch: {relative}')\n        checked += 1\nprint(f'SHA256 verified for {checked} regular files, including any WAL/SHM sidecars', flush=True)\n\ndatabases = 0\nfor path in target.rglob('*'):\n    if path.is_symlink() or not path.is_file() or path.suffix not in {'.db', '.sqlite', '.sqlite3'}:\n        continue\n    with path.open('rb') as stream:\n        if stream.read(16) != b'SQLite format 3\\x00':\n            continue\n    connection = sqlite3.connect(path.as_uri() + '?mode=ro', uri=True)\n    try:\n        result = connection.execute('PRAGMA quick_check').fetchall()\n        if result != [('ok',)]:\n            raise RuntimeError(f'SQLite quick_check failed: {path.relative_to(target)}')\n    finally:\n        connection.close()\n    print(f'SQLite quick_check: ok \u2014 {path.relative_to(target)}', flush=True)\n    databases += 1\nif databases == 0:\n    raise RuntimeError('No SQLite databases found; refusing an unverified cutover')\nprint(f'Copy and {databases} SQLite database checks completed', flush=True)\n"
+            ],
+            "volumeMounts": [
+              {
+                "name": "source",
+                "mountPath": "/source",
+                "readOnly": true
+              },
+              {
+                "name": "target",
+                "mountPath": "/target"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "source",
+            "persistentVolumeClaim": {
+              "claimName": "cleanuparr-config",
+              "readOnly": true
+            }
+          },
+          {
+            "name": "target",
+            "persistentVolumeClaim": {
+              "claimName": "cleanuparr-config-longhorn-rwo"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

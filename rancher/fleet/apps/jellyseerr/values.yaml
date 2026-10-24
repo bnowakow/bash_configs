@@ -1,6 +1,6 @@
 persistence:
   config:
-    existingClaim: jellyseerr-config
+    existingClaim: jellyseerr-config-longhorn-rwo
 
 ingress:
   main:
@@ -25,3 +25,9 @@ ingress:
         entrypoints:
           - websecure
         forceTLS: true
+
+# SQLite state has a single application owner.
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate

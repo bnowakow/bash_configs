@@ -3,6 +3,8 @@ application:
   urlBase: ''
 
 deployment:
+  strategy:
+    type: Recreate
   container:
     env:
       - name: PGID
@@ -15,13 +17,10 @@ deployment:
   volumes:
     config:
       persistentVolumeClaim:
-        claimName: cleanuparr-config
+        claimName: cleanuparr-config-longhorn-rwo
 
-persistentVolumeClaims:
-  cleanuparr-config:
-    accessMode: ReadWriteOnce
-    requestStorage: 1Gi
-    selector: {}
+# Target PVC is owned by the storage Fleet bundle, not this chart.
+persistentVolumeClaims: null
 
 ingress:
   enabled: true

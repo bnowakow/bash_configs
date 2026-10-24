@@ -36,6 +36,8 @@ ingress:
 persistence:
   config:
     enabled: true
+    # Use an external PVC instead of creating the chart-owned claim.
+    existingClaim: ""
     storageClass: longhorn
     size: 4Gi
     mountPath: /config

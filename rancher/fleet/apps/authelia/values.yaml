@@ -84,8 +84,7 @@ persistence:
   config:
     enabled: true
     type: pvc
-    storageClass: local-path
-    size: 1Gi
+    existingClaim: authelia-config-longhorn-rwo
     mountPath: /config
     targetSelector:
       main:

@@ -1,0 +1,4 @@
+name: longhorn-sqlite-next-storage
+defaultNamespace: apps-bindery
+dependsOn:
+  - name: longhorn-pilot-storage

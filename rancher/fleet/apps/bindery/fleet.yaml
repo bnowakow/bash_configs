@@ -1,6 +1,9 @@
 name: bindery
 defaultNamespace: apps-bindery
 
+dependsOn:
+  - name: longhorn-sqlite-next-storage
+
 helm:
   chart: ./charts/bindery
   releaseName: bindery

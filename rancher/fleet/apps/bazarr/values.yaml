@@ -1,4 +1,6 @@
 persistence:
+  config:
+    existingClaim: bazarr-config-longhorn-rwo
   plex-nfs-persistence:
     enabled: true
     path: /mnt/PlexPool/plex
@@ -36,3 +38,9 @@ ingress:
         entrypoints:
           - websecure
         forceTLS: true
+
+# One writer owns the SQLite databases.
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate

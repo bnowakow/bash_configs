@@ -1,6 +1,9 @@
 name: cleanuparr
 defaultNamespace: apps-cleanuparr
 
+dependsOn:
+  - name: longhorn-sqlite-small-storage
+
 helm:
   chart: cleanuparr
   repo: https://media-servarr.shw.al/charts

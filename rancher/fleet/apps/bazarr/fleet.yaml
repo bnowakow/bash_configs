@@ -1,6 +1,9 @@
 name: bazarr
 defaultNamespace: apps-bazarr
 
+dependsOn:
+  - name: longhorn-sqlite-next-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/bazarr
   version: 25.0.4

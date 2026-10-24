@@ -1,6 +1,9 @@
 name: uptime-kuma
 defaultNamespace: apps-uptime-kuma
 
+dependsOn:
+  - name: longhorn-sqlite-small-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/uptime-kuma
   version: 15.0.3
