@@ -1,5 +1,67 @@
 # Storage I/O incident — 2026-10-25
 
+## Fan intervention and workload relief — 2026-10-25 18:58 CET / 17:58 UTC
+
+User opened the chassis and placed an additional fan over the NVMe. Passive
+samples at 18:56:02 and 18:56:43 CET show a substantial thermal improvement:
+
+- Composite temperature **49 → 48 C**, Sensor 1 **64 → 63 C**, compared with
+  approximately 73–75 C / 93–95 C earlier.
+- Critical Warning is now **0x04**: temperature warning cleared, **degraded
+  NVM reliability remains**. SMART health still FAILED; Percentage Used 100%,
+  media/data-integrity errors and error-log entries still zero.
+- Thermal management counters stayed unchanged across the 41-second sample:
+  level 1 transitions/time **1302 / 5483186 s**; level 2 **122 / 444078 s**.
+  No active thermal-management time increase was observed in this short window.
+- I/O PSI avg10 improved from **1.59% some / 0.66% full** to **0.02% / 0.01%**,
+  and was **0.00% / 0.00%** at 18:57:54 CET. The longer averages were still
+  decaying, so this is not a completed sustained-recovery screening window.
+- ZFS interval write waits were **97 microseconds**, then **363 microseconds
+  and 6 ms** in the later sample; sampled pending queues were zero.
+- k3s was active/running with NRestarts=0 and local `/readyz` returned `ok`.
+  Host uptime was only seven minutes; SMART power cycles increased 164 → 165
+  and unsafe shutdowns 96 → 97. A reboot occurred between investigations;
+  this agent did not initiate it. Do not attribute all recovery to the fan:
+  reboot and workload reductions also changed the conditions.
+
+Latest SMART capture: private `/tmp/longhorn-fan-smart-after.txt`. Earlier
+`/tmp` evidence and the proposed retry worker were not present after reboot;
+do not assume the earlier private captures or worker survived. The retry worker
+creation/execution was interrupted and is not evidence of completed actions.
+
+User authorized steps 2–4 and subsequently broader application scale-downs.
+The API recovered, enabling these additional runtime changes:
+
+| Namespace | Controller | Before → after |
+| --- | --- | --- |
+| apps-zabbix | StatefulSet zabbix-postgresql | 1 → 0 |
+| apps-youtubedl-material | Deployment youtubedl-material-mongodb | 1 → 0 |
+| apps-bookstack | Deployment bookstack-mariadb | 1 → 0 |
+| apps-mailpile | Deployment mailpile | 1 → 0 |
+
+Before stopping the databases, live inventory confirmed Zabbix's three writer
+Deployments, youtube-dl Material and BookStack at desired zero with no active
+writer pods. At 18:57:55 CET none of these four namespaces had active or
+terminating application/database pods; only the completed Zabbix nodesclean
+Job pod remained. A blanket wait-for-delete timed out on that completed pod,
+not on a running database. Database container exit codes were not collected;
+scale-down used normal Kubernetes termination, without force deletion.
+
+Earlier in this session watchdog Docker PostgreSQL was confirmed stopped with
+exit **137** following the 60-second stop grace period; a clean shutdown was
+not established. At 18:57:54 CET `docker ps` returned no running containers.
+
+Many other optional applications were already at desired zero in the recovered
+API inventory; this session cannot attribute those changes to its interrupted
+requests. DNS, mail delivery, authentication, DDNS and cluster/storage/backup
+infrastructure remain running. Fleet files were not changed; reconciliation
+may restore runtime replica counts. Preserve all stop inventories when restoring.
+
+**Assessment:** cooling clearly improved and current storage latency/pressure
+are far better. The persistent reliability warning and consumed estimated
+endurance still warrant disk replacement. Keep expansion on hold and restore
+workloads deliberately only after sustained observation.
+
 ## Local privileged investigation — 2026-10-25 17:13 CET / 16:13 UTC
 
 Confirmed this session runs as root on `proxmox2-old.localdomain`. Read-only
