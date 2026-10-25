@@ -1,5 +1,55 @@
 # Storage I/O incident — 2026-10-25
 
+## Additional proxmox3 buffer — 2026-10-25 19:14:34 CET / 18:14:34 UTC
+
+User requested increasing the just-expanded local backing device from 128GiB to
+**150GiB**. Grew the same zvol and ext4 online, retaining filesystem/disk UUIDs,
+mount path and zero Longhorn reservation. The device now reports exactly
+**161061273600 bytes**; Longhorn maximum is **147.09GiB**, physical free
+**122.56GiB**, scheduled **47.27GiB**, nominal room **99.82GiB**.
+Post-verification at approximately 19:15 CET confirmed Ready/Schedulable disk,
+healthy attached volumes, two RW replicas on running engines, both APIs ready,
+local k3s active with NRestarts unchanged at 60, near-zero local I/O PSI and
+healthy ZFS pool. The interrupted verification was rerun read-only; the resize
+itself was not repeated. Commands/results are appended to the same
+[maintenance log](proxmox3-expansion-2026-10-25.log).
+Peer capacity, its reliability warning and the previously recorded detached
+replica exceptions are unchanged. Workloads remain deliberately stopped.
+
+## Proxmox3-only host expansion — 2026-10-25 19:10:54 CET / 18:10:54 UTC
+
+User explicitly requested proceeding on proxmox3 first despite the peer's
+reliability warning. Expanded `rpool/longhorn` / `/dev/zvol/rpool/longhorn`
+(`/dev/zd0`) from **100GiB to 128GiB**, then grew mounted ext4 online. No peer
+resize, reboot, service restart, PVC size change, reservation change or cap
+increase was performed. Full timestamped commands/results and final capacities:
+[proxmox3-expansion-2026-10-25.log](proxmox3-expansion-2026-10-25.log).
+
+Preflight: local Apacer SMART passed, warning `0x00`, temperature 54 C, no media
+errors; local pool ONLINE with ~319GiB free, no quotas/reservations/snapshots
+constraining the grow. Both APIs were ready and I/O PSI low. Production NAS
+backup records were Completed. Contrary to the assumption that every volume
+had two usable replicas, five detached production volumes had only one nonfailed
+replica, on proxmox3: Homer config, Homer-without-auth config, Radarr config,
+Bazarr config and OpenBooks books. Their backups were present. These exceptions
+were disclosed before proceeding; no replica repair was attempted as part of
+this local filesystem resize. Unverified Mailpile staging/test exceptions were
+also recorded privately in the preflight inventory.
+
+Post-verification: Longhorn maximum **125.43GiB**, physical free **100.88GiB**,
+scheduled **47.27GiB**, reservation **0**, nominal room **78.16GiB**. Filesystem
+UUID `1c430c03-1079-48d3-bd8c-9c4e11c1ce1c`, Longhorn disk UUID
+`ad96e77f-516f-4f16-8dfe-c5c6eb4fb6d5`, disk key/path and reservation unchanged;
+disk Ready/Schedulable. Both APIs passed; attached volumes were healthy and
+running engines had two RW replicas; k3s NRestarts remained 60; local I/O PSI
+was near zero; mail/DNS/auth pods were Ready. Private before/after inventory:
+`/tmp/longhorn-proxmox3-resize-preflight-20261025/`.
+
+**The peer expansion/incident hold remains.** Its failed SMART reliability
+finding and detached replica exceptions still require follow-up. Earlier
+"no expansion performed" statements below describe their historical timestamps.
+Stopped applications were not restored by this maintenance.
+
 ## Broad shutdown completed — 2026-10-25 approximately 18:59 CET
 
 User requested another retry. At **18:54 CET**, API access returned and the

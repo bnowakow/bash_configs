@@ -1,0 +1,44 @@
+2026-10-25T18:10:54Z START user-authorized proxmox3-only expansion; peer reliability warning remains; no peer resize authorized here
+2026-10-25T18:10:54Z TARGET dataset=rpool/longhorn device=/dev/zvol/rpool/longhorn UUID=1c430c03-1079-48d3-bd8c-9c4e11c1ce1c bytes=107374182400 -> 137438953472
+2026-10-25T18:10:54Z PREFLIGHT local SMART PASS/critical-warning=0x00; pool ONLINE; low PSI; APIs ready; completed production NAS backup records checked
+2026-10-25T18:10:54Z REPLICA EXCEPTIONS five detached production volumes have only local nonfailed replicas and completed NAS backups: Homer, Homer-without-auth, Radarr config, Bazarr config, OpenBooks books. Mailpile staging/test exceptions also recorded privately.
+Filesystem        1B-blocks        Used   Available Use% Mounted on
+/dev/zd0       105089261568 26322202624 73381572608  27% /var/lib/longhorn
+2026-10-25T18:10:54Z GROW ZVOL START
+2026-10-25T18:10:54Z ZVOL GROW VERIFIED; EXT4 ONLINE GROW START
+resize2fs 1.47.2 (1-Jan-2025)
+Filesystem at /dev/zvol/rpool/longhorn is mounted on /var/lib/longhorn; on-line resizing required
+old_desc_blocks = 13, new_desc_blocks = 16
+The filesystem on /dev/zvol/rpool/longhorn is now 33554432 (4k) blocks long.
+
+2026-10-25T18:10:54Z EXT4 GROW COMPLETE; UUID preserved; verify Longhorn reconciliation next
+Filesystem        1B-blocks        Used    Available Use% Mounted on
+/dev/zd0       134682435584 26322202624 101750710272  21% /var/lib/longhorn
+rpool/longhorn	volsize	137438953472
+rpool/longhorn	used	21247447040
+rpool/longhorn	available	326385512448
+rpool/longhorn	refreservation	0
+2026-10-25T18:11:56+00:00 POSTVERIFY Longhorn disk UUID/path/reservation unchanged; disk Ready/Schedulable; both APIs ready; attached volumes healthy and running engines have two RW replicas; local k3s NRestarts=60; pool healthy; essential mail/DNS/auth pods Ready
+2026-10-25T18:11:56+00:00 DISK proxmox2-old {"maximum": 83955703808, "used": 23138295808, "available": 60817408000, "reserved": 8395570380, "scheduled": 49402609664, "nominalRemaining": 26157523764}
+2026-10-25T18:11:56+00:00 DISK proxmox3 {"maximum": 134682435584, "used": 26364534784, "available": 108317900800, "reserved": 0, "scheduled": 50755272704, "nominalRemaining": 83927162880}
+2026-10-25T18:14:34Z START user-authorized proxmox3-only expansion; peer reliability warning remains; no peer resize authorized here
+2026-10-25T18:14:34Z TARGET dataset=rpool/longhorn device=/dev/zvol/rpool/longhorn UUID=1c430c03-1079-48d3-bd8c-9c4e11c1ce1c bytes=137438953472 -> 161061273600
+2026-10-25T18:14:34Z PREFLIGHT local SMART PASS/critical-warning=0x00; pool ONLINE; low PSI; APIs ready; completed production NAS backup records checked
+2026-10-25T18:14:34Z REPLICA EXCEPTIONS five detached production volumes have only local nonfailed replicas and completed NAS backups: Homer, Homer-without-auth, Radarr config, Bazarr config, OpenBooks books. Mailpile staging/test exceptions also recorded privately.
+Filesystem        1B-blocks        Used    Available Use% Mounted on
+/dev/zd0       134682435584 26322202624 101750710272  21% /var/lib/longhorn
+2026-10-25T18:14:34Z GROW ZVOL START
+2026-10-25T18:14:34Z ZVOL GROW VERIFIED; EXT4 ONLINE GROW START
+resize2fs 1.47.2 (1-Jan-2025)
+Filesystem at /dev/zvol/rpool/longhorn is mounted on /var/lib/longhorn; on-line resizing required
+old_desc_blocks = 16, new_desc_blocks = 19
+The filesystem on /dev/zvol/rpool/longhorn is now 39321600 (4k) blocks long.
+
+2026-10-25T18:14:34Z EXT4 GROW COMPLETE; UUID preserved; verify Longhorn reconciliation next
+Filesystem        1B-blocks        Used    Available Use% Mounted on
+/dev/zd0       157934215168 26322202624 124057620480  18% /var/lib/longhorn
+rpool/longhorn	volsize	161061273600
+rpool/longhorn	used	21247676416
+rpool/longhorn	available	326384607232
+rpool/longhorn	refreservation	0
+2026-10-25T18:15:23+00:00 POSTVERIFY 150GiB backing; Longhorn Ready/Schedulable; disk UUID/path/reservation unchanged; attached volumes healthy; running engines have two RW replicas; {"storageMaximum": 157934215168, "storageAvailable": 131596288000, "storageScheduled": 50755272704, "nominalRemaining": 107178942464}

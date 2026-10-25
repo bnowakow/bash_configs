@@ -1,5 +1,12 @@
 # Current app storage summary — 2026-10-24
 
+**Runtime/maintenance update — 2026-10-25 18:15 UTC:** nonessential applications
+are deliberately scaled down for the [I/O incident](io-pressure-incident-2026-10-25.md).
+The app rows below describe migrated storage ownership, not current availability.
+Proxmox3's Longhorn backing zvol was expanded from 100 to 150GiB; ext4/Longhorn
+capacity is now 147.09GiB. The peer remains unchanged with a SMART reliability
+warning. See the [expansion log](proxmox3-expansion-2026-10-25.log).
+
 Refreshed from live PVCs, Deployments/StatefulSets and Longhorn node/volume
 objects after the BookStack migration (2026-10-25). Proposed sizes come from the conservative
 [measured inventory](local-pvc-usage-2026-10-24.csv) and assessment, not a new
@@ -134,20 +141,28 @@ excluding the staging allocation, are approximately:
 
 | Node | Remaining nominal budget |
 | --- | ---: |
-| proxmox2-old | 23.11Gi |
-| proxmox3 | 50.60Gi |
+| proxmox2-old | 24.36Gi (before repairing missing/failed replica placements) |
+| proxmox3 | 99.82Gi |
 
-Latest Longhorn disk snapshot (**2026-10-25 13:40 UTC**; includes unverified Mailpile staging):
+Latest Longhorn disk snapshots (**peer: 2026-10-25 18:11:56 UTC; proxmox3:
+18:15 UTC**; includes unverified Mailpile staging):
 
 | Node | Total GiB | Physically used GiB | Physically free GiB | Reserved GiB | Scheduled GiB | Nominal remaining GiB |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| proxmox2-old | 78.19 | 23.11 | 55.08 | 7.82 | 47.26 | 23.11 |
-| proxmox3 | 97.87 | 25.31 | 72.56 | 0.00 | 47.27 | 50.60 |
+| proxmox2-old | 78.19 | 21.55 | 56.64 | 7.82 | 46.01 | 24.36 |
+| proxmox3 | 147.09 | 24.53 | 122.56 | 0.00 | 47.27 | 99.82 |
 
 Physical free is Longhorn `storageAvailable`; scheduled is `storageScheduled`.
 Nominal remaining is total minus reserved minus scheduled. Both disks report
 Ready/Schedulable. Assigned capacity includes older test claims; physical
 allocation grows with writes and snapshots.
+
+The peer's current scheduled total is temporarily lower because some detached
+replica placements are missing/failed after the incident. Its displayed nominal
+room is not an admission allowance: re-measure after replica recovery. All
+attached volumes were healthy with two RW engine replicas at the resize check;
+five detached production volumes lacked two nonfailed replicas. Their completed
+NAS backups were checked. The local resize did not repair those exceptions.
 
 Thus all remaining proposed targets do not fit on the smaller node unchanged.
 This is not an instruction to enlarge disks or migrate everything: keep the
@@ -180,10 +195,10 @@ Docker Compose services, outside this Kubernetes PVC inventory.
 - [Full assessment and original database evidence](fleet-storage-migration-assessment-2026-10-24.md)
 - [RWX audit](rwx-safety-audit-2026-10-24.md)
 
-## Proposed host expansion
+## Host expansion target and completed local resize
 
-See [host expansion procedure and sizing](README-4-expand-storage.md): recommend
-128GiB backing zvols on both hosts (+~48GiB / +28GiB), with 160GiB as the
-optional larger-growth scenario. This is a proposal only; physical pool
-headroom, current health and the existing migration cap require review.
-No host, PVC, replica policy or cap was changed.
+See [host expansion procedure and sizing](README-4-expand-storage.md): the user
+selected **150GiB per host**. Proxmox3 is complete (100 → 150GiB); proxmox2-old's
+next target is approximately 80 → 150GiB, subject to its fresh health, backup,
+replica and physical-pool checks. Sparse virtual capacity is not guaranteed
+backing space. PVC sizes, replica policy and the migration cap are unchanged.
