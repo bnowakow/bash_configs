@@ -5,6 +5,7 @@ set -Eeuo pipefail
 kubeconfig_path="/etc/rancher/k3s/k3s.yaml"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ansible_group_vars_file="$script_dir/ansible/group_vars/all.yml"
+cert_manager_fleet_file="$script_dir/fleet/infrastructure/cert-manager/fleet.yaml"
 log_dir="$script_dir/logs"
 timestamp="$(date +"%Y%m%d-%H%M%S")"
 log_file="$log_dir/upgrade-k3s-rancher-${timestamp}.log"
@@ -145,6 +146,11 @@ require_dependencies() {
 
   if [ "$missing" -ne 0 ]; then
     exit 2
+  fi
+  if [ -f "$cert_manager_fleet_file" ]; then
+    require_cmd fleet
+    require_cmd jq
+    require_cmd cmp
   fi
 }
 
@@ -643,6 +649,94 @@ update_ansible_k3s_version() {
   log_success "Updated Ansible k3s_version to $(version_text "$k3s_version") in $file."
 }
 
+sync_cert_manager_fleet_version() {
+  local version="$1" work current labels_entry attempt deployments
+  local root="${script_dir%/*}" relative_dir
+  local labels=()
+  if [ ! -f "$cert_manager_fleet_file" ]; then
+    log "No cert-manager Fleet configuration found; retaining standalone Helm management."
+    return 0
+  fi
+  if [[ ! "$version" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]; then
+    log_error "Invalid cert-manager version for Fleet synchronization: $version"
+    return 1
+  fi
+  version="v${version#v}"
+  if [ "$(grep -Ec '^  version:' "$cert_manager_fleet_file" || true)" -ne 1 ]; then
+    log_error "Expected exactly one Helm version in $cert_manager_fleet_file."
+    return 1
+  fi
+  work="$(mktemp -d)" || return 1
+  if ! sed -E "s#^(  version:).*#\1 $version#" "$cert_manager_fleet_file" >"$work/fleet.yaml"; then
+    rm -rf "$work"
+    return 1
+  fi
+  if ! cmp -s "$work/fleet.yaml" "$cert_manager_fleet_file"; then
+    # Preserve the repository file's ownership when this script runs as root.
+    if ! cat "$work/fleet.yaml" >"$cert_manager_fleet_file"; then
+      log_error "Could not update $cert_manager_fleet_file."
+      rm -rf "$work"
+      return 1
+    fi
+    log_success "Updated cert-manager Fleet version to $version in $cert_manager_fleet_file."
+  fi
+  # Fleet prunes by its CLI bundle-name scope. Never let that scope include
+  # another bundle, and preserve the existing GitRepo labels and targeting.
+  if ! current="$(kubectl --kubeconfig "$kubeconfig_path" --namespace fleet-local \
+    get bundles -l fleet.cattle.io/repo-name=cert-manager -o json)"; then
+    rm -rf "$work"
+    return 1
+  fi
+  if ! printf '%s' "$current" | jq -e 'all(.items[]; .metadata.name == "cert-manager")' >/dev/null; then
+    log_error "Refusing Fleet apply: cert-manager prune scope contains other bundles."
+    rm -rf "$work"
+    return 1
+  fi
+  if ! current="$(kubectl --kubeconfig "$kubeconfig_path" --namespace fleet-local \
+    get bundle cert-manager --ignore-not-found -o json)"; then
+    rm -rf "$work"
+    return 1
+  fi
+  if [ -n "$current" ]; then
+    while IFS= read -r labels_entry; do labels+=(--label "$labels_entry"); done < <(
+      printf '%s' "$current" | jq -r '.metadata.labels // {} | to_entries[] | select(.key != "fleet.cattle.io/commit") | "\(.key)=\(.value)"'
+    )
+    printf '%s' "$current" | jq '{targets:.spec.targets,targetRestrictions:(.spec.targetRestrictions // [])}' >"$work/targets.json"
+  else
+    labels=(--label fleet.cattle.io/repo-name=rancher-cluster)
+    printf '%s\n' '{"targets":[{"name":"default","clusterGroup":"default"}]}' >"$work/targets.json"
+  fi
+  relative_dir="${cert_manager_fleet_file#"$root/"}"
+  relative_dir="${relative_dir%/*}"
+  log "Applying cert-manager $version through Fleet, preserving GitRepo ownership and targets."
+  if ! (cd "$root" && run_cmd fleet apply --kubeconfig "$kubeconfig_path" \
+    --namespace fleet-local "${labels[@]}" --targets-file "$work/targets.json" \
+    cert-manager "$relative_dir"); then
+    log_error "cert-manager Fleet apply failed; repository version remains staged at $version."
+    rm -rf "$work"
+    return 1
+  fi
+  rm -rf "$work"
+  log "Waiting for Fleet cert-manager $version to be applied and Ready."
+  for attempt in $(seq 1 120); do
+    if deployments="$(kubectl --kubeconfig "$kubeconfig_path" --request-timeout=15s \
+      get bundledeployments --all-namespaces -o json 2>>"$log_file")" &&
+      printf '%s' "$deployments" | jq -e --arg version "${version#v}" '
+        [.items[] | select(.metadata.name == "cert-manager")] |
+        length > 0 and all(.[];
+          (.spec.options.helm.version | ltrimstr("v")) == $version and
+          .status.appliedDeploymentID == .spec.deploymentID and
+          any(.status.conditions[]?; .type == "Ready" and .status == "True"))
+      ' >/dev/null; then
+      log_success "Fleet cert-manager $version is applied and Ready."
+      return 0
+    fi
+    sleep 5
+  done
+  log_error "Fleet cert-manager $version did not become Ready; inspect BundleDeployment status."
+  return 1
+}
+
 installed_k3s_version() {
   if ! command -v k3s >/dev/null 2>&1; then
     return 1
@@ -674,6 +768,8 @@ skip_if_already_current() {
   if versions_match "$actual_k3s_version" "$expected_k3s_version" &&
      versions_match "$actual_cert_manager_version" "$expected_cert_manager_version" &&
      versions_match "$actual_rancher_version" "$expected_rancher_version"; then
+    sync_cert_manager_fleet_version "$actual_cert_manager_version"
+    verify_cert_manager_health
     log_success "All selected upgrade targets are already installed. No upgrade needed."
     exit 0
   fi
@@ -876,6 +972,8 @@ main() {
     "$current_rancher_version"
 
   if [ "$upgrade_k3s" -eq 0 ] && [ "$upgrade_cert_manager" -eq 0 ] && [ "$upgrade_rancher" -eq 0 ]; then
+    sync_cert_manager_fleet_version "$current_cert_manager_version"
+    verify_cert_manager_health
     log_success "No selected target version is newer than the installed version. No upgrade needed."
     exit 0
   fi
@@ -940,17 +1038,23 @@ About to run the upgrade with:
 
   if [ "$upgrade_cert_manager" -eq 1 ]; then
     log "Upgrading $(component_text "cert-manager") from $(version_text "${current_cert_manager_version:-not detected}") to $(version_text "$cert_manager_version")."
-    run_cmd helm --kubeconfig "$kubeconfig_path" upgrade --install cert-manager jetstack/cert-manager \
-      --namespace cert-manager \
-      --create-namespace \
-      --version "$cert_manager_version" \
-      --set startupapicheck.timeout=5m \
-      --set crds.enabled=true
+    if [ -f "$cert_manager_fleet_file" ]; then
+      sync_cert_manager_fleet_version "$cert_manager_version"
+    else
+      run_cmd helm --kubeconfig "$kubeconfig_path" upgrade --install cert-manager jetstack/cert-manager \
+        --namespace cert-manager \
+        --create-namespace \
+        --version "$cert_manager_version" \
+        --set startupapicheck.timeout=5m \
+        --set crds.enabled=true
 
-    run_cmd kubectl --kubeconfig "$kubeconfig_path" apply --validate=false -f "https://github.com/jetstack/cert-manager/releases/download/$cert_manager_version/cert-manager.crds.yaml"
+      run_cmd kubectl --kubeconfig "$kubeconfig_path" apply --validate=false -f "https://github.com/jetstack/cert-manager/releases/download/$cert_manager_version/cert-manager.crds.yaml"
+    fi
     verify_cert_manager_health
   else
     log_success "Skipping $(component_text "cert-manager"); installed version is $(version_text "${current_cert_manager_version:-not detected}") and target $(version_text "$cert_manager_version") is not newer."
+    sync_cert_manager_fleet_version "$current_cert_manager_version"
+    verify_cert_manager_health
   fi
 
   verify_final_versions "$final_k3s_version" "$final_cert_manager_version" "$final_rancher_version"

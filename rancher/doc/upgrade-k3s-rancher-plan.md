@@ -56,8 +56,9 @@ Current source facts found during planning:
   - add `jetstack` only if missing.
   - run `helm repo update`.
 - cert-manager:
-  - use `helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version "$cert_manager_version" --set startupapicheck.timeout=5m --set crds.enabled=true`.
-  - apply `https://github.com/jetstack/cert-manager/releases/download/$cert_manager_version/cert-manager.crds.yaml` twice.
+  - when `fleet/infrastructure/cert-manager/fleet.yaml` exists, update its chart version, apply through Fleet preserving GitRepo labels/targets, and wait for matching applied/desired BundleDeployment IDs and Ready status.
+  - use standalone `helm upgrade --install` only when that Fleet configuration is absent.
+  - let the Fleet chart manage enabled CRDs; the standalone Helm fallback retains the explicit CRD apply.
   - show `kubectl get pods --namespace cert-manager`.
 - Rancher:
   - use `helm upgrade --install rancher rancher-stable/rancher --namespace cattle-system --create-namespace --version "${rancher_version#v}"`.
@@ -113,3 +114,25 @@ Current source facts found during planning:
 - Latest means highest stable/non-RC compatible version.
 - Network access to SUSE, GitHub, get.k3s.io, and Helm repos is required.
 - If live lookup fails, the script exits instead of falling back to stale pinned versions.
+
+## cert-manager Fleet synchronization — 2026-10-25
+
+The upgrade script updates `fleet/infrastructure/cert-manager/fleet.yaml` and
+applies its bundle through Fleet, preserving existing GitRepo labels and target
+restrictions. It checks that no unrelated bundle belongs to the CLI prune scope.
+It waits for every cert-manager BundleDeployment to have the requested version,
+matching desired/applied deployment IDs, and Ready=True. Failed apply/readiness
+checks stop the script; they are not reported as successful synchronization.
+
+Already-current/no-newer-version paths also synchronize Fleet to the installed
+cert-manager version and validate health. This repairs stale Fleet desired state
+even when Helm itself does not need an upgrade, and avoids downgrading an
+installed version that is newer than the selected target. Future Fleet-managed
+upgrades use one deployment path through Fleet; they do not perform a competing
+direct Helm upgrade. Standalone Helm remains the fallback without that manifest.
+
+Health checks wait for a startup API hook only when it exists, tolerate its
+success-deletion race, and perform a bounded-retry server-side Certificate dry
+run to exercise the cert-manager API/webhook without persisting a Certificate.
+The manually synchronized initial state is v1.21.3; no commit/push is performed
+by the upgrade script.
