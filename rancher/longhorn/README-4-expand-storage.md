@@ -3,6 +3,17 @@
 Prepared 2026-10-25 after BookStack migration. **Documentation only: no disks,
 filesystems, reservations, PVCs or migration caps were changed.**
 
+## Active incident — expansion on hold
+
+The [2026-10-25 I/O incident log](io-pressure-incident-2026-10-25.md) records
+repeated API/k3s failures, severe storage stalls, runtime workload stops, and a
+confirmed **NVMe temperature alarm on proxmox2-old**: composite 73.85 C with an
+exposed high threshold of 69.85 C, plus a separate sensor reporting 93.85 C.
+Thermal throttling is not yet proven. Read that log before maintenance, confirm
+the cooling/temperature and storage problems are resolved, and revalidate all
+health/backup prerequisites below. A brief ready API window is not sufficient.
+No host expansion has been performed as part of that incident investigation.
+
 ## Recommended sizes
 
 Start with **128GiB zvols on both hosts**, preserving two replicas for production
