@@ -286,7 +286,7 @@ else
 fi
 ```
 
-Do not repeat the resize on proxmox3: it is already at 150GiB. Do not run
+Do not repeat the resize on either host: both are already at 150GiB. Do not run
 `mkfs`, `zfs create`, `zfs destroy`, shrink volsize, change volblocksize, reduce
 ext4 reserved blocks or recreate the disk. Do not run `e2fsck` on a mounted
 filesystem. This whole-device layout requires no `growpart` or `parted`.
