@@ -139,12 +139,12 @@ excluding the staging allocation, are approximately:
 | proxmox2-old | 24.36Gi |
 | proxmox3 | 51.85Gi |
 
-Latest Longhorn disk snapshot (**2026-10-25 10:18 UTC**; includes unverified Mailpile staging):
+Latest Longhorn disk snapshot (**2026-10-25 11:59 UTC**; includes unverified Mailpile staging):
 
 | Node | Total GiB | Physically used GiB | Physically free GiB | Reserved GiB | Scheduled GiB | Nominal remaining GiB |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| proxmox2-old | 78.19 | 14.71 | 63.48 | 7.82 | 28.01 | 42.36 |
-| proxmox3 | 97.87 | 16.91 | 80.96 | 0.00 | 28.02 | 69.85 |
+| proxmox2-old | 78.19 | 21.65 | 56.54 | 7.82 | 46.01 | 24.36 |
+| proxmox3 | 97.87 | 23.85 | 74.02 | 0.00 | 46.02 | 51.85 |
 
 Physical free is Longhorn `storageAvailable`; scheduled is `storageScheduled`.
 Nominal remaining is total minus reserved minus scheduled. Both disks report

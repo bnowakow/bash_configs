@@ -40,7 +40,9 @@ Fleet app and storage bundles were Ready; PostgreSQL mounted the new claim,
 and server/web/webservice rollouts completed. Normal SQL operation, original
 Opaque Secret data, two healthy replicas on distinct nodes and both
 certificate-verified HTTPS endpoints were checked. `zabbix-nodesclean` was
-restored to its original unsuspended state. No temporary replication slots or
+restored to its original unsuspended state. PostgreSQL logged one transient `database system is starting up` connection
+rejection during startup; it then became ready, with no matching storage/auth
+errors in the inspected server/web logs. No temporary replication slots or
 transfer helper remained. Interactive authenticated monitoring workflows still
 require user testing; no synthetic alerts or configuration changes were sent.
 
@@ -65,4 +67,4 @@ See [current inventory](../../current-app-storage-summary-2026-10-24.md) and
 - Created: `2026-10-25T11:52:48Z`.
 - Volume: `pvc-885c02ea-0331-4c7e-9408-e07f7ac6ec70`.
 - Job: `longhorn-system/zabbix-nas-backup-20261025`, Complete.
-- Cutover and workload checks completed shortly after `12:00 UTC` (13:00 CET).
+- Cutover and workload checks completed by `11:59 UTC` (12:59 CET).
