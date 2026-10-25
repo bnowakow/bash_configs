@@ -1,0 +1,212 @@
+[
+  {
+    "namespace": "apps-audiobookshelf",
+    "kind": "deployments",
+    "name": "audiobookshelf",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-bazarr",
+    "kind": "deployments",
+    "name": "bazarr",
+    "original_replicas": 0,
+    "database": false
+  },
+  {
+    "namespace": "apps-bindery",
+    "kind": "deployments",
+    "name": "bindery",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-bookstack",
+    "kind": "deployments",
+    "name": "bookstack",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-bookstack",
+    "kind": "deployments",
+    "name": "bookstack-mariadb",
+    "original_replicas": 1,
+    "database": true
+  },
+  {
+    "namespace": "apps-calibre",
+    "kind": "deployments",
+    "name": "calibre",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-calibre",
+    "kind": "deployments",
+    "name": "calibre-web",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-calibre",
+    "kind": "deployments",
+    "name": "kavita",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-cleanuparr",
+    "kind": "deployments",
+    "name": "cleanuparr",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-filebot",
+    "kind": "deployments",
+    "name": "filebot",
+    "original_replicas": 0,
+    "database": false
+  },
+  {
+    "namespace": "apps-flaresolverr",
+    "kind": "deployments",
+    "name": "flaresolverr",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-homer-test",
+    "kind": "deployments",
+    "name": "homer-test",
+    "original_replicas": 2,
+    "database": false
+  },
+  {
+    "namespace": "apps-homer",
+    "kind": "deployments",
+    "name": "homer",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-homer",
+    "kind": "deployments",
+    "name": "homer-without-auth",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-jellyseerr",
+    "kind": "deployments",
+    "name": "jellyseerr",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-openbooks",
+    "kind": "deployments",
+    "name": "openbooks",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-profilarr",
+    "kind": "deployments",
+    "name": "profilarr",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-prowlarr",
+    "kind": "deployments",
+    "name": "prowlarr",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-radarr",
+    "kind": "deployments",
+    "name": "radarr",
+    "original_replicas": 0,
+    "database": false
+  },
+  {
+    "namespace": "apps-scrutiny",
+    "kind": "deployments",
+    "name": "scrutiny",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-smokeping",
+    "kind": "deployments",
+    "name": "smokeping",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-sonarr",
+    "kind": "deployments",
+    "name": "sonarr",
+    "original_replicas": 0,
+    "database": false
+  },
+  {
+    "namespace": "apps-ubooquity",
+    "kind": "deployments",
+    "name": "ubooquity",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-uptime-kuma",
+    "kind": "deployments",
+    "name": "uptime-kuma",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-youtubedl-material",
+    "kind": "deployments",
+    "name": "youtubedl-material",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-youtubedl-material",
+    "kind": "deployments",
+    "name": "youtubedl-material-mongodb",
+    "original_replicas": 1,
+    "database": true
+  },
+  {
+    "namespace": "apps-zabbix",
+    "kind": "deployments",
+    "name": "zabbix-zabbix-server",
+    "original_replicas": 1,
+    "database": false
+  },
+  {
+    "namespace": "apps-zabbix",
+    "kind": "deployments",
+    "name": "zabbix-zabbix-web",
+    "original_replicas": 0,
+    "database": false
+  },
+  {
+    "namespace": "apps-zabbix",
+    "kind": "deployments",
+    "name": "zabbix-zabbix-webservice",
+    "original_replicas": 0,
+    "database": false
+  },
+  {
+    "namespace": "apps-zabbix",
+    "kind": "statefulsets",
+    "name": "zabbix-postgresql",
+    "original_replicas": 1,
+    "database": true
+  }
+]

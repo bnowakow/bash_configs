@@ -1,5 +1,38 @@
 # Storage I/O incident — 2026-10-25
 
+## Broad shutdown completed — 2026-10-25 approximately 18:59 CET
+
+User requested another retry. At **18:54 CET**, API access returned and the
+coordinator saved an inventory of **30 eligible application controllers** before
+scaling the non-database writers to zero. Six controllers were already at zero;
+the restoration inventory preserves those zeros (Filebot must not be enabled
+automatically). Fleet files were not edited. After all writers were verified
+stopped, BookStack MariaDB, youtube-dl MongoDB and Zabbix PostgreSQL were also
+scaled to zero. Final API verification found **all 30 controllers at desired
+and current zero, with no active pods in their target namespaces**.
+
+Durable, secret-free pre-batch replica counts:
+[io-relief-replicas-before-2026-10-25.json](io-relief-replicas-before-2026-10-25.json).
+Use those counts when planning restoration; earlier explicit stops remain in
+effect. Restore databases and verify health before starting their application
+writers. Fleet can reconcile these runtime overrides back to its desired state.
+Protected mail, DNS, authentication and system/storage services were preserved.
+
+The worker's initial writer verification incorrectly treated the omitted
+zero-valued Scale `spec.replicas` field as unknown, causing a fail-closed wait.
+The coordinator verified zero replicas against full controllers and actual pod
+inventory, stopped the waiting worker, corrected the verifier to interpret the
+omitted Scale value as zero, then completed the database scales explicitly.
+The broad shutdown worker is **no longer running**.
+
+At **18:56:58 CET**, I/O PSI avg10 was **0.18% some / 0% full on both hosts**;
+both k3s services were active. Restart counts were local 60 and peer 0, indicating
+the peer service counter had reset since the earlier investigation; no cause for
+that reset is claimed here. Peer NVMe `temp1_alarm` read **0**. These are favorable
+current observations but **do not clear the earlier failed SMART/degraded-NVM
+reliability finding**. Obtain updated SMART and sustained health/replica/backup
+checks before reassessing expansion. No storage expansion was performed.
+
 ## Fan intervention and workload relief — 2026-10-25 18:58 CET / 17:58 UTC
 
 User opened the chassis and placed an additional fan over the NVMe. Passive
@@ -25,9 +58,11 @@ samples at 18:56:02 and 18:56:43 CET show a substantial thermal improvement:
   reboot and workload reductions also changed the conditions.
 
 Latest SMART capture: private `/tmp/longhorn-fan-smart-after.txt`. Earlier
-`/tmp` evidence and the proposed retry worker were not present after reboot;
-do not assume the earlier private captures or worker survived. The retry worker
-creation/execution was interrupted and is not evidence of completed actions.
+`/tmp` evidence and the proposed retry worker from the fan-investigation
+session were not present after reboot; do not assume those private captures or
+that worker survived. That session's retry worker creation/execution was
+interrupted and is not evidence of completed actions. The coordinating session's
+separate broad shutdown outcome is recorded above.
 
 User authorized steps 2–4 and subsequently broader application scale-downs.
 The API recovered, enabling these additional runtime changes:
@@ -61,6 +96,42 @@ may restore runtime replica counts. Preserve all stop inventories when restoring
 are far better. The persistent reliability warning and consumed estimated
 endurance still warrant disk replacement. Keep expansion on hold and restore
 workloads deliberately only after sustained observation.
+
+## Broader shutdown retry outcome — 2026-10-25 18:25:52 CET
+
+The `/tmp/longhorn-scale-nonessential.py` worker exhausted its 15-minute retry
+window and exited **2** before obtaining either API inventory. **No additional
+replica changes were applied by this worker.** It is no longer running; no
+restore inventory could be generated. Private progress log:
+`/tmp/longhorn-nonessential-scale-down/actions.log`.
+The completed earlier stops remain the only verified load-reduction changes
+from this coordinating session. Additional application scale-down requires a
+working Kubernetes API; do not infer shutdown from the user's authorization or
+the existence of the worker script. Preserve the NVMe/thermal expansion hold.
+
+## Broader application shutdown requested — 2026-10-25 18:12 CET
+
+User authorized temporarily scaling down all nonessential application workloads
+to relieve proxmox2-old. Runtime-only changes; Fleet files remain unchanged.
+At 18:12 CET both API inventories and both direct etcd status checks failed.
+**No additional scale-downs have yet been accepted by this new attempt.**
+
+Retry worker `/tmp/longhorn-scale-nonessential.py` is bounded to 15 minutes.
+It targets Deployments/StatefulSets in `apps-*` namespaces, excluding
+`apps-docker-mailserver`, `apps-mailpile`, `apps-adguard-home`, `apps-authelia`,
+`apps-ddclient`, and `apps-duckdns`. Cluster/storage/system namespaces are
+untouched. It saves original replica counts to private
+`/tmp/longhorn-nonessential-scale-down/original-replicas.json` before changes and
+logs progress to `/tmp/longhorn-nonessential-scale-down/actions.log`.
+Application writers must be confirmed at zero before database scale-downs.
+Check the worker/log and actual resource state before starting overlapping work.
+This retry does not directly kill containers or bypass unavailable Kubernetes
+controllers; an API outage can leave the entire attempt unapplied.
+
+At 18:08 CET Docker inspection confirmed watchdog application, watchdog
+PostgreSQL and peer Scrutiny all exited. Watchdog PostgreSQL was now exit 137,
+reported as stopped ~41 minutes earlier; this coordinating session did not
+issue that PostgreSQL stop and has not established who/what stopped it.
 
 ## Local privileged investigation — 2026-10-25 17:13 CET / 16:13 UTC
 
