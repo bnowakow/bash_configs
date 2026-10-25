@@ -1,0 +1,27 @@
+2026-10-25T18:35:36Z START explicitly authorized proxmox2-old 80 -> 150GiB online grow; proxmox3 already 150GiB
+2026-10-25T18:35:36Z MAINTENANCE DECISION local SMART remains FAILED/CW=0x04, estimated endurance 100%; cooling effective, thermal counters unchanged; replacement remains planned
+2026-10-25T18:35:36Z PREFLIGHT 10-minute both-host API/PSI/restart screen passed; 39 production volumes have completed NAS backup records; migration restore evidence reviewed, not newly restored in this run
+2026-10-25T18:35:36Z REPLICA EXCEPTIONS five detached production volumes have one nonfailed copy on proxmox3 (Homer pair, Radarr config, Bazarr config, OpenBooks books), completed backups present; unchanged by this grow
+2026-10-25T18:35:36Z IDENTITY dataset=rpool/longhorn device=/dev/zvol/rpool/longhorn resolved=/dev/zd0 filesystemUUID=18ac8246-d16c-4dfd-873b-a53bc0348957 current=85899345920 target=161061273600 refreservation=0
+2026-10-25T18:35:36Z POOL before size=253403070464 free=54719176704 bytes; sparse grow is virtual capacity only; physical growth/new migrations remain restricted
+Filesystem       1B-blocks        Used   Available Use% Mounted on
+/dev/zd0       83955703808 22899482624 56744476672  29% /var/lib/longhorn
+2026-10-25T18:35:36Z COMMAND zfs set volsize=161061273600 rpool/longhorn
+2026-10-25T18:35:36Z ZVOL GROW VERIFIED; COMMAND resize2fs /dev/zvol/rpool/longhorn
+resize2fs 1.47.2 (1-Jan-2025)
+Filesystem at /dev/zvol/rpool/longhorn is mounted on /var/lib/longhorn; on-line resizing required
+old_desc_blocks = 10, new_desc_blocks = 19
+The filesystem on /dev/zvol/rpool/longhorn is now 39321600 (4k) blocks long.
+
+2026-10-25T18:35:36Z EXT4 GROW COMPLETE; filesystem UUID, mount and ZFS refreservation preserved; awaiting Longhorn capacity reconciliation
+161061273600
+Filesystem        1B-blocks        Used    Available Use% Mounted on
+/dev/zd0       157934399488 22899482624 127695294464  16% /var/lib/longhorn
+rpool/longhorn	volsize	161061273600
+rpool/longhorn	used	25658486784
+rpool/longhorn	available	46875475968
+rpool/longhorn	refreservation	0
+NAME           SIZE         ALLOC         FREE    CAP    HEALTH
+rpool  253403070464  198684270592  54718799872     78    ONLINE
+2026-10-25T18:35:36Z COMMANDS COMPLETE; post-verification required
+2026-10-25T18:36:10.656911+00:00 POSTVERIFY {"time": "2026-10-25T18:36:10.656911+00:00", "disks": {"proxmox2-old": {"key": "default-disk-7d27979faac45811", "uuid": "ea436ad0-7d22-46b2-a5a6-e11519adf713", "maximum": 157934399488, "available": 134951731200, "used": 22982668288, "reserved": 8395570380, "scheduled": 47791996928, "nominalRemaining": 101746832180}, "proxmox3": {"key": "default-disk", "uuid": "ad96e77f-516f-4f16-8dfe-c5c6eb4fb6d5", "maximum": 157934215168, "available": 131596288000, "used": 26337927168, "reserved": 0, "scheduled": 50755272704, "nominalRemaining": 107178942464}}, "attachedHealthy": 12, "runningEnginesWithTwoRW": 12, "pool": {"size": 253403070464, "allocated": 198687272960, "free": 54715797504, "freeAbove20Percent": 4035183411.199997}, "psi": "some avg10=0.06 avg60=0.08 avg300=0.02 total=49467663\nfull avg10=0.02 avg60=0.02 avg300=0.00 total=28948508", "k3s": "NRestarts=0\nActiveState=active\nSubState=running"}
