@@ -1,5 +1,19 @@
 # Storage I/O incident — 2026-10-25
 
+## Post-expansion free-space clarification — 2026-10-25
+
+Follow-up host reads confirmed one ONLINE NVMe ZFS pool, `rpool`: **236.00GiB
+total / 185.03GiB allocated / 50.97GiB physical free**. ZFS reports **43.67GiB
+dataset-available**, shared across root, VM zvols and Longhorn after its internal
+space accounting. Longhorn's sparse zvol is 150GiB; ext4 reports **147.09GiB
+total / 21.33GiB used / 125.76GiB free**, with **118.93GiB available in `df`**.
+The **6.84GiB free-versus-available difference** is ext4 reserved free space,
+distinct from Longhorn's 7.82GiB scheduling reservation. No policy was changed.
+Only **3.77GiB additional physical allocation** remains above the 20% pool-free
+planning floor. Filesystem capacity cannot all be filled from the sparse backing
+pool. Full explanation: [ZFS versus ext4](README-4-expand-storage.md#zfs-pool-space-versus-ext4-free-space).
+Small changes from the earlier snapshot are ordinary live accounting differences.
+
 ## Proxmox2-old expansion completed — 2026-10-25 19:35–19:36 CET / 18:35–18:36 UTC
 
 User explicitly requested expanding this host after reading the 150GiB procedure

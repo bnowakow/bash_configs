@@ -156,6 +156,38 @@ the physical margin, drive reliability warning and migration cap still apply.
 Plan greater physical capacity with the replacement drive and re-measure before
 future growth. No automatic cleanup or deletion was performed.
 
+### ZFS pool space versus ext4 free space
+
+Follow-up read-only measurement on 2026-10-25, after the grow. Small differences
+from the 18:36:10 UTC snapshot above reflect ongoing allocation and sampling.
+There is one ZFS pool on this NVMe, `rpool`, and it reports ONLINE.
+
+| Layer / measurement | GiB | Meaning |
+| --- | ---: | --- |
+| ZFS pool total | 236.00 | Pool capacity on the NVMe |
+| ZFS pool allocated | 185.03 | Physical pool allocation across all datasets/zvols |
+| ZFS pool free | 50.97 | Physical space not yet allocated |
+| ZFS dataset available | 43.67 | Shared allocation budget after ZFS internal space accounting |
+| Longhorn backing zvol | 150.00 | Sparse virtual device size |
+| Longhorn ext4 total | 147.09 | Filesystem capacity after metadata overhead |
+| Longhorn ext4 used | 21.33 | Filesystem blocks used |
+| Longhorn ext4 free | 125.76 | Free blocks, including reserved free space (`f_bfree`) |
+| Longhorn ext4 available | 118.93 | Available blocks reported by `df` (`f_bavail`) |
+| Ext4 reserved free difference | 6.84 | `f_bfree - f_bavail`; included in free, excluded from available |
+| Pool free above the 20% planning floor | 3.77 | Further physical allocation before reaching 47.20GiB free |
+
+The **43.67GiB ZFS dataset-available figure is shared**, not a separate allowance
+for the root dataset, each VM and Longhorn. `/` is ZFS; only the dedicated
+Longhorn zvol in this layout contains ext4. Layout:
+`NVMe → rpool → sparse rpool/longhorn zvol → ext4 → /var/lib/longhorn`.
+
+Ext4 sees its enlarged virtual block device and cannot account for competing
+allocations in the underlying ZFS pool. Its 118.93GiB available figure therefore
+does not promise that much physical backing. Neither filesystem free space nor
+Longhorn nominal scheduling room overrides the shared pool limit. Ext4's
+reserved-free difference is also distinct from Longhorn's unchanged 7.82GiB
+`storageReserved` scheduling reservation. No reservations were changed.
+
 Increasing volsize does **not** repair the observed ZFS/etcd I/O stalls. Require
 healthy APIs, stable k3s restart counts and low sustained I/O pressure before
 maintenance. Perform one host at a time; this is a two-voter etcd cluster, so

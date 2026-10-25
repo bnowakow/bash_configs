@@ -156,6 +156,14 @@ includes unverified Mailpile staging):
 
 Filesystem free is Longhorn `storageAvailable`; scheduled is `storageScheduled`.
 These filesystem figures do not represent backing-pool physical capacity.
+The later direct host sample found **125.76GiB ext4 free**, including **6.84GiB
+reserved free**, leaving **118.93GiB available in `df`**. The backing `rpool`
+had **50.97GiB physically free / 43.67GiB shared dataset-available**; these are
+separate accounting layers, not additive budgets. Only **3.77GiB** of further
+physical allocation remains above the 20% pool-free planning floor. See the
+[ZFS/ext4 breakdown](README-4-expand-storage.md#zfs-pool-space-versus-ext4-free-space)
+for the full table and reservation distinctions. These later samples do not
+replace the timestamped Longhorn API snapshot above.
 Nominal remaining is total minus reserved minus scheduled. Both disks report
 Ready/Schedulable. Assigned capacity includes older test claims; physical
 allocation grows with writes and snapshots.
