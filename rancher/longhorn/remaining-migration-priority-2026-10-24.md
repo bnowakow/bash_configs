@@ -56,10 +56,15 @@ and the incident hold still block further migration admission.
 Nominal budget is total minus reserved minus scheduled; physical free is separate.
 If the Mailpile staging can eventually be reused, additional remaining allocation
 is **28.75Gi per host**, all for Docker Mailserver. This fits the displayed
-nominal budgets after the grows, but **does not pass physical-pool admission**:
-proxmox2-old has **50.96GiB physical pool free**, only **3.76GiB above a 20%
-pool margin**, and its NVMe reliability warning remains. Filesystem-free
-capacity on a sparse zvol does not establish space for copying more data.
+nominal budgets after the grows. Following successful user-initiated migrations
+of VM 700 and 601 to proxmox5 (completed 18:59:03 and 19:04:48 UTC), proxmox2-old
+has **84.79GiB physical pool free / 37.59GiB additional allocation headroom above
+a 20% pool margin**. The former 3.76GiB physical headroom is historical. This
+improves capacity but is **not a completed migration admission review**: re-measure
+mail data, allow snapshot/metadata and competing pool growth, verify replicas
+and backups, and account for the persistent NVMe reliability warning. Neither
+28.75GiB requested capacity nor sparse filesystem free space establishes the
+actual physical allocation needed. See the [migration monitoring record](io-pressure-incident-2026-10-25.md).
 
 The administrative **55Gi migration cap remains**. Production requests are 38Gi;
 adding the current Mailserver proposal would reach **66.75Gi**, exceeding it.

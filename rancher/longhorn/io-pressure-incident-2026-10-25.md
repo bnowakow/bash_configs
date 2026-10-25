@@ -1,5 +1,53 @@
 # Storage I/O incident — 2026-10-25
 
+## VM migrations released physical space — 2026-10-25 approximately 20:05 CET / 19:05 UTC
+
+User initiated migrations of VM 700 and then VM 601 from proxmox2-old to
+proxmox5. This session monitored the existing Proxmox tasks read-only; it did
+not initiate the moves, start either VM or delete disks manually.
+
+| VM | Destination | Completion CET (UTC+1) | Duration | Result | Approximate source allocation released |
+| --- | --- | --- | --- | --- | ---: |
+| 700 — proxmox-backup-server | proxmox5 | 19:59:03 | 10m 21s | TASK OK | 25.17GiB |
+| 601 — transmission | proxmox5 | 20:04:48 | 3m 31s | TASK OK | 8.69GiB |
+
+Both destination VM configurations and status were checked through the Proxmox
+API: both VMs remained **stopped**. Source `vm-700-disk-1`, `vm-700-disk-2`
+and both `vm-601` zvols were absent after successful migration. The older
+`rpool/data/vm-700-disk-0` remained at **122880 allocated bytes**; it was not
+referenced by the migrated VM's previously inspected configuration and was not
+deleted. Other older VM disks (350/351/400) were left untouched.
+
+After VM 601 cleanup, the local pool reported **236.00GiB total / 151.21GiB
+allocated / 84.79GiB physically free**. With the 20% free-space planning floor
+of **47.20GiB**, this leaves **37.59GiB additional physical allocation headroom**.
+That headroom is shared by Longhorn data, snapshots/metadata, root and any other
+pool consumers; it is not a promise of 37.59GiB additional application payload.
+Both moves reclaimed approximately **33.86GiB** of VM disk allocation; live
+before/after pool totals also include unrelated ongoing writes/accounting.
+The earlier ~51GiB free / ~3.77GiB headroom figures below are historical.
+Longhorn remains on the existing sparse 150GiB backing device; no further
+filesystem resize, reservation or replica-policy change was needed.
+
+During both transfers, source and proxmox3 I/O PSI were generally zero; brief
+source cleanup activity after VM 601 reached avg10 **0.36% some / 0.29% full**.
+Destination proxmox5 had substantial receive-time stalls: sampled avg10 reached
+**89.50% some / 88.78% full** during VM 700, and **60.56% / 59.12%** in a VM 601
+sample. These are observed samples, not certified task-wide maxima. VM 700's
+destination interval write waits were approximately 0.5–1s with queued writes,
+despite the destination pool reporting healthy. No migration error was reported.
+
+Final checks after each move found source pressure back near zero and destination
+pressure falling. After VM 601, source PSI avg10 was **0.00% / 0.00%**,
+destination **1.17% / 1.17%** (longer averages still decaying), and proxmox3's
+latest monitor sample was **0.00% / 0.00%**. Local k3s remained active/running,
+NRestarts **0**. This does not clear the known NVMe reliability warning or
+authorize new application migrations; refresh backup/replica/admission checks.
+
+Private monitoring captures: `/tmp/vm700-migration-monitor.jsonl` and
+`/tmp/vm601-migration-monitor.jsonl`. Their final entries contain task exitstatus
+OK and the successful Proxmox completion lines; no raw logs were added to Git.
+
 ## Post-expansion free-space clarification — 2026-10-25
 
 Follow-up host reads confirmed one ONLINE NVMe ZFS pool, `rpool`: **236.00GiB

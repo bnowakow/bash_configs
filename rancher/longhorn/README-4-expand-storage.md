@@ -140,7 +140,18 @@ a planning floor, more if write latency warrants it). Do not count compression
 or sparse allocation as guaranteed capacity. Both grows are complete; the
 proxmox2-old physical limit below remains a separate admission constraint.
 
-**Proxmox2-old physical limit after expansion (18:36:10 UTC):** the NVMe-backed
+**Latest physical capacity after VM moves (approximately 19:05 UTC):** user-initiated
+migrations of VM 700 (Proxmox Backup Server) and VM 601 (Transmission) to proxmox5
+both returned TASK OK; their attached source disks were released. The local
+236.00GiB pool now has **151.21GiB allocated / 84.79GiB physically free**, leaving
+**37.59GiB additional physical allocation above the 20% pool-free floor**.
+This shared headroom must cover data, snapshots, metadata and other pool growth;
+it is not an additional application-payload quota. Both VMs remain stopped.
+No further Longhorn resize was performed or needed. Details and I/O observations:
+[migration record](io-pressure-incident-2026-10-25.md#vm-migrations-released-physical-space--2026-10-25-approximately-2005-cet--1905-utc).
+The drive reliability warning and separate migration admission checks remain.
+
+**Historical physical limit immediately after expansion (18:36:10 UTC):** the NVMe-backed
 pool is **236.00GiB**, with **185.04GiB allocated / 50.96GiB physically free**.
 ZFS reports about **43.66GiB available to datasets**, after its internal space
 accounting. A 20% pool margin is **47.20GiB**, leaving only **3.76GiB additional
@@ -158,7 +169,8 @@ future growth. No automatic cleanup or deletion was performed.
 
 ### ZFS pool space versus ext4 free space
 
-Follow-up read-only measurement on 2026-10-25, after the grow. Small differences
+Historical read-only measurement on 2026-10-25, after the grow **and before the
+VM 700/601 migrations**. The latest pool capacity is recorded above. Small differences
 from the 18:36:10 UTC snapshot above reflect ongoing allocation and sampling.
 There is one ZFS pool on this NVMe, `rpool`, and it reports ONLINE.
 

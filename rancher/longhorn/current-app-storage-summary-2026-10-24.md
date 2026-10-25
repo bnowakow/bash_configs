@@ -1,6 +1,12 @@
 # Current app storage summary — 2026-10-24
 
-**Runtime/maintenance update — 2026-10-25 18:36 UTC:** nonessential applications
+**Runtime/maintenance update — 2026-10-25 approximately 19:05 UTC:** VM 700 and
+601 successfully migrated to proxmox5, releasing approximately **33.86GiB** of
+source disk allocation. Local NVMe pool free is now **84.79GiB**, with **37.59GiB
+headroom above a 20% pool-free margin**. Both VMs remain stopped. The Longhorn
+150GiB backing size is unchanged. See the [migration record](io-pressure-incident-2026-10-25.md).
+
+**Earlier maintenance update — 2026-10-25 18:36 UTC:** nonessential applications
 are deliberately scaled down for the [I/O incident](io-pressure-incident-2026-10-25.md).
 The app rows below describe migrated storage ownership, not current availability.
 Both backing zvols are now **150GiB** (proxmox3: 100 → 150GiB; proxmox2-old:
@@ -160,7 +166,8 @@ The later direct host sample found **125.76GiB ext4 free**, including **6.84GiB
 reserved free**, leaving **118.93GiB available in `df`**. The backing `rpool`
 had **50.97GiB physically free / 43.67GiB shared dataset-available**; these are
 separate accounting layers, not additive budgets. Only **3.77GiB** of further
-physical allocation remains above the 20% pool-free planning floor. See the
+physical allocation remained above the 20% pool-free planning floor **before
+the VM migrations**. Current pool free/headroom is **84.79 / 37.59GiB**. See the
 [ZFS/ext4 breakdown](README-4-expand-storage.md#zfs-pool-space-versus-ext4-free-space)
 for the full table and reservation distinctions. These later samples do not
 replace the timestamped Longhorn API snapshot above.
@@ -177,11 +184,12 @@ NAS backups were checked. The local resize did not repair those exceptions.
 
 Both hosts now have nominal room for the remaining proposed requests, but this
 does not establish physical capacity or authorize migration. Proxmox2-old's
-NVMe-backed pool has **50.96GiB physically free**, with only **3.76GiB above a
-20% pool-free planning floor**; its 125.68GiB Longhorn filesystem-free figure
-is sparse virtual space, not guaranteed backing. Dataset-available space is
-about 43.66GiB after ZFS internal accounting. Drive reliability and physical
-growth remain blockers. Keep the staged plan, re-measure, review retention and
+NVMe-backed pool now has **84.79GiB physically free**, with **37.59GiB above a
+20% pool-free planning floor** after moving VM 700 and 601. The timestamped
+Longhorn filesystem-free figure above remains sparse virtual space, not
+guaranteed backing. Earlier ZFS dataset-available figures predate the VM moves
+and must be re-measured. Drive reliability and physical growth/admission checks
+remain outstanding. Keep the staged plan, re-measure, review retention and
 choose a later batch explicitly.
 The overall 76Gi proposal comprises 38Gi migrated plus 38Gi remaining; physical
 allocation, snapshots and required free-space margins are separate constraints.
