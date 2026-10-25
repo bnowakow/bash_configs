@@ -363,6 +363,66 @@ wait_for_kubectl() {
   return 1
 }
 
+wait_for_cert_manager_startup_check() {
+  local job_name
+  if ! job_name="$(kubectl --kubeconfig "$kubeconfig_path" --namespace cert-manager \
+    get job cert-manager-startupapicheck --ignore-not-found -o name 2>>"$log_file")"; then
+    log_error "Could not inspect the cert-manager startup API check Job."
+    return 1
+  fi
+  if [ -z "$job_name" ]; then
+    log "No startup API check Job remains (post-install hook); verifying the live API instead."
+    return 0
+  fi
+  log "Waiting for the cert-manager startup API check to complete."
+  if run_cmd kubectl --kubeconfig "$kubeconfig_path" --namespace cert-manager \
+    wait --for=condition=complete "$job_name" --timeout="$rollout_timeout"; then
+    return 0
+  fi
+  # A successful hook can be deleted between inspection and kubectl wait.
+  if ! job_name="$(kubectl --kubeconfig "$kubeconfig_path" --namespace cert-manager \
+    get job cert-manager-startupapicheck --ignore-not-found -o name 2>>"$log_file")"; then
+    log_error "Could not recheck the cert-manager startup API check Job."
+    return 1
+  fi
+  if [ -n "$job_name" ]; then
+    log_error "The cert-manager startup API check did not complete."
+    return 1
+  fi
+  log "Startup API check Job was removed; verifying the live API instead."
+}
+
+verify_cert_manager_api() {
+  local attempt
+  log "Checking cert-manager API/webhook with a server-side dry run; no Certificate is persisted."
+  for attempt in $(seq 1 12); do
+    if run_cmd kubectl --kubeconfig "$kubeconfig_path" --namespace cert-manager \
+      --request-timeout=15s create --dry-run=server -f - <<'CERT_MANAGER_API_CHECK'
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  generateName: cert-manager-api-healthcheck-
+spec:
+  secretName: cert-manager-api-healthcheck
+  dnsNames:
+    - cert-manager-api-healthcheck.invalid
+  issuerRef:
+    name: cert-manager-api-healthcheck
+    kind: Issuer
+CERT_MANAGER_API_CHECK
+    then
+      log_success "cert-manager API/webhook dry-run check passed."
+      return 0
+    fi
+    if [ "$attempt" -lt 12 ]; then
+      log "Waiting for cert-manager API/webhook readiness ($attempt/12); retrying in 5s."
+      sleep 5
+    fi
+  done
+  log_error "cert-manager API/webhook dry-run check failed. See $log_file."
+  return 1
+}
+
 verify_cert_manager_health() {
   local deployment
 
@@ -375,12 +435,8 @@ verify_cert_manager_health() {
       --timeout="$rollout_timeout"
   done
 
-  log "Waiting for the $(component_text "cert-manager") startup API check to complete."
-  run_cmd kubectl --kubeconfig "$kubeconfig_path" \
-    --namespace cert-manager \
-    wait --for=condition=complete \
-    job/cert-manager-startupapicheck \
-    --timeout="$rollout_timeout"
+  wait_for_cert_manager_startup_check
+  verify_cert_manager_api
 
   run_cmd kubectl --kubeconfig "$kubeconfig_path" get pods --namespace cert-manager -o wide
   run_cmd kubectl --kubeconfig "$kubeconfig_path" get issuers,clusterissuers,certificaterequests,certificates --all-namespaces

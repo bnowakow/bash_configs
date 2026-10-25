@@ -3,7 +3,7 @@ defaultNamespace: cert-manager
 
 helm:
   chart: oci://quay.io/jetstack/charts/cert-manager
-  version: v1.19.4
+  version: v1.21.3
   releaseName: cert-manager
   waitForJobs: true
   atomic: true

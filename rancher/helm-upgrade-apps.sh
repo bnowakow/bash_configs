@@ -971,6 +971,35 @@ apply_fleet_bundle_with_repair() {
   return 1
 }
 
+generate_fleet_bundle() {
+  local app="$1" bundle_name="$2" relative_fleet_dir="$3" output_file="$4"
+  local error_file generation_error attempt
+  error_file="$(mktemp "${TMPDIR:-/tmp}/fleet-generation.XXXXXX.log")" || return 1
+  for attempt in 1 2 3; do
+    if (cd "$bash_configs_root" && fleet apply \
+      --kubeconfig "$kubeconfig_path" --namespace fleet-local \
+      --output "$output_file" "$bundle_name" "$relative_fleet_dir") >"$error_file" 2>&1; then
+      cat "$error_file" >>"$log_file"
+      rm -f "$error_file"
+      return 0
+    fi
+    cat "$error_file" >>"$log_file"
+    if [ "$attempt" -lt 3 ] && grep -Eqi \
+      'connection refused|connection reset|i/o timeout|TLS handshake timeout|context deadline exceeded|temporary failure|temporary error|no such host|unexpected EOF|status[^[:digit:]]*(429|500|502|503|504)' "$error_file"; then
+      log "$app: transient Fleet generation failure (attempt $attempt/3); retrying in $((attempt * 2))s"
+      : >"$output_file"
+      sleep "$((attempt * 2))"
+    else
+      break
+    fi
+  done
+  generation_error="$(tail -c 2200 "$error_file")"
+  rm -f "$error_file"
+  record_failure_and_maybe_abort "Fleet apply failed ($app)" \
+    "fleet apply could not generate bundle $bundle_name after $attempt attempt(s). No cluster resources were changed.\n\n$generation_error\n\nFull output: $log_file"
+  return 1
+}
+
 apply_fleet_bundle() {
   local app="$1"
   local fleet_dir="$2"
@@ -1019,14 +1048,8 @@ apply_fleet_bundle() {
   generated_bundle_file="$(mktemp "${TMPDIR:-/tmp}/fleet-bundle.XXXXXX.yaml")"
   log "$app: generating local Fleet Bundle from $relative_fleet_dir" \
     "$(color_blue "$app"): generating local Fleet Bundle"
-  if ! (cd "$bash_configs_root" && fleet apply \
-    --kubeconfig "$kubeconfig_path" \
-    --namespace fleet-local \
-    --output "$generated_bundle_file" \
-    "$bundle_name" "$relative_fleet_dir") >>"$log_file" 2>&1; then
+  if ! generate_fleet_bundle "$app" "$bundle_name" "$relative_fleet_dir" "$generated_bundle_file"; then
     rm -f "$generated_bundle_file"
-    record_failure_and_maybe_abort "Fleet apply failed ($app)" \
-      "fleet apply could not generate bundle $bundle_name. No cluster resources were changed."
     return 1
   fi
 
