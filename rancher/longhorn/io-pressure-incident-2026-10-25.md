@@ -1,5 +1,66 @@
 # Storage I/O incident — 2026-10-25
 
+## Proxmox2-old expansion completed — 2026-10-25 19:35–19:36 CET / 18:35–18:36 UTC
+
+User explicitly requested expanding this host after reading the 150GiB procedure
+and the known reliability finding. Grew `rpool/longhorn` / `/dev/zd0` online
+from **80 to 150GiB (161061273600 bytes)** at 18:35:36 UTC, then grew ext4.
+Filesystem UUID `18ac8246-d16c-4dfd-873b-a53bc0348957`, Longhorn disk UUID
+`ea436ad0-7d22-46b2-a5a6-e11519adf713`, disk key
+`default-disk-7d27979faac45811`, mount path, ZFS refreservation 0 and Longhorn
+reservation **8395570380 bytes / 7.82GiB** were preserved.
+Commands/results: [local maintenance log](proxmox2-old-expansion-2026-10-25.log).
+
+Preflight passed **600 seconds / 21 samples** of both direct APIs ready, k3s
+active with restart counts unchanged at local **0** / proxmox3 **60**, and I/O
+PSI avg10 below the documented 5% some / 2% full screening limits (local 0%,
+peer maximum 0.03%). SMART temperature was 41 C, warning **0x04** persisted,
+and thermal counters remained unchanged. Pool ONLINE, ext4 mounted rw, no
+recent matching storage-error kernel messages in the bounded capture. All
+39 production volumes had completed NAS backup records; existing restore
+evidence was reviewed rather than claiming fresh restores of every backup.
+The maintenance decision explicitly records failed SMART health and consumed
+estimated endurance. It does not establish drive repair.
+
+At **18:36:10 UTC**, Longhorn had reconciled the existing disk and reported:
+
+| Node | Maximum GiB | Filesystem free GiB | Reserved GiB | Scheduled GiB | Nominal room GiB |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| proxmox2-old | 147.09 | 125.68 | 7.82 | 44.51 | 94.76 |
+| proxmox3 | 147.09 | 122.56 | 0 | 47.27 | 99.82 |
+
+Disk Ready/Schedulable and identities preserved. All **12 attached volumes**
+were healthy and all **12 running engines** had two RW replicas. The five
+previously documented detached production exceptions remained unchanged, with
+their one nonfailed copy on proxmox3 and completed NAS backups. Mailpile staging
+and native-test replica exceptions likewise remained unchanged. Local scheduled
+capacity changed from 46.01 to 44.51GiB during background reconciliation; this
+session did not remove replicas or change policy. Budget must be re-measured
+after repairing those placements.
+
+Post-grow I/O PSI avg10 was **0.06% some / 0.02% full**, local k3s restart
+count remained zero, both APIs passed. Final ZFS interval write waits were
+**51–171 microseconds** with no pending queues. SMART temperature was 42 C,
+warning still **0x04**, thermal counters unchanged. Peer PSI was zero and
+restart count remained 60. No reboot, service restart, workload restoration,
+PVC resize, reservation change, replica repair or cap increase was performed.
+
+**Physical NVMe space after expansion:** `rpool` is **236.00GiB**, allocated
+**185.04GiB**, physically free **50.96GiB**. ZFS dataset-available space is
+**43.66GiB**, a different figure after internal accounting. Root dataset uses
+about **76.33GiB**, VM zvols **84.79GiB**, and the Longhorn zvol **23.90GiB**;
+these accounting views need not sum exactly to pool allocation. A 20% pool
+margin is **47.20GiB**, leaving only **3.76GiB further physical allocation
+above that planning floor**. The sparse resize added virtual capacity; it
+did not create 70GiB of physical free space. Do not admit migrations from the
+125.68GiB filesystem-free figure alone. Drive replacement/capacity planning and
+the migration admission hold remain; the earlier host-expansion hold was
+superseded only for this explicitly requested, completed grow.
+
+Private preflight/postflight inventory and stability samples:
+`/tmp/proxmox2-expansion-preflight/`. No raw logs or secrets were committed.
+The procedure and current/remaining capacity documents were updated.
+
 ## Additional proxmox3 buffer — 2026-10-25 19:14:34 CET / 18:14:34 UTC
 
 User requested increasing the just-expanded local backing device from 128GiB to
