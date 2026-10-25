@@ -61,3 +61,11 @@ StorageClass change is authorized. See the
 [current storage summary](current-app-storage-summary-2026-10-24.md) for fresh
 Longhorn-reported disk figures and [assessment](fleet-storage-migration-assessment-2026-10-24.md)
 for historical evidence.
+
+## Proposed host expansion
+
+See [host expansion procedure and sizing](README-4-expand-storage.md): recommend
+128GiB backing zvols on both hosts (+~48GiB / +28GiB), with 160GiB as the
+optional larger-growth scenario. This is a proposal only; physical pool
+headroom, current health and the existing migration cap require review.
+No host, PVC, replica policy or cap was changed.

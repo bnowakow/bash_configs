@@ -179,3 +179,11 @@ Docker Compose services, outside this Kubernetes PVC inventory.
 - [Disabled Filebot](migrations/filebot-2026-10-24/RESULTS.md)
 - [Full assessment and original database evidence](fleet-storage-migration-assessment-2026-10-24.md)
 - [RWX audit](rwx-safety-audit-2026-10-24.md)
+
+## Proposed host expansion
+
+See [host expansion procedure and sizing](README-4-expand-storage.md): recommend
+128GiB backing zvols on both hosts (+~48GiB / +28GiB), with 160GiB as the
+optional larger-growth scenario. This is a proposal only; physical pool
+headroom, current health and the existing migration cap require review.
+No host, PVC, replica policy or cap was changed.
