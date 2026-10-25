@@ -1,0 +1,4 @@
+name: longhorn-mailpile-storage
+defaultNamespace: apps-mailpile
+dependsOn:
+  - name: longhorn-pilot-storage

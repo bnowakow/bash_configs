@@ -1,0 +1,132 @@
+{
+  "apiVersion": "batch/v1",
+  "kind": "Job",
+  "metadata": {
+    "name": "mailpile-longhorn-copy-20261025",
+    "namespace": "apps-mailpile"
+  },
+  "spec": {
+    "backoffLimit": 0,
+    "activeDeadlineSeconds": 2400,
+    "template": {
+      "spec": {
+        "restartPolicy": "Never",
+        "automountServiceAccountToken": false,
+        "initContainers": [
+          {
+            "name": "copy-manifest",
+            "image": "python:3.13-slim",
+            "command": [
+              "python",
+              "-u",
+              "-c",
+              "\"\"\"Private manifest for a stopped Mailpile copy and its isolated NAS restore.\"\"\"\nimport hashlib\nimport json\nimport os\nfrom pathlib import Path\nimport stat\nimport subprocess\nimport sys\n\n\ndef describe(root):\n    entries = {}\n    inodes = {}\n    for p in sorted(root.rglob('*')):\n        rel = str(p.relative_to(root))\n        s = p.lstat()\n        record = {'mode': stat.S_IMODE(s.st_mode), 'uid': s.st_uid, 'gid': s.st_gid}\n        if stat.S_ISLNK(s.st_mode):\n            record.update(type='symlink', link=os.readlink(p))\n        elif stat.S_ISREG(s.st_mode):\n            value = hashlib.sha256()\n            with p.open('rb') as stream:\n                for block in iter(lambda: stream.read(1024 * 1024), b''):\n                    value.update(block)\n            record.update(type='file', size=s.st_size, sha256=value.hexdigest())\n            key = (s.st_dev, s.st_ino)\n            if key in inodes:\n                record['hardlink_to'] = inodes[key]\n            else:\n                inodes[key] = rel\n        elif stat.S_ISDIR(s.st_mode):\n            record['type'] = 'directory'\n        elif stat.S_ISFIFO(s.st_mode):\n            record['type'] = 'fifo'\n        elif stat.S_ISSOCK(s.st_mode):\n            record['type'] = 'socket'\n        else:\n            raise RuntimeError('Unexpected special file; refusing cutover')\n        entries[rel] = record\n    s = root.stat()\n    return {'root': [stat.S_IMODE(s.st_mode), s.st_uid, s.st_gid], 'entries': entries}\n\n\ndef verify(claim, expected):\n    actual = describe(Path('/target') / claim)\n    # ext4's empty filesystem recovery directory is not application data.\n    for name in list(actual['entries']):\n        if name not in expected['entries'] and (name == 'lost+found' or name.startswith('lost+found/')):\n            del actual['entries'][name]\n    if actual != expected:\n        raise RuntimeError('Manifest/content/permissions mismatch for ' + claim)\n    regular = sum(x['type'] == 'file' for x in actual['entries'].values())\n    print(claim + ': ' + str(regular) + ' regular files matched SHA256, metadata and link relationships', flush=True)\n\n\nmanifest = Path('/evidence/manifest.json')\nif '--copy' in sys.argv:\n    records = {}\n    for claim in ('data', 'keys'):\n        source = Path('/source') / claim\n        target = Path('/target') / claim\n        subprocess.run(['cp', '-a', '--sparse=always', str(source) + '/.', str(target) + '/'], check=True)\n        subprocess.run(['sync', '-f', str(target)], check=True)\n        records[claim] = describe(source)\n        verify(claim, records[claim])\n    old_umask = os.umask(0o077)\n    try:\n        manifest.write_text(json.dumps(records))\n    finally:\n        os.umask(old_umask)\n    print('Private stopped-copy manifest saved; no message/key contents printed', flush=True)\nelse:\n    records = json.loads(manifest.read_text())\n    for claim in ('data', 'keys'):\n        verify(claim, records[claim])\n    print('Both restored trees match the complete stopped-copy manifest', flush=True)\n",
+              "--copy"
+            ],
+            "volumeMounts": [
+              {
+                "name": "source-data",
+                "mountPath": "/source/data",
+                "readOnly": true
+              },
+              {
+                "name": "target-data",
+                "mountPath": "/target/data"
+              },
+              {
+                "name": "source-keys",
+                "mountPath": "/source/keys",
+                "readOnly": true
+              },
+              {
+                "name": "target-keys",
+                "mountPath": "/target/keys"
+              },
+              {
+                "name": "evidence",
+                "mountPath": "/evidence"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "50m",
+                "memory": "64Mi"
+              },
+              "limits": {
+                "cpu": "500m",
+                "memory": "2Gi"
+              }
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "keyring-check",
+            "image": "docker.io/rroemhild/mailpile:latest@sha256:5b58d53b2f11ba6ce360006ca1f6459970b3fba8bafdeafafbf1af1d14c58172",
+            "command": [
+              "python",
+              "-c",
+              "# Compatible with the application's Python 2 and GnuPG 1.4.\nfrom __future__ import print_function\nimport os\nimport shutil\nimport subprocess\nimport tempfile\n\nscratch = tempfile.mkdtemp(prefix='mailpile-keyring-check-')\ntry:\n    home = os.path.join(scratch, 'gnupg')\n    shutil.copytree('/target/keys', home, symlinks=True)\n    os.chmod(home, 0o700)\n    counts = {}\n    for option, record in [('--list-keys', b'pub:'), ('--list-secret-keys', b'sec:')]:\n        process = subprocess.Popen(['gpg', '--no-options', '--homedir', home,\n                                    '--batch', '--with-colons', option],\n                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n        out, err = process.communicate()\n        if process.returncode:\n            raise RuntimeError('Copied GnuPG keyring could not be parsed; private diagnostics withheld')\n        counts[option] = sum(line.startswith(record) for line in out.splitlines())\n    print('GnuPG keyring parsed in disposable clone: public=%d secret=%d' %\n          (counts['--list-keys'], counts['--list-secret-keys']))\n    print('Original/target key files unchanged; no keys or messages decrypted/sent')\nfinally:\n    shutil.rmtree(scratch)\n"
+            ],
+            "volumeMounts": [
+              {
+                "name": "target-keys",
+                "mountPath": "/target/keys",
+                "readOnly": true
+              }
+            ],
+            "securityContext": {
+              "runAsUser": 0,
+              "runAsGroup": 0,
+              "allowPrivilegeEscalation": false
+            },
+            "resources": {
+              "requests": {
+                "cpu": "50m",
+                "memory": "64Mi"
+              },
+              "limits": {
+                "cpu": "500m",
+                "memory": "512Mi"
+              }
+            }
+          }
+        ],
+        "volumes": [
+          {
+            "name": "source-data",
+            "persistentVolumeClaim": {
+              "claimName": "mailpile-path1",
+              "readOnly": true
+            }
+          },
+          {
+            "name": "target-data",
+            "persistentVolumeClaim": {
+              "claimName": "mailpile-path1-longhorn-rwo"
+            }
+          },
+          {
+            "name": "source-keys",
+            "persistentVolumeClaim": {
+              "claimName": "mailpile-path2",
+              "readOnly": true
+            }
+          },
+          {
+            "name": "target-keys",
+            "persistentVolumeClaim": {
+              "claimName": "mailpile-path2-longhorn-rwo"
+            }
+          },
+          {
+            "name": "evidence",
+            "persistentVolumeClaim": {
+              "claimName": "mailpile-migration-evidence-20261025"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

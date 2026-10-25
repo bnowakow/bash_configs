@@ -58,6 +58,14 @@ inactive mounts have target references prepared, although only config is in its
 zero-replica Deployment template. Its initial backups completed while a temporary
 helper attached the volumes; current recurring policy skips detached volumes.
 
+## Mailpile staging allocation — not migrated
+
+The attempted Mailpile copy was interrupted by recurring control-plane failures.
+Mailpile was restored to original local storage with one available replica and
+HTTPS 200. Two unverified Longhorn target claims reserve **9.25Gi per host**;
+they are not included in the 26 migrated apps/36 production claims/18.75Gi above.
+No Mailpile completion marker was added. See the [incident handoff](migrations/mailpile-2026-10-25/HANDOFF.md).
+
 ## Still local: proposed Longhorn targets
 
 All these stateful applications remain in the deferred/single-owner group.
@@ -90,12 +98,14 @@ Mailpile (9.25Gi): together **56Gi** of the 57.25Gi remaining proposal.
 
 ## Remaining migration priority
 
-Sonarr, youtube-dl Material and AdGuard Home have migrated after the initial
-control-plane blocker. Remaining units are ranked by historical apparent size
-in the [priority plan](remaining-migration-priority-2026-10-24.md) and CSV
-`remaining_size_rank`: BookStack, Mailpile, Zabbix, Docker Mailserver. BookStack
-remains held until current uploads are located/protected. Re-measure and plan
-engine-specific shutdown/restore validation before each future migration.
+User confirmed Sonarr, youtube-dl Material and AdGuard Home work. Historical
+size ranks remain BookStack, Mailpile, Zabbix, Docker Mailserver; see the
+[ranked plan and next proposal](remaining-migration-priority-2026-10-24.md).
+BookStack is held until current uploads/config are located/protected.
+Recommend **Mailpile alone next: data 9Gi + keys 256Mi = 9.25Gi per host /
+18.5Gi aggregate replicas**, two RWO claims. Re-measure, coordinate shutdown,
+preserve keyring/mail/index state and validate isolated restore. Larger final
+services remain separate stages. No new migration was performed by this update.
 
 ## Other storage types retained
 
@@ -119,21 +129,22 @@ persistent RWO/RWX claims.
 
 ## Capacity and scope
 
-With two replicas on these two nodes, remaining 57.25Gi of requests normally means
-57.25Gi of additional nominal scheduling on **each** node, not 28.625Gi each. Current
-remaining nominal budgets are approximately:
+Remaining proposals total 57.25Gi. Mailpile's 9.25Gi is already allocated as
+unverified staging, so another **48Gi on each host** would be needed if that
+staging is reused after a successful retry. Current nominal budgets, already
+excluding the staging allocation, are approximately:
 
 | Node | Remaining nominal budget |
 | --- | ---: |
-| proxmox2-old | 51.61Gi |
-| proxmox3 | 79.10Gi |
+| proxmox2-old | 42.36Gi |
+| proxmox3 | 69.85Gi |
 
-Latest Longhorn disk snapshot (**2026-10-25 07:07 UTC**):
+Latest Longhorn disk snapshot (**2026-10-25 10:18 UTC**; includes unverified Mailpile staging):
 
 | Node | Total GiB | Physically used GiB | Physically free GiB | Reserved GiB | Scheduled GiB | Nominal remaining GiB |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| proxmox2-old | 78.19 | 8.66 | 69.53 | 7.82 | 18.76 | 51.61 |
-| proxmox3 | 97.87 | 8.61 | 89.26 | 0.00 | 18.77 | 79.10 |
+| proxmox2-old | 78.19 | 14.71 | 63.48 | 7.82 | 28.01 | 42.36 |
+| proxmox3 | 97.87 | 16.91 | 80.96 | 0.00 | 28.02 | 69.85 |
 
 Physical free is Longhorn `storageAvailable`; scheduled is `storageScheduled`.
 Nominal remaining is total minus reserved minus scheduled. Both disks report

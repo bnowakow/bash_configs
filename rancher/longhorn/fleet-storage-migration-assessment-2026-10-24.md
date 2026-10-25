@@ -137,6 +137,15 @@ Original local claims remain retained. Production migrations total 26 apps,
 See [execution and backup/restore evidence](migrations/sonarr-ytdl-adguard-2026-10-24/RESULTS.md).
 Preceding proposals are historical; use the current remaining priority ranks.
 
+## Next size-prioritized proposal after user validation — 2026-10-25
+
+User confirmed Sonarr/youtube-dl Material/AdGuard Home work. Recommend Mailpile
+alone next (9Gi data + 256Mi keys = 9.25Gi per node, 18.5Gi aggregate replicas),
+the smallest remaining independent unit after held BookStack. Re-measure and
+protect mail/index/keyring state, stop its writer, and validate isolated restore.
+BookStack remains blocked on locating current uploads; Zabbix/Mailserver remain
+later separate stages by measured size. See the [priority plan and live capacity](remaining-migration-priority-2026-10-24.md). No migration performed by this update.
+
 ## Revised migration order: shared-state restrictions go last
 
 User decision after the pilot: **defer every app whose persistent state is not
