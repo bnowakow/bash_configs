@@ -1,0 +1,73 @@
+2026-10-25T19:46:34+00:00 START user-requested restoration; databases verified ready first; Filebot remains disabled; Fleet files unchanged
+2026-10-25T19:46:34+00:00 SCALED apps-audiobookshelf/audiobookshelf -> 1
+2026-10-25T19:46:34+00:00 SCALED apps-bindery/bindery -> 1
+2026-10-25T19:46:56+00:00 READY apps-audiobookshelf/audiobookshelf
+2026-10-25T19:46:56+00:00 READY apps-bindery/bindery
+2026-10-25T19:46:56+00:00 LOCAL_IO_PSI some avg10=0.09 avg60=0.02 avg300=0.00 total=4035262595 | full avg10=0.09 avg60=0.02 avg300=0.00 total=3214940695
+2026-10-25T19:47:01+00:00 SCALED apps-bookstack/bookstack -> 1
+2026-10-25T19:47:01+00:00 SCALED apps-calibre/calibre -> 1
+2026-10-25T19:47:42+00:00 READY apps-bookstack/bookstack
+2026-10-25T19:47:42+00:00 READY apps-calibre/calibre
+2026-10-25T19:47:42+00:00 LOCAL_IO_PSI some avg10=0.00 avg60=0.01 avg300=0.00 total=4035326209 | full avg10=0.00 avg60=0.01 avg300=0.00 total=3214990237
+2026-10-25T19:47:47+00:00 SCALED apps-calibre/calibre-web -> 1
+2026-10-25T19:47:47+00:00 SCALED apps-calibre/kavita -> 1
+2026-10-25T19:48:09+00:00 READY apps-calibre/calibre-web
+2026-10-25T19:48:09+00:00 READY apps-calibre/kavita
+2026-10-25T19:48:09+00:00 LOCAL_IO_PSI some avg10=0.00 avg60=0.00 avg300=0.00 total=4035373500 | full avg10=0.00 avg60=0.00 avg300=0.00 total=3215025299
+2026-10-25T19:48:14+00:00 SCALED apps-cleanuparr/cleanuparr -> 1
+2026-10-25T19:48:14+00:00 SCALED apps-flaresolverr/flaresolverr -> 1
+2026-10-25T19:48:46+00:00 READY apps-cleanuparr/cleanuparr
+2026-10-25T19:48:52+00:00 READY apps-flaresolverr/flaresolverr
+2026-10-25T19:48:52+00:00 LOCAL_IO_PSI some avg10=0.19 avg60=0.25 avg300=0.07 total=4035695306 | full avg10=0.14 avg60=0.19 avg300=0.05 total=3215276500
+2026-10-25T19:48:58+00:00 SCALED apps-homer/homer -> 1
+2026-10-25T19:48:58+00:00 SCALED apps-homer/homer-without-auth -> 1
+2026-10-25T19:49:21+00:00 READY apps-homer/homer
+2026-10-25T19:49:25+00:00 READY apps-homer/homer-without-auth
+2026-10-25T19:49:25+00:00 LOCAL_IO_PSI some avg10=0.00 avg60=0.14 avg300=0.06 total=4035755603 | full avg10=0.00 avg60=0.11 avg300=0.04 total=3215310343
+2026-10-25T19:49:30+00:00 SCALED apps-homer-test/homer-test -> 2
+2026-10-25T19:49:30+00:00 SCALED apps-jellyseerr/jellyseerr -> 1
+2026-10-25T19:50:32+00:00 READY apps-homer-test/homer-test
+2026-10-25T19:50:32+00:00 READY apps-jellyseerr/jellyseerr
+2026-10-25T19:50:32+00:00 LOCAL_IO_PSI some avg10=0.05 avg60=0.25 avg300=0.12 total=4036140632 | full avg10=0.03 avg60=0.20 avg300=0.09 total=3215637872
+2026-10-25T19:50:37+00:00 SCALED apps-mailpile/mailpile -> 1
+2026-10-25T19:50:38+00:00 SCALED apps-openbooks/openbooks -> 1
+2026-10-25T19:50:48+00:00 READY apps-mailpile/mailpile
+2026-10-25T19:51:16+00:00 READY apps-openbooks/openbooks
+2026-10-25T19:51:16+00:00 LOCAL_IO_PSI some avg10=0.00 avg60=0.11 avg300=0.10 total=4036236033 | full avg10=0.00 avg60=0.09 avg300=0.07 total=3215707121
+2026-10-25T19:51:21+00:00 SCALED apps-profilarr/profilarr -> 1
+2026-10-25T19:51:21+00:00 SCALED apps-prowlarr/prowlarr -> 1
+2026-10-25T19:51:32+00:00 READY apps-profilarr/profilarr
+2026-10-25T19:51:42+00:00 READY apps-prowlarr/prowlarr
+2026-10-25T19:51:42+00:00 LOCAL_IO_PSI some avg10=2.46 avg60=0.73 avg300=0.24 total=4036831800 | full avg10=1.51 avg60=0.48 avg300=0.16 total=3216109418
+2026-10-25T19:51:47+00:00 SCALED apps-scrutiny/scrutiny -> 1
+2026-10-25T19:51:47+00:00 SCALED apps-smokeping/smokeping -> 1
+2026-10-25T19:52:09+00:00 READY apps-scrutiny/scrutiny
+2026-10-25T19:52:25+00:00 READY apps-smokeping/smokeping
+2026-10-25T19:52:25+00:00 LOCAL_IO_PSI some avg10=0.34 avg60=0.70 avg300=0.30 total=4037223101 | full avg10=0.20 avg60=0.44 avg300=0.20 total=3216371492
+2026-10-25T19:52:30+00:00 SCALED apps-ubooquity/ubooquity -> 1
+2026-10-25T19:52:31+00:00 SCALED apps-uptime-kuma/uptime-kuma -> 1
+2026-10-25T19:54:43+00:00 READY apps-ubooquity/ubooquity
+2026-10-25T19:54:43+00:00 READY apps-uptime-kuma/uptime-kuma
+2026-10-25T19:54:43+00:00 LOCAL_IO_PSI some avg10=0.06 avg60=0.15 avg300=0.20 total=4037512883 | full avg10=0.01 avg60=0.05 avg300=0.12 total=3216549186
+2026-10-25T19:54:48+00:00 SCALED apps-zabbix/zabbix-zabbix-web -> 1
+2026-10-25T19:54:49+00:00 SCALED apps-zabbix/zabbix-zabbix-webservice -> 1
+2026-10-25T19:55:00+00:00 READY apps-zabbix/zabbix-zabbix-web
+2026-10-25T19:55:00+00:00 READY apps-zabbix/zabbix-zabbix-webservice
+2026-10-25T19:55:00+00:00 LOCAL_IO_PSI some avg10=0.88 avg60=0.30 avg300=0.23 total=4037686417 | full avg10=0.30 avg60=0.10 avg300=0.12 total=3216631937
+2026-10-25T19:55:05+00:00 SCALED apps-bazarr/bazarr -> 1
+2026-10-25T19:55:05+00:00 SCALED apps-radarr/radarr -> 1
+2026-10-25T19:55:49+00:00 READY apps-bazarr/bazarr
+2026-10-25T19:55:58+00:00 READY apps-radarr/radarr
+2026-10-25T19:55:58+00:00 LOCAL_IO_PSI some avg10=0.34 avg60=0.31 avg300=0.23 total=4037981984 | full avg10=0.13 avg60=0.11 avg300=0.12 total=3216819284
+2026-10-25T19:56:03+00:00 SCALED apps-sonarr/sonarr -> 1
+2026-10-25T19:56:04+00:00 SCALED apps-youtubedl-material/youtubedl-material -> 1
+2026-10-25T19:56:42+00:00 READY apps-sonarr/sonarr
+2026-10-25T19:58:34+00:00 ROLLOUT_PENDING apps-youtubedl-material/youtubedl-material
+2026-10-25T19:58:34+00:00 LOCAL_IO_PSI some avg10=0.71 avg60=0.40 avg300=0.31 total=4039117010 | full avg10=0.46 avg60=0.17 avg300=0.11 total=3217339670
+2026-10-25T19:58:39+00:00 SCALED apps-zabbix/zabbix-zabbix-server -> 1
+2026-10-25T19:59:04+00:00 READY apps-zabbix/zabbix-zabbix-server
+2026-10-25T19:59:04+00:00 LOCAL_IO_PSI some avg10=1.92 avg60=1.13 avg300=0.49 total=4039886172 | full avg10=0.98 avg60=0.53 avg300=0.21 total=3217771783
+2026-10-25T19:59:09+00:00 RESTORE_SCALE_PHASE_COMPLETE pending=apps-youtubedl-material/youtubedl-material
+2026-10-25T20:14:18Z FINAL_VERIFIED controllers=30 expected desired/ready counts matched; youtube-dl late startup resolved; Filebot=0; Homer-test=2; both APIs ready; restart counts proxmox3=60 proxmox2-old=0; I/O PSI avg10 some/full=0/0 on both hosts; attached Longhorn volumes healthy; five production replica exceptions recovered
+2026-10-25T20:14:18Z DOCKER_VERIFIED proxmox3: emby,nubile running; proxmox2-old: home-assistant-watchdog-springboot-1,home-assistant-watchdog-postgres-1 running/healthy; scrutiny running
+Restoration rechecked after user interruption: all 30 controllers still ready; all five Docker containers running; local I/O PSI avg10=0/0 and peer=0.04/0.02; restart counts unchanged. RESTORATION_COMPLETE. No Fleet changes or migration performed; peer NVMe reliability warning remains.

@@ -1,5 +1,13 @@
 # Current app storage summary — 2026-10-24
 
+**Restoration update — 2026-10-25 20:14 UTC:** all 30 application controllers
+temporarily stopped for I/O relief have returned to their intended ready counts;
+Filebot remains disabled. The five production replica exceptions recovered
+through normal reattachment. Both APIs passed and both hosts' current I/O PSI
+was zero. See the [restoration record](io-pressure-incident-2026-10-25.md#applications-restored--2026-10-25-2114-cet--2014-utc)
+and [action log](application-restoration-2026-10-25.log). Historical capacity
+snapshots and the peer's hardware reliability finding remain separate concerns.
+
 **Runtime/maintenance update — 2026-10-25 approximately 19:05 UTC:** VM 700 and
 601 successfully migrated to proxmox5, releasing approximately **33.86GiB** of
 source disk allocation. Local NVMe pool free is now **84.79GiB**, with **37.59GiB
@@ -7,7 +15,8 @@ headroom above a 20% pool-free margin**. Both VMs remain stopped. The Longhorn
 150GiB backing size is unchanged. See the [migration record](io-pressure-incident-2026-10-25.md).
 
 **Earlier maintenance update — 2026-10-25 18:36 UTC:** nonessential applications
-are deliberately scaled down for the [I/O incident](io-pressure-incident-2026-10-25.md).
+were deliberately scaled down for the [I/O incident](io-pressure-incident-2026-10-25.md)
+at that timestamp; the later restoration update above supersedes that hold.
 The app rows below describe migrated storage ownership, not current availability.
 Both backing zvols are now **150GiB** (proxmox3: 100 → 150GiB; proxmox2-old:
 80 → 150GiB); ext4/Longhorn capacity is **147.09GiB per host**. Proxmox2-old's
@@ -175,7 +184,7 @@ Nominal remaining is total minus reserved minus scheduled. Both disks report
 Ready/Schedulable. Assigned capacity includes older test claims; physical
 allocation grows with writes and snapshots.
 
-The peer's current scheduled total is temporarily lower because some detached
+At this historical snapshot, the peer's scheduled total was lower because detached
 replica placements are missing/failed after the incident. Its displayed nominal
 room is not an admission allowance: re-measure after replica recovery. All
 attached volumes were healthy with two RW engine replicas at the resize check;
@@ -225,6 +234,7 @@ See [host expansion procedure and sizing](README-4-expand-storage.md): the user
 selected **150GiB per host**. Both are complete: proxmox3 100 → 150GiB;
 proxmox2-old 80 → 150GiB. The second grow passed a ten-minute both-host
 stability screen; all attached volumes remained healthy with two RW engine
-replicas. Existing detached replica exceptions remain. Sparse virtual capacity
+replicas. At that time detached replica exceptions remained; the five production
+exceptions recovered during the later application restoration. Sparse virtual capacity
 is not guaranteed backing space. PVC sizes, replica policy and migration cap
 are unchanged; no stopped applications were restored by the resize.

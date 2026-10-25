@@ -49,9 +49,10 @@ I/O/control-plane failure before retrying.
 Following both authorized expansions to 150GiB on 2026-10-25,
 nominal remaining budgets (both measured at 18:36:10 UTC), including Mailpile
 staging, are approximately **94.76Gi on proxmox2-old / 99.82Gi on proxmox3**.
-Proxmox2-old scheduled
-capacity is temporarily lower due to missing/failed detached replica placements;
-its budget must be re-measured after recovery. Its NVMe reliability warning
+At that snapshot proxmox2-old scheduled capacity was temporarily lower due to
+missing/failed detached replica placements. The five production exceptions
+recovered during application restoration at approximately 20:14 UTC; re-measure
+the budget before admitting another migration. Its NVMe reliability warning
 and the incident hold still block further migration admission.
 Nominal budget is total minus reserved minus scheduled; physical free is separate.
 If the Mailpile staging can eventually be reused, additional remaining allocation

@@ -1,5 +1,45 @@
 # Storage I/O incident — 2026-10-25
 
+## Applications restored — 2026-10-25 21:14 CET / 20:14 UTC
+
+User explicitly requested restoring all applications and Docker containers
+stopped to reduce I/O. Databases were restored and verified ready before their
+writers. Applications were then started in batches of two, with rollout and
+local I/O checks between batches. Fleet files were not changed.
+
+Final API verification at **21:14:18 CET** found **30 restored application
+controllers at their intended desired/ready counts**, including BookStack,
+youtube-dl Material/MongoDB, Zabbix/PostgreSQL, library applications, Sonarr,
+Radarr, Bazarr and Mailpile. Earlier temporary stops were explicitly restored
+to one even where the later broad-shutdown inventory captured zero: Sonarr,
+Radarr, Bazarr, Zabbix web and webservice. Homer-test returned to its original
+two replicas. **Filebot remains at zero**, as it was disabled before the incident.
+No application storage references were changed; Mailpile remains unmigrated.
+See the [restoration action log](application-restoration-2026-10-25.log).
+
+Standalone Docker restoration:
+
+- Proxmox2-old: `home-assistant-watchdog-postgres-1` and
+  `home-assistant-watchdog-springboot-1` running/healthy; Docker `scrutiny` running.
+- Proxmox3: `emby` and `nubile` running.
+
+youtube-dl Material initially exceeded the rollout wait while refreshing its
+downloader binary. A later check confirmed Ready with zero container restarts;
+the initial timeout was not left as an unresolved restore failure.
+
+Both direct APIs returned `ok`, k3s restart counts remained **60 / 0**, and final
+I/O PSI avg10 was **0% some / 0% full on both hosts**. Peer longer averages
+were still decaying after startup activity. All attached Longhorn volumes were
+healthy. The five previously documented detached production replica exceptions
+no longer appeared after applications reattached and normal Longhorn recovery;
+only Mailpile's unverified path1 staging volume and the old `homer-restored`
+test volume still lacked two nonfailed host placements. No manual replica
+deletion, forced attachment or replica-policy change was made.
+
+Restoration does not clear the peer's known NVMe reliability warning, revise
+the 55Gi migration cap, or authorize the next migration. Historical instructions
+below to keep workloads stopped are superseded by this explicit restoration.
+
 ## VM migrations released physical space — 2026-10-25 approximately 20:05 CET / 19:05 UTC
 
 User initiated migrations of VM 700 and then VM 601 from proxmox2-old to

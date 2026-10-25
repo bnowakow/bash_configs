@@ -36,8 +36,11 @@ path and filesystem UUID were preserved. All attached volumes were healthy;
 running engines had two RW replicas. Five detached production volumes had only
 one nonfailed local replica before the resize (Homer, Homer-without-auth, Radarr
 config, Bazarr config and OpenBooks books); completed NAS backups were present.
-Those exceptions were recorded, not repaired by the resize. Keep stopped
-workloads down pending coordinated recovery; capacity growth is not incident repair.
+Those exceptions were recorded, not repaired by the resize. The user later
+requested application restoration; by 20:14 UTC all restored controllers were
+ready and the five production exceptions had recovered through normal
+reattachment. See the [incident log](io-pressure-incident-2026-10-25.md).
+Capacity growth itself was not incident repair.
 
 ## Selected target sizes
 
