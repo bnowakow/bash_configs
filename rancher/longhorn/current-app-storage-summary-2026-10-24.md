@@ -1,11 +1,13 @@
 # Current app storage summary — 2026-10-24
 
-**Runtime/maintenance update — 2026-10-25 18:15 UTC:** nonessential applications
+**Runtime/maintenance update — 2026-10-25 18:36 UTC:** nonessential applications
 are deliberately scaled down for the [I/O incident](io-pressure-incident-2026-10-25.md).
 The app rows below describe migrated storage ownership, not current availability.
-Proxmox3's Longhorn backing zvol was expanded from 100 to 150GiB; ext4/Longhorn
-capacity is now 147.09GiB. The peer remains unchanged with a SMART reliability
-warning. See the [expansion log](proxmox3-expansion-2026-10-25.log).
+Both backing zvols are now **150GiB** (proxmox3: 100 → 150GiB; proxmox2-old:
+80 → 150GiB); ext4/Longhorn capacity is **147.09GiB per host**. Proxmox2-old's
+SMART reliability warning remains. See the expansion logs for
+[proxmox3](proxmox3-expansion-2026-10-25.log) and
+[proxmox2-old](proxmox2-old-expansion-2026-10-25.log).
 
 Refreshed from live PVCs, Deployments/StatefulSets and Longhorn node/volume
 objects after the BookStack migration (2026-10-25). Proposed sizes come from the conservative
@@ -141,15 +143,15 @@ excluding the staging allocation, are approximately:
 
 | Node | Remaining nominal budget |
 | --- | ---: |
-| proxmox2-old | 24.36Gi (before repairing missing/failed replica placements) |
+| proxmox2-old | 94.76Gi (before repairing missing/failed replica placements) |
 | proxmox3 | 99.82Gi |
 
-Latest Longhorn disk snapshots (**peer: 2026-10-25 18:11:56 UTC; proxmox3:
-18:15 UTC**; includes unverified Mailpile staging):
+Latest Longhorn disk snapshots (**both: 2026-10-25 18:36:10 UTC**;
+includes unverified Mailpile staging):
 
 | Node | Total GiB | Physically used GiB | Physically free GiB | Reserved GiB | Scheduled GiB | Nominal remaining GiB |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| proxmox2-old | 78.19 | 21.55 | 56.64 | 7.82 | 46.01 | 24.36 |
+| proxmox2-old | 147.09 | 21.40 | 125.68 | 7.82 | 44.51 | 94.76 |
 | proxmox3 | 147.09 | 24.53 | 122.56 | 0.00 | 47.27 | 99.82 |
 
 Physical free is Longhorn `storageAvailable`; scheduled is `storageScheduled`.
@@ -164,9 +166,14 @@ attached volumes were healthy with two RW engine replicas at the resize check;
 five detached production volumes lacked two nonfailed replicas. Their completed
 NAS backups were checked. The local resize did not repair those exceptions.
 
-Thus all remaining proposed targets do not fit on the smaller node unchanged.
-This is not an instruction to enlarge disks or migrate everything: keep the
-staged plan, re-measure, review retention and choose a later batch explicitly.
+Both hosts now have nominal room for the remaining proposed requests, but this
+does not establish physical capacity or authorize migration. Proxmox2-old's
+NVMe-backed pool has **50.96GiB physically free**, with only **3.76GiB above a
+20% pool-free planning floor**; its 125.68GiB Longhorn filesystem-free figure
+is sparse virtual space, not guaranteed backing. Dataset-available space is
+about 43.66GiB after ZFS internal accounting. Drive reliability and physical
+growth remain blockers. Keep the staged plan, re-measure, review retention and
+choose a later batch explicitly.
 The overall 76Gi proposal comprises 38Gi migrated plus 38Gi remaining; physical
 allocation, snapshots and required free-space margins are separate constraints.
 The previous administrative 55Gi migration cap remains a further admission gate.
@@ -198,7 +205,9 @@ Docker Compose services, outside this Kubernetes PVC inventory.
 ## Host expansion target and completed local resize
 
 See [host expansion procedure and sizing](README-4-expand-storage.md): the user
-selected **150GiB per host**. Proxmox3 is complete (100 → 150GiB); proxmox2-old's
-next target is approximately 80 → 150GiB, subject to its fresh health, backup,
-replica and physical-pool checks. Sparse virtual capacity is not guaranteed
-backing space. PVC sizes, replica policy and the migration cap are unchanged.
+selected **150GiB per host**. Both are complete: proxmox3 100 → 150GiB;
+proxmox2-old 80 → 150GiB. The second grow passed a ten-minute both-host
+stability screen; all attached volumes remained healthy with two RW engine
+replicas. Existing detached replica exceptions remain. Sparse virtual capacity
+is not guaranteed backing space. PVC sizes, replica policy and migration cap
+are unchanged; no stopped applications were restored by the resize.

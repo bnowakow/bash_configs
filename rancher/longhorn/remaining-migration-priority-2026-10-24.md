@@ -46,18 +46,20 @@ I/O/control-plane failure before retrying.
 
 ## Capacity
 
-Following the authorized proxmox3-only expansion to 150GiB on 2026-10-25,
-nominal remaining budgets (peer measured at 18:11:56 UTC, proxmox3 at 18:15 UTC),
-including Mailpile staging, are approximately **24.36Gi on proxmox2-old /
-99.82Gi on proxmox3**. Peer scheduled
+Following both authorized expansions to 150GiB on 2026-10-25,
+nominal remaining budgets (both measured at 18:36:10 UTC), including Mailpile
+staging, are approximately **94.76Gi on proxmox2-old / 99.82Gi on proxmox3**.
+Proxmox2-old scheduled
 capacity is temporarily lower due to missing/failed detached replica placements;
 its budget must be re-measured after recovery. Its NVMe reliability warning
 and the incident hold still block further migration admission.
 Nominal budget is total minus reserved minus scheduled; physical free is separate.
 If the Mailpile staging can eventually be reused, additional remaining allocation
-is **28.75Gi per host**, all for Docker Mailserver. This exceeds the smaller
-host's currently displayed budget by approximately **4.39Gi**, with the true
-shortfall increasing when missing replica placements are repaired.
+is **28.75Gi per host**, all for Docker Mailserver. This fits the displayed
+nominal budgets after the grows, but **does not pass physical-pool admission**:
+proxmox2-old has **50.96GiB physical pool free**, only **3.76GiB above a 20%
+pool margin**, and its NVMe reliability warning remains. Filesystem-free
+capacity on a sparse zvol does not establish space for copying more data.
 
 The administrative **55Gi migration cap remains**. Production requests are 38Gi;
 adding the current Mailserver proposal would reach **66.75Gi**, exceeding it.
@@ -71,7 +73,6 @@ for historical evidence.
 ## Host expansion target and completed local resize
 
 See [host expansion procedure and sizing](README-4-expand-storage.md): the user
-selected **150GiB per host**. Proxmox3 is complete (100 → 150GiB); proxmox2-old's
-next target is approximately 80 → 150GiB, subject to its fresh health, backup,
-replica and physical-pool checks. Sparse virtual capacity is not guaranteed
-backing space. PVC sizes, replica policy and the migration cap are unchanged.
+selected **150GiB per host**. Both grows are complete: proxmox3 100 → 150GiB;
+proxmox2-old 80 → 150GiB. Sparse virtual capacity is not guaranteed backing
+space. PVC sizes, replica policy and the migration cap are unchanged.

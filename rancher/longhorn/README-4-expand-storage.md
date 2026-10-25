@@ -3,21 +3,28 @@
 Prepared 2026-10-25 after BookStack migration. **Proxmox3 expansion to 150GiB
 completed 2026-10-25 18:14:34 UTC / 19:14:34 CET** on explicit user instruction
 (100 → 128GiB first, then 128 → 150GiB for additional buffer).
-The peer was not resized; reservations, PVC sizes and migration caps are unchanged.
-See the [maintenance log](proxmox3-expansion-2026-10-25.log).
+**Proxmox2-old expansion from 80 to 150GiB completed 2026-10-25 18:35:36 UTC /
+19:35:36 CET**, with Longhorn reconciliation verified at 18:36:10 UTC.
+Both hosts are now at the selected backing size. Reservations, PVC sizes and
+migration caps are unchanged. See the maintenance logs for
+[proxmox3](proxmox3-expansion-2026-10-25.log) and
+[proxmox2-old](proxmox2-old-expansion-2026-10-25.log).
 
-## Proxmox2-old handoff and outstanding health checks
+## Proxmox2-old completed expansion and outstanding health checks
 
 The [2026-10-25 I/O incident log](io-pressure-incident-2026-10-25.md) records
 repeated API/k3s failures, severe storage stalls, runtime workload stops, and a
 confirmed **NVMe temperature alarm and active thermal management on proxmox2-old**.
 Additional cooling cleared the temperature warning, but SMART still reported
-degraded NVM reliability (`0x04`) and failed health. **The next requested target
-is 150GiB on proxmox2-old**, using the procedure below on that host. This edit
-does not claim the drive warning is resolved or that the peer was resized.
-Repeat SMART, API, latency, temperature, replica and backup checks there before
-execution, and record the reliability warning explicitly in the maintenance
-decision. Expansion does not repair that drive or replace its replacement plan.
+degraded NVM reliability (`0x04`) and failed health. The user explicitly requested
+the local 150GiB expansion after reviewing that finding; it is now complete.
+Preflight passed a ten-minute screen of both direct APIs, both hosts' I/O PSI
+and unchanged k3s restart counts (0 / 60). Local SMART temperature was 41 C,
+thermal-management counters stayed unchanged, and the reliability warning was
+recorded in the maintenance decision. All 39 production volumes had completed
+NAS backup records; migration restore evidence was reviewed, without claiming
+a fresh restore of every current backup. Expansion does not repair the drive
+or replace its replacement plan.
 Proxmox3's own NVMe passed SMART (warning `0x00`, 54 C), its pool was
 healthy, both APIs were ready and I/O pressure was low before its authorized
 local-only resize. Read the incident log before further maintenance.
@@ -35,15 +42,15 @@ workloads down pending coordinated recovery; capacity growth is not incident rep
 ## Selected target sizes
 
 The user selected **150GiB backing zvols per host** for future buffer.
-Proxmox3 is complete; repeat only on proxmox2-old after its host-specific
-preflight. There is no need for an intermediate 128GiB step on the peer:
-grow its confirmed current size directly to **150GiB = 161061273600 bytes**.
+Both expansions are complete. Proxmox2-old grew directly from 80GiB to
+**150GiB = 161061273600 bytes**, without an intermediate 128GiB step.
+The commands below are retained procedure, not instructions to repeat the grow.
 Preserve the two-replica policy; record and recover existing failed/missing
 replicas rather than assuming the configured count proves two good copies.
 
 | Host | Current backing device | Current Longhorn filesystem maximum | Recommended backing zvol | Approximate increase |
 | --- | ---: | ---: | ---: | ---: |
-| proxmox2-old | ~80GiB; verify exact bytes on host | 78.19GiB | **150GiB — next target** | **+70GiB** |
+| proxmox2-old | 150GiB, expanded and verified | 147.09GiB | **150GiB — complete** | **+70GiB completed** |
 | proxmox3 | 150GiB, expanded and verified | 147.09GiB | **150GiB — complete, user-selected buffer** | **+50GiB completed** |
 
 These are **per-host sizes**, not a shared 150GiB pool. Both hosts need capacity
@@ -88,8 +95,8 @@ post-expansion figures and re-measure both hosts immediately before maintenance.
   deliberately removed; this is not included in the steady-state total.
 
 Raw zvol size is not identical to Longhorn `storageMaximum`. The completed
-150GiB grow on proxmox3 exposed **147.09GiB**. Expect roughly 147GiB on the peer,
-but measure the actual result rather than forcing an exact filesystem size.
+150GiB grows exposed **147.09GiB on each host** (exact bytes differ slightly
+because of filesystem metadata geometry).
 
 | Backing zvol per host | Estimated filesystem maximum | Nominal room after all migrations, current fixed reservations (node2 / node3) | Room if reserving 10% on both hosts instead |
 | --- | ---: | ---: | ---: |
@@ -130,17 +137,24 @@ Before growing to 150GiB, inspect each pool, competing VMs/datasets, quotas,
 reservations and retained ZFS snapshots. Plan for the same worst-case data and
 churn on both pools; keep an additional pool-level operating margin (use 20% as
 a planning floor, more if write latency warrants it). Do not count compression
-or sparse allocation as guaranteed capacity. Proxmox3 passed this preflight;
-the peer needs a new pool budget before repetition.
+or sparse allocation as guaranteed capacity. Both grows are complete; the
+proxmox2-old physical limit below remains a separate admission constraint.
 
-**Peer-specific physical limit:** recent peer samples showed an approximately
-236GiB pool with only ~53GiB free. A 20% pool margin is about 47GiB, leaving
-only ~6GiB of additional physical allocation above that floor. A sparse 80 →
-150GiB virtual resize does not reserve the added 70GiB and does not make that
-growth physically available. Include other datasets/VMs and expected Longhorn
-data/snapshot growth in the peer decision; its replacement-drive capacity may
-need to increase. Do not admit new migrations merely because `storageMaximum`
-increases. Re-measure rather than treating those dated samples as current.
+**Proxmox2-old physical limit after expansion (18:36:10 UTC):** the NVMe-backed
+pool is **236.00GiB**, with **185.04GiB allocated / 50.96GiB physically free**.
+ZFS reports about **43.66GiB available to datasets**, after its internal space
+accounting. A 20% pool margin is **47.20GiB**, leaving only **3.76GiB additional
+physical allocation above that planning floor**. Approximate dataset allocation:
+root **76.33GiB**, VM zvols **84.79GiB**, Longhorn zvol **23.90GiB**; retained
+ZFS snapshot usage and explicit dataset reservations were zero at preflight.
+These dataset accounting figures need not sum exactly to pool allocation.
+
+The sparse 80 → 150GiB resize did not reserve the added 70GiB or create physical
+space. Longhorn now reports **125.68GiB filesystem free**, which cannot all be
+filled from this pool. Do not admit new migrations using that number alone;
+the physical margin, drive reliability warning and migration cap still apply.
+Plan greater physical capacity with the replacement drive and re-measure before
+future growth. No automatic cleanup or deletion was performed.
 
 Increasing volsize does **not** repair the observed ZFS/etcd I/O stalls. Require
 healthy APIs, stable k3s restart counts and low sustained I/O pressure before
