@@ -1,5 +1,80 @@
 # Storage I/O incident — 2026-10-25
 
+## Local privileged investigation — 2026-10-25 17:13 CET / 16:13 UTC
+
+Confirmed this session runs as root on `proxmox2-old.localdomain`. Read-only
+collection completed; no workloads, services, storage or configuration changed.
+Private raw evidence: `/tmp/longhorn-incident-20261025-local/` (not committed).
+The earlier sections below preserve the original handoff and action inventory.
+
+**New finding: the Patriot P300 reports failed SMART health, degraded NVM
+reliability and active thermal management.** Firmware `EDFM90.1`, device
+`/dev/nvme0n1`; the root pool uses its partition 3 and Longhorn mounts `/dev/zd0`.
+
+| SMART field | 17:05:50 CET | 17:11:28 CET |
+| --- | --- | --- |
+| Critical Warning | `0x06` | `0x06` |
+| Composite / Sensor 1 | 72 C / 92 C | 73 C / 93 C |
+| Percentage Used | 100% | 100% |
+| Available Spare | 100% | 100% |
+| Media/data-integrity errors / error-log entries | 0 / 0 | 0 / 0 |
+| Warning composite temperature time (minutes) | 7990 | 7996 |
+| Critical composite temperature time (minutes) | 0 | 0 |
+| Thermal management 1 transitions / total seconds | 1301 / 5483174 | 1301 / 5483174 |
+| Thermal management 2 transitions / total seconds | 121 / 439945 | 121 / 440283 |
+| Controller busy time (minutes) | 68866 | 68871 |
+
+`smartctl -x` returned exit **8**, with explicit failed-health messages for
+temperature and degraded subsystem reliability. `0x06` includes both warnings.
+Percentage Used is a vendor estimate: 100% means estimated endurance consumed,
+not proof of immediate failure; the separate reliability warning must still be
+investigated. See [NVMe health field definitions](https://learn.microsoft.com/en-us/windows/win32/api/nvme/ns-nvme-nvme_health_info_log).
+Reported composite warning/critical thresholds are 70/80 C. Sensor 1's own
+threshold remains unknown.
+
+Thermal management level-2 total time increased **338 seconds over 338 seconds**;
+this establishes active thermal management during the comparison, rather than
+historical counters alone. It strongly supports thermal performance limiting as
+a contributor, but does not quantify its impact or establish the sole cause.
+The mechanism behind the reliability warning remains unverified; zero media
+errors does not negate that warning.
+
+Concurrent evidence:
+
+- At 17:05:47 CET, I/O PSI avg10 was **79.28% some / 50.46% full**.
+- ZFS interval rows at approximately 17:05:41–44 CET showed **11–28 s total
+  write waits**, **277–699 ms disk write waits**, and **559–724 pending async
+  writes** at only about **0.9–2.2 MiB/s** write throughput. The since-boot row
+  was excluded from these ranges. Pool status still reported healthy.
+- k3s remained `activating/start`, restart count **8**, across the collector.
+  At 17:06:45 CET API readiness failed etcd, etcd-readiness and RBAC bootstrap.
+- The bounded kernel capture contains containerd-shim writeback waits exceeding
+  **313–354 s** at 16:52:15 CET, a journald watchdog failure and restart, and a
+  journal file described as corrupted or uncleanly shut down. That message does
+  not by itself establish filesystem or media corruption.
+- Repeated `ext4: Unknown parameter 'emergency_ro'` messages also occur during
+  volume mount activity; their caller and relevance remain unverified. They do
+  not establish a successful read-only remount.
+- No physical NVMe reset/timeout, PCIe/AER, OOM or explicit media I/O error was
+  found in the bounded kernel capture. The 1500-line cap and impaired logging
+  mean this is not proof none occurred. Virtual iSCSI disk attachment messages
+  mentioning resets are not evidence of a physical NVMe controller reset.
+
+Capture limitations: the collector's 30-minute k3s journal timed out (exit 124),
+as did a separate 20-second one-hour k3s journal request, leaving that latter
+file empty. No new WAL-fsync timings could therefore be correlated. The kernel
+request exited 0 but reached the 1500-line limit. Collector exit 0 only means
+collection finished; individual failed checks above remain failures.
+
+**Assessment / next steps:** this host has an actively thermally managed NVMe
+reporting degraded reliability and severe storage stalls. Prioritize physical
+cooling inspection and a drive replacement plan after checking independent
+backups and replica recoverability. Keep the expansion hold and stopped-workload
+inventory in effect. Cooling may reduce stalls but cannot be assumed to clear
+the reliability warning; repeat SMART/latency/PSI/readiness measurements after
+physical intervention. Do not remove this voter or reboot as an implicit next
+step: the documented two-voter cluster requires coordinated recovery planning.
+
 Recorded **2026-10-25 15:52 UTC / 16:52 CET**. Incident remains open.
 This is an observation/action log, not a completed repair or expansion approval.
 Times below are CET (UTC+1) unless explicitly marked UTC.
