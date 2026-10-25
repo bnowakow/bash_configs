@@ -1,0 +1,4 @@
+name: longhorn-zabbix-storage
+defaultNamespace: apps-zabbix
+dependsOn:
+  - name: longhorn-pilot-storage

@@ -1,6 +1,9 @@
 name: zabbix
 defaultNamespace: apps-zabbix
 
+dependsOn:
+  - name: longhorn-zabbix-storage
+
 helm:
   chart: zabbix
   repo: https://zabbix-community.github.io/helm-zabbix

@@ -146,6 +146,24 @@ protect mail/index/keyring state, stop its writer, and validate isolated restore
 BookStack remains blocked on locating current uploads; Zabbix/Mailserver remain
 later separate stages by measured size. See the [priority plan and live capacity](remaining-migration-priority-2026-10-24.md). No migration performed by this update.
 
+## Zabbix completed; Mailpile moved last — 2026-10-25
+
+The preceding batch totals/proposals are historical. Zabbix now uses one 18Gi
+Longhorn RWO claim with two replicas. Native PostgreSQL backup, SHA256/WAL
+verification and isolated recovery passed before a fresh NAS backup and Fleet
+cutover. Source local data is retained; the exact PostgreSQL 16.15 image is
+pinned and Zabbix remains ubuntu-7.4.16. The native NAS snapshot was not separately
+restore-tested. See [results](migrations/zabbix-2026-10-25/RESULTS.md).
+
+Current production total: **27 apps / 37 claims / 36.75Gi requested**.
+Remaining: **3 apps / 8 claims / 39.25Gi**, including provisional BookStack.
+Mailpile remains local; its 9.25Gi unverified staging is a separate allocation.
+**User requires Mailpile last.** BookStack is held on its live uploads blocker;
+Docker Mailserver is the next independent candidate but its 28.75Gi proposal
+exceeds current smaller-node nominal capacity and the 55Gi migration cap when
+added to production. Re-measure/review capacity before requesting another stage.
+See [current priority/capacity](remaining-migration-priority-2026-10-24.md).
+
 ## Revised migration order: shared-state restrictions go last
 
 User decision after the pilot: **defer every app whose persistent state is not

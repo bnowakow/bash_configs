@@ -1,0 +1,55 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "name": "zabbix-postgres-transfer-20261025",
+    "namespace": "apps-zabbix"
+  },
+  "spec": {
+    "restartPolicy": "Never",
+    "automountServiceAccountToken": false,
+    "nodeSelector": {
+      "kubernetes.io/hostname": "proxmox3"
+    },
+    "containers": [
+      {
+        "name": "postgres-tools",
+        "image": "docker.io/library/postgres@sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94",
+        "command": [
+          "sh",
+          "-ec",
+          "mkdir -p /target/pgdata; chown postgres:postgres /target/pgdata; chmod 700 /target/pgdata; exec sleep 14400"
+        ],
+        "securityContext": {
+          "runAsUser": 0,
+          "runAsGroup": 0,
+          "allowPrivilegeEscalation": false
+        },
+        "resources": {
+          "requests": {
+            "cpu": "50m",
+            "memory": "128Mi"
+          },
+          "limits": {
+            "cpu": "500m",
+            "memory": "1Gi"
+          }
+        },
+        "volumeMounts": [
+          {
+            "name": "target",
+            "mountPath": "/target"
+          }
+        ]
+      }
+    ],
+    "volumes": [
+      {
+        "name": "target",
+        "persistentVolumeClaim": {
+          "claimName": "zabbix-postgresql-data-longhorn-rwo"
+        }
+      }
+    ]
+  }
+}

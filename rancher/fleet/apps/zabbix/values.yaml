@@ -1,17 +1,18 @@
 # Match the restored Zabbix 7.4 database schema.
 zabbixImageTag: ubuntu-7.4.16
 
-# The database PVC is restored from CloudCasa before Zabbix is started.
+# PostgreSQL data was migrated and recovery-tested on Longhorn (2026-10-25).
 # Keep this as an existing claim so Helm/Fleet does not create or delete it.
 postgresql:
   enabled: true
   image:
     repository: postgres
-    tag: "16"
+    # Preserve the exact PostgreSQL 16.15 image used for the native backup.
+    tag: "16@sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94"
   persistence:
     enabled: true
-    existingClaimName: postgresql-data-zabbix-postgresql-0
-    storageSize: 5Gi
+    existingClaimName: zabbix-postgresql-data-longhorn-rwo
+    storageSize: 18Gi
   extraRuntimeParameters:
     max_connections: 50
 

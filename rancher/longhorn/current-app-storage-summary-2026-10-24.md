@@ -1,16 +1,16 @@
 # Current app storage summary — 2026-10-24
 
 Refreshed from live PVCs, Deployments/StatefulSets and Longhorn node/volume
-objects after the Sonarr/youtube-dl Material/AdGuard Home batch (2026-10-25). Proposed sizes come from the conservative
+objects after the Zabbix PostgreSQL migration (2026-10-25). Proposed sizes come from the conservative
 [measured inventory](local-pvc-usage-2026-10-24.csv) and assessment, not a new
 measurement of remaining app data. Re-measure each source before migrating.
 The latest batch was applied and validated; see the migration evidence below.
 
 ## On Longhorn
 
-Twenty-six migrated apps use **36 RWO PVCs**, all configured with **two storage
-replicas**. Total PVC requests are **18.75Gi**, approximately 18.75Gi of nominal replica
-scheduling per node / 37.5Gi aggregate, excluding older tests. Requests are not
+Twenty-seven migrated apps use **37 RWO PVCs**, all configured with **two storage
+replicas**. Total PVC requests are **36.75Gi**, approximately 36.75Gi of nominal replica
+scheduling per node / 73.5Gi aggregate, excluding older tests. Requests are not
 physical bytes used. All active migrated workloads have one application replica.
 
 | App | PVC mode | Longhorn claims / total request | State and write constraints |
@@ -43,6 +43,8 @@ physical bytes used. All active migrated workloads have one application replica.
 | youtube-dl Material | RWO | appdata/users 256Mi each + MongoDB 1Gi = 1.5Gi | Running; app and MongoDB each singleton/Recreate; media stays NAS |
 | AdGuard Home | RWO | config 256Mi + data 4Gi = 4.25Gi | Running; bbolt single owner, Recreate, retained proxmox3 placement |
 
+| Zabbix | RWO | PostgreSQL 18Gi | Running; PostgreSQL 16.15, single database owner, native backup/recovery verified |
+
 Homer-test was already on a separate **10Mi Longhorn RWX** claim with two app
 replicas. A separate 10Mi native-restore test claim also remains. These are tests,
 not production migration capacity or evidence of safe shared database writers.
@@ -52,7 +54,7 @@ RWO allows mounting on one node (potentially several co-located pods); RWX allow
 mounting from multiple nodes. Longhorn storage replica count is independent of
 these modes. The planned RWO rows do not imply shared-writer RWX compatibility.
 
-Original local-path PVCs for all twenty-six migrated apps remain as rollback copies.
+Original local-path PVCs for all twenty-seven migrated apps remain as rollback copies.
 Their presence does **not** mean these apps still run on local-path. Filebot's
 inactive mounts have target references prepared, although only config is in its
 zero-replica Deployment template. Its initial backups completed while a temporary
@@ -63,7 +65,7 @@ helper attached the volumes; current recurring policy skips detached volumes.
 The attempted Mailpile copy was interrupted by recurring control-plane failures.
 Mailpile was restored to original local storage with one available replica and
 HTTPS 200. Two unverified Longhorn target claims reserve **9.25Gi per host**;
-they are not included in the 26 migrated apps/36 production claims/18.75Gi above.
+they are not included in the 27 migrated apps/37 production claims/36.75Gi above.
 No Mailpile completion marker was added. See the [incident handoff](migrations/mailpile-2026-10-25/HANDOFF.md).
 
 ## Still local: proposed Longhorn targets
@@ -79,8 +81,7 @@ No shared-writer RWX conversion is recommended for these current deployments.
 | BookStack | RWO | RWO | MariaDB + app config/uploads | DB 1Gi + provisional config 256Mi | 1.25* |
 | Docker Mailserver | RWO | RWO | Mailboxes, queues, indexes and mail-state files | data 28Gi + config/state/logs 256Mi each | 28.75 |
 | Mailpile | RWO | RWO | Mail/index state + GnuPG keyring; not identified as SQLite | data 9Gi + keys 256Mi | 9.25 |
-| Zabbix | RWO | RWO | PostgreSQL 16 | PostgreSQL 18Gi | 18.00 |
-| **Total remaining** | — | — | **4 apps, 9 source claims** |  | **57.25** |
+| **Total remaining** | — | — | **3 apps, 8 source claims** |  | **39.25** |
 
 *BookStack's local MariaDB claim is mounted, but its `bookstack-config` PVC is
 currently **not mounted**. The config/uploads target is provisional: locate,
@@ -93,19 +94,18 @@ cover-maintenance Jobs explicitly share proxmox2-old placement for shared RWO.
 Maintenance resumed after verification. Future moves must stop/co-locate every
 consumer together. Their books import NFS mounts remain separate.
 
-The largest remaining requests are mailserver (28.75Gi), Zabbix (18Gi), and
-Mailpile (9.25Gi): together **56Gi** of the 57.25Gi remaining proposal.
+The largest remaining requests are Docker Mailserver (28.75Gi) and Mailpile
+(9.25Gi); BookStack's provisional total is 1.25Gi.
 
 ## Remaining migration priority
 
-User confirmed Sonarr, youtube-dl Material and AdGuard Home work. Historical
-size ranks remain BookStack, Mailpile, Zabbix, Docker Mailserver; see the
-[ranked plan and next proposal](remaining-migration-priority-2026-10-24.md).
-BookStack is held until current uploads/config are located/protected.
-Recommend **Mailpile alone next: data 9Gi + keys 256Mi = 9.25Gi per host /
-18.5Gi aggregate replicas**, two RWO claims. Re-measure, coordinate shutdown,
-preserve keyring/mail/index state and validate isolated restore. Larger final
-services remain separate stages. No new migration was performed by this update.
+Zabbix is complete; see [execution evidence](migrations/zabbix-2026-10-25/RESULTS.md).
+Historical size ranks are BookStack, Mailpile, Docker Mailserver. **User execution
+override: keep Mailpile last.** BookStack remains held until its actual live
+uploads/config are located and protected. Docker Mailserver is the next separate
+candidate to assess, but its 28.75Gi target requires a capacity/cap review before
+approval. No further migration is authorized by this document.
+See the [ranked plan](remaining-migration-priority-2026-10-24.md).
 
 ## Other storage types retained
 
@@ -129,15 +129,15 @@ persistent RWO/RWX claims.
 
 ## Capacity and scope
 
-Remaining proposals total 57.25Gi. Mailpile's 9.25Gi is already allocated as
-unverified staging, so another **48Gi on each host** would be needed if that
+Remaining proposals total 39.25Gi. Mailpile's 9.25Gi is already allocated as
+unverified staging, so another **30Gi on each host** would be needed if that
 staging is reused after a successful retry. Current nominal budgets, already
 excluding the staging allocation, are approximately:
 
 | Node | Remaining nominal budget |
 | --- | ---: |
-| proxmox2-old | 42.36Gi |
-| proxmox3 | 69.85Gi |
+| proxmox2-old | 24.36Gi |
+| proxmox3 | 51.85Gi |
 
 Latest Longhorn disk snapshot (**2026-10-25 10:18 UTC**; includes unverified Mailpile staging):
 
@@ -154,7 +154,7 @@ allocation grows with writes and snapshots.
 Thus all remaining proposed targets do not fit on the smaller node unchanged.
 This is not an instruction to enlarge disks or migrate everything: keep the
 staged plan, re-measure, review retention and choose a later batch explicitly.
-The overall 76Gi proposal comprises 18.75Gi migrated plus 57.25Gi remaining; physical
+The overall 76Gi proposal comprises 36.75Gi migrated plus 39.25Gi remaining; physical
 allocation, snapshots and required free-space margins are separate constraints.
 The previous administrative 55Gi migration cap remains a further admission gate.
 
@@ -165,6 +165,8 @@ Jobs are consumers, not independent copies of that capacity. Emby/Nubile remain
 Docker Compose services, outside this Kubernetes PVC inventory.
 
 ## Migration evidence
+
+- [Zabbix PostgreSQL](migrations/zabbix-2026-10-25/RESULTS.md)
 
 - [Homer/Smokeping pilot](migrations/pilot-2026-10-24/RESULTS.md)
 - [ddclient/DuckDNS/FlareSolverr](migrations/dns-proxy-2026-10-24/RESULTS.md)
