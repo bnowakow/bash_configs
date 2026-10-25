@@ -113,6 +113,30 @@ See [execution and backup/restore evidence](migrations/calibre-arr-2026-10-24/RE
 The preceding proposal sections are historical; use the remaining size ranks
 for future work. BookStack remains held pending discovery of current uploads.
 
+## Next proposal after Calibre/arr user validation
+
+User confirmed all five apps in the latest batch work. By the remaining
+size ranks, propose Sonarr (1Gi), youtube-dl Material (1.5Gi), then AdGuard Home
+(4.25Gi): six RWO claims, 6.75Gi per host / 13.5Gi aggregate replicas. BookStack
+remains held despite its smaller historical size until live uploads are found.
+Re-measure first; coordinate MongoDB recovery checks and preserve independent
+DNS/tool access during the AdGuard shutdown. See the [ranked proposal and fresh
+capacity snapshot](remaining-migration-priority-2026-10-24.md). This planning
+update changes no live workload.
+
+## Sonarr, youtube-dl Material and AdGuard Home completed — 2026-10-25
+
+The approved six-claim batch is on Longhorn RWO with two replicas. All stopped
+copy checksums passed; Sonarr passed two SQLite checks, MongoDB passed full
+validation of 16 collections across four databases, and both AdGuard bbolt DBs
+passed integrity checks. MongoDB was activated before its app; DNS/HTTPS work.
+The initial etcd outage blocked preflight, and a failed isolated MongoDB UID
+check blocked cutover until corrected/re-copied; source data was preserved.
+Original local claims remain retained. Production migrations total 26 apps,
+36 RWO claims and 18.75Gi requested; remaining proposals total 57.25Gi/9 claims.
+See [execution and backup/restore evidence](migrations/sonarr-ytdl-adguard-2026-10-24/RESULTS.md).
+Preceding proposals are historical; use the current remaining priority ranks.
+
 ## Revised migration order: shared-state restrictions go last
 
 User decision after the pilot: **defer every app whose persistent state is not
@@ -594,8 +618,8 @@ all-claims fallback scenario. Neither total is the initial migration scope.
 
 | Namespace / PVC | Current request | Allocated GiB | Apparent GiB | Lean GiB | Headroom GiB | Wave |
 | --- | --- | ---: | ---: | ---: | ---: | --- |
-| `apps-adguard-home/adguard-home-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | final-single-owner-group |
-| `apps-adguard-home/adguard-home-data` | 100Gi | 0.7681 | 2.9500 | 4 | 1.0500 | final-single-owner-group |
+| `apps-adguard-home/adguard-home-config` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | completed-sonarr-ytdl-adguard-rwo |
+| `apps-adguard-home/adguard-home-data` | 100Gi | 0.7681 | 2.9500 | 4 | 1.0500 | completed-sonarr-ytdl-adguard-rwo |
 | `apps-audiobookshelf/audiobookshelf-config` | 4Gi | 0.0004 | 0.0016 | 0.25 | 0.2484 | completed-media-small-rwo |
 | `apps-audiobookshelf/audiobookshelf-metadata` | 20Gi | 0.0019 | 0.0162 | 1 | 0.9838 | completed-media-small-rwo |
 | `apps-authelia/authelia-config` | 1Gi | 0.0001 | 0.0003 | 0.25 | 0.2497 | completed-sqlite-next-rwo |
@@ -632,12 +656,12 @@ all-claims fallback scenario. Neither total is the initial migration scope.
 | `apps-scrutiny/scrutiny-influxdb` | 100Gi | 0.0022 | 0.1571 | 1 | 0.8429 | completed-media-small-rwo |
 | `apps-smokeping/smokeping-config` | 100Gi | 0.0001 | 0.0000 | 0.25 | 0.2499 | completed-pilot |
 | `apps-smokeping/smokeping-data` | 100Gi | 0.0368 | 0.0810 | 0.25 | 0.1690 | completed-pilot |
-| `apps-sonarr/sonarr-config` | 100Gi | 0.3880 | 0.6823 | 1 | 0.3177 | final-single-owner-group |
+| `apps-sonarr/sonarr-config` | 100Gi | 0.3880 | 0.6823 | 1 | 0.3177 | completed-sonarr-ytdl-adguard-rwo |
 | `apps-ubooquity/ubooquity-config` | 1Gi | 0.0047 | 0.0046 | 0.25 | 0.2453 | completed-batch3-rwo |
 | `apps-uptime-kuma/uptime-kuma-config` | 1Gi | 0.0060 | 0.0145 | 0.25 | 0.2355 | completed-sqlite-small-rwo |
-| `apps-youtubedl-material/youtubedl-material-appdata` | 100Gi | 0.0030 | 0.0037 | 0.25 | 0.2463 | final-single-owner-group |
-| `apps-youtubedl-material/youtubedl-material-mongodb-data` | 100Gi | 0.4896 | 0.6918 | 1 | 0.3082 | final-single-owner-group |
-| `apps-youtubedl-material/youtubedl-material-users` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | final-single-owner-group |
+| `apps-youtubedl-material/youtubedl-material-appdata` | 100Gi | 0.0030 | 0.0037 | 0.25 | 0.2463 | completed-sonarr-ytdl-adguard-rwo |
+| `apps-youtubedl-material/youtubedl-material-mongodb-data` | 100Gi | 0.4896 | 0.6918 | 1 | 0.3082 | completed-sonarr-ytdl-adguard-rwo |
+| `apps-youtubedl-material/youtubedl-material-users` | 100Gi | 0.0000 | 0.0000 | 0.25 | 0.2500 | completed-sonarr-ytdl-adguard-rwo |
 | `apps-zabbix/postgresql-data-zabbix-postgresql-0` | 5Gi | 5.5744 | 13.6149 | 18 | 4.3851 | final-single-owner-group |
 
 ### Observed database evidence

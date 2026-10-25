@@ -1,16 +1,16 @@
 # Current app storage summary — 2026-10-24
 
 Refreshed from live PVCs, Deployments/StatefulSets and Longhorn node/volume
-objects after the Calibre group/Profilarr/Radarr batch. Proposed sizes come from the conservative
+objects after the Sonarr/youtube-dl Material/AdGuard Home batch (2026-10-25). Proposed sizes come from the conservative
 [measured inventory](local-pvc-usage-2026-10-24.csv) and assessment, not a new
 measurement of remaining app data. Re-measure each source before migrating.
 The latest batch was applied and validated; see the migration evidence below.
 
 ## On Longhorn
 
-Twenty-three migrated apps use **30 RWO PVCs**, all configured with **two storage
-replicas**. Total PVC requests are **12Gi**, approximately 12Gi of nominal replica
-scheduling per node / 24Gi aggregate, excluding older tests. Requests are not
+Twenty-six migrated apps use **36 RWO PVCs**, all configured with **two storage
+replicas**. Total PVC requests are **18.75Gi**, approximately 18.75Gi of nominal replica
+scheduling per node / 37.5Gi aggregate, excluding older tests. Requests are not
 physical bytes used. All active migrated workloads have one application replica.
 
 | App | PVC mode | Longhorn claims / total request | State and write constraints |
@@ -39,6 +39,9 @@ physical bytes used. All active migrated workloads have one application replica.
 | Shared Calibre library (counted once) | RWO | library 1Gi | Calibre + maintenance writes coordinated; all consumers on proxmox2-old |
 | Profilarr | RWO | config 1Gi | Running; SQLite, one writer, Recreate |
 | Radarr | RWO | config 1Gi | Running; SQLite, one writer, Recreate; media stays NAS |
+| Sonarr | RWO | config 1Gi | Running; SQLite, one writer, Recreate; media stays NAS |
+| youtube-dl Material | RWO | appdata/users 256Mi each + MongoDB 1Gi = 1.5Gi | Running; app and MongoDB each singleton/Recreate; media stays NAS |
+| AdGuard Home | RWO | config 256Mi + data 4Gi = 4.25Gi | Running; bbolt single owner, Recreate, retained proxmox3 placement |
 
 Homer-test was already on a separate **10Mi Longhorn RWX** claim with two app
 replicas. A separate 10Mi native-restore test claim also remains. These are tests,
@@ -49,7 +52,7 @@ RWO allows mounting on one node (potentially several co-located pods); RWX allow
 mounting from multiple nodes. Longhorn storage replica count is independent of
 these modes. The planned RWO rows do not imply shared-writer RWX compatibility.
 
-Original local-path PVCs for all twenty-three migrated apps remain as rollback copies.
+Original local-path PVCs for all twenty-six migrated apps remain as rollback copies.
 Their presence does **not** mean these apps still run on local-path. Filebot's
 inactive mounts have target references prepared, although only config is in its
 zero-replica Deployment template. Its initial backups completed while a temporary
@@ -65,14 +68,11 @@ No shared-writer RWX conversion is recommended for these current deployments.
 
 | App / shared state | Current PVC mode | Planned Longhorn mode | Backend / state type | Proposed target(s) | Total GiB |
 | --- | --- | --- | --- | --- | ---: |
-| AdGuard Home | RWO | RWO | bbolt stats/session state, config/query logs; not SQLite | config 256Mi + data 4Gi | 4.25 |
 | BookStack | RWO | RWO | MariaDB + app config/uploads | DB 1Gi + provisional config 256Mi | 1.25* |
 | Docker Mailserver | RWO | RWO | Mailboxes, queues, indexes and mail-state files | data 28Gi + config/state/logs 256Mi each | 28.75 |
 | Mailpile | RWO | RWO | Mail/index state + GnuPG keyring; not identified as SQLite | data 9Gi + keys 256Mi | 9.25 |
-| Sonarr | RWO | RWO | SQLite confirmed | config 1Gi | 1.00 |
-| youtube-dl Material | RWO | RWO | MongoDB + app/user state | MongoDB 1Gi + appdata/users 256Mi each | 1.50 |
 | Zabbix | RWO | RWO | PostgreSQL 16 | PostgreSQL 18Gi | 18.00 |
-| **Total remaining** | — | — | **7 apps, 15 source claims** |  | **64.00** |
+| **Total remaining** | — | — | **4 apps, 9 source claims** |  | **57.25** |
 
 *BookStack's local MariaDB claim is mounted, but its `bookstack-config` PVC is
 currently **not mounted**. The config/uploads target is provisional: locate,
@@ -86,16 +86,16 @@ Maintenance resumed after verification. Future moves must stop/co-locate every
 consumer together. Their books import NFS mounts remain separate.
 
 The largest remaining requests are mailserver (28.75Gi), Zabbix (18Gi), and
-Mailpile (9.25Gi): together **56Gi** of the 64Gi remaining proposal.
+Mailpile (9.25Gi): together **56Gi** of the 57.25Gi remaining proposal.
 
 ## Remaining migration priority
 
-The approved Calibre group, Profilarr and Radarr batch has completed. Remaining
-units are ranked by summed historical apparent data size in the
-[priority plan](remaining-migration-priority-2026-10-24.md) and CSV
-`remaining_size_rank`. BookStack is smallest but held until current uploads are
-located/protected; Sonarr is the next independent unit. Re-measure before every
-migration and apply database-specific shutdown/restore checks.
+Sonarr, youtube-dl Material and AdGuard Home have migrated after the initial
+control-plane blocker. Remaining units are ranked by historical apparent size
+in the [priority plan](remaining-migration-priority-2026-10-24.md) and CSV
+`remaining_size_rank`: BookStack, Mailpile, Zabbix, Docker Mailserver. BookStack
+remains held until current uploads are located/protected. Re-measure and plan
+engine-specific shutdown/restore validation before each future migration.
 
 ## Other storage types retained
 
@@ -119,21 +119,21 @@ persistent RWO/RWX claims.
 
 ## Capacity and scope
 
-With two replicas on these two nodes, remaining 64Gi of requests normally means
-64Gi of additional nominal scheduling on **each** node, not 32Gi each. Current
+With two replicas on these two nodes, remaining 57.25Gi of requests normally means
+57.25Gi of additional nominal scheduling on **each** node, not 28.625Gi each. Current
 remaining nominal budgets are approximately:
 
 | Node | Remaining nominal budget |
 | --- | ---: |
-| proxmox2-old | 58.36Gi |
-| proxmox3 | 85.85Gi |
+| proxmox2-old | 51.61Gi |
+| proxmox3 | 79.10Gi |
 
-Latest Longhorn disk snapshot (**2026-10-24 19:50 UTC**):
+Latest Longhorn disk snapshot (**2026-10-25 07:07 UTC**):
 
 | Node | Total GiB | Physically used GiB | Physically free GiB | Reserved GiB | Scheduled GiB | Nominal remaining GiB |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| proxmox2-old | 78.19 | 3.29 | 74.90 | 7.82 | 12.01 | 58.36 |
-| proxmox3 | 97.87 | 3.24 | 94.63 | 0.00 | 12.02 | 85.85 |
+| proxmox2-old | 78.19 | 8.66 | 69.53 | 7.82 | 18.76 | 51.61 |
+| proxmox3 | 97.87 | 8.61 | 89.26 | 0.00 | 18.77 | 79.10 |
 
 Physical free is Longhorn `storageAvailable`; scheduled is `storageScheduled`.
 Nominal remaining is total minus reserved minus scheduled. Both disks report
@@ -143,7 +143,7 @@ allocation grows with writes and snapshots.
 Thus all remaining proposed targets do not fit on the smaller node unchanged.
 This is not an instruction to enlarge disks or migrate everything: keep the
 staged plan, re-measure, review retention and choose a later batch explicitly.
-The overall 76Gi proposal comprises 12Gi migrated plus 64Gi remaining; physical
+The overall 76Gi proposal comprises 18.75Gi migrated plus 57.25Gi remaining; physical
 allocation, snapshots and required free-space margins are separate constraints.
 The previous administrative 55Gi migration cap remains a further admission gate.
 
@@ -158,6 +158,7 @@ Docker Compose services, outside this Kubernetes PVC inventory.
 - [Homer/Smokeping pilot](migrations/pilot-2026-10-24/RESULTS.md)
 - [ddclient/DuckDNS/FlareSolverr](migrations/dns-proxy-2026-10-24/RESULTS.md)
 - [OpenBooks/Ubooquity](migrations/books-2026-10-24/RESULTS.md)
+- [Sonarr/youtube-dl Material/AdGuard Home](migrations/sonarr-ytdl-adguard-2026-10-24/RESULTS.md)
 - [Calibre group/Profilarr/Radarr](migrations/calibre-arr-2026-10-24/RESULTS.md)
 - [Audiobookshelf/Scrutiny/Prowlarr](migrations/media-small-2026-10-24/RESULTS.md)
 - [Bindery/Bazarr/Authelia](migrations/sqlite-next-2026-10-24/RESULTS.md)

@@ -1,6 +1,9 @@
 name: youtubedl-material
 defaultNamespace: apps-youtubedl-material
 
+dependsOn:
+  - name: longhorn-sonarr-ytdl-adguard-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/youtubedl-material
   version: 17.0.8

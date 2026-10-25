@@ -1,6 +1,7 @@
 persistence:
   appdata:
     enabled: true
+    existingClaim: youtubedl-material-appdata-longhorn-rwo
     mountPath: /app/appdata
   audio:
     enabled: true
@@ -16,6 +17,7 @@ persistence:
     type: nfs
   users:
     enabled: true
+    existingClaim: youtubedl-material-users-longhorn-rwo
     mountPath: /app/users
   video:
     enabled: true
@@ -34,6 +36,8 @@ resources:
 
 workload:
   main:
+    replicas: 1
+    strategy: Recreate
     podSpec:
       containers:
         main:
@@ -91,3 +95,13 @@ ingress:
         entrypoints:
           - websecure
         forceTLS: true
+
+# Move MongoDB and app state together; one database writer.
+mongodb:
+  persistence:
+    data:
+      existingClaim: youtubedl-material-mongodb-data-longhorn-rwo
+  workload:
+    main:
+      replicas: 1
+      strategy: Recreate

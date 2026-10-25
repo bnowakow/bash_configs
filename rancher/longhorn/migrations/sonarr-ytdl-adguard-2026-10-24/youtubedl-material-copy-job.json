@@ -1,0 +1,149 @@
+{
+  "apiVersion": "batch/v1",
+  "kind": "Job",
+  "metadata": {
+    "name": "youtubedl-material-longhorn-20261024",
+    "namespace": "apps-youtubedl-material"
+  },
+  "spec": {
+    "backoffLimit": 0,
+    "activeDeadlineSeconds": 1200,
+    "template": {
+      "spec": {
+        "restartPolicy": "Never",
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "name": "mongodb-check",
+            "image": "docker.io/bitnamisecure/mongodb:latest@sha256:101ca7755158d2ff2f64fbd17347f8408ef1379b2e1929a47ab247d7de89785b",
+            "command": [
+              "sh",
+              "-ec",
+              "#!/bin/sh\nset -eu\nstate=/target/youtubedl-material-mongodb-data/data/db\nmongod --dbpath \"$state\" --bind_ip 127.0.0.1 --port 27018 --nounixsocket \\\n  --noauth --wiredTigerCacheSizeGB 0.25 --logpath /tmp/mongod-check.log --logappend &\nmongo_pid=$!\ntrap 'kill -TERM \"$mongo_pid\" 2>/dev/null || true; wait \"$mongo_pid\" 2>/dev/null || true' EXIT INT TERM\nuri='mongodb://127.0.0.1:27018/?serverSelectionTimeoutMS=1000&directConnection=true'\nready=0\nfor attempt in $(seq 1 90); do\n  if mongosh \"$uri\" --quiet --eval 'if(db.adminCommand({ping:1}).ok!==1)quit(1)' >/dev/null 2>&1; then ready=1; break; fi\n  if ! kill -0 \"$mongo_pid\" 2>/dev/null; then\n    echo 'Isolated MongoDB exited; startup errors follow' >&2\n    tail -15 /tmp/mongod-check.log >&2\n    exit 1\n  fi\n  sleep 1\ndone\n[ \"$ready\" -eq 1 ] || { echo \"MongoDB did not become ready after $attempt attempts\" >&2; exit 1; }\nmongosh \"$uri\" --quiet --eval '\nconst databases=db.adminCommand({listDatabases:1,nameOnly:true}).databases;\nif(!databases.some(x=>x.name===\"ytdl_material\"))throw new Error(\"Application database missing\");\nlet count=0;\nfor(const x of databases){\n const d=db.getSiblingDB(x.name);\n for(const c of d.getCollectionInfos({type:\"collection\"})){\n  const result=d.runCommand({validate:c.name,full:true});\n  if(result.ok!==1||result.valid!==true)throw new Error(\"Full collection validation failed\");\n  count++;\n }\n}\nif(count===0)throw new Error(\"No collections validated\");\nprint(\"MongoDB full validation passed: \"+count+\" collections across \"+databases.length+\" databases\");'\n"
+            ],
+            "volumeMounts": [
+              {
+                "name": "target2",
+                "mountPath": "/target/youtubedl-material-mongodb-data"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "100m",
+                "memory": "256Mi"
+              },
+              "limits": {
+                "cpu": "1",
+                "memory": "1Gi"
+              }
+            },
+            "securityContext": {
+              "runAsUser": 568,
+              "runAsGroup": 0,
+              "runAsNonRoot": false,
+              "allowPrivilegeEscalation": false,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            }
+          }
+        ],
+        "volumes": [
+          {
+            "name": "source0",
+            "persistentVolumeClaim": {
+              "claimName": "youtubedl-material-appdata",
+              "readOnly": true
+            }
+          },
+          {
+            "name": "target0",
+            "persistentVolumeClaim": {
+              "claimName": "youtubedl-material-appdata-longhorn-rwo"
+            }
+          },
+          {
+            "name": "source1",
+            "persistentVolumeClaim": {
+              "claimName": "youtubedl-material-users",
+              "readOnly": true
+            }
+          },
+          {
+            "name": "target1",
+            "persistentVolumeClaim": {
+              "claimName": "youtubedl-material-users-longhorn-rwo"
+            }
+          },
+          {
+            "name": "source2",
+            "persistentVolumeClaim": {
+              "claimName": "youtubedl-material-mongodb-data",
+              "readOnly": true
+            }
+          },
+          {
+            "name": "target2",
+            "persistentVolumeClaim": {
+              "claimName": "youtubedl-material-mongodb-data-longhorn-rwo"
+            }
+          }
+        ],
+        "initContainers": [
+          {
+            "name": "copy-and-check",
+            "image": "python:3.13-alpine",
+            "command": [
+              "python",
+              "-u",
+              "-c",
+              "\"\"\"Copy all claims of a stopped app; verify bytes before checking target SQLite.\"\"\"\nimport hashlib\nfrom pathlib import Path\nimport sqlite3\nimport subprocess\nimport sys\nimport shutil\n\n\ndef digest(path):\n    value = hashlib.sha256()\n    with path.open('rb') as stream:\n        for block in iter(lambda: stream.read(1024 * 1024), b''):\n            value.update(block)\n    return value.digest()\n\n\nfor source in sorted(Path('/source').iterdir()):\n    target = Path('/target') / source.name\n    if '--clean-target' in sys.argv:\n        # Retry only: helper verifies original source mounts and no live target consumer.\n        for entry in target.iterdir():\n            if entry.name == 'lost+found':\n                continue\n            if entry.is_dir() and not entry.is_symlink():\n                shutil.rmtree(entry)\n            else:\n                entry.unlink()\n    subprocess.run(['cp', '-a', str(source) + '/.', str(target) + '/'], check=True)\n    subprocess.run(['sync'], check=True)\n    count = 0\n    for path in source.rglob('*'):\n        if path.is_file() and not path.is_symlink():\n            relative = path.relative_to(source)\n            if digest(path) != digest(target / relative):\n                raise RuntimeError(f'Checksum mismatch: {source.name}/{relative}')\n            count += 1\n    print(f'{source.name}: SHA256 verified {count} files including WAL/SHM', flush=True)\n\ncount = 0\nfor path in Path('/target').rglob('*'):\n    if path.is_symlink() or not path.is_file() or path.suffix not in {'.db', '.sqlite', '.sqlite3'}:\n        continue\n    with path.open('rb') as stream:\n        if stream.read(16) != b'SQLite format 3\\x00':\n            continue\n    conn = sqlite3.connect(path.as_uri() + '?mode=ro', uri=True)\n    try:\n        if conn.execute('PRAGMA quick_check').fetchall() != [('ok',)]:\n            raise RuntimeError(f'SQLite quick_check failed: {path.relative_to(\"/target\")}')\n    finally:\n        conn.close()\n    count += 1\n    print(f'SQLite quick_check OK: {path.relative_to(\"/target\")}', flush=True)\nif not count and \"--require-sqlite\" in sys.argv:\n    raise RuntimeError('No SQLite database verified; refusing cutover')\nprint(f'{count} SQLite databases verified', flush=True)\n",
+              "--clean-target"
+            ],
+            "volumeMounts": [
+              {
+                "name": "source0",
+                "mountPath": "/source/youtubedl-material-appdata",
+                "readOnly": true
+              },
+              {
+                "name": "target0",
+                "mountPath": "/target/youtubedl-material-appdata"
+              },
+              {
+                "name": "source1",
+                "mountPath": "/source/youtubedl-material-users",
+                "readOnly": true
+              },
+              {
+                "name": "target1",
+                "mountPath": "/target/youtubedl-material-users"
+              },
+              {
+                "name": "source2",
+                "mountPath": "/source/youtubedl-material-mongodb-data",
+                "readOnly": true
+              },
+              {
+                "name": "target2",
+                "mountPath": "/target/youtubedl-material-mongodb-data"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "50m",
+                "memory": "64Mi"
+              },
+              "limits": {
+                "cpu": "500m",
+                "memory": "2Gi"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

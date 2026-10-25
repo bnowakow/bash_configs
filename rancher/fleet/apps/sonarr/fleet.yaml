@@ -1,6 +1,9 @@
 name: sonarr
 defaultNamespace: apps-sonarr
 
+dependsOn:
+  - name: longhorn-sonarr-ytdl-adguard-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/sonarr
   version: 28.0.7

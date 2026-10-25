@@ -1,0 +1,4 @@
+name: longhorn-sonarr-ytdl-adguard-storage
+defaultNamespace: apps-sonarr
+dependsOn:
+  - name: longhorn-pilot-storage

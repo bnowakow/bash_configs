@@ -22,16 +22,12 @@ persistence:
   config:
     enabled: true
     type: pvc
-    storageClass: local-path
-    size: 100Mi
-    existingClaim: adguard-home-config
+    existingClaim: adguard-home-config-longhorn-rwo
     mountPath: /opt/adguardhome/conf
   data:
     enabled: true
     type: pvc
-    storageClass: local-path
-    size: 10Gi
-    existingClaim: adguard-home-data
+    existingClaim: adguard-home-data-longhorn-rwo
     mountPath: /opt/adguardhome/work
 
 ingress:
@@ -57,3 +53,12 @@ ingress:
         entrypoints:
           - websecure
         forceTLS: true
+
+# One instance owns bbolt/config/query state; preserve the DNS host during cutover.
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate
+    podSpec:
+      nodeSelector:
+        kubernetes.io/hostname: proxmox3

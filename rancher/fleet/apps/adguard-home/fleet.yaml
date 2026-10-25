@@ -1,6 +1,9 @@
 name: adguard-home
 defaultNamespace: apps-adguard-home
 
+dependsOn:
+  - name: longhorn-sonarr-ytdl-adguard-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/adguard-home
   version: 14.0.3
