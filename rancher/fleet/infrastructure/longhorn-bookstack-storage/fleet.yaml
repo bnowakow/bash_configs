@@ -1,0 +1,4 @@
+name: longhorn-bookstack-storage
+defaultNamespace: apps-bookstack
+dependsOn:
+  - name: longhorn-pilot-storage

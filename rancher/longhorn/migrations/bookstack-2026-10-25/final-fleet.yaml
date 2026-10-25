@@ -1,0 +1,13 @@
+name: bookstack
+defaultNamespace: apps-bookstack
+
+dependsOn:
+  - name: longhorn-bookstack-storage
+
+helm:
+  chart: oci://oci.trueforge.org/truecharts/bookstack
+  version: 23.0.6
+  releaseName: bookstack
+  waitForJobs: true
+  valuesFiles:
+    - values.yaml

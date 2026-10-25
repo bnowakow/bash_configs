@@ -164,6 +164,23 @@ exceeds current smaller-node nominal capacity and the 55Gi migration cap when
 added to production. Re-measure/review capacity before requesting another stage.
 See [current priority/capacity](remaining-migration-priority-2026-10-24.md).
 
+## BookStack completed — 2026-10-25
+
+BookStack's container-layer config/uploads were located and preserved, resolving
+the old unmounted-config-PVC blocker. Config 256Mi and MariaDB 1Gi now use
+Longhorn RWO/two replicas. App encryption-key regeneration by the chart was caught
+and the original key explicitly retained in an external Secret; database
+credentials stayed unchanged. Stopped copies, isolated DB checks and independent
+native NAS restores passed. Original DB data and a verified private live-config
+archive were preserved. See [results](migrations/bookstack-2026-10-25/RESULTS.md).
+
+The preceding totals/proposals are historical. Current production total is
+**28 apps / 39 claims / 38Gi**. Remaining is **2 apps / 6 claims / 38Gi**:
+Docker Mailserver 28.75Gi and Mailpile 9.25Gi; **Mailpile remains last**.
+Mailpile's unverified staging already reserves 9.25Gi separately. Docker Mailserver
+requires capacity and the existing 55Gi cap review before another stage.
+See the [current plan](remaining-migration-priority-2026-10-24.md).
+
 ## Revised migration order: shared-state restrictions go last
 
 User decision after the pilot: **defer every app whose persistent state is not

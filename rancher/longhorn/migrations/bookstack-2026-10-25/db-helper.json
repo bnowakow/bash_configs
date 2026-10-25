@@ -1,0 +1,97 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "name": "bookstack-db-transfer-20261025",
+    "namespace": "apps-bookstack"
+  },
+  "spec": {
+    "restartPolicy": "Never",
+    "automountServiceAccountToken": false,
+    "nodeSelector": {
+      "kubernetes.io/hostname": "proxmox3"
+    },
+    "containers": [
+      {
+        "name": "transfer",
+        "image": "python:3.13-slim",
+        "command": [
+          "sleep",
+          "7200"
+        ],
+        "securityContext": {
+          "runAsUser": 0,
+          "runAsGroup": 0
+        },
+        "resources": {
+          "requests": {
+            "cpu": "50m",
+            "memory": "64Mi"
+          },
+          "limits": {
+            "cpu": "500m",
+            "memory": "512Mi"
+          }
+        },
+        "volumeMounts": [
+          {
+            "name": "source",
+            "mountPath": "/source/db",
+            "readOnly": true
+          },
+          {
+            "name": "data",
+            "mountPath": "/target/db",
+            "readOnly": false
+          }
+        ]
+      },
+      {
+        "name": "database",
+        "image": "docker.io/bitnamisecure/mariadb:latest@sha256:2c14d1572dd0937658b11f29979d2d1009478d0322cd54d6ad78b7d9a6e84243",
+        "command": [
+          "sh",
+          "-c",
+          "exec sleep 7200"
+        ],
+        "securityContext": {
+          "runAsUser": 568,
+          "runAsGroup": 568
+        },
+        "resources": {
+          "requests": {
+            "cpu": "50m",
+            "memory": "256Mi"
+          },
+          "limits": {
+            "cpu": "500m",
+            "memory": "1Gi"
+          }
+        },
+        "volumeMounts": [
+          {
+            "name": "data",
+            "mountPath": "/target/db",
+            "readOnly": false
+          }
+        ]
+      }
+    ],
+    "volumes": [
+      {
+        "name": "source",
+        "persistentVolumeClaim": {
+          "claimName": "bookstack-mariadb-data",
+          "readOnly": true
+        }
+      },
+      {
+        "name": "data",
+        "persistentVolumeClaim": {
+          "claimName": "bookstack-mariadb-data-longhorn-rwo",
+          "readOnly": false
+        }
+      }
+    ]
+  }
+}

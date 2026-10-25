@@ -1,16 +1,16 @@
 # Current app storage summary — 2026-10-24
 
 Refreshed from live PVCs, Deployments/StatefulSets and Longhorn node/volume
-objects after the Zabbix PostgreSQL migration (2026-10-25). Proposed sizes come from the conservative
+objects after the BookStack migration (2026-10-25). Proposed sizes come from the conservative
 [measured inventory](local-pvc-usage-2026-10-24.csv) and assessment, not a new
 measurement of remaining app data. Re-measure each source before migrating.
 The latest batch was applied and validated; see the migration evidence below.
 
 ## On Longhorn
 
-Twenty-seven migrated apps use **37 RWO PVCs**, all configured with **two storage
-replicas**. Total PVC requests are **36.75Gi**, approximately 36.75Gi of nominal replica
-scheduling per node / 73.5Gi aggregate, excluding older tests. Requests are not
+Twenty-eight migrated apps use **39 RWO PVCs**, all configured with **two storage
+replicas**. Total PVC requests are **38Gi**, approximately 38Gi of nominal replica
+scheduling per node / 76Gi aggregate, excluding older tests. Requests are not
 physical bytes used. All active migrated workloads have one application replica.
 
 | App | PVC mode | Longhorn claims / total request | State and write constraints |
@@ -45,6 +45,8 @@ physical bytes used. All active migrated workloads have one application replica.
 
 | Zabbix | RWO | PostgreSQL 18Gi | Running; PostgreSQL 16.15, single database owner, native backup/recovery verified |
 
+| BookStack | RWO | config 256Mi + MariaDB 1Gi = 1.25Gi | Running; live container config preserved, one app/database owner, Recreate; original encryption key explicitly retained |
+
 Homer-test was already on a separate **10Mi Longhorn RWX** claim with two app
 replicas. A separate 10Mi native-restore test claim also remains. These are tests,
 not production migration capacity or evidence of safe shared database writers.
@@ -54,7 +56,8 @@ RWO allows mounting on one node (potentially several co-located pods); RWX allow
 mounting from multiple nodes. Longhorn storage replica count is independent of
 these modes. The planned RWO rows do not imply shared-writer RWX compatibility.
 
-Original local-path PVCs for all twenty-seven migrated apps remain as rollback copies.
+Original local-path PVCs for migrated apps remain retained. BookStack's old config PVC was unmounted; its actual live config was preserved in a
+verified private archive and the new persistent claim, rather than that old PVC.
 Their presence does **not** mean these apps still run on local-path. Filebot's
 inactive mounts have target references prepared, although only config is in its
 zero-replica Deployment template. Its initial backups completed while a temporary
@@ -65,7 +68,7 @@ helper attached the volumes; current recurring policy skips detached volumes.
 The attempted Mailpile copy was interrupted by recurring control-plane failures.
 Mailpile was restored to original local storage with one available replica and
 HTTPS 200. Two unverified Longhorn target claims reserve **9.25Gi per host**;
-they are not included in the 27 migrated apps/37 production claims/36.75Gi above.
+they are not included in the 28 migrated apps/39 production claims/38Gi above.
 No Mailpile completion marker was added. See the [incident handoff](migrations/mailpile-2026-10-25/HANDOFF.md).
 
 ## Still local: proposed Longhorn targets
@@ -78,15 +81,9 @@ No shared-writer RWX conversion is recommended for these current deployments.
 
 | App / shared state | Current PVC mode | Planned Longhorn mode | Backend / state type | Proposed target(s) | Total GiB |
 | --- | --- | --- | --- | --- | ---: |
-| BookStack | RWO | RWO | MariaDB + app config/uploads | DB 1Gi + provisional config 256Mi | 1.25* |
 | Docker Mailserver | RWO | RWO | Mailboxes, queues, indexes and mail-state files | data 28Gi + config/state/logs 256Mi each | 28.75 |
 | Mailpile | RWO | RWO | Mail/index state + GnuPG keyring; not identified as SQLite | data 9Gi + keys 256Mi | 9.25 |
-| **Total remaining** | — | — | **3 apps, 8 source claims** |  | **39.25** |
-
-*BookStack's local MariaDB claim is mounted, but its `bookstack-config` PVC is
-currently **not mounted**. The config/uploads target is provisional: locate,
-measure and protect current container-layer data before any migration. Merely
-copying that old claim would not prove complete data preservation.
+| **Total remaining** | — | — | **2 apps, 6 source claims** |  | **38.00** |
 
 Calibre's four-claim group now runs on Longhorn and totals **1.75Gi** (three
 private configs plus one shared library). Calibre, Calibre Web, Kavita and
@@ -95,17 +92,18 @@ Maintenance resumed after verification. Future moves must stop/co-locate every
 consumer together. Their books import NFS mounts remain separate.
 
 The largest remaining requests are Docker Mailserver (28.75Gi) and Mailpile
-(9.25Gi); BookStack's provisional total is 1.25Gi.
+(9.25Gi).
 
 ## Remaining migration priority
 
-Zabbix is complete; see [execution evidence](migrations/zabbix-2026-10-25/RESULTS.md).
-Historical size ranks are BookStack, Mailpile, Docker Mailserver. **User execution
-override: keep Mailpile last.** BookStack remains held until its actual live
-uploads/config are located and protected. Docker Mailserver is the next separate
-candidate to assess, but its 28.75Gi target requires a capacity/cap review before
-approval. No further migration is authorized by this document.
-See the [ranked plan](remaining-migration-priority-2026-10-24.md).
+BookStack is complete; see [execution evidence](migrations/bookstack-2026-10-25/RESULTS.md).
+Its live container-layer files were located, preserved, mounted persistently,
+and verified alongside MariaDB, resolving the earlier uploads/config blocker.
+**Keep Mailpile last by user decision.** Docker Mailserver is the next independent
+candidate, but its 28.75Gi proposal exceeds current smaller-node nominal capacity
+and the existing 55Gi migration cap when added to production. Re-measure and
+review capacity before authorizing another stage. See the
+[remaining plan](remaining-migration-priority-2026-10-24.md).
 
 ## Other storage types retained
 
@@ -129,22 +127,22 @@ persistent RWO/RWX claims.
 
 ## Capacity and scope
 
-Remaining proposals total 39.25Gi. Mailpile's 9.25Gi is already allocated as
-unverified staging, so another **30Gi on each host** would be needed if that
+Remaining proposals total 38Gi. Mailpile's 9.25Gi is already allocated as
+unverified staging, so another **28.75Gi on each host** would be needed if that
 staging is reused after a successful retry. Current nominal budgets, already
 excluding the staging allocation, are approximately:
 
 | Node | Remaining nominal budget |
 | --- | ---: |
-| proxmox2-old | 24.36Gi |
-| proxmox3 | 51.85Gi |
+| proxmox2-old | 23.11Gi |
+| proxmox3 | 50.60Gi |
 
-Latest Longhorn disk snapshot (**2026-10-25 11:59 UTC**; includes unverified Mailpile staging):
+Latest Longhorn disk snapshot (**2026-10-25 13:40 UTC**; includes unverified Mailpile staging):
 
 | Node | Total GiB | Physically used GiB | Physically free GiB | Reserved GiB | Scheduled GiB | Nominal remaining GiB |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| proxmox2-old | 78.19 | 21.65 | 56.54 | 7.82 | 46.01 | 24.36 |
-| proxmox3 | 97.87 | 23.85 | 74.02 | 0.00 | 46.02 | 51.85 |
+| proxmox2-old | 78.19 | 23.11 | 55.08 | 7.82 | 47.26 | 23.11 |
+| proxmox3 | 97.87 | 25.31 | 72.56 | 0.00 | 47.27 | 50.60 |
 
 Physical free is Longhorn `storageAvailable`; scheduled is `storageScheduled`.
 Nominal remaining is total minus reserved minus scheduled. Both disks report
@@ -154,7 +152,7 @@ allocation grows with writes and snapshots.
 Thus all remaining proposed targets do not fit on the smaller node unchanged.
 This is not an instruction to enlarge disks or migrate everything: keep the
 staged plan, re-measure, review retention and choose a later batch explicitly.
-The overall 76Gi proposal comprises 36.75Gi migrated plus 39.25Gi remaining; physical
+The overall 76Gi proposal comprises 38Gi migrated plus 38Gi remaining; physical
 allocation, snapshots and required free-space margins are separate constraints.
 The previous administrative 55Gi migration cap remains a further admission gate.
 
@@ -165,6 +163,8 @@ Jobs are consumers, not independent copies of that capacity. Emby/Nubile remain
 Docker Compose services, outside this Kubernetes PVC inventory.
 
 ## Migration evidence
+
+- [BookStack](migrations/bookstack-2026-10-25/RESULTS.md)
 
 - [Zabbix PostgreSQL](migrations/zabbix-2026-10-25/RESULTS.md)
 

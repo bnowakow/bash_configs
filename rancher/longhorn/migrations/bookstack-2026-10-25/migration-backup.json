@@ -1,0 +1,22 @@
+{
+  "apiVersion": "longhorn.io/v1beta2",
+  "kind": "RecurringJob",
+  "metadata": {
+    "name": "bookstack-migration-backup-20261025",
+    "namespace": "longhorn-system"
+  },
+  "spec": {
+    "name": "bookstack-migration-backup-20261025",
+    "task": "backup",
+    "cron": "0 0 1 1 *",
+    "groups": [
+      "bookstack-migration-20261025"
+    ],
+    "retain": 2,
+    "concurrency": 1,
+    "labels": {},
+    "parameters": {
+      "full-backup-interval": "7"
+    }
+  }
+}

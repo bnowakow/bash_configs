@@ -1,0 +1,56 @@
+# Live container configuration was preserved and migrated to Longhorn.
+# Claims are managed by the separate storage bundle.
+persistence:
+  config:
+    enabled: true
+    type: pvc
+    mountPath: /config
+    existingClaim: bookstack-config-longhorn-rwo
+
+# Keep the database claim externally managed by the storage bundle.
+mariadb:
+  workload:
+    main:
+      replicas: 1
+      strategy: Recreate
+  persistence:
+    data:
+      enabled: true
+      type: pvc
+      existingClaim: bookstack-mariadb-data
+
+workload:
+  main:
+    strategy: Recreate
+    replicas: 1
+    podSpec:
+      containers:
+        main:
+          env:
+            # Preserve the original encryption key across chart reconciliations.
+            APP_KEY:
+              secretKeyRef:
+                name: bookstack-preserved-app-key
+                expandObjectName: false
+                key: APP_KEY
+            APP_URL: https://bookstack.rancher.tailscale.bnowakowski.pl/
+
+ingress:
+  main:
+    enabled: true
+    primary: true
+    ingressClassName: traefik
+    hosts:
+      - host: bookstack.rancher.tailscale.bnowakowski.pl
+        paths:
+          - path: /
+            pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt
+      traefik:
+        enabled: true
+        entrypoints:
+          - websecure
+        forceTLS: true
