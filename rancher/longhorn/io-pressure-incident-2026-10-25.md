@@ -34,6 +34,93 @@ Investigate cooling/airflow and obtain privileged SMART/kernel evidence before
 declaring the drive healthy, failed, or repaired. Do not raise temperature limits
 or disable write durability to suppress the symptoms.
 
+## Handoff for sudo-enabled Codex on proxmox2-old — drive/kernel evidence
+
+User requested documenting this read-only investigation for a separate Codex
+session running **on proxmox2-old (10.0.0.72)**. Confirm the hostname before
+collecting; this section does not authorize a reboot or configuration change.
+
+**Task:** collect privileged NVMe SMART and kernel/k3s evidence to determine
+whether thermal management, device errors/resets, or another storage problem
+correlates with the observed severe I/O stalls. Preserve the original evidence
+and report what is confirmed versus still uncertain.
+
+Run in Bash, with authenticated sudo. Store raw logs privately, not in Git:
+
+```bash
+hostname -f
+lsblk -o NAME,MODEL,SIZE,TYPE,MOUNTPOINTS
+findmnt -T /var/lib/longhorn -o TARGET,SOURCE,FSTYPE,OPTIONS
+
+umask 077
+diagnostics_dir=$(mktemp -d /tmp/proxmox2-old-nvme.XXXXXXXX)
+printf 'Evidence directory: %s\n' "$diagnostics_dir"
+date -u +%FT%TZ > "$diagnostics_dir/started-utc.txt"
+
+# /dev/nvme0n1 was the observed Patriot P300; confirm against lsblk above.
+sudo timeout --kill-after=2 20 smartctl -x /dev/nvme0n1 \
+  > "$diagnostics_dir/smart-before.txt" 2>&1
+sudo timeout --kill-after=2 20 journalctl -k -b --since '1 hour ago' \
+  -n 1500 --no-pager -o short-iso \
+  > "$diagnostics_dir/kernel-journal.txt" 2>&1
+sudo timeout --kill-after=2 20 journalctl -u k3s --since '1 hour ago' \
+  -n 1500 --no-pager -o short-iso \
+  > "$diagnostics_dir/k3s-journal.txt" 2>&1
+
+systemctl show k3s -p ActiveState -p SubState -p NRestarts \
+  > "$diagnostics_dir/k3s-state-before.txt"
+cat /proc/pressure/io > "$diagnostics_dir/io-pressure-before.txt"
+timeout --kill-after=2 10 zpool iostat -v -l -q 1 5 \
+  > "$diagnostics_dir/zpool-latency.txt" 2>&1
+timeout --kill-after=2 10 zpool status -xv \
+  > "$diagnostics_dir/zpool-status.txt" 2>&1
+
+# A second read allows comparison of thermal/error counters without a benchmark.
+sleep 60
+sudo timeout --kill-after=2 20 smartctl -x /dev/nvme0n1 \
+  > "$diagnostics_dir/smart-after.txt" 2>&1
+cat /proc/pressure/io > "$diagnostics_dir/io-pressure-after.txt"
+systemctl show k3s -p ActiveState -p SubState -p NRestarts \
+  > "$diagnostics_dir/k3s-state-after.txt"
+date -u +%FT%TZ > "$diagnostics_dir/finished-utc.txt"
+```
+
+Check command exit status when running; a timeout or empty/partial file is **not**
+evidence of a healthy drive. If `smartctl` is missing, record that and use already
+installed read-only NVMe tooling if available; do not automatically install or
+upgrade packages during this incident. Do not start a SMART self-test.
+
+Inspect/report:
+
+- Exact model, firmware, temperature channels, warning/critical thresholds, and
+  SMART critical-warning flags. Compare with the sysfs alarm above. Sensor 1's
+  own limit is unknown; do not apply the composite threshold to it.
+- Warning/critical temperature time, thermal-management transition counts and
+  total time, comparing both SMART captures. Increasing counters are stronger
+  evidence than historical nonzero counters; absence of exposed counters does
+  not rule out thermal effects.
+- Media/data-integrity errors, available spare, percentage used, error-log
+  entries, controller busy time, and whether error counters increased.
+- Kernel messages for NVMe timeout, controller reset, aborted I/O, PCIe/AER
+  errors, filesystem errors, hung tasks, OOM, and read-only remounts. Preserve
+  the full bounded journal capture; do not retain only matching lines.
+- Correlation with k3s WAL-fsync delays, lost leadership/restarts, I/O PSI and
+  actual interval queue/latency rows. The first `zpool iostat` row is since boot.
+
+Append a timestamped **summary** and the private evidence directory to this log.
+State whether thermal management was observed actively increasing, whether
+device/kernel errors were present, and which facts remain unverified. Do not
+commit raw logs, environment variables, kubeconfigs or Secrets. The broader
+[host collector](collect-host-storage-diagnostics.sh) is also available if this
+checkout contains it; the focused commands above cover the requested point 2.
+
+**Leave workload scaling to the coordinating session.** Several applications
+are deliberately stopped and another scale-down retry may be active (see below).
+Do not restart them, alter Fleet, force-detach volumes, reduce replicas, reset
+etcd, run a disk benchmark, run filesystem repair, change thermal limits/fsync,
+or resize storage as part of evidence collection. Report back before proposing
+changes; no root cause or repair is established by the current alarm alone.
+
 ## Symptoms and observed trend
 
 - Both k3s servers repeatedly lost controller leadership and restarted; both
