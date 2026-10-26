@@ -447,9 +447,9 @@ The user confirmed a CloudCasa backup exists for the source local-path claims;
 its restore contents were not independently inspected here. The source PVCs,
 local directories and PV objects have been removed. A further 28 migrated
 local-path sources on proxmox3 were reclaimed on 2026-10-26; its `rpool` now
-reports 146GiB allocated / 326GiB free. Eleven migrated local-path claims
-remain on proxmox2-old pending trusted SSH host-key verification; Mailpile's
-two active local-path claims remain. See the
+reports 146GiB allocated / 326GiB free. All 39 migrated local-path sources
+have now been reclaimed, including the 11 on proxmox2-old. Mailpile's two
+active local-path claims remain because Mailpile has not been migrated. See the
 [reclamation log](local-path-reclamation-2026-10-26.md). The storage-headroom
 table above is a pre-cutover snapshot and should be remeasured before another
 migration.

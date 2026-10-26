@@ -1,5 +1,22 @@
 # Current app storage summary — 2026-10-24
 
+**Mailpile preparation update — 2026-10-26:** source growth to 9.41GiB logical
+requires a 12Gi data target plus 256Mi keys (12.25Gi total), still RWO/two replicas.
+That storage request was applied; final expansion/health could not be verified
+because APIs/k3s became unstable. No Mailpile shutdown, data copy or app cutover
+occurred. It remains on original local claims; an idle transfer helper's cleanup
+is unconfirmed. See the [current handoff](migrations/mailpile-2026-10-26/HANDOFF.md).
+The old 9.25Gi staging size below describes the preceding attempt; production
+completion totals must not include this unverified new attempt.
+
+
+**Reclamation update — 2026-10-26:** all 39 inventoried unused migrated
+local-path source PVCs/PVs and directories have been removed (28 on proxmox3,
+11 on proxmox2-old). Only Mailpile's two active local-path claims remain.
+Longhorn targets remain healthy; original local source copies are no longer
+available for rollback. See the [reclamation record](local-path-reclamation-2026-10-26.md).
+
+
 **Restoration update — 2026-10-25 20:14 UTC:** all 30 application controllers
 temporarily stopped for I/O relief have returned to their intended ready counts;
 Filebot remains disabled. The five production replica exceptions recovered
@@ -80,9 +97,9 @@ RWO allows mounting on one node (potentially several co-located pods); RWX allow
 mounting from multiple nodes. Longhorn storage replica count is independent of
 these modes. The planned RWO rows do not imply shared-writer RWX compatibility.
 
-Original local-path PVCs for migrated apps remain retained. BookStack's old config PVC was unmounted; its actual live config was preserved in a
-verified private archive and the new persistent claim, rather than that old PVC.
-Their presence does **not** mean these apps still run on local-path. Filebot's
+Unused migrated local-path source PVCs/PVs and directories have been reclaimed;
+see the reclamation update above. BookStack's old config PVC was unmounted; its
+actual live config was preserved in a private archive and its Longhorn claim. Filebot's
 inactive mounts have target references prepared, although only config is in its
 zero-replica Deployment template. Its initial backups completed while a temporary
 helper attached the volumes; current recurring policy skips detached volumes.

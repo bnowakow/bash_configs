@@ -9,6 +9,25 @@ Retain protection; source data was not overwritten or deleted. Existing 26
 migrated apps/36 production Longhorn claims/18.75Gi remain the completion totals.
 No inventory completion marker was added for Mailpile. No Git commit/push.
 
+### Retry preflight — 2026-10-26 18:24 CET
+
+The user requested to start the migration. Read-only preflight found both
+Kubernetes nodes Ready and both direct API `/readyz?verbose` checks passing;
+Mailpile remained Ready 1/1 on `mailpile-path1` and `mailpile-path2`. No
+migration changes were made. Both Longhorn target volumes are still detached
+with `robustness=unknown`; all four replica CRs are stopped. The old copy Job
+manifest references `mailpile-migration-evidence-20261025`, which is absent.
+Its copy command uses `cp -a` without clearing the target first, so it is not a
+safe resume against potentially partial staging contents. The source writer
+was not stopped and remains live on the original claims.
+
+This session could not recheck proxmox2-old SMART/I/O pressure because SSH
+host-key verification failed. The last recorded failed/degraded NVMe SMART
+state and the prior etcd/API outage during the bulk copy remain unresolved.
+Do not start the write phase until staging is safely rebuilt/resynchronized,
+the missing evidence tooling is recreated, and the peer storage/control-plane
+health is checked through a trusted host session.
+
 The interrupted copy Job was deleted and temporary measure/image-cache/evidence
 inspection resources were cleaned up. The evidence PVC was removed after its
 private manifest was confirmed **not created**. No quiesced Mailpile backup or

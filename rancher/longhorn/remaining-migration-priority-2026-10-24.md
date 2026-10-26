@@ -1,10 +1,25 @@
 # Remaining migration priority — refreshed 2026-10-26
 
+**Mailpile preparation update — 2026-10-26:** user authorized the final migration.
+Fresh source measurement is 9.41GiB logical, so the old 9Gi target is insufficient.
+The storage bundle now requests 12Gi data + 256Mi keys (**12.25Gi per host**),
+with two production replicas. Final filesystem expansion is unverified because
+etcd/API instability returned before any app shutdown/copy/cutover. Mailpile
+remains on original local storage. See the
+[current handoff](migrations/mailpile-2026-10-26/HANDOFF.md) and
+[action log](migrations/mailpile-2026-10-26/ACTIONS.log). Completion totals stay
+29 apps/43 claims/66.75Gi. Full completion would be 30 apps/45 claims/**79Gi**.
+The revised CSV target preserves its historical measurement columns; current
+source growth is recorded here and in the new migration record.
+
+
 BookStack is complete; see [results](migrations/bookstack-2026-10-25/RESULTS.md).
 Production migrations total **29 apps, 43 RWO claims and 66.75Gi requested**
 (**133.5Gi nominal aggregate replicas**). All use two storage replicas with one
-application/database owner. Retained local claims are rollback copies; BookStack's
-old unused config PVC is not a copy of its formerly ephemeral live config.
+application/database owner. Unused migrated local-path claims/PVs and directories were reclaimed on
+2026-10-26; only Mailpile's two active local-path claims remain. Historical
+rollback-source statements are superseded by the
+[reclamation record](local-path-reclamation-2026-10-26.md).
 
 ## Remaining units and execution order
 
@@ -14,10 +29,10 @@ re-measure before any further migration. CSV `remaining_size_rank` is size order
 
 | Size rank | App | Allocated MiB | Apparent MiB | Target GiB per host | Aggregate replicas GiB | Mode / execution condition |
 | ---: | --- | ---: | ---: | ---: | ---: | --- |
-| 1 | Mailpile | 5788.98 | 6600.60 | 9.25 | 18.5 | RWO; **LAST**; existing staging is unverified |
+| 1 | Mailpile | 5788.98 | 6600.60 | 12.25 | 24.5 | RWO; **LAST**; existing staging is unverified |
 | 2 | Docker Mailserver | 19960.43 | 22870.77 | 28.75 | 57.5 | RWO; cutover complete 2026-10-26; source PVCs deleted, PV data retained |
 
-Remaining total: **9.25Gi / 18.5Gi aggregate replicas, two claims, one app**.
+Remaining total: **12.25Gi / 24.5Gi aggregate replicas, two claims, one app**.
 Mailpile requires mail/index/keyring preservation. No shared-writer RWX
 conversion or further migration is authorized by this document.
 
@@ -94,7 +109,6 @@ Mailserver migration as a one-task exception to the existing cap; the cap itself
 is unchanged.
 
 Post-migration local-path cleanup: 28 unused source claims on proxmox3 were
-removed with their data directories and PV records on 2026-10-26. Eleven more
-unused migrated source claims remain on proxmox2-old, pending trusted SSH host
-key verification. Mailpile's two active local-path claims remain. See the
+removed with their data directories and PV records on 2026-10-26. The eleven peer source claims and directories were subsequently reclaimed
+through the local-path provisioner after trusted SSH verification. Mailpile's two active local-path claims remain. See the
 [reclamation log](local-path-reclamation-2026-10-26.md).

@@ -1,0 +1,49 @@
+2026-10-26T17:12:34+00:00 START: authorized reclamation of exactly 11 migrated proxmox2-old local-path sources; Longhorn targets and active Mailpile excluded
+2026-10-26T17:12:37+00:00 PREFLIGHT PASSED: all source UIDs/bindings/paths verified; no active source references; target volumes healthy with two replicas; readonly directory inspection passed
+2026-10-26T17:12:37+00:00 SIZE BEFORE: allocatedKiB=312642 apparentKiB=346812
+2026-10-26T17:12:37+00:00 RECLAIM BEGIN: apps-audiobookshelf/audiobookshelf-config PV=pvc-73a215bd-653b-44bf-8eb6-60256c5bc919 path=/var/lib/rancher/k3s/storage/pvc-73a215bd-653b-44bf-8eb6-60256c5bc919_apps-audiobookshelf_audiobookshelf-config
+2026-10-26T17:12:37+00:00 POLICY: exact source PV Retain -> Delete; local-path provisioner owns physical teardown
+2026-10-26T17:12:37+00:00 PVC DELETE REQUESTED: UID/resourceVersion preconditions enforced
+2026-10-26T17:12:40+00:00 RECLAIM COMPLETE: source PVC/PV deleted after provisioner cleanup
+2026-10-26T17:12:41+00:00 RECLAIM BEGIN: apps-audiobookshelf/audiobookshelf-metadata PV=pvc-79543895-5f34-4245-b3d4-1e9c716b80a1 path=/var/lib/rancher/k3s/storage/pvc-79543895-5f34-4245-b3d4-1e9c716b80a1_apps-audiobookshelf_audiobookshelf-metadata
+2026-10-26T17:12:41+00:00 POLICY: exact source PV Retain -> Delete; local-path provisioner owns physical teardown
+2026-10-26T17:12:41+00:00 PVC DELETE REQUESTED: UID/resourceVersion preconditions enforced
+2026-10-26T17:12:44+00:00 RECLAIM COMPLETE: source PVC/PV deleted after provisioner cleanup
+2026-10-26T17:12:44+00:00 RECLAIM BEGIN: apps-authelia/authelia-config PV=pvc-7b0f9244-8283-4122-8579-ba55bf3cc754 path=/var/lib/rancher/k3s/storage/pvc-7b0f9244-8283-4122-8579-ba55bf3cc754_apps-authelia_authelia-config
+2026-10-26T17:12:44+00:00 POLICY: exact source PV Retain -> Delete; local-path provisioner owns physical teardown
+2026-10-26T17:12:44+00:00 PVC DELETE REQUESTED: UID/resourceVersion preconditions enforced
+2026-10-26T17:12:47+00:00 RECLAIM COMPLETE: source PVC/PV deleted after provisioner cleanup
+2026-10-26T17:12:48+00:00 RECLAIM BEGIN: apps-calibre/calibre-config PV=pvc-dfa615ad-2056-4ba5-854f-a5fe6ea6d28e path=/var/lib/rancher/k3s/storage/pvc-dfa615ad-2056-4ba5-854f-a5fe6ea6d28e_apps-calibre_calibre-config
+2026-10-26T17:12:48+00:00 POLICY: exact source PV Retain -> Delete; local-path provisioner owns physical teardown
+2026-10-26T17:12:48+00:00 PVC DELETE REQUESTED: UID/resourceVersion preconditions enforced
+2026-10-26T17:12:51+00:00 RECLAIM COMPLETE: source PVC/PV deleted after provisioner cleanup
+2026-10-26T17:12:51+00:00 RECLAIM BEGIN: apps-calibre/calibre-library PV=pvc-877a9cbc-3dd6-44c8-8036-38ed301ebf78 path=/var/lib/rancher/k3s/storage/pvc-877a9cbc-3dd6-44c8-8036-38ed301ebf78_apps-calibre_calibre-library
+2026-10-26T17:12:51+00:00 POLICY: exact source PV Retain -> Delete; local-path provisioner owns physical teardown
+2026-10-26T17:12:51+00:00 PVC DELETE REQUESTED: UID/resourceVersion preconditions enforced
+2026-10-26T17:12:54+00:00 RECLAIM COMPLETE: source PVC/PV deleted after provisioner cleanup
+2026-10-26T17:12:55+00:00 RECLAIM BEGIN: apps-calibre/calibre-web-config PV=pvc-07d490ff-380e-48a9-855a-add0aac8bbbc path=/var/lib/rancher/k3s/storage/pvc-07d490ff-380e-48a9-855a-add0aac8bbbc_apps-calibre_calibre-web-config
+2026-10-26T17:12:55+00:00 POLICY: exact source PV Retain -> Delete; local-path provisioner owns physical teardown
+2026-10-26T17:12:55+00:00 PVC DELETE REQUESTED: UID/resourceVersion preconditions enforced
+2026-10-26T17:12:58+00:00 RECLAIM COMPLETE: source PVC/PV deleted after provisioner cleanup
+2026-10-26T17:12:58+00:00 RECLAIM BEGIN: apps-calibre/kavita-config PV=pvc-80d2fd5a-069f-4f5a-883d-ec4f7f5bd474 path=/var/lib/rancher/k3s/storage/pvc-80d2fd5a-069f-4f5a-883d-ec4f7f5bd474_apps-calibre_kavita-config
+2026-10-26T17:12:58+00:00 POLICY: exact source PV Retain -> Delete; local-path provisioner owns physical teardown
+2026-10-26T17:12:58+00:00 PVC DELETE REQUESTED: UID/resourceVersion preconditions enforced
+2026-10-26T17:13:01+00:00 RECLAIM COMPLETE: source PVC/PV deleted after provisioner cleanup
+2026-10-26T17:13:02+00:00 RECLAIM BEGIN: apps-openbooks/openbooks-books PV=pvc-33d5016d-6121-4385-8de6-0ecb69247124 path=/var/lib/rancher/k3s/storage/pvc-33d5016d-6121-4385-8de6-0ecb69247124_apps-openbooks_openbooks-books
+2026-10-26T17:13:02+00:00 POLICY: exact source PV Retain -> Delete; local-path provisioner owns physical teardown
+2026-10-26T17:13:02+00:00 PVC DELETE REQUESTED: UID/resourceVersion preconditions enforced
+2026-10-26T17:13:05+00:00 RECLAIM COMPLETE: source PVC/PV deleted after provisioner cleanup
+2026-10-26T17:13:05+00:00 RECLAIM BEGIN: apps-openbooks/openbooks-logs PV=pvc-dcd131a5-54b1-4b21-87a9-83f9006082b6 path=/var/lib/rancher/k3s/storage/pvc-dcd131a5-54b1-4b21-87a9-83f9006082b6_apps-openbooks_openbooks-logs
+2026-10-26T17:13:05+00:00 POLICY: exact source PV Retain -> Delete; local-path provisioner owns physical teardown
+2026-10-26T17:13:05+00:00 PVC DELETE REQUESTED: UID/resourceVersion preconditions enforced
+2026-10-26T17:13:08+00:00 RECLAIM COMPLETE: source PVC/PV deleted after provisioner cleanup
+2026-10-26T17:13:09+00:00 RECLAIM BEGIN: apps-ubooquity/ubooquity-config PV=pvc-b00c4ae1-a24a-4f1f-8bdc-7398739543f5 path=/var/lib/rancher/k3s/storage/pvc-b00c4ae1-a24a-4f1f-8bdc-7398739543f5_apps-ubooquity_ubooquity-config
+2026-10-26T17:13:09+00:00 POLICY: exact source PV Retain -> Delete; local-path provisioner owns physical teardown
+2026-10-26T17:13:09+00:00 PVC DELETE REQUESTED: UID/resourceVersion preconditions enforced
+2026-10-26T17:13:11+00:00 RECLAIM COMPLETE: source PVC/PV deleted after provisioner cleanup
+2026-10-26T17:13:11+00:00 RECLAIM BEGIN: apps-uptime-kuma/uptime-kuma-config PV=pvc-b8cee607-4959-4a6f-85de-1b41cd4da13f path=/var/lib/rancher/k3s/storage/pvc-b8cee607-4959-4a6f-85de-1b41cd4da13f_apps-uptime-kuma_uptime-kuma-config
+2026-10-26T17:13:11+00:00 POLICY: exact source PV Retain -> Delete; local-path provisioner owns physical teardown
+2026-10-26T17:13:11+00:00 PVC DELETE REQUESTED: UID/resourceVersion preconditions enforced
+2026-10-26T17:13:14+00:00 RECLAIM COMPLETE: source PVC/PV deleted after provisioner cleanup
+2026-10-26T17:13:14+00:00 ALL 11 SOURCE PVC/PV RECORDS REMOVED: proceed to physical path and target/Mailpile verification
+2026-10-26T17:16:42+00:00 FINAL VERIFIED: 11 source directories and PVC/PVs absent; targets Bound/healthy with two host replicas; affected apps/Mailpile/Mailserver Ready; only two active Mailpile local-path claims remain; helpers deleted; documentation updated

@@ -1,0 +1,126 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "name": "mailpile-transfer-20261026",
+    "namespace": "apps-mailpile"
+  },
+  "spec": {
+    "restartPolicy": "Never",
+    "automountServiceAccountToken": false,
+    "nodeSelector": {
+      "kubernetes.io/hostname": "proxmox2-old"
+    },
+    "containers": [
+      {
+        "name": "transfer",
+        "image": "python:3.13-slim",
+        "command": [
+          "sleep",
+          "86400"
+        ],
+        "securityContext": {
+          "runAsUser": 0,
+          "runAsGroup": 0
+        },
+        "resources": {
+          "requests": {
+            "cpu": "50m",
+            "memory": "128Mi"
+          },
+          "limits": {
+            "cpu": "500m",
+            "memory": "1Gi"
+          }
+        },
+        "volumeMounts": [
+          {
+            "name": "source-data",
+            "mountPath": "/source/data",
+            "readOnly": true
+          },
+          {
+            "name": "target-data",
+            "mountPath": "/target/data",
+            "readOnly": false
+          },
+          {
+            "name": "source-keys",
+            "mountPath": "/source/keys",
+            "readOnly": true
+          },
+          {
+            "name": "target-keys",
+            "mountPath": "/target/keys",
+            "readOnly": false
+          }
+        ]
+      },
+      {
+        "name": "keyring",
+        "image": "docker.io/rroemhild/mailpile:latest@sha256:5b58d53b2f11ba6ce360006ca1f6459970b3fba8bafdeafafbf1af1d14c58172",
+        "command": [
+          "python",
+          "-c",
+          "import time;time.sleep(86400)"
+        ],
+        "securityContext": {
+          "runAsUser": 0,
+          "runAsGroup": 0
+        },
+        "resources": {
+          "requests": {
+            "cpu": "10m",
+            "memory": "64Mi"
+          },
+          "limits": {
+            "cpu": "200m",
+            "memory": "512Mi"
+          }
+        },
+        "volumeMounts": [
+          {
+            "name": "target-data",
+            "mountPath": "/target/data",
+            "readOnly": false
+          },
+          {
+            "name": "target-keys",
+            "mountPath": "/target/keys",
+            "readOnly": false
+          }
+        ]
+      }
+    ],
+    "volumes": [
+      {
+        "name": "source-data",
+        "persistentVolumeClaim": {
+          "claimName": "mailpile-path1",
+          "readOnly": true
+        }
+      },
+      {
+        "name": "target-data",
+        "persistentVolumeClaim": {
+          "claimName": "mailpile-path1-longhorn-rwo",
+          "readOnly": false
+        }
+      },
+      {
+        "name": "source-keys",
+        "persistentVolumeClaim": {
+          "claimName": "mailpile-path2",
+          "readOnly": true
+        }
+      },
+      {
+        "name": "target-keys",
+        "persistentVolumeClaim": {
+          "claimName": "mailpile-path2-longhorn-rwo",
+          "readOnly": false
+        }
+      }
+    ]
+  }
+}

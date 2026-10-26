@@ -20,7 +20,7 @@
     "storageClassName": "longhorn-rwo-2replicas",
     "resources": {
       "requests": {
-        "storage": "9Gi"
+        "storage": "12Gi"
       }
     }
   }
