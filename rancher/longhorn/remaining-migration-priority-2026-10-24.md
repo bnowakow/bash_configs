@@ -1,8 +1,8 @@
-# Remaining migration priority — refreshed 2026-10-25
+# Remaining migration priority — refreshed 2026-10-26
 
 BookStack is complete; see [results](migrations/bookstack-2026-10-25/RESULTS.md).
-Production migrations total **28 apps, 39 RWO claims and 38Gi requested**
-(**76Gi nominal aggregate replicas**). All use two storage replicas with one
+Production migrations total **29 apps, 43 RWO claims and 66.75Gi requested**
+(**133.5Gi nominal aggregate replicas**). All use two storage replicas with one
 application/database owner. Retained local claims are rollback copies; BookStack's
 old unused config PVC is not a copy of its formerly ephemeral live config.
 
@@ -15,12 +15,11 @@ re-measure before any further migration. CSV `remaining_size_rank` is size order
 | Size rank | App | Allocated MiB | Apparent MiB | Target GiB per host | Aggregate replicas GiB | Mode / execution condition |
 | ---: | --- | ---: | ---: | ---: | ---: | --- |
 | 1 | Mailpile | 5788.98 | 6600.60 | 9.25 | 18.5 | RWO; **LAST**; existing staging is unverified |
-| 2 | Docker Mailserver | 19960.43 | 22870.77 | 28.75 | 57.5 | RWO; next independent candidate, but capacity/cap review required |
+| 2 | Docker Mailserver | 19960.43 | 22870.77 | 28.75 | 57.5 | RWO; cutover complete 2026-10-26; source PVCs deleted, PV data retained |
 
-Remaining total: **38Gi / 76Gi aggregate replicas, six claims, two apps**.
-Docker Mailserver requires coordinated protection of mailboxes, queues, config
-and state; Mailpile requires mail/index/keyring preservation. No shared-writer
-RWX conversion or further migration is authorized by this document.
+Remaining total: **9.25Gi / 18.5Gi aggregate replicas, two claims, one app**.
+Mailpile requires mail/index/keyring preservation. No shared-writer RWX
+conversion or further migration is authorized by this document.
 
 ## Latest completed migration: BookStack
 
@@ -55,9 +54,10 @@ recovered during application restoration at approximately 20:14 UTC; re-measure
 the budget before admitting another migration. Its NVMe reliability warning
 and the incident hold still block further migration admission.
 Nominal budget is total minus reserved minus scheduled; physical free is separate.
-If the Mailpile staging can eventually be reused, additional remaining allocation
-is **28.75Gi per host**, all for Docker Mailserver. This fits the displayed
-nominal budgets after the grows. Following successful user-initiated migrations
+Mailpile staging (9.25Gi per host) is already included in the post-expansion
+capacity snapshot. That snapshot predates the Docker Mailserver staging
+allocation and cutover, so remeasure current budgets before another migration.
+Following successful user-initiated migrations
 of VM 700 and 601 to proxmox5 (completed 18:59:03 and 19:04:48 UTC), proxmox2-old
 has **84.79GiB physical pool free / 37.59GiB additional allocation headroom above
 a 20% pool margin**. The former 3.76GiB physical headroom is historical. This
@@ -68,16 +68,21 @@ and backups, and account for the persistent NVMe reliability warning. Neither
 actual physical allocation needed. See the [migration monitoring record](io-pressure-incident-2026-10-25.md).
 
 The administrative **55Gi migration cap remains unchanged**. On 2026-10-26 the
-user explicitly directed starting Docker Mailserver, so Fleet now holds its
-four empty staging claims (28.75GiB per host). The cutover would raise
-production requests from 38GiB to 66.75GiB, above the former cap; this is a
-task-specific authorization and does not generally raise the cap. At the
-13:53 CET live check the smallest host had 63.24GiB nominal room after
-reservation and scheduling, and 42.44GiB physical pool headroom above the 20%
-free-space floor. The app remains on local-path sources; its ~19.5GiB mounted
-data has not been copied. See the [current post-expansion capacity and
-handoff](README-4-expand-storage.md#live-post-expansion-capacity--2026-10-26-1353-cet)
-for current health, backup/copy gates and precise measurements.
+user explicitly authorized Docker Mailserver, including this task-specific
+exception. The warm copy and final stopped-writer sync completed, then Fleet
+switched the app to four Longhorn claims (28.75GiB requested per host; about
+23.45GiB actual). The app is Ready 1/1 and all four volumes are healthy with
+two replicas. The four original local-path PVCs were deleted on user
+instruction at 17:30 CET. Their PVs had Retain policy; the old local data
+directories and released PV objects were removed by 17:34 CET. About 20GiB of
+apparent local data was reclaimed on proxmox3. The cutover raised production
+requests from 38GiB to 66.75GiB; authorization does not generally raise the cap.
+At the 16:52 CET pre-cutover check, proxmox2-old
+had 63.24GiB nominal room and 21.29GiB physical pool headroom above its 20%
+free-space floor. The user confirmed a CloudCasa backup of the source local-path
+claims; backup contents were not independently inspected. Remeasure pool
+headroom before another migration. See the [current post-expansion capacity
+and handoff](README-4-expand-storage.md#live-post-expansion-capacity-and-mailserver-copy--2026-10-26-1652-cet).
 
 ## Host expansion target and completed local resize
 
@@ -87,3 +92,9 @@ proxmox2-old 80 → 150GiB. Sparse virtual capacity is not guaranteed backing
 space. PVC sizes and replica policy are unchanged. The user authorized the
 Mailserver migration as a one-task exception to the existing cap; the cap itself
 is unchanged.
+
+Post-migration local-path cleanup: 28 unused source claims on proxmox3 were
+removed with their data directories and PV records on 2026-10-26. Eleven more
+unused migrated source claims remain on proxmox2-old, pending trusted SSH host
+key verification. Mailpile's two active local-path claims remain. See the
+[reclamation log](local-path-reclamation-2026-10-26.md).

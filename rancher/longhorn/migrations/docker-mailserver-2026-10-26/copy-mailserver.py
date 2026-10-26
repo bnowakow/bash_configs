@@ -114,7 +114,7 @@ def copy_volume(name, source, target, replace_staging, resume_staging):
                 row["hardlink"] = str(first.relative_to(target))
             elif same:
                 inode_targets[inode] = q
-                row["sha256"] = "unchanged-from-verified-warm-pass"
+                row["warm_copy_verified"] = True
             else:
                 if q.exists() or q.is_symlink():
                     remove_path(q)

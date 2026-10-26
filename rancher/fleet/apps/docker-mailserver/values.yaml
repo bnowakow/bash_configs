@@ -28,13 +28,13 @@ service:
 persistent_volume_claims:
   mail-config:
     enabled: true
-    existingClaim: docker-mailserver-mail-config
+    existingClaim: docker-mailserver-mail-config-longhorn-rwo
   mail-data:
     enabled: true
-    existingClaim: docker-mailserver-mail-data
+    existingClaim: docker-mailserver-mail-data-longhorn-rwo
   mail-state:
     enabled: true
-    existingClaim: docker-mailserver-mail-state
+    existingClaim: docker-mailserver-mail-state-longhorn-rwo
   mail-log:
     enabled: true
-    existingClaim: docker-mailserver-mail-log
+    existingClaim: docker-mailserver-mail-log-longhorn-rwo

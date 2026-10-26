@@ -85,13 +85,14 @@ These are historical measurements. Use the
 [current storage summary](current-app-storage-summary-2026-10-24.md) for the
 post-expansion figures and re-measure both hosts immediately before maintenance.
 
-- Completed production requests: **38GiB per host** with two replicas overall.
-- Remaining targets: Docker Mailserver **28.75GiB**, Mailpile **9.25GiB**.
+- Completed production requests after Docker Mailserver cutover: **66.75GiB per
+  host** with two replicas overall.
+- Remaining target: Mailpile **9.25GiB**.
 - Mailpile's unverified staging already reserves **9.25GiB per host**. Reuse it
   only after a successful fresh copy/verification; do not count it twice.
-- Additional nominal allocation to finish, if staging is reused: **28.75GiB per
-  host**, all for Mailserver. The historical smaller-host shortfall was
-  **5.64GiB**; repairing missing replica placements changes the live budget.
+- Additional nominal allocation to finish, if Mailpile staging is reused:
+  **0GiB**; otherwise **9.25GiB per host**. Mailpile's current staging remains
+  unverified, so do not count it as migrated data.
 - After all migrations: **76GiB production requests per host**, plus approximately
   0.01/0.02GiB of older tests: **76.01/76.02GiB scheduled**. Creating another
   Mailpile staging pair temporarily adds 9.25GiB per host until old staging is
@@ -110,9 +111,9 @@ must not be assumed to recalculate them as 10%. The procedure below preserves
 existing values. Standardizing reservations is a **separate policy decision**.
 The 10% column is an optional scenario, not part of the resize instructions.
 
-150GiB gives substantial nominal growth room. A physical planning example is
-current largest-host used space (~25.31GiB) + all remaining target sizes (38GiB,
-conservatively allowing for data not yet in staging) + **10GiB actual data growth
+150GiB gives substantial nominal growth room. The following is the historical
+pre-Mailserver physical planning example; remeasure after cutover. It assumed
+largest-host used space (~25.31GiB) + all then-remaining target sizes (38GiB) + **10GiB actual data growth
 + 10GiB additional local snapshot/churn** = ~83.31GiB. On a ~147.09GiB filesystem,
 that leaves ~63.78GiB free (~43%). This is a scenario, not a growth forecast:
 re-measure mail, snapshot use and staging contents before execution.
@@ -170,34 +171,55 @@ the physical margin, drive reliability warning and migration cap still apply.
 Plan greater physical capacity with the replacement drive and re-measure before
 future growth. No automatic cleanup or deletion was performed.
 
-## Live post-expansion capacity — 2026-10-26 13:53 CET
+## Live post-expansion capacity and Mailserver copy — 2026-10-26 16:52 CET
 
-Both 150GiB Longhorn filesystems are Ready and schedulable. The current Fleet
-storage bundle for Docker Mailserver has created four empty staging RWO claims
-totaling 28.75GiB per host, with two replicas configured. Their Longhorn
-volumes are detached and have `actualSize=0`; no mail data has been copied and
-the running mailserver still uses its original local-path claims.
+Both 150GiB Longhorn filesystems are Ready and schedulable. Four Mailserver
+RWO claims totaling 28.75GiB per host are Bound. The warm copy and final
+stopped-writer sync completed; target actual sizes total about 23.45GiB.
+Mailserver cutover completed 2026-10-26 17:16 CET. The app is Ready 1/1 using
+the Longhorn PVCs, and all four volumes report healthy with two replicas. The
+four original local-path PVCs, data directories and released PV objects were
+removed on user instruction by 17:34 CET, reclaiming about 20GiB of apparent
+local data. The current root pool reports 155GiB allocated / 317GiB free. Full details are in the
+[Mailserver handoff](migrations/docker-mailserver-2026-10-26/HANDOFF.md).
 
-| Host | Longhorn maximum | Scheduled after Mailserver staging | Reserved | Longhorn reported available | ZFS pool total / allocated / free | Physical headroom above 20% pool-free floor |
+| Host | Longhorn max | Available | Scheduled | Reserved | Pool size | Pool allocated | Pool free | Headroom above 20% free floor |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| proxmox2-old | 147.09GiB | 99.45GiB | 76.03GiB | 7.82GiB | 236GiB | 167.51GiB | 68.49GiB | **21.29GiB** |
+| proxmox3 | 147.09GiB | 97.15GiB | 76.04GiB | 0GiB | 472GiB | 174.32GiB | 297.68GiB | **203.28GiB** |
+
+At the 16:52 CET capacity snapshot, nominal room after Longhorn scheduling and reservation was 63.24GiB on
+proxmox2-old and 71.05GiB on proxmox3. This is not the same as physical pool
+headroom. The peer SSD reliability warning remains. A full second two-replica
+restore of the 23.45GiB target would exceed proxmox2-old's physical headroom
+above the 20% floor. For restore validation, use a one-replica scratch restore
+pinned to proxmox3 or add physical capacity; retain two replicas on production
+volumes. Both Kubernetes APIs remained ready, etcd voters healthy, and restart
+counts unchanged (60 local / 0 peer) during copy and source restoration. I/O
+pressure returned to low readings after brief copy-related peaks.
+
+| Host | Longhorn maximum | Scheduled | Reserved | Longhorn reported available | ZFS pool total / allocated / free | Physical headroom above 20% pool-free floor |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| proxmox2-old | 147.09GiB | 76.03GiB | 7.82GiB | 122.96GiB | 236 / 146.36 / 89.64GiB | **42.44GiB** |
-| proxmox3 | 147.09GiB | 76.04GiB | 0 | 120.72GiB | 472 / 154.13 / 317.87GiB | **223.47GiB** |
+| proxmox2-old | 147.09GiB | 76.03GiB | 7.82GiB | 99.45GiB | 236 / 167.51 / 68.49GiB | **21.29GiB** |
+| proxmox3 | 147.09GiB | 76.04GiB | 0 | 97.15GiB | 472 / 174.32 / 297.68GiB | **203.28GiB** |
 
-The pool headroom figures subtract a 20% free-space floor from current ZFS
-physical free space. Mailserver source directories measured approximately
-19.5GiB total (`/var/mail` 19.47GiB, state 19.75MiB, logs 1.75MiB, config
-66KiB) while the application was running. The peer pool is the limiting host:
-one source-sized replica set plus reasonable copy churn fits the current
-headroom, but requested PVC size and sparse filesystem free space are not
-physical allocation guarantees. Recheck both pools and I/O pressure during the
-copy. The proxmox2-old NVMe still has a degraded reliability warning.
+Longhorn's reported-available values were collected around 16:50 CET. Host `df`
+reported about 92.6GiB free on the peer and 90.2GiB locally; ZFS physical
+allocation is the stricter peer constraint. Pool headroom subtracts a 20% free
+space floor (47.20GiB peer / 94.40GiB local) from current ZFS physical free
+space. The target volumes report about **23.45GiB total actual data**; the
+peer's remaining 21.29GiB headroom above the floor is too small for a second
+full two-replica restore copy at once. Use a one-replica proxmox3-only isolated
+restore test or add backing capacity before that gate; keep the production
+two-replica policy unchanged. The proxmox2-old NVMe still has a degraded
+reliability warning.
 
 The 55GiB administrative production migration cap has not been changed. The
-user's 2026-10-26 instruction explicitly started the Mailserver migration; the
-new staging brings projected production requests to 66.75GiB when cut over
-(38GiB existing + 28.75GiB Mailserver), above that previous cap. This is a
-task-specific authorization to proceed with Mailserver, not a general cap
-change. See the [Mailserver handoff](migrations/docker-mailserver-2026-10-26/HANDOFF.md).
+The user's 2026-10-26 instruction explicitly authorized the Mailserver
+migration as a task-specific exception; its cutover is complete and production
+requests are now 66.75GiB (38GiB existing + 28.75GiB Mailserver), above the
+previous cap. The general cap remains unchanged. See the
+[Mailserver handoff](migrations/docker-mailserver-2026-10-26/HANDOFF.md).
 
 ### ZFS pool space versus ext4 free space
 
@@ -394,8 +416,10 @@ Do not delete/re-add the Longhorn disk as a refresh mechanism.
 Verify volume health, expected two-host replicas, representative applications
 and current backups. Recheck API readiness and I/O pressure over time. Only then
 repeat inventory, logging, grow and verification on the other host. Record final
-measured per-host budgets, review the proposed cap, then plan Mailserver before
-Mailpile. Keep original local rollback data until migration acceptance.
+measured per-host budgets and review the proposed cap before planning Mailpile.
+The original Mailserver local-path PVCs have been deleted; their Released PVs
+still retain old data. Do not clear those PVs/data without a separate cleanup
+decision.
 
 ## Host expansion vs application PVC expansion
 
@@ -419,3 +443,13 @@ or bypass the external-claim ownership used by the migration bundles.
 Related: [current capacity](current-app-storage-summary-2026-10-24.md),
 [remaining migrations](remaining-migration-priority-2026-10-24.md),
 [existing host setup](README-1-longhorn-on-second-node.md).
+The user confirmed a CloudCasa backup exists for the source local-path claims;
+its restore contents were not independently inspected here. The source PVCs,
+local directories and PV objects have been removed. A further 28 migrated
+local-path sources on proxmox3 were reclaimed on 2026-10-26; its `rpool` now
+reports 146GiB allocated / 326GiB free. Eleven migrated local-path claims
+remain on proxmox2-old pending trusted SSH host-key verification; Mailpile's
+two active local-path claims remain. See the
+[reclamation log](local-path-reclamation-2026-10-26.md). The storage-headroom
+table above is a pre-cutover snapshot and should be remeasured before another
+migration.

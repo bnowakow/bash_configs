@@ -19,7 +19,7 @@
         "name": "copy",
         "image": "python:3.13-slim",
         "imagePullPolicy": "IfNotPresent",
-        "command": ["python", "/scripts/copy-mailserver.py", "--resume-staging"],
+        "command": ["/bin/sh", "-c", "python /scripts/copy-mailserver.py --resume-staging && exec sleep 7200"],
         "securityContext": {
           "runAsUser": 0,
           "runAsGroup": 0,
