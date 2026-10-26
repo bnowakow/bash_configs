@@ -7,7 +7,7 @@ dependsOn:
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/calibre
-  version: 21.1.0
+  version: 21.1.1
   releaseName: calibre
   waitForJobs: true
   valuesFiles:

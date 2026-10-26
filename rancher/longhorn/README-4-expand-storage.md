@@ -170,6 +170,35 @@ the physical margin, drive reliability warning and migration cap still apply.
 Plan greater physical capacity with the replacement drive and re-measure before
 future growth. No automatic cleanup or deletion was performed.
 
+## Live post-expansion capacity — 2026-10-26 13:53 CET
+
+Both 150GiB Longhorn filesystems are Ready and schedulable. The current Fleet
+storage bundle for Docker Mailserver has created four empty staging RWO claims
+totaling 28.75GiB per host, with two replicas configured. Their Longhorn
+volumes are detached and have `actualSize=0`; no mail data has been copied and
+the running mailserver still uses its original local-path claims.
+
+| Host | Longhorn maximum | Scheduled after Mailserver staging | Reserved | Longhorn reported available | ZFS pool total / allocated / free | Physical headroom above 20% pool-free floor |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| proxmox2-old | 147.09GiB | 76.03GiB | 7.82GiB | 122.96GiB | 236 / 146.36 / 89.64GiB | **42.44GiB** |
+| proxmox3 | 147.09GiB | 76.04GiB | 0 | 120.72GiB | 472 / 154.13 / 317.87GiB | **223.47GiB** |
+
+The pool headroom figures subtract a 20% free-space floor from current ZFS
+physical free space. Mailserver source directories measured approximately
+19.5GiB total (`/var/mail` 19.47GiB, state 19.75MiB, logs 1.75MiB, config
+66KiB) while the application was running. The peer pool is the limiting host:
+one source-sized replica set plus reasonable copy churn fits the current
+headroom, but requested PVC size and sparse filesystem free space are not
+physical allocation guarantees. Recheck both pools and I/O pressure during the
+copy. The proxmox2-old NVMe still has a degraded reliability warning.
+
+The 55GiB administrative production migration cap has not been changed. The
+user's 2026-10-26 instruction explicitly started the Mailserver migration; the
+new staging brings projected production requests to 66.75GiB when cut over
+(38GiB existing + 28.75GiB Mailserver), above that previous cap. This is a
+task-specific authorization to proceed with Mailserver, not a general cap
+change. See the [Mailserver handoff](migrations/docker-mailserver-2026-10-26/HANDOFF.md).
+
 ### ZFS pool space versus ext4 free space
 
 Historical read-only measurement on 2026-10-25, after the grow **and before the

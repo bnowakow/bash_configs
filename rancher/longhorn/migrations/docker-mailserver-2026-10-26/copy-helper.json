@@ -1,0 +1,61 @@
+{
+  "apiVersion": "v1",
+  "kind": "Pod",
+  "metadata": {
+    "name": "docker-mailserver-warm-copy-20261026",
+    "namespace": "apps-docker-mailserver",
+    "labels": {
+      "app.kubernetes.io/name": "docker-mailserver-migration-copy"
+    }
+  },
+  "spec": {
+    "restartPolicy": "Never",
+    "automountServiceAccountToken": false,
+    "nodeSelector": {
+      "kubernetes.io/hostname": "proxmox3"
+    },
+    "containers": [
+      {
+        "name": "copy",
+        "image": "python:3.13-slim",
+        "imagePullPolicy": "IfNotPresent",
+        "command": ["python", "/scripts/copy-mailserver.py", "--resume-staging"],
+        "securityContext": {
+          "runAsUser": 0,
+          "runAsGroup": 0,
+          "allowPrivilegeEscalation": false,
+          "capabilities": {
+            "drop": ["ALL"],
+            "add": ["CHOWN", "FOWNER", "DAC_OVERRIDE"]
+          }
+        },
+        "resources": {
+          "requests": {"cpu": "100m", "memory": "128Mi"},
+          "limits": {"cpu": "1", "memory": "1Gi"}
+        },
+        "volumeMounts": [
+          {"name": "source-config", "mountPath": "/source/config", "readOnly": true},
+          {"name": "source-data", "mountPath": "/source/data", "readOnly": true},
+          {"name": "source-log", "mountPath": "/source/log", "readOnly": true},
+          {"name": "source-state", "mountPath": "/source/state", "readOnly": true},
+          {"name": "target-config", "mountPath": "/target/config"},
+          {"name": "target-data", "mountPath": "/target/data"},
+          {"name": "target-log", "mountPath": "/target/log"},
+          {"name": "target-state", "mountPath": "/target/state"},
+          {"name": "copy-script", "mountPath": "/scripts", "readOnly": true}
+        ]
+      }
+    ],
+    "volumes": [
+      {"name": "source-config", "persistentVolumeClaim": {"claimName": "docker-mailserver-mail-config", "readOnly": true}},
+      {"name": "source-data", "persistentVolumeClaim": {"claimName": "docker-mailserver-mail-data", "readOnly": true}},
+      {"name": "source-log", "persistentVolumeClaim": {"claimName": "docker-mailserver-mail-log", "readOnly": true}},
+      {"name": "source-state", "persistentVolumeClaim": {"claimName": "docker-mailserver-mail-state", "readOnly": true}},
+      {"name": "target-config", "persistentVolumeClaim": {"claimName": "docker-mailserver-mail-config-longhorn-rwo"}},
+      {"name": "target-data", "persistentVolumeClaim": {"claimName": "docker-mailserver-mail-data-longhorn-rwo"}},
+      {"name": "target-log", "persistentVolumeClaim": {"claimName": "docker-mailserver-mail-log-longhorn-rwo"}},
+      {"name": "target-state", "persistentVolumeClaim": {"claimName": "docker-mailserver-mail-state-longhorn-rwo"}},
+      {"name": "copy-script", "configMap": {"name": "docker-mailserver-migration-copy"}}
+    ]
+  }
+}

@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: docker-mailserver-mail-config-longhorn-rwo
+      namespace: apps-docker-mailserver
+      annotations:
+        helm.sh/resource-policy: keep
+        migration.bnowakowski.pl/source-pvc: docker-mailserver-mail-config
+      labels:
+        recurring-job.longhorn.io/source: enabled
+        recurring-job-group.longhorn.io/nas-backup: enabled
+    spec:
+      accessModes: [ReadWriteOnce]
+      storageClassName: longhorn-rwo-2replicas
+      resources:
+        requests:
+          storage: 256Mi
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: docker-mailserver-mail-data-longhorn-rwo
+      namespace: apps-docker-mailserver
+      annotations:
+        helm.sh/resource-policy: keep
+        migration.bnowakowski.pl/source-pvc: docker-mailserver-mail-data
+      labels:
+        recurring-job.longhorn.io/source: enabled
+        recurring-job-group.longhorn.io/nas-backup: enabled
+    spec:
+      accessModes: [ReadWriteOnce]
+      storageClassName: longhorn-rwo-2replicas
+      resources:
+        requests:
+          storage: 28Gi
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: docker-mailserver-mail-log-longhorn-rwo
+      namespace: apps-docker-mailserver
+      annotations:
+        helm.sh/resource-policy: keep
+        migration.bnowakowski.pl/source-pvc: docker-mailserver-mail-log
+      labels:
+        recurring-job.longhorn.io/source: enabled
+        recurring-job-group.longhorn.io/nas-backup: enabled
+    spec:
+      accessModes: [ReadWriteOnce]
+      storageClassName: longhorn-rwo-2replicas
+      resources:
+        requests:
+          storage: 256Mi
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: docker-mailserver-mail-state-longhorn-rwo
+      namespace: apps-docker-mailserver
+      annotations:
+        helm.sh/resource-policy: keep
+        migration.bnowakowski.pl/source-pvc: docker-mailserver-mail-state
+      labels:
+        recurring-job.longhorn.io/source: enabled
+        recurring-job-group.longhorn.io/nas-backup: enabled
+    spec:
+      accessModes: [ReadWriteOnce]
+      storageClassName: longhorn-rwo-2replicas
+      resources:
+        requests:
+          storage: 256Mi

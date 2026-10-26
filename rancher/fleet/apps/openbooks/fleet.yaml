@@ -6,7 +6,7 @@ dependsOn:
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/openbooks
-  version: 9.0.3
+  version: 9.0.4
   releaseName: openbooks
   waitForJobs: true
   valuesFiles:

@@ -1,0 +1,4 @@
+name: longhorn-docker-mailserver-storage
+defaultNamespace: apps-docker-mailserver
+dependsOn:
+  - name: longhorn-pilot-storage

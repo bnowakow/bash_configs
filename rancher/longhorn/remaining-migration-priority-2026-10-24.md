@@ -67,18 +67,23 @@ and backups, and account for the persistent NVMe reliability warning. Neither
 28.75GiB requested capacity nor sparse filesystem free space establishes the
 actual physical allocation needed. See the [migration monitoring record](io-pressure-incident-2026-10-25.md).
 
-The administrative **55Gi migration cap remains**. Production requests are 38Gi;
-adding the current Mailserver proposal would reach **66.75Gi**, exceeding it.
-Re-measure actual mail data and review conservative sizing/capacity/cap before
-another stage. No disk enlargement, replica-count reduction or default
-StorageClass change is authorized. See the
-[current storage summary](current-app-storage-summary-2026-10-24.md) for fresh
-Longhorn-reported disk figures and [assessment](fleet-storage-migration-assessment-2026-10-24.md)
-for historical evidence.
+The administrative **55Gi migration cap remains unchanged**. On 2026-10-26 the
+user explicitly directed starting Docker Mailserver, so Fleet now holds its
+four empty staging claims (28.75GiB per host). The cutover would raise
+production requests from 38GiB to 66.75GiB, above the former cap; this is a
+task-specific authorization and does not generally raise the cap. At the
+13:53 CET live check the smallest host had 63.24GiB nominal room after
+reservation and scheduling, and 42.44GiB physical pool headroom above the 20%
+free-space floor. The app remains on local-path sources; its ~19.5GiB mounted
+data has not been copied. See the [current post-expansion capacity and
+handoff](README-4-expand-storage.md#live-post-expansion-capacity--2026-10-26-1353-cet)
+for current health, backup/copy gates and precise measurements.
 
 ## Host expansion target and completed local resize
 
 See [host expansion procedure and sizing](README-4-expand-storage.md): the user
 selected **150GiB per host**. Both grows are complete: proxmox3 100 → 150GiB;
 proxmox2-old 80 → 150GiB. Sparse virtual capacity is not guaranteed backing
-space. PVC sizes, replica policy and the migration cap are unchanged.
+space. PVC sizes and replica policy are unchanged. The user authorized the
+Mailserver migration as a one-task exception to the existing cap; the cap itself
+is unchanged.
