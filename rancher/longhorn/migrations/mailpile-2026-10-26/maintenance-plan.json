@@ -1,0 +1,478 @@
+{
+  "createdUTC": "2026-10-27T08:16:14.445347+00:00",
+  "workloads": [
+    {
+      "namespace": "apps-audiobookshelf",
+      "kind": "deployment",
+      "name": "audiobookshelf",
+      "uid": "2519f93a-da5c-486a-9c6b-cc674181750b",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-authelia",
+      "kind": "deployment",
+      "name": "authelia",
+      "uid": "94e027ba-c62d-4aec-a0b8-5d9704e195cb",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-bazarr",
+      "kind": "deployment",
+      "name": "bazarr",
+      "uid": "c716d4fe-e5e1-41b6-8592-278b4595355c",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-bindery",
+      "kind": "deployment",
+      "name": "bindery",
+      "uid": "73539d7f-d227-4e9d-9bbf-ca13ec6847c7",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-bookstack",
+      "kind": "deployment",
+      "name": "bookstack",
+      "uid": "f5ba8826-405c-4030-b3e8-2f4995121292",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-bookstack",
+      "kind": "deployment",
+      "name": "bookstack-mariadb",
+      "uid": "b24e8d2e-065e-4c28-b5a2-f043060390eb",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-calibre",
+      "kind": "deployment",
+      "name": "calibre",
+      "uid": "342caa3a-6341-4e10-b014-218e2bdae894",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-calibre",
+      "kind": "deployment",
+      "name": "calibre-web",
+      "uid": "7aca6df4-0c5a-4a38-a4ef-c8c7a7d377a4",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-calibre",
+      "kind": "deployment",
+      "name": "kavita",
+      "uid": "2ebcf824-55fa-4e72-8781-240456334ad5",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-cleanuparr",
+      "kind": "deployment",
+      "name": "cleanuparr",
+      "uid": "0a7563f7-507f-4cb5-970f-913f8725e50d",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-ddclient",
+      "kind": "deployment",
+      "name": "ddclient",
+      "uid": "2640cea1-6b5d-4733-9a9f-bcee7c9c5bfc",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-docker-mailserver",
+      "kind": "deployment",
+      "name": "docker-mailserver",
+      "uid": "5e030863-6e8f-485a-be5f-5ac95dda9bd4",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-duckdns",
+      "kind": "deployment",
+      "name": "duckdns",
+      "uid": "1ad2bdc3-bdcd-43dc-9d24-e4bfbf62e053",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-filebot",
+      "kind": "deployment",
+      "name": "filebot",
+      "uid": "b4c801b6-b15f-4b3c-b735-855c4f2c1438",
+      "replicas": 0
+    },
+    {
+      "namespace": "apps-flaresolverr",
+      "kind": "deployment",
+      "name": "flaresolverr",
+      "uid": "ca4a9995-7b50-46fa-81c8-7f5c25ec877c",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-homer-test",
+      "kind": "deployment",
+      "name": "homer-test",
+      "uid": "f6c08c22-7ce8-479c-b301-6d7013a06d8c",
+      "replicas": 2
+    },
+    {
+      "namespace": "apps-homer",
+      "kind": "deployment",
+      "name": "homer",
+      "uid": "e2c3489a-921f-411e-89d6-f71c7397ac47",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-homer",
+      "kind": "deployment",
+      "name": "homer-without-auth",
+      "uid": "7e290dcb-6253-4539-b120-74b4c270245a",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-jellyseerr",
+      "kind": "deployment",
+      "name": "jellyseerr",
+      "uid": "8076ef48-6a61-45ba-9d60-2007e57336f4",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-mailpile",
+      "kind": "deployment",
+      "name": "mailpile",
+      "uid": "be7c1158-f131-4ea2-b8a9-7306249d5cfd",
+      "replicas": 0
+    },
+    {
+      "namespace": "apps-openbooks",
+      "kind": "deployment",
+      "name": "openbooks",
+      "uid": "c1e04abe-f7e2-4a12-8fd5-be5c8573cd03",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-profilarr",
+      "kind": "deployment",
+      "name": "profilarr",
+      "uid": "592c8f49-5047-4de6-82b2-23fe59360000",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-prowlarr",
+      "kind": "deployment",
+      "name": "prowlarr",
+      "uid": "b405470e-941b-4c7a-842e-c6916a1daf41",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-radarr",
+      "kind": "deployment",
+      "name": "radarr",
+      "uid": "c32dc5af-e049-4c41-a567-ce66db174216",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-scrutiny",
+      "kind": "deployment",
+      "name": "scrutiny",
+      "uid": "49f59b65-4b5f-4904-94cc-82eac7732821",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-smokeping",
+      "kind": "deployment",
+      "name": "smokeping",
+      "uid": "d6e9783d-cfce-40bf-901a-eb2d610d460a",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-sonarr",
+      "kind": "deployment",
+      "name": "sonarr",
+      "uid": "18ea996d-9be7-4a87-8d6c-83a17aa44e78",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-ubooquity",
+      "kind": "deployment",
+      "name": "ubooquity",
+      "uid": "c85b3132-d671-4539-af15-3db33b65eb02",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-uptime-kuma",
+      "kind": "deployment",
+      "name": "uptime-kuma",
+      "uid": "bd8fd726-32ac-480a-997a-adca4336cd8b",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-youtubedl-material",
+      "kind": "deployment",
+      "name": "youtubedl-material",
+      "uid": "25acf9ee-faf1-442a-b751-870ffb72dc73",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-youtubedl-material",
+      "kind": "deployment",
+      "name": "youtubedl-material-mongodb",
+      "uid": "a4b646bc-4968-437f-a12b-f7a60de265fc",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-zabbix",
+      "kind": "deployment",
+      "name": "zabbix-zabbix-server",
+      "uid": "11b51aed-1101-4c7d-b704-2aa4c123f997",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-zabbix",
+      "kind": "deployment",
+      "name": "zabbix-zabbix-web",
+      "uid": "531cda11-9009-4633-90ff-1e5fb6bbb231",
+      "replicas": 1
+    },
+    {
+      "namespace": "apps-zabbix",
+      "kind": "deployment",
+      "name": "zabbix-zabbix-webservice",
+      "uid": "fa46b9ea-cc65-4c5e-bc49-9489cdd09c7a",
+      "replicas": 1
+    },
+    {
+      "namespace": "cattle-capi-system",
+      "kind": "deployment",
+      "name": "capi-controller-manager",
+      "uid": "8a2e442f-1f95-41ae-9608-ce0698dc7f48",
+      "replicas": 1
+    },
+    {
+      "namespace": "cattle-fleet-local-system",
+      "kind": "deployment",
+      "name": "fleet-agent",
+      "uid": "728d1a06-e273-410f-b381-80935168a028",
+      "replicas": 1
+    },
+    {
+      "namespace": "cattle-fleet-system",
+      "kind": "deployment",
+      "name": "fleet-controller",
+      "uid": "286164cd-21ac-4c80-bbe4-3e3d4f0cd056",
+      "replicas": 1
+    },
+    {
+      "namespace": "cattle-fleet-system",
+      "kind": "deployment",
+      "name": "gitjob",
+      "uid": "c5455955-9fd0-4f72-9e49-f8ba2587dec3",
+      "replicas": 1
+    },
+    {
+      "namespace": "cattle-fleet-system",
+      "kind": "deployment",
+      "name": "helmops",
+      "uid": "86492e56-249a-4987-9c18-a2a1e5747b76",
+      "replicas": 1
+    },
+    {
+      "namespace": "cattle-system",
+      "kind": "deployment",
+      "name": "rancher",
+      "uid": "60494a1a-a4c0-4cdf-8b62-6da2aea4edf2",
+      "replicas": 3
+    },
+    {
+      "namespace": "cattle-system",
+      "kind": "deployment",
+      "name": "system-upgrade-controller",
+      "uid": "4b73b186-1b1f-4fb4-9953-564690fbe6b6",
+      "replicas": 1
+    },
+    {
+      "namespace": "cattle-turtles-system",
+      "kind": "deployment",
+      "name": "rancher-turtles-controller-manager",
+      "uid": "faf53080-e7bc-42aa-a33e-cce052cc6ce0",
+      "replicas": 1
+    },
+    {
+      "namespace": "cloudcasa-io",
+      "kind": "deployment",
+      "name": "cloudcasa-kubeagent-manager",
+      "uid": "6fbdb240-f8e9-49dc-9127-b75cbb514fdc",
+      "replicas": 1
+    },
+    {
+      "namespace": "cloudcasa-io",
+      "kind": "deployment",
+      "name": "kubeagent",
+      "uid": "cd3c5c88-0c01-4578-871a-bb97addda360",
+      "replicas": 1
+    },
+    {
+      "namespace": "kube-system",
+      "kind": "deployment",
+      "name": "metrics-server",
+      "uid": "ec4f9ad9-74f1-493d-952b-c47e58d80c42",
+      "replicas": 1
+    },
+    {
+      "namespace": "longhorn-system",
+      "kind": "deployment",
+      "name": "longhorn-ui",
+      "uid": "13b5a754-3fbe-4510-aeaf-75fd5764206e",
+      "replicas": 2
+    },
+    {
+      "namespace": "apps-zabbix",
+      "kind": "statefulset",
+      "name": "zabbix-postgresql",
+      "uid": "10eae935-2c90-4e14-b14d-898201d01b4a",
+      "replicas": 1
+    }
+  ],
+  "kept": [
+    {
+      "namespace": "apps-adguard-home",
+      "kind": "deployment",
+      "name": "adguard-home",
+      "uid": "3cb7261f-371c-4fad-a4ac-ed93f7cd595c",
+      "replicas": 1
+    },
+    {
+      "namespace": "cattle-system",
+      "kind": "deployment",
+      "name": "rancher-webhook",
+      "uid": "7ab14775-f71d-4d66-9203-56f399a1671b",
+      "replicas": 1
+    },
+    {
+      "namespace": "cert-manager",
+      "kind": "deployment",
+      "name": "cert-manager",
+      "uid": "e680e57f-b543-45db-8ec2-84ed3ddf80e5",
+      "replicas": 1
+    },
+    {
+      "namespace": "cert-manager",
+      "kind": "deployment",
+      "name": "cert-manager-cainjector",
+      "uid": "317f3661-04ac-46cb-a338-9703dca55728",
+      "replicas": 1
+    },
+    {
+      "namespace": "cert-manager",
+      "kind": "deployment",
+      "name": "cert-manager-webhook",
+      "uid": "ab78a037-591a-4184-a941-500cbb827e8e",
+      "replicas": 1
+    },
+    {
+      "namespace": "kube-system",
+      "kind": "deployment",
+      "name": "coredns",
+      "uid": "7c1f1c53-58bd-4d2e-b486-ae3dff6cac03",
+      "replicas": 1
+    },
+    {
+      "namespace": "kube-system",
+      "kind": "deployment",
+      "name": "local-path-provisioner",
+      "uid": "682e11d4-a1b3-4df2-aa35-78a80b62adf4",
+      "replicas": 1
+    },
+    {
+      "namespace": "kube-system",
+      "kind": "deployment",
+      "name": "traefik",
+      "uid": "f31872d6-8201-4692-ba25-7bc472ce9414",
+      "replicas": 1
+    },
+    {
+      "namespace": "longhorn-system",
+      "kind": "deployment",
+      "name": "csi-attacher",
+      "uid": "1370cde7-2ad2-4739-9198-0550e41a0bd8",
+      "replicas": 3
+    },
+    {
+      "namespace": "longhorn-system",
+      "kind": "deployment",
+      "name": "csi-provisioner",
+      "uid": "09a0a980-e052-4a4e-8fc5-515196d2b9fa",
+      "replicas": 3
+    },
+    {
+      "namespace": "longhorn-system",
+      "kind": "deployment",
+      "name": "csi-resizer",
+      "uid": "eba0e020-ca35-4dd9-b102-b33b77ba4d73",
+      "replicas": 3
+    },
+    {
+      "namespace": "longhorn-system",
+      "kind": "deployment",
+      "name": "csi-snapshotter",
+      "uid": "f90e3cda-7f17-498c-8a62-40e6b0415366",
+      "replicas": 3
+    },
+    {
+      "namespace": "longhorn-system",
+      "kind": "deployment",
+      "name": "longhorn-driver-deployer",
+      "uid": "199f5fec-2535-4342-88dd-8a2b9d0427c4",
+      "replicas": 1
+    },
+    {
+      "namespace": "longhorn-system",
+      "kind": "deployment",
+      "name": "longhorn-global-manager",
+      "uid": "788f4b6a-4b66-464d-a13a-a90aa3dd4a69",
+      "replicas": 3
+    }
+  ],
+  "cronjobs": [
+    {
+      "namespace": "apps-calibre",
+      "kind": "cronjob",
+      "name": "calibre-cover-maintenance",
+      "uid": "cc5ca2f1-1776-447f-9c6f-fd53a1c72245",
+      "suspend": false
+    },
+    {
+      "namespace": "apps-homer",
+      "kind": "cronjob",
+      "name": "homer-without-auth-config-copy",
+      "uid": "88df3eac-f224-42ec-a4fe-24ab213955ad",
+      "suspend": false
+    },
+    {
+      "namespace": "apps-zabbix",
+      "kind": "cronjob",
+      "name": "zabbix-nodesclean",
+      "uid": "5371bf2b-e26c-423a-8fe8-b00982762af2",
+      "suspend": false
+    },
+    {
+      "namespace": "cattle-fleet-system",
+      "kind": "cronjob",
+      "name": "fleet-cleanup-gitrepo-jobs",
+      "uid": "011cca65-d5e9-4997-958f-734f04589320",
+      "suspend": false
+    },
+    {
+      "namespace": "fleet-local",
+      "kind": "cronjob",
+      "name": "rke2-machineconfig-cleanup-cronjob",
+      "uid": "f13f19f2-300c-4c6f-b40f-2102a1981b69",
+      "suspend": false
+    },
+    {
+      "namespace": "longhorn-system",
+      "kind": "cronjob",
+      "name": "nas-daily-backup",
+      "uid": "13e2ab9d-33cb-47b4-8214-df99e5ee6e28",
+      "suspend": false
+    }
+  ]
+}

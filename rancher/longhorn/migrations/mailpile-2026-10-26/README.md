@@ -23,7 +23,7 @@ Protect source claims/PVs, snapshot original deployment, repo config and Secret
 data privately under `/tmp/longhorn-mailpile-20261026` (mode 700).
 
 `copy-and-verify.py copy` clears only the explicitly mounted unverified staging
-trees, then streams a stopped-source copy at 4MiB/s. Sparse zero ranges, file
+trees, then streams a stopped-source copy at 256KiB/s. Sparse zero ranges, file
 ownership/modes/timestamps, directories, symlinks, FIFOs and hardlinks are
 preserved. Every copied chunk is read back; source/target SHA256 is accumulated
 for each regular file. Complete metadata/link inventories are compared after
@@ -55,7 +55,7 @@ Confirm the scratch replica placements actually match this plan before testing.
 See [Longhorn storage-class parameters](https://longhorn.io/docs/1.13.0/references/storage-class-parameters/).
 
 `copy-and-verify.py verify` compares the complete restored SHA256/metadata/link
-manifest at an 8MiB/s read limit. `check-keyring.py` uses the unchanged app image's
+manifest at a 512KiB/s read limit. `check-keyring.py` uses the unchanged app image's
 Python 2/GnuPG 1.4 in a disposable clone, printing only public/secret key counts.
 No messages are read through the application, decrypted, sent or fetched during
 isolated verification. Root manifests contain filenames; never commit them.
@@ -74,3 +74,94 @@ helper without scaling Mailpile down. Both APIs then returned 503, local k3s
 restarts increased 60→62, peer service was activating with high I/O PSI. No data
 copy or source mutation occurred. Require current health revalidation; do not
 interpret desired 12Gi or a created helper as a finished expansion/migration.
+
+## User-requested lower throttle
+
+The next file copy is limited to **1MiB/s**, with metadata processing limited
+to 20 entries/s on average. Independent restore verification reads at **2MiB/s**.
+At the last measured 9.41GiB this means roughly 2h40m minimum for copying, plus
+verification and backup/restore time; helper lifetimes are 24h. This limits the
+file-transfer workload; it does not itself throttle Longhorn replica rebuilds.
+
+The copy/verification process also pauses while host `/proc/pressure/io` reports
+`some avg10 > 30%` or `full avg10 > 10%`. It resumes at the configured low rate
+without a catch-up burst; metadata description is capped at 100 entries/s.
+API health and a stopped source writer are separate cutover requirements.
+
+Longhorn's documented rebuild bandwidth QoS applies to the **V2 engine only**;
+these production volumes use V1. Do not set a V2 bandwidth option and assume
+V1 repairs are throttled. See [rebuild QoS](https://longhorn.io/docs/1.13.0/advanced-resources/rebuilding/replica-rebuild-qos/).
+An attempted temporary concurrency reduction 5→1 timed out; last reported value
+remained 5. Confirm the actual setting after API recovery before changing or
+restoring it. No production replica count was reduced.
+
+## Maximum-throttle restart (26 October evening)
+
+`start-when-ready.py` is the guarded start controller. It keeps the original app
+running while waiting for both APIs, healthy two-replica targets, three minutes
+of stability, low peer I/O pressure, and physical ZFS free space sufficient for
+the target plus a 20% pool reserve and 2GiB buffer. Its current state is in
+`STATE.json` (ignored by Git); all major actions append to `ACTIONS.log`.
+Copy bandwidth is capped at 256KiB/s, restored hashing at 512KiB/s, and metadata
+operations are paced. Copying pauses when host I/O PSI avg10 exceeds 10% some
+or 2% full. This is deliberately slow: roughly 11 hours of data transfer alone,
+plus metadata checks, backup and restore verification. Longhorn rebuild, backup
+and restore concurrency are temporarily limited to one; production replicas
+remain two. Longhorn internal backup/restore traffic has concurrency limits,
+not the Python copier's byte-rate cap.
+
+Preparation replaced the failed, unverified staging data PVC with clean 12Gi
+`pvc-775212e9-ac49-4664-9dd0-a239dc72bf1c`. Original local-path claims are
+untouched. Peer manager and instance-manager stale Pod records required recovery
+after their processes had already disappeared. Bounded idle-priority FITRIM
+reclaims only filesystem-free Longhorn blocks in 256MiB ranges, with pressure
+pauses; it never removes files or discards allocated app blocks.
+
+## Resume with Mailpile already stopped — 27 October
+
+Run `start-when-ready.py --source-stopped` to resume the authorized migration
+without bringing the source app back up. The controller verifies zero source
+replicas and passes this mode to the coordinator. On pre-cutover failure the
+coordinator stops the helper and leaves the original app at zero replicas.
+Success still starts one instance on Longhorn after backup/restore validation.
+
+The controller automatically launches/retries bounded reclamation while the
+physical-headroom gate is unmet; the reclamation worker holds an exclusive
+lock to prevent simultaneous discard jobs. It stops on API failure, pauses on
+pressure, and resumes only at its saved offset on the next safe attempt.
+
+The 27-Oct retry repaired missing peer manager/CSI/instance-manager processes
+by replacing confirmed failed Pods. Old Pod records were removed only after
+normal deletion and host cgroup verification that only inert pause sandboxes
+remained. Fresh helper is Ready2/2. Verified mounted data filesystem has
+11.71GiB total /11.69GiB free; keys0.218GiB total. Source mounts remain RO;
+app chart/value files match the privately saved baseline. Source data untouched.
+
+## Live rate adjustment — 27 October
+
+User requested a modest increase from256 to512KiB/s with I/O monitoring. The
+original worker had a fixed cap, so its supervisor/coordinator and remote copy
+were stopped without deleting the helper or staging, and the start marker was
+archived privately. `--source-stopped --resume-copy` starts the verified resume
+path. Every existing regular file is compared byte-for-byte against the stopped
+source before reuse; partial/corrupt files are rewritten, stale target entries
+removed, and the complete manifest/metadata/hardlink checks still apply. No
+manifest or copied file is trusted merely because it exists. Source remains0.
+
+`/tmp/mailpile-rate.json` in the transfer container controls `copyKiBps` and
+`verifyKiBps` (valid64–1024), plus `pause`. Updates are atomic and apply on the
+next block/metadata guard. Copy defaults512KiB/s; restore hashing stays512KiB/s.
+`rate-watch.py` monitors both hosts every15s, records aggregate samples in
+ACTIONS.log/RATE.json, pauses at some>10% or full>2% on either host, and lowers
+the copy cap to256KiB/s. Recovery requires three low samples and retains the
+reduced cap. It also pauses below the peer's20% pool-free floor plus2GiB.
+The monitor stops when copying finishes or migration needs review; native NAS
+backup/restore have separate concurrency controls and are not byte-rate capped
+by this copier. Resume-start capacity forecasts subtract target bytes already
+allocated, avoiding counting the preserved staging copy twice.
+
+Fixture verification passed: valid-file reuse without rewriting, corrupted-file
+repair, sparse files, hardlinks, symlinks, FIFO, metadata/full-manifest restore
+validation, stale-entry cleanup, and live256→512 cap updates/invalid-zero rejection.
+
+Every transfer-cap change and observed result is recorded in [TRANSFER-CAPS.md](TRANSFER-CAPS.md). The27-Oct13:05 trial raised the live copy cap to768KiB/s after an earlier automatic fallback to256. At13:07, worker output confirmed768 and progress; local PSI0/0, peer0.08%some/0.02%full, no guard alert. Continuous monitoring and automatic pause/fallback remain active.

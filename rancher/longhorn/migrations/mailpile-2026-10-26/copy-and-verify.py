@@ -1,11 +1,30 @@
 """Stopped-source sparse copy; complete byte hashes, ownership and links; no mail output."""
 import hashlib,json,os,pathlib,shutil,stat,subprocess,sys,time,traceback
 P=pathlib.Path
+last_metadata=0.0
+last_pressure_message=0.0
+def io_guard():
+ global last_pressure_message
+ while True:
+  lines=P('/proc/pressure/io').read_text().splitlines();values={line.split()[0]:float(line.split()[1].split('=')[1]) for line in lines}
+  try:external_pause=bool(json.loads(P('/tmp/mailpile-rate.json').read_text()).get('pause',False))
+  except (OSError,ValueError,TypeError):external_pause=False
+  if not external_pause and values.get('some',100)<=10 and values.get('full',100)<=2:return
+  if time.monotonic()-last_pressure_message>=30:
+   print('IO_PRESSURE_PAUSE some_avg10=%.2f full_avg10=%.2f external_pause=%s'%(values.get('some',100),values.get('full',100),external_pause),flush=True);last_pressure_message=time.monotonic()
+  time.sleep(5)
 class Rate:
- def __init__(self,mib):self.rate=mib*1024**2;self.start=time.monotonic();self.count=0
+ def __init__(self,mib,key='copyKiBps'):self.rate=mib*1024**2;self.key=key;self.start=time.monotonic();self.count=0;self.next=self.start
  def account(self,n):
-  self.count+=n;time.sleep(max(0,self.count/self.rate-(time.monotonic()-self.start)))
+  try:
+   value=json.loads(P('/tmp/mailpile-rate.json').read_text()).get(self.key,self.rate/1024)
+   if isinstance(value,(int,float)) and 64<=value<=16384 and value*1024!=self.rate:
+    self.rate=value*1024;self.next=time.monotonic();print('RATE_LIMIT_CHANGED '+self.key+'='+str(value),flush=True)
+  except (OSError,ValueError,TypeError):pass
+  io_guard();self.count+=n;self.next=max(self.next,time.monotonic())+n/self.rate;time.sleep(max(0,self.next-time.monotonic()))
 def record(p):
+ global last_metadata
+ io_guard();time.sleep(max(0,last_metadata+0.05-time.monotonic()));last_metadata=time.monotonic()
  s=p.lstat();r={'mode':stat.S_IMODE(s.st_mode),'uid':s.st_uid,'gid':s.st_gid,'mtimeNs':s.st_mtime_ns}
  if stat.S_ISLNK(s.st_mode):r.update(type='symlink',link=os.readlink(p))
  elif stat.S_ISDIR(s.st_mode):r['type']='directory'
@@ -41,19 +60,26 @@ def without_hashes(m):
  return d
 manifest=P('/tmp/mailpile-manifest.json');mode=sys.argv[1];claimnames=('data','keys')
 try:
- if mode=='copy':
-  records={};rate=Rate(4);total=0;last=time.monotonic();entrycount=0
+ if mode in ('copy','resume'):
+  resume=mode=='resume';records={};rate=Rate(0.5);total=0;last=time.monotonic();entrycount=0;newentries=0;reusedbytes=0;reusedfiles=0;rechecked=0
   for claim in claimnames:
    src=P('/source')/claim;dst=P('/target')/claim
    assert src.is_mount() and dst.is_mount() and src!=dst
    # Only these unverified staging mounts are overwritten; source mounts are RO.
-   for q in dst.iterdir():
-    if q.name=='lost+found':continue
-    if q.is_dir() and not q.is_symlink():shutil.rmtree(q)
-    else:q.unlink()
+   if not resume:
+    for q in dst.iterdir():
+     if q.name=='lost+found':continue
+     if q.is_dir() and not q.is_symlink():shutil.rmtree(q)
+     else:q.unlink()
    entries={};inodes={};paths=sorted(src.rglob('*'))
    for p in paths:
-    rel=str(p.relative_to(src));q=dst/rel;s,r=record(p);entrycount+=1
+    rel=str(p.relative_to(src));q=dst/rel;s,r=record(p);entrycount+=1;reused=False
+    if q.exists() or q.is_symlink():
+     retain=resume and ((r['type']=='directory' and q.is_dir() and not q.is_symlink()) or (r['type']=='file' and (s.st_dev,s.st_ino) not in inodes and q.is_file() and not q.is_symlink() and q.stat().st_nlink==1))
+     if not retain:
+      if q.is_dir() and not q.is_symlink():shutil.rmtree(q)
+      else:q.unlink()
+     elif r['type']=='directory':reused=True
     if r['type']=='directory':q.mkdir(exist_ok=True)
     elif r['type']=='symlink':q.symlink_to(r['link'])
     elif r['type']=='fifo':os.mkfifo(q)
@@ -63,21 +89,40 @@ try:
       r['hardlink_to']=inodes[key];r['sha256']=entries[inodes[key]]['sha256'];os.link(dst/inodes[key],q)
      else:
       inodes[key]=rel;h=hashlib.sha256();check=hashlib.sha256()
-      with p.open('rb',buffering=0) as f,q.open('w+b',buffering=0) as g:
-       g.truncate(s.st_size);offset=0
-       while block:=f.read(1024**2):
-        rate.account(len(block));h.update(block)
-        if block.strip(b'\0'):g.write(block)
-        else:g.seek(len(block),1)
-        copied=os.pread(g.fileno(),len(block),offset);check.update(copied)
-        if copied!=block:raise RuntimeError('Copy byte verification failed')
-        offset+=len(block);total+=len(block)
-        if time.monotonic()-last>=30:
-         print('COPY_PROGRESS verified_MiB=%d entries=%d rate_limit=4MiB/s'%(total//1024**2,entrycount),flush=True);last=time.monotonic()
-      assert h.digest()==check.digest();r['sha256']=h.hexdigest()
+      if resume and q.is_file() and q.stat().st_size==s.st_size:
+       reused=True
+       with p.open('rb',buffering=0) as f,q.open('rb',buffering=0) as g:
+        while block:=f.read(1024**2):
+         rate.account(len(block));rechecked+=len(block)
+         if g.read(len(block))!=block:reused=False;break
+         h.update(block)
+         if time.monotonic()-last>=30:
+          print('RESUME_VALIDATION rechecked_MiB=%d reused_files=%d rate_limit=%dKiB/s'%(rechecked//1024**2,reusedfiles,rate.rate/1024),flush=True);last=time.monotonic()
+       if reused:total+=s.st_size;reusedbytes+=s.st_size;reusedfiles+=1;r['sha256']=h.hexdigest()
+      if not reused:
+       h=hashlib.sha256();check=hashlib.sha256()
+       with p.open('rb',buffering=0) as f,q.open('w+b',buffering=0) as g:
+        g.truncate(s.st_size);offset=0
+        while block:=f.read(1024**2):
+         rate.account(len(block));h.update(block)
+         if block.strip(b'\0'):g.write(block)
+         else:g.seek(len(block),1)
+         copied=os.pread(g.fileno(),len(block),offset);check.update(copied)
+         if copied!=block:raise RuntimeError('Copy byte verification failed')
+         offset+=len(block);total+=len(block)
+         if time.monotonic()-last>=30:
+          print('COPY_PROGRESS verified_MiB=%d entries=%d rate_limit=%dKiB/s'%(total//1024**2,entrycount,rate.rate/1024),flush=True);last=time.monotonic()
+       assert h.digest()==check.digest();r['sha256']=h.hexdigest()
       after=p.lstat();assert (after.st_ino,after.st_size,after.st_mtime_ns)==(s.st_ino,s.st_size,s.st_mtime_ns),'Source changed while copying'
     ownerstat(p,q,s);entries[rel]=r
-    time.sleep(max(0,entrycount/150-(time.monotonic()-rate.start)))
+    if not reused:newentries+=1;time.sleep(max(0,newentries/5-(time.monotonic()-rate.start)))
+   if resume:
+    wanted={str(p.relative_to(src)) for p in paths}
+    for q in sorted(dst.rglob('*'),key=lambda q:len(q.parts),reverse=True):
+     rel=str(q.relative_to(dst))
+     if rel=='lost+found' or rel.startswith('lost+found/') or rel in wanted:continue
+     if q.is_dir() and not q.is_symlink():q.rmdir()
+     else:q.unlink()
    for p in reversed(paths):
     if p.is_dir() and not p.is_symlink():ownerstat(p,dst/p.relative_to(src),p.lstat())
    ownerstat(src,dst,src.stat());subprocess.run(['sync','-f',str(dst)],check=True)
@@ -89,8 +134,9 @@ try:
   try:manifest.write_text(json.dumps(records))
   finally:os.umask(old)
   print('COPY_COMPLETE verified_bytes='+str(total)+'; private manifest saved',flush=True)
+  if resume:print('RESUME_REUSED verified_bytes='+str(reusedbytes)+' files='+str(reusedfiles),flush=True)
  elif mode=='verify':
-  records=json.loads(manifest.read_text());rate=Rate(8)
+  records=json.loads(manifest.read_text());rate=Rate(0.5,'verifyKiBps')
   for claim in claimnames:
    actual=describe(P('/target')/claim,True,rate);assert actual==records[claim],'Restored tree mismatch'
    print('RESTORE_VERIFIED tree='+claim+' entries='+str(len(actual['entries']))+'; complete SHA256/ownership/modes/timestamps/link match',flush=True)

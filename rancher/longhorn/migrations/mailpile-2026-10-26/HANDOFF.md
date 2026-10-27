@@ -1,3 +1,54 @@
+# Current status — 27 October, maintenance shutdown and active copy
+
+**Mailpile migration is actively copying**, not waiting to start. Latest verified
+copy progress1671MiB (~1.63GiB) at256KiB/s; original app replicas0. No sole-writer/
+API alert file existed at maintenance verification. Source claims remain intact.
+
+User authorized stopping everything practical, and requested documentation.
+45 previously active workloads now verified desired0/current0; all47 planned
+workloads (including already-zero Filebot/Mailpile) are stopped. Six CronJobs
+suspended. DNS/ingress/webhooks/storage critical services remain running;
+AdGuard/CoreDNS/Traefik available1 each. Peer PSI0, physical free61.14GiB while
+copy in progress (start gate was met before copy). This current free figure
+includes initial copied data; do not reapply the full pre-copy start forecast.
+
+See [MAINTENANCE.md](MAINTENANCE.md) and [maintenance-plan.json](maintenance-plan.json)
+for scope, counts, exact saved replicas and restoration. Full originals remain
+private under /tmp/longhorn-mailpile-20261026. `quiesce-workloads.py stop` completed.
+`maintenance-watch.py` is being started to restore only Fleet controller after
+verified copy, then Fleet agent after new target Bundle/BundleDeployment ID,
+then restore applications gradually after STATE phasecomplete. Do not restore
+Fleet agent while old source bundle is still desired. Do not start duplicate
+copy processes or scale Mailpile up independently. Source0 mode preserves
+requested downtime on failure. Original controller PID3503504 remains active.
+
+The sections below are historical and superseded where inconsistent.
+
+# Current resume status — 27 October 2026
+
+User explicitly requested resuming migration if stopped. Original app is already
+replicas0 (confirmed no app Pod); no source copy has ever started. New controller
+was started with `--source-stopped`, PID3503504, exec session75558. It accepts
+zero source replicas, preserves requested downtime if migration fails, and
+automatically resumes bounded free-block reclamation when the capacity gate
+is reached. Reclamation now has an exclusive worker lock. Rates remain copy
+256KiB/s, restore verification512KiB/s, pressure pause some10%/full2%.
+
+Both APIs responded Ready but peer storage health reports were stale: failed
+manager daemon, CSI listener and instance-manager/engines were absent according
+to SSH. Old helper UID9c840711 was normally terminated, verified no processes,
+then stale Pod record removed and fresh helper created. It cannot mount because
+peer CSI socket refuses connections. Normal replacement of failed peer manager,
+CSI and instance-manager was requested, logged in ACTIONS.log. Do not claim
+healthy target reports alone prove live engines while peer manager is absent.
+
+Peer pool physical free~41.35GiB, PSI0 at first check; conservative start gate
+61.45GiB remains unchanged. Source0 must remain enforced. Original claims/data
+are intact. Do not start duplicate coordinators or independently restart app.
+
+The following sections preserve historical observations and are superseded
+where they conflict with this current status.
+
 # Mailpile migration preparation blocked — 2026-10-26
 
 User authorized Mailpile migration. **No Mailpile shutdown, source data copy,
@@ -76,3 +127,103 @@ kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml -n apps-mailpile delete pod mailp
 Resume ownership belongs to this migration session. Root troubleshooting should
 restore control-plane/storage health and report changes; do not independently
 scale workloads, run an uncapped copy or bypass the guard/verification steps.
+
+## User-requested throttled retry — 2026-10-26 after 19:01 CET
+
+User requested migration again with lower bulk-copy I/O. Copy now limits to
+**1MiB/s**, restored-file hashing to **2MiB/s**, copy metadata to 20 entries/s
+average and metadata description to 100/s. Both operations automatically pause
+if host I/O PSI some avg10 exceeds 30% or full avg10 exceeds 10%; no catch-up
+burst is allowed. Production copy has still **not started**.
+
+At retry preflight both APIs were again unready; local k3s had 70 restarts and
+peer I/O PSI some 79.84%/full 68.61%. The actual `migrate.py` invocation stopped
+at its first API health check, before any scale/copy/gate changes.
+
+Read-only access to the Longhorn manager API (10.42.0.156:9500) reported five
+concurrent rebuilds, 38 degraded volumes, and Mailpile data staging attached at
+12Gi backend size but degraded: proxmox3 replica RW, peer replica not running.
+No active rebuild was reported for that staging data volume in this snapshot.
+These manager reports may lag underlying activity while Kubernetes APIs are
+unavailable. Backend 12Gi does not verify mounted ext4 expansion completed.
+
+An attempt to temporarily lower `concurrent-replica-rebuild-per-node-limit`
+from 5 to 1 via Longhorn manager PUT timed out. A subsequent read still returned 5;
+**the setting change is not confirmed**, and no concurrency reduction should be
+claimed. The original setting response is saved at
+`/tmp/mailpile-rebuild-concurrency-before.json`. Longhorn V1 does not support
+the documented V2 rebuild-bandwidth QoS; no ineffective V2 setting was applied.
+
+Peer pool free was 53,690,101,760 bytes (~50GiB) in this retry sample, leaving
+only ~2.8GiB above the 20%-free planning floor. Re-measure physical allocation
+(and unverified staging contents/snapshots) before any transfer; do not assume
+logical filesystem free space guarantees physical pool headroom. Current source
+service/storage was not changed by this retry. The staging helper's earlier
+cleanup remains unconfirmed. See ACTIONS.log for timestamps and failed retry.
+
+## Maximum-throttle controller active, 26 October evening
+
+Controller PID 897927, exec session 3990. Current state is STATE.json; it keeps
+Mailpile running until all prerequisites pass, then starts migration automatically.
+Latest gate: transfer helper not Ready, peer instance-manager being recreated
+after confirmed absent container/processes; normal recreation has a two-minute
+backoff. Physical peer pool headroom is also below the conservative start gate.
+Bounded filesystem-free-block reclamation is active (exec session 55986).
+No source shutdown or bulk copy has started as of this entry. Rates: copy
+256KiB/s, restored hashing512KiB/s; PSI automatic pauses. See README and ACTIONS.log.
+Do not start a second coordinator or delete original claims.
+
+## Blocker investigation, 19:04 UTC
+
+Peer instance-manager is now Ready1/1. Both target volumes are attached; data
+is healthy, keyring remains degraded because its peer replica is queued behind
+serialized cluster recovery. This is not evidence of an independent keyring
+copy failure: no Mailpile bulk copy has started. OpenBooks logs completed its
+rebuild; healthy volume count rose10→13 during observation. Global rebuild,
+backup and restore limits remain1. Do not increase concurrency to jump the queue.
+
+Pressure peaked at some38%/full29%, then fell to some0.92%/full0.61%. Bounded
+reclamation correctly paused and resumed. Last scan offset40.25GiB; peer physical
+free45.24GiB, still below61.45GiB conservative start gate. No source deletion,
+reserve reduction, unrelated app shutdown or live-engine restart performed.
+Controller PID897927 remains active and original Mailpile remains online.
+If the complete discard scan cannot reach capacity goal, review measured final
+headroom before choosing a revised reserve or additional capacity; do not claim
+the copy itself cannot fit (source9.41GiB, available45.24GiB).
+
+## 27-Oct resumed workflow, latest observation07:45UTC
+
+Peer manager/CSI/instance-manager replacements became Ready and fresh transfer
+helper Ready2/2. Mounted data target verified11.71GiB total/11.69GiB free; keys
+0.218GiB total. Source app/config unchanged and replicas0. Both targets later
+passed health gates: controller reached waiting_for_physical_headroom. Bounded
+reclamation raised free space to~50.2GiB (from41.35), below61.45GiB start gate.
+Then k3s restart count154→156 and API failures interrupted readiness; controller
+waiting_for_api_or_staging. No data copy/source startup/cutover occurred.
+
+Active controller: PID3503504/session75558, --source-stopped. Bounded reclamation
+uses worker lock and auto-retry on safe controller capacity checks; manual
+resume session11745 may have ended or paused under pressure. Inspect ACTIONS
+and STATE before any new action; do not start duplicate workflows.
+
+## Rate adjustment, 27 October10:37UTC
+
+User requested a modest copy-cap increase with I/O monitoring. Old supervisor
+and coordinator were terminated deliberately, then only the remote fixed-rate
+copy worker; helper/staging and source0 were preserved. No guard alert or
+pre-cutover backup existed. Original start marker archived privately. New
+supervisor PID44368/session34300 runs --source-stopped --resume-copy, initially
+observing180s stability. It revalidates/reuses complete files and repairs partial
+ones; full verification remains required. Rate512KiB/s is configured live in
+helper /tmp/mailpile-rate.json. rate-watch.py/session69081 watches both hosts,
+pauses and lowers cap256 under pressure, and records RATE.json/ACTIONS.log.
+The maintenance watcher/session55240 remains active for safe cutover/restoration.
+Do not start duplicate workers or revive old fixed-rate processes.
+
+## 27-Oct13:07 cap trial
+
+Previous monitor reduced512→256 at12:42 after local PSI15.68%some/15.05%full (peaked28.36/27.66), then retained256 after recovery. User requested another increase and documentation of every change. Current live cap768KiB/s, worker-confirmed; rate-watch.py PID430576/session99573 remains active, supports --cap and appends accepted changes to TRANSFER-CAPS.md. Short trial:3625→3712MiB verified, local PSI0/0, peer0.08/0.02, no guard alert. No copy restart occurred for this adjustment. Every future cap change must be documented and verified, including automatic reductions.
+
+## 27-Oct13:10 cap trial
+
+User requested another modest increase: live cap1024KiB/s (1MiB/s), worker-confirmed. New rate monitor PID439650/session76672, --cap1024. Copy progress3859MiB, no guard alert. Latest local PSI0.07/0.04, peer0.19/0.03; free60.28GiB. Short trial passed, documented in TRANSFER-CAPS.md. Safety pause/fallback256 retained; no copy restart.

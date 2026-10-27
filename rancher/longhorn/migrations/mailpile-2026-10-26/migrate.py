@@ -1,7 +1,7 @@
 """One-time guarded Mailpile copy/backup/restore/Fleet cutover; original sources retained."""
 import json,pathlib,subprocess,sys,time,threading,traceback,datetime,os
 from action_log import log
-HERE=pathlib.Path(__file__).resolve().parent;ROOT=HERE.parents[2];PRIVATE=pathlib.Path('/tmp/longhorn-mailpile-20261026');NS='apps-mailpile';HELPER='mailpile-transfer-20261026';K=['kubectl','--kubeconfig','/etc/rancher/k3s/k3s.yaml'];stopped=False;cutover=False;guard_stop=threading.Event();guard_error=PRIVATE/'writer-or-api-alert'
+HERE=pathlib.Path(__file__).resolve().parent;ROOT=HERE.parents[2];PRIVATE=pathlib.Path('/tmp/longhorn-mailpile-20261026');NS='apps-mailpile';HELPER='mailpile-transfer-20261026';K=['kubectl','--kubeconfig','/etc/rancher/k3s/k3s.yaml'];source_stopped='--source-stopped' in sys.argv;stopped=False;cutover=False;guard_stop=threading.Event();guard_error=PRIVATE/'writer-or-api-alert'
 def run(args,data=None,capture=True):
  if args[0] in ('create','delete','patch','label','annotate','scale') or any(a in ('delete','label','scale','annotate') for a in args):log('RESOURCE ACTION: kubectl '+' '.join(args))
  return subprocess.run(K+args,input=data,stdout=subprocess.PIPE if capture else None,check=True).stdout
@@ -31,7 +31,10 @@ def targets_healthy():
   if c.endswith('path1-longhorn-rwo'):assert int(p['status']['capacity']['storage'].removesuffix('Gi'))>=12
 try:
  assert not (PRIVATE/'migration-started').exists(),'Existing run evidence: inspect before rerunning'
- health();ready(HELPER);targets_healthy();d=obj(['-n',NS,'get','deployment','mailpile']);assert d['spec']['replicas']==1 and d['status']['availableReplicas']==1
+ health();ready(HELPER);targets_healthy();d=obj(['-n',NS,'get','deployment','mailpile']);assert (d['spec']['replicas']==0 and d['status'].get('replicas',0)==0) if source_stopped else (d['spec']['replicas']==1 and d['status'].get('availableReplicas')==1)
+ old=json.loads((PRIVATE/'source-deployment.json').read_text());assert d['metadata']['labels'].get('helm.sh/chart')==old['metadata']['labels'].get('helm.sh/chart'),'Chart changed; refresh prepared configuration before continuing'
+ assert d['spec']['template']['spec']['containers'][0]['image']==old['spec']['template']['spec']['containers'][0]['image'],'Image changed since preparation'
+ for path,text in json.loads((PRIVATE/'source-repository-files.json').read_text()).items():assert (ROOT/path).read_text()==text,'Repository config changed; refresh preparation before continuing'
  assert {v.get('persistentVolumeClaim',{}).get('claimName') for v in d['spec']['template']['spec']['volumes']} >= {'mailpile-path1','mailpile-path2'}
  (PRIVATE/'source-deployment-final.json').write_text(json.dumps(d));(PRIVATE/'migration-started').touch()
  for c in ['mailpile-path1','mailpile-path2']:
@@ -41,7 +44,7 @@ try:
   if subprocess.run(K+['-n',NS,'wait','--for=delete','pod','-l','app.kubernetes.io/instance=mailpile','--timeout=55s']).returncode==0:gone=True;break
  assert gone,'Source pod not gone';log('WRITER STOPPED: original Mailpile pod gone; original claims protected; starting sole-writer/API guard')
  threading.Thread(target=guard,daemon=True).start();no_alert()
- ex(HELPER,'transfer',['python','-u','-','copy'],data=(HERE/'copy-and-verify.py').read_bytes(),capture=False);no_alert();log('COPY PASSED: every regular-file source/target byte verified, complete metadata/link inventories match')
+ ex(HELPER,'transfer',['python','-u','-','resume' if '--resume-copy' in sys.argv else 'copy'],data=(HERE/'copy-and-verify.py').read_bytes(),capture=False);no_alert();log('COPY PASSED: every regular-file source/target byte verified, complete metadata/link inventories match')
  (PRIVATE/'manifest.json').write_bytes(ex(HELPER,'transfer',['cat','/tmp/mailpile-manifest.json']));(PRIVATE/'manifest.json').chmod(0o600)
  ex(HELPER,'keyring',['python','-'],data=(HERE/'check-keyring.py').read_bytes(),capture=False);log('KEYRING PASSED: unchanged app image parsed disposable GnuPG clone; no message/key content printed')
  group='mailpile-migration-20261026';label='recurring-job-group.longhorn.io/'+group;name='mailpile-migration-backup-20261026'
@@ -93,6 +96,6 @@ except BaseException as e:
  guard_stop.set();(PRIVATE/'private-error.txt').write_text(traceback.format_exc());log('MIGRATION STOPPED: '+type(e).__name__+'; private diagnostics saved; no success claimed')
  if stopped and not cutover:
   try:
-   run(['-n',NS,'delete','pod',HELPER,'--ignore-not-found']);wait_deleted('pod',HELPER);run(['-n',NS,'scale','deployment','mailpile','--replicas=1']);log('SOURCE RECOVERY REQUESTED: helper stopped; original Mailpile replicas restored')
+   run(['-n',NS,'delete','pod',HELPER,'--ignore-not-found']);wait_deleted('pod',HELPER);run(['-n',NS,'scale','deployment','mailpile','--replicas='+('0' if source_stopped else '1')]);log('SOURCE RECOVERY REQUESTED: helper stopped; original Mailpile kept stopped' if source_stopped else 'SOURCE RECOVERY REQUESTED: helper stopped; original Mailpile replicas restored')
   except BaseException:log('SOURCE RECOVERY NOT CONFIRMED: inspect API/helper/source state before proceeding')
  raise SystemExit(1)

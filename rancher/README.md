@@ -1,5 +1,14 @@
 # Helm applications upgrade script
 
+## PVC migrations
+
+All PVC migrations require application workloads across the cluster to be
+temporarily scaled to zero first, with essential cluster/storage services kept
+running. Concurrent applications have coincided with severe I/O pressure spikes
+and API failures; the underlying cause is unknown. Follow the
+[required maintenance procedure](longhorn/README-5-pvc-migration-maintenance.md)
+and restore saved replica counts gradually after validation.
+
 `helm-upgrade-apps.sh` contains PoC of script that I use to automate installing updates of applications installed on Kubernetes cluster via Helm Charts.
 
 ![demo of helm-upgrade.sh](./images/helm-upgrade.sh_demo.gif)

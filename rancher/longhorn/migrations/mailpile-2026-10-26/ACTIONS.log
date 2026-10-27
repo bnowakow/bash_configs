@@ -3,3 +3,884 @@
 2026-10-26T17:43:46+00:00 HEALTH HOLD: APIs returned503 during staging attachment/expansion before downtime/copy; local k3s NRestarts60->62, peer NRestarts1 and both activating; peer IO some76.40% full52.44%. No Mailpile scale-down, source mutation or data copy performed.
 2026-10-26T17:52:20+00:00 PREPARATION VALIDATION: temporary fixture passed sparse-file byte preservation, hardlinks/symlink/FIFO metadata, restore verification, source-metadata verification and corruption rejection. Production coordinator not started.
 2026-10-26T17:53:40+00:00 BLOCKED BEFORE COPY: five-minute observation failed; local k3s reached65 restarts. Eight normal helper-delete requests failed; helper cleanup/runtime state unconfirmed. Existing Mailpile hosts responded302. Source deployment/references never changed. Revised 12Gi request and staged workflow documented; no completion counts changed.
+2026-10-26T18:04:40+00:00 USER REQUESTED THROTTLED RETRY: copy lowered to1MiB/s, metadata20 entries/s average, full restore reads2MiB/s; APIs already unready before new file copy, local k3s70 restarts, peer IO some79.84% full68.61%; source has not been stopped/copied.
+2026-10-26T18:09:01+00:00 ADAPTIVE THROTTLE PREPARED: file copy1MiB/s, restore reads2MiB/s; pause while host IO PSI some_avg10>30% or full_avg10>10%; no catch-up burst after pause; metadata stat rate capped100/s, copy entries20/s. Not yet executed against Mailpile data.
+2026-10-26T18:09:53+00:00 MIGRATION STOPPED: CalledProcessError; private diagnostics saved; no success claimed
+2026-10-26T18:11:52+00:00 THROTTLED START ATTEMPT: migrate.py exited at initial API readiness503, before migration-started marker or any source scale/copy. Longhorn manager reports staging degraded (peer replica stopped) and five other active rebuilds; attempted concurrency5->1 PUT timed out, last GET still5 (not confirmed applied). Source unchanged.
+2026-10-26T18:12:40+00:00 THROTTLE TESTS PASSED: fixture integrity/corruption checks and simulated high-PSI pause/resume passed at updated limits; production coordinator failed safely at API preflight before downtime. No migration success claimed.
+2026-10-26T18:17:25+00:00 MAXIMAL PRACTICAL THROTTLE REQUESTED: copy256KiB/s, restore verification512KiB/s; metadata20/s, copy entries5/s average; pause at host PSI some>10% or full>2%; helper lifetime72h. Current API returned ready, source1/1, failed idle helper0/2; peer pool free46944411648 bytes, below20% planning floor. Need staging/headroom remediation before downtime.
+2026-10-26T18:17:58+00:00 STAGING RESET REQUESTED: failed helper removed; exact unverified data staging PV reclaim setDelete and only mailpile-path1-longhorn-rwo PVC deleted to free obsolete replica data. Original local data/key claims and live source untouched; key staging retained.
+2026-10-26T18:21:11+00:00 BACKGROUND THROTTLE CONFIRMED: concurrent-replica-rebuild-per-node-limit set1 via Kubernetes after previous timed-out attempt. Previous response saved for restoration; existing active rebuilds are not interrupted; production replicas remain2.
+2026-10-26T18:23:19+00:00 STAGING CLEANUP DIAGNOSIS: obsolete volume/PV deleting normally, remaining stopped peer replica waits longhorn.io finalizer; peer manager unready with missing old container logs/restarts10. Restarting only peer manager Pod under DaemonSet; no engine restarts or finalizer forcing.
+2026-10-26T18:27:24+00:00 SERIAL NATIVE BULK WORK: backup-concurrent-limit and restore-concurrent-limit set1, prior values saved; rebuild concurrency already1. These are worker/concurrency limits, not V1 bandwidth caps. File copies remain256KiB/s and verified reads512KiB/s with PSI pause.
+2026-10-26T18:28:23+00:00 STALE MANAGER POD RECOVERY: normal deletion exceeded grace; kubelet FailedKillPod sandbox timeout; SSH process list confirmed no peer manager daemon (only distinct CSI/deploy-driver processes). Force-removed only stale manager Pod API record to let DaemonSet recreate; no engine/PVC/storage-finalizer force.
+2026-10-26T18:32:24+00:00 CLEAN STAGING PREPARED: peer manager replacement Ready; old unverified volume/PV cleanup finished without removing storage finalizers. Reapplied storage bundle and created fresh72h transfer helper. Source workload still uses original local claims; no file copy yet.
+2026-10-26T18:36:14+00:00 BOUNDED FREE-BLOCK DISCARD TEST: exact RW host mount verified; idle-priority fstrim first256MiB, minimum free range1MiB; only filesystem-free blocks eligible, no file deletion. Peer zpool autotrim off; original source unchanged.
+2026-10-26T18:44:28+00:00 FREE-BLOCK RECLAMATION START: 256MiB ranges, idle-priority, minimum free extent1MiB, >=5s between calls, PSI pause at some>10%/full>2%; no files deleted
+2026-10-26T18:45:06+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=2.25 pool_freeGiB=44.18 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:45:50+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=4.25 pool_freeGiB=44.22 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:46:33+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=6.25 pool_freeGiB=44.21 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:47:16+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=8.25 pool_freeGiB=44.22 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:47:58+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=10.25 pool_freeGiB=44.22 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:48:41+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=12.25 pool_freeGiB=44.20 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:49:24+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=14.25 pool_freeGiB=44.22 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:50:07+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=16.25 pool_freeGiB=44.22 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:50:50+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=18.25 pool_freeGiB=44.22 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:51:19+00:00 ATTACHMENT BLOCKER: peer instance-manager container terminated137/ContainerStatusUnknown; SSH shows no instance-manager or engine/replica processes. Requesting normal Pod replacement by Longhorn manager; no live engine process is restarted.
+2026-10-26T18:51:34+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=20.25 pool_freeGiB=44.17 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:52:18+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=22.25 pool_freeGiB=44.21 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:53:02+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=24.25 pool_freeGiB=44.29 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:53:45+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=26.25 pool_freeGiB=44.28 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:54:22+00:00 STALE POD RECOVERY: normal instance-manager deletion stuck beyond grace; same UID548d1b98, container absent/terminated137, no host engine/instance-manager processes reverified. Removing only stale Pod API record, no storage finalizers.
+2026-10-26T18:54:29+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=28.25 pool_freeGiB=44.29 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:54:50+00:00 START CONTROLLER waiting: Maximum-throttle workflow active; original Mailpile stays running until health/staging/capacity gates pass
+2026-10-26T18:54:50+00:00 START CONTROLLER waiting_for_prerequisites: Transfer helper not Ready
+2026-10-26T18:55:13+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=30.25 pool_freeGiB=44.29 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:55:56+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=32.25 pool_freeGiB=44.50 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:56:39+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=34.25 pool_freeGiB=44.57 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:57:22+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=36.25 pool_freeGiB=44.74 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T18:57:45+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=17.50 full=8.55
+2026-10-26T18:57:52+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T18:58:48+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=32.63 full=21.49
+2026-10-26T18:59:51+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=38.14 full=28.97
+2026-10-26T19:00:53+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=33.91 full=23.28
+2026-10-26T19:01:55+00:00 BLOCKER REVIEW: keyring peer replica is queued by deliberate rebuild-per-node limit1, not independent storage failure. OpenBooks logs replica completed native rebuild at19:01:07UTC; recovery queue advancing. Peer pool free44.85GiB, original Mailpile online. Reclamation correctly pauses under elevated PSI; do not increase concurrency or bypass replica/capacity gates.
+2026-10-26T19:01:55+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=36.44 full=26.33
+2026-10-26T19:03:19+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=38.25 pool_freeGiB=45.24 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T19:04:02+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=40.25 pool_freeGiB=45.24 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T19:04:45+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=42.25 pool_freeGiB=45.26 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T19:05:28+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=44.25 pool_freeGiB=45.07 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T19:05:39+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=18.32 full=9.78
+2026-10-26T19:06:48+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=46.25 pool_freeGiB=45.32 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T19:07:31+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=48.25 pool_freeGiB=45.73 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T19:08:14+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=50.25 pool_freeGiB=47.20 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-26T19:08:30+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=14.58 full=9.50
+2026-10-26T19:08:50+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T19:09:33+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=59.70 full=46.31
+2026-10-26T19:10:32+00:00 MONITOR INCIDENT: recovery reached22 healthy/21 degraded/4 unknown volumes, then peer PSI peaked78.48%some/71.98%full. Local k3s NRestarts73→74; both APIs fail etcd readiness. Controller waiting_for_api_or_staging; no source shutdown/copy started. FITRIM paused under pressure. Latest peer free45.51GiB.
+2026-10-26T19:10:36+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=61.87 full=27.51
+2026-10-26T19:10:41+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T19:11:05+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T19:11:38+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=82.98 full=70.39
+2026-10-26T19:12:41+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=79.56 full=69.15
+2026-10-26T19:13:44+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=88.91 full=82.98
+2026-10-26T19:14:46+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=95.71 full=81.76
+2026-10-26T19:16:00+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=71.01 full=55.73
+2026-10-26T19:17:01+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T19:17:03+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=48.08 full=29.00
+2026-10-26T19:17:25+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T19:18:04+00:00 FREE-BLOCK RECLAMATION HOLD: API unavailable; no further discard requests
+2026-10-26T19:19:30+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T19:20:12+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T19:20:32+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T19:22:58+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T19:25:30+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T19:26:36+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T19:27:16+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T19:35:52+00:00 MONITOR UPDATE: local k3s NRestarts80; both APIs currently Ready, peer PSI some0.02/full0.01, physical free42.24GiB. Prior peer API confirmed original Mailpile available1/1. Reclamation previously stopped on API loss; migration still waiting for healthy targets, no copy started.
+2026-10-26T19:38:26+00:00 RECLAMATION RESUME: no previous worker running, saved offset50.75GiB. Consecutive checks both APIs Ready, NRestarts stable80, PSI some0.22/full0.15. Resuming same bounded256MiB idle-priority discard of filesystem-free blocks only; original app untouched.
+2026-10-26T19:38:26+00:00 FREE-BLOCK RECLAMATION START: 256MiB ranges, idle-priority, minimum free extent1MiB, >=5s between calls, PSI pause at some>10%/full>2%; no files deleted
+2026-10-26T19:38:26+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=62.88 full=53.03
+2026-10-26T19:38:26+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T19:39:29+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=77.85 full=68.27
+2026-10-26T19:40:10+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T19:40:31+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=54.20 full=40.08
+2026-10-26T19:40:34+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T19:41:34+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=74.06 full=56.58
+2026-10-26T19:42:36+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=84.32 full=62.24
+2026-10-26T19:42:49+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T19:43:13+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T19:43:39+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=88.62 full=79.88
+2026-10-26T19:45:19+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=58.84 full=36.98
+2026-10-26T19:46:22+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=87.10 full=73.46
+2026-10-26T19:47:24+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=97.51 full=92.04
+2026-10-26T19:48:10+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T19:48:26+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=48.50 full=32.74
+2026-10-26T19:48:33+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T19:49:29+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=90.04 full=77.38
+2026-10-26T19:50:36+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T19:50:57+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=69.08 full=47.39
+2026-10-26T19:50:59+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T19:52:00+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=92.33 full=83.10
+2026-10-26T19:52:46+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T19:53:03+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=9.18 full=5.24
+2026-10-26T19:53:10+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T19:53:26+00:00 FREE-BLOCK RECLAMATION HOLD: API unavailable; no further discard requests
+2026-10-26T19:53:55+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T19:55:01+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T19:55:21+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T19:55:42+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T19:56:43+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T19:59:06+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=34.79 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:00:08+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=34.70 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:00:38+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=35.06 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:01:40+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=34.84 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:02:10+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=35.06 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:03:42+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=34.93 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:04:14+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T20:04:35+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=34.64 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:05:07+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T20:05:27+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=35.46 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:05:58+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=35.83 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:06:33+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T20:09:32+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=37.61 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:10:03+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T20:10:46+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T20:11:08+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T20:11:29+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T20:13:51+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=37.64 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:14:22+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=37.65 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:14:53+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=37.56 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:15:23+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=37.62 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:15:54+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=37.60 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:16:25+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=37.69 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:16:55+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=37.72 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:17:26+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=37.30 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:17:58+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T20:32:11+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=33.58 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:32:43+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=33.43 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:33:22+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T20:37:36+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=32.15 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:38:06+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T20:39:48+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=32.18 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:40:19+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=32.20 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:40:49+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=32.18 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:41:51+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=32.15 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:42:21+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=32.21 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:42:53+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T20:44:17+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=33.30 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:44:48+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=33.31 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:47:21+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=33.26 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:47:52+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=33.31 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:48:22+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=33.26 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:48:53+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=33.31 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:50:25+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=33.32 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:50:56+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=33.31 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:53:29+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=33.27 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:53:59+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T20:54:44+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=32.00 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:55:14+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T20:55:35+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=35.86 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T20:56:09+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T20:59:43+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.76 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:00:44+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T21:02:26+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.87 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:03:00+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T21:07:28+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.74 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:07:58+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T21:12:02+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.88 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:12:33+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.87 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:13:13+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T21:13:57+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.77 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:14:42+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T21:15:43+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.82 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:16:14+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.93 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:16:44+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.85 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:17:15+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.89 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:17:46+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.94 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:20:19+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.95 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:20:49+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.91 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:21:20+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.98 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:22:52+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.99 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:24:24+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.00 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:25:25+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.99 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:26:57+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.00 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:27:58+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.99 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:28:31+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T21:29:37+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=40.95 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:30:10+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T21:30:31+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.61 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:31:05+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T21:32:31+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.58 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:33:03+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T21:34:06+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.55 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:34:36+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.85 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:35:07+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.43 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:35:39+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T21:37:06+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.72 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:37:37+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.14 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:38:08+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.17 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:38:38+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.16 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:39:09+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.17 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:39:39+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.16 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:40:10+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.17 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:40:44+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T21:41:47+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.07 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:42:21+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T21:42:43+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.40 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:43:13+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.46 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:43:44+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.47 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:44:15+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.46 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:44:45+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.47 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:45:16+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.41 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:45:50+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T21:48:19+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.61 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:48:53+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T21:50:41+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.78 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:51:13+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.79 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:51:44+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.78 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:52:45+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.79 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:53:50+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T21:56:20+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.97 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:56:52+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T21:58:52+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.88 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T21:59:24+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=43.04 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:00:25+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=43.03 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:01:57+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=43.04 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:03:29+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=43.03 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:04:03+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T22:05:07+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.73 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:05:41+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T22:06:50+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.18 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:07:20+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.96 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:07:50+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T22:08:53+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=43.03 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:09:24+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=43.26 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:10:25+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=43.25 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:10:56+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=43.20 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:11:28+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T22:13:41+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.73 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:14:12+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.86 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:14:43+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.83 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:15:13+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.86 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:16:15+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.66 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:16:45+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T22:17:06+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.80 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:17:37+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.83 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:19:43+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T22:21:47+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.90 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:22:19+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.90 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:23:20+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.91 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:23:52+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T22:26:15+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.86 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:26:46+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.80 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:27:20+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T22:29:43+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=43.03 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:30:17+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T22:30:40+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=43.08 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:31:10+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=43.19 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:31:44+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T22:35:20+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.55 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:36:09+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T22:36:49+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.54 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:37:20+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.51 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:37:50+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T22:38:11+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.30 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:38:41+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.41 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:39:43+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.42 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:40:44+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.96 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:41:18+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T22:42:49+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.87 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:43:19+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T22:43:40+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.23 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:44:10+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.26 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:44:41+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.28 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:45:12+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.29 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:45:46+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T22:47:55+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.99 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:48:25+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.05 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:48:56+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=42.04 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:49:27+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.36 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:49:57+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T22:50:17+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.27 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:50:48+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.58 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:51:19+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.57 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:51:50+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.58 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:52:54+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T22:55:42+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.31 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:56:13+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.83 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:56:44+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.84 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:57:45+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.81 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T22:58:16+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:00:25+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.51 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:00:56+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.50 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:01:27+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.54 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:01:57+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.35 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:02:32+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:05:13+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.33 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:05:43+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:06:04+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.10 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:06:35+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.22 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:07:07+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.14 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:07:39+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:08:47+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.27 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:09:17+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.29 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:09:48+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:11:59+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=40.93 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:12:37+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:13:39+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.08 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:14:13+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:15:12+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.14 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:15:46+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:16:32+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T23:19:37+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:21:03+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T23:21:27+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:22:32+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T23:23:23+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:26:30+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T23:29:59+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:31:48+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T23:32:58+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:33:19+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T23:35:06+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:36:10+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T23:37:54+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:41:06+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-26T23:42:48+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.13 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:44:20+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.14 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:44:51+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.13 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:46:07+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:48:25+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=40.41 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:48:59+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:49:40+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=41.31 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-26T23:50:14+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains running
+2026-10-26T23:54:11+00:00 START CONTROLLER waiting_for_prerequisites: Original app not ready
+2026-10-26T23:54:31+00:00 START CONTROLLER waiting_for_prerequisites: Transfer helper not Ready
+2026-10-27T07:13:56+00:00 USER REQUESTED MAILPILE SCALE DOWN: waiting start controller stopped (verified PID/cmdline), no copy in progress; requesting source deployment replicas0, no automatic restart
+2026-10-27T07:16:42+00:00 27OCT RESUME AUTHORIZED: original Mailpile confirmed replicas0, no migration process/marker, both targets healthy2rep, both APIs Ready, local NRestarts154, peer PSI0/free41.35GiB. Request normal stale transfer helper deletion before recreation; source remains stopped.
+2026-10-27T07:18:14+00:00 HELPER CLEANUP: old UID9c840711 both containers terminated137, host cgroup scan no remaining processes; normal deletion still has stale Pod record. Removing only terminated helper record before recreation, no volume/PVC deletion.
+2026-10-27T07:18:14+00:00 START CONTROLLER waiting: Maximum-throttle workflow active; original Mailpile remains stopped
+2026-10-27T07:18:14+00:00 START CONTROLLER waiting_for_prerequisites: Transfer helper not Ready
+2026-10-27T07:21:25+00:00 27OCT STORAGE RECOVERY: peer CSI socket refused; manager daemon and instance-manager/engines absent from SSH process list, Pods Error/ContainerStatusUnknown. Requesting normal replacement of failed manager/CSI/instance-manager Pods only; no volume or finalizer changes.
+2026-10-27T07:22:57+00:00 27OCT STALE POD RECORDS: normal storage Pod deletion exceeded grace; SSH cgroup inspection of exact old UIDs shows only inert pause sandboxes, no manager/CSI/registrar/instance-manager/engine processes. Removing three stale API records to permit controller replacement; no live engine kill, no storage finalizer removal.
+2026-10-27T07:23:58+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-27T07:28:16+00:00 FREE-BLOCK RECLAMATION START: 256MiB ranges, idle-priority, minimum free extent1MiB, >=5s between calls, PSI pause at some>10%/full>2%; no files deleted
+2026-10-27T07:28:54+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=52.75 pool_freeGiB=42.19 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:29:37+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=54.75 pool_freeGiB=43.72 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:30:20+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=56.75 pool_freeGiB=44.51 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:31:03+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=58.75 pool_freeGiB=45.50 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:31:47+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=60.75 pool_freeGiB=45.21 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:32:30+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=62.75 pool_freeGiB=45.35 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:33:13+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=2.71 full=2.24
+2026-10-27T07:33:18+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=64.75 pool_freeGiB=45.55 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:34:01+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=66.75 pool_freeGiB=45.57 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:34:44+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=68.75 pool_freeGiB=45.61 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:35:27+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=70.75 pool_freeGiB=46.21 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:36:10+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=72.75 pool_freeGiB=46.98 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:36:53+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=74.75 pool_freeGiB=47.33 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:37:15+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=2.97 full=2.03
+2026-10-27T07:37:42+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=76.75 pool_freeGiB=47.55 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:38:25+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=78.75 pool_freeGiB=48.64 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:39:08+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=80.75 pool_freeGiB=49.70 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:39:51+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=82.75 pool_freeGiB=50.03 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:40:12+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=3.36 full=2.89
+2026-10-27T07:41:00+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains in its requested state
+2026-10-27T07:41:15+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=53.90 full=39.79
+2026-10-27T07:42:18+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=67.30 full=51.89
+2026-10-27T07:42:49+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-27T07:43:31+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=84.75 pool_freeGiB=49.78 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:44:14+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=86.75 pool_freeGiB=49.81 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:44:52+00:00 START CONTROLLER: bounded free-block reclamation requested/resumed under exclusive worker lock
+2026-10-27T07:44:52+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=50.20 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T07:44:57+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=5.56 full=4.27
+2026-10-27T07:45:22+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains in its requested state
+2026-10-27T07:45:42+00:00 START CONTROLLER: bounded free-block reclamation requested/resumed under exclusive worker lock
+2026-10-27T07:45:42+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=49.85 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T07:46:00+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=5.96 full=4.50
+2026-10-27T07:46:10+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=88.75 pool_freeGiB=50.31 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T07:46:13+00:00 START CONTROLLER: bounded free-block reclamation requested/resumed under exclusive worker lock
+2026-10-27T07:46:13+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=50.32 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T07:46:47+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains in its requested state
+2026-10-27T07:47:03+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=57.39 full=52.07
+2026-10-27T07:47:45+00:00 FREE-BLOCK RECLAMATION STOP: discard failed; private diagnostics saved
+2026-10-27T07:47:52+00:00 START CONTROLLER: bounded free-block reclamation requested/resumed under exclusive worker lock
+2026-10-27T07:47:52+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=50.14 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T07:47:52+00:00 FREE-BLOCK RECLAMATION START: 256MiB ranges, idle-priority, minimum free extent1MiB, >=5s between calls, PSI pause at some>10%/full>2%; no files deleted
+2026-10-27T07:48:03+00:00 FREE-BLOCK RECLAMATION HOLD: API unavailable; no further discard requests
+2026-10-27T07:48:27+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains in its requested state
+2026-10-27T07:48:50+00:00 START CONTROLLER: bounded free-block reclamation requested/resumed under exclusive worker lock
+2026-10-27T07:48:50+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=50.24 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T07:48:50+00:00 FREE-BLOCK RECLAMATION START: 256MiB ranges, idle-priority, minimum free extent1MiB, >=5s between calls, PSI pause at some>10%/full>2%; no files deleted
+2026-10-27T07:49:21+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=50.22 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T07:49:34+00:00 FREE-BLOCK RECLAMATION HOLD: API unavailable; no further discard requests
+2026-10-27T07:49:55+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains in its requested state
+2026-10-27T07:51:30+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-27T07:51:51+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains in its requested state
+2026-10-27T07:52:51+00:00 START CONTROLLER waiting_for_prerequisites: Target replicas not yet healthy
+2026-10-27T07:56:37+00:00 START CONTROLLER: bounded free-block reclamation requested/resumed under exclusive worker lock
+2026-10-27T07:56:37+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=49.62 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T07:56:37+00:00 FREE-BLOCK RECLAMATION START: 256MiB ranges, idle-priority, minimum free extent1MiB, >=5s between calls, PSI pause at some>10%/full>2%; no files deleted
+2026-10-27T07:56:37+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=6.41 full=4.88
+2026-10-27T07:57:07+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=49.79 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T07:57:38+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=49.78 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T07:57:39+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=7.16 full=5.79
+2026-10-27T07:58:08+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=49.79 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T07:58:39+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=49.78 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T07:58:41+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=7.62 full=6.59
+2026-10-27T07:59:10+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=49.79 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T07:59:43+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=7.13 full=5.70
+2026-10-27T08:00:11+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=49.78 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:00:46+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=5.25 full=3.45
+2026-10-27T08:01:16+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains in its requested state
+2026-10-27T08:01:37+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=49.60 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:02:06+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=3.62 full=2.32
+2026-10-27T08:02:12+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=49.83 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:02:43+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=49.85 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:02:59+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=93.75 pool_freeGiB=49.94 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T08:03:14+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=50.25 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:03:43+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=95.75 pool_freeGiB=51.43 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T08:03:44+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=51.43 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:03:48+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=3.30 full=2.69
+2026-10-27T08:04:15+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=52.45 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:04:31+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=97.75 pool_freeGiB=53.02 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T08:04:46+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=53.36 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:05:08+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=3.75 full=2.93
+2026-10-27T08:05:17+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=54.40 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:05:30+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=99.75 pool_freeGiB=54.58 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T08:05:47+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=55.02 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:06:12+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=101.75 pool_freeGiB=56.04 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T08:06:18+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=56.27 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:06:39+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=16.72 full=13.30
+2026-10-27T08:06:52+00:00 START CONTROLLER waiting_for_api_or_staging: Readiness or staging read failed; original source remains in its requested state
+2026-10-27T08:07:13+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=57.43 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:07:43+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=57.50 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:07:58+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=103.75 pool_freeGiB=57.75 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T08:08:09+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=5.36 full=3.08
+2026-10-27T08:08:14+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=58.11 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:08:45+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=58.58 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:09:11+00:00 FREE-BLOCK RECLAMATION PAUSED: peer PSI some=4.69 full=3.61
+2026-10-27T08:09:16+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=58.37 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:09:46+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=58.69 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:09:59+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=105.75 pool_freeGiB=59.15 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T08:10:17+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=60.04 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:10:42+00:00 FREE-BLOCK RECLAMATION PROGRESS: scanned_toGiB=107.75 pool_freeGiB=60.73 (discard reports free ranges, not exclusive ZFS delta)
+2026-10-27T08:10:48+00:00 START CONTROLLER waiting_for_physical_headroom: peer_freeGiB=61.25 requiredGiB=61.45 to preserve20% margin plus12.25Gi target and2Gi buffer; bounded free-block reclamation may recover space
+2026-10-27T08:10:52+00:00 FREE-BLOCK RECLAMATION GOAL: pool freeGiB=61.47 sufficient for20% margin +12.25Gi target +2Gi buffer
+2026-10-27T08:11:18+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=0
+2026-10-27T08:11:34+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=15
+2026-10-27T08:11:50+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=31
+2026-10-27T08:12:05+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=47
+2026-10-27T08:12:21+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=62
+2026-10-27T08:12:37+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=78
+2026-10-27T08:12:52+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=94
+2026-10-27T08:13:08+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=109
+2026-10-27T08:13:24+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=125
+2026-10-27T08:13:39+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=140
+2026-10-27T08:13:55+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=156
+2026-10-27T08:14:10+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=172
+2026-10-27T08:14:26+00:00 START CONTROLLER starting: Prerequisites stable; starting guarded migration with256KiB/s copy and512KiB/s restored-file hashing
+2026-10-27T08:14:27+00:00 RESOURCE ACTION: kubectl -n apps-mailpile annotate pvc mailpile-path1 helm.sh/resource-policy=keep --overwrite
+2026-10-27T08:14:27+00:00 RESOURCE ACTION: kubectl patch pv pvc-efd00fa3-e42b-4129-85f9-2a2c36912dcc --type=merge -p {"spec":{"persistentVolumeReclaimPolicy":"Retain"}}
+2026-10-27T08:14:27+00:00 RESOURCE ACTION: kubectl -n apps-mailpile annotate pvc mailpile-path2 helm.sh/resource-policy=keep --overwrite
+2026-10-27T08:14:27+00:00 RESOURCE ACTION: kubectl patch pv pvc-3d4c4ac7-14b9-43fd-a5de-55afb60accc7 --type=merge -p {"spec":{"persistentVolumeReclaimPolicy":"Retain"}}
+2026-10-27T08:14:27+00:00 RESOURCE ACTION: kubectl -n apps-mailpile scale deployment mailpile --replicas=0
+2026-10-27T08:14:27+00:00 WRITER STOPPED: original Mailpile pod gone; original claims protected; starting sole-writer/API guard
+2026-10-27T09:14:41+00:00 MAINTENANCE ACTION: cattle-fleet-local-system/deployment/fleet-agent replicas=0
+2026-10-27T09:14:41+00:00 MAINTENANCE ACTION: cattle-fleet-system/deployment/fleet-controller replicas=0
+2026-10-27T09:14:41+00:00 MAINTENANCE ACTION: cattle-fleet-system/deployment/gitjob replicas=0
+2026-10-27T09:14:41+00:00 MAINTENANCE ACTION: cattle-fleet-system/deployment/helmops replicas=0
+2026-10-27T09:14:42+00:00 MAINTENANCE ACTION: apps-audiobookshelf/deployment/audiobookshelf replicas=0
+2026-10-27T09:14:42+00:00 MAINTENANCE ACTION: apps-authelia/deployment/authelia replicas=0
+2026-10-27T09:14:42+00:00 MAINTENANCE ACTION: apps-bazarr/deployment/bazarr replicas=0
+2026-10-27T09:14:42+00:00 MAINTENANCE ACTION: apps-bindery/deployment/bindery replicas=0
+2026-10-27T09:14:42+00:00 MAINTENANCE ACTION: apps-bookstack/deployment/bookstack replicas=0
+2026-10-27T09:14:42+00:00 MAINTENANCE ACTION: apps-calibre/deployment/calibre replicas=0
+2026-10-27T09:14:42+00:00 MAINTENANCE ACTION: apps-calibre/deployment/calibre-web replicas=0
+2026-10-27T09:14:42+00:00 MAINTENANCE ACTION: apps-calibre/deployment/kavita replicas=0
+2026-10-27T09:14:43+00:00 MAINTENANCE ACTION: apps-cleanuparr/deployment/cleanuparr replicas=0
+2026-10-27T09:14:43+00:00 MAINTENANCE ACTION: apps-ddclient/deployment/ddclient replicas=0
+2026-10-27T09:14:43+00:00 MAINTENANCE ACTION: apps-docker-mailserver/deployment/docker-mailserver replicas=0
+2026-10-27T09:14:43+00:00 MAINTENANCE ACTION: apps-duckdns/deployment/duckdns replicas=0
+2026-10-27T09:14:43+00:00 MAINTENANCE ACTION: apps-flaresolverr/deployment/flaresolverr replicas=0
+2026-10-27T09:14:43+00:00 MAINTENANCE ACTION: apps-homer/deployment/homer replicas=0
+2026-10-27T09:14:43+00:00 MAINTENANCE ACTION: apps-homer/deployment/homer-without-auth replicas=0
+2026-10-27T09:14:43+00:00 MAINTENANCE ACTION: apps-homer-test/deployment/homer-test replicas=0
+2026-10-27T09:14:43+00:00 MAINTENANCE ACTION: apps-jellyseerr/deployment/jellyseerr replicas=0
+2026-10-27T09:14:43+00:00 MAINTENANCE ACTION: apps-openbooks/deployment/openbooks replicas=0
+2026-10-27T09:14:44+00:00 MAINTENANCE ACTION: apps-profilarr/deployment/profilarr replicas=0
+2026-10-27T09:14:44+00:00 MAINTENANCE ACTION: apps-prowlarr/deployment/prowlarr replicas=0
+2026-10-27T09:14:44+00:00 MAINTENANCE ACTION: apps-radarr/deployment/radarr replicas=0
+2026-10-27T09:14:44+00:00 MAINTENANCE ACTION: apps-scrutiny/deployment/scrutiny replicas=0
+2026-10-27T09:14:44+00:00 MAINTENANCE ACTION: apps-smokeping/deployment/smokeping replicas=0
+2026-10-27T09:14:44+00:00 MAINTENANCE ACTION: apps-sonarr/deployment/sonarr replicas=0
+2026-10-27T09:14:44+00:00 MAINTENANCE ACTION: apps-ubooquity/deployment/ubooquity replicas=0
+2026-10-27T09:14:44+00:00 MAINTENANCE ACTION: apps-uptime-kuma/deployment/uptime-kuma replicas=0
+2026-10-27T09:14:44+00:00 MAINTENANCE ACTION: apps-youtubedl-material/deployment/youtubedl-material replicas=0
+2026-10-27T09:14:44+00:00 MAINTENANCE ACTION: apps-zabbix/deployment/zabbix-zabbix-server replicas=0
+2026-10-27T09:14:44+00:00 MAINTENANCE ACTION: apps-zabbix/deployment/zabbix-zabbix-web replicas=0
+2026-10-27T09:14:44+00:00 MAINTENANCE ACTION: apps-zabbix/deployment/zabbix-zabbix-webservice replicas=0
+2026-10-27T09:14:45+00:00 MAINTENANCE ACTION: cattle-capi-system/deployment/capi-controller-manager replicas=0
+2026-10-27T09:14:45+00:00 MAINTENANCE ACTION: cattle-system/deployment/rancher replicas=0
+2026-10-27T09:14:45+00:00 MAINTENANCE ACTION: cattle-system/deployment/system-upgrade-controller replicas=0
+2026-10-27T09:14:45+00:00 MAINTENANCE ACTION: cattle-turtles-system/deployment/rancher-turtles-controller-manager replicas=0
+2026-10-27T09:14:45+00:00 MAINTENANCE ACTION: cloudcasa-io/deployment/cloudcasa-kubeagent-manager replicas=0
+2026-10-27T09:14:45+00:00 MAINTENANCE ACTION: cloudcasa-io/deployment/kubeagent replicas=0
+2026-10-27T09:14:45+00:00 MAINTENANCE ACTION: kube-system/deployment/metrics-server replicas=0
+2026-10-27T09:14:45+00:00 MAINTENANCE ACTION: longhorn-system/deployment/longhorn-ui replicas=0
+2026-10-27T09:15:15+00:00 MAINTENANCE ACTION: apps-bookstack/deployment/bookstack-mariadb replicas=0
+2026-10-27T09:15:15+00:00 MAINTENANCE ACTION: apps-youtubedl-material/deployment/youtubedl-material-mongodb replicas=0
+2026-10-27T09:15:15+00:00 MAINTENANCE ACTION: apps-zabbix/statefulset/zabbix-postgresql replicas=0
+2026-10-27T09:15:15+00:00 MAINTENANCE ACTION: apps-calibre/cronjob/calibre-cover-maintenance suspend=True
+2026-10-27T09:15:16+00:00 MAINTENANCE ACTION: apps-homer/cronjob/homer-without-auth-config-copy suspend=True
+2026-10-27T09:15:16+00:00 MAINTENANCE ACTION: apps-zabbix/cronjob/zabbix-nodesclean suspend=True
+2026-10-27T09:15:16+00:00 MAINTENANCE ACTION: cattle-fleet-system/cronjob/fleet-cleanup-gitrepo-jobs suspend=True
+2026-10-27T09:15:16+00:00 MAINTENANCE ACTION: fleet-local/cronjob/rke2-machineconfig-cleanup-cronjob suspend=True
+2026-10-27T09:15:16+00:00 MAINTENANCE ACTION: longhorn-system/cronjob/nas-daily-backup suspend=True
+2026-10-27T09:15:16+00:00 MAINTENANCE SHUTDOWN REQUESTS ACCEPTED: 45 workloads; 6 CronJobs suspended; verify actual Pods gone before claiming shutdown complete
+2026-10-27T10:15:38+00:00 MAINTENANCE WATCH STARTED: Fleet stays stopped during copy; controller resumes after copy verification, agent only after new target BundleDeployment; saved replicas restored after migration completion
+2026-10-27T10:35:59+00:00 RATE ADJUSTMENT: user requested modest increase; old controller/coordinator and remote fixed-rate worker stopped, helper and staging retained, no guard alert/source restart. Resume tests passed reuse/corruption repair/sparse/link/FIFO/metadata checks. New rate512KiB/s with live helper rate file, same PSI pause thresholds; start forecast subtracts already allocated target bytes to avoid double counting.
+2026-10-27T10:36:00+00:00 START CONTROLLER waiting: Maximum-throttle workflow active; original Mailpile remains stopped
+2026-10-27T10:36:00+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=0
+2026-10-27T10:36:16+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=15
+2026-10-27T10:36:31+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=31
+2026-10-27T10:36:47+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=46
+2026-10-27T10:37:03+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=62
+2026-10-27T10:37:18+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=78
+2026-10-27T10:37:34+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=93
+2026-10-27T10:37:50+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=109
+2026-10-27T10:38:05+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=125
+2026-10-27T10:38:21+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=140
+2026-10-27T10:38:37+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=156
+2026-10-27T10:38:52+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=172
+2026-10-27T10:39:08+00:00 START CONTROLLER starting: Prerequisites stable; starting guarded migration with512KiB/s copy and512KiB/s restored-file hashing; helper rate file allows live adjustment
+2026-10-27T10:39:08+00:00 RESOURCE ACTION: kubectl -n apps-mailpile annotate pvc mailpile-path1 helm.sh/resource-policy=keep --overwrite
+2026-10-27T10:39:08+00:00 RESOURCE ACTION: kubectl patch pv pvc-efd00fa3-e42b-4129-85f9-2a2c36912dcc --type=merge -p {"spec":{"persistentVolumeReclaimPolicy":"Retain"}}
+2026-10-27T10:39:09+00:00 RESOURCE ACTION: kubectl -n apps-mailpile annotate pvc mailpile-path2 helm.sh/resource-policy=keep --overwrite
+2026-10-27T10:39:09+00:00 RESOURCE ACTION: kubectl patch pv pvc-3d4c4ac7-14b9-43fd-a5de-55afb60accc7 --type=merge -p {"spec":{"persistentVolumeReclaimPolicy":"Retain"}}
+2026-10-27T10:39:09+00:00 RESOURCE ACTION: kubectl -n apps-mailpile scale deployment mailpile --replicas=0
+2026-10-27T10:39:09+00:00 WRITER STOPPED: original Mailpile pod gone; original claims protected; starting sole-writer/API guard
+2026-10-27T12:14:11+00:00 RATE MONITOR START: copy512KiB/s; both hosts PSI guard some10%/full2%; high pressure pauses and lowers cap256, recovery requires3 low samples; backing pool20%+2Gi floor
+2026-10-27T12:14:12+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.84
+2026-10-27T12:15:13+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.83
+2026-10-27T12:16:13+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.83
+2026-10-27T12:17:14+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.80
+2026-10-27T12:18:15+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.13/0.13 peerFreeGiB=60.79
+2026-10-27T12:19:16+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.77
+2026-10-27T12:20:16+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.06/0.06 peerFreeGiB=60.74
+2026-10-27T12:21:17+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.03/0.03 peerFreeGiB=60.72
+2026-10-27T12:22:18+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.69
+2026-10-27T12:23:19+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.10/0.09 peerFreeGiB=60.68
+2026-10-27T12:24:20+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.18/0.18 peerPSI=0.19/0.06 peerFreeGiB=60.66
+2026-10-27T12:25:20+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.66
+2026-10-27T12:26:21+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.65
+2026-10-27T12:27:22+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.01/0.01 peerFreeGiB=60.63
+2026-10-27T12:28:23+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.63
+2026-10-27T12:29:23+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.61
+2026-10-27T12:30:24+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.60
+2026-10-27T12:31:25+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.01/0.01 peerFreeGiB=60.59
+2026-10-27T12:32:26+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.58
+2026-10-27T12:33:26+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.11/0.05 peerFreeGiB=60.58
+2026-10-27T12:34:27+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.56
+2026-10-27T12:35:28+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.09/0.03 peerFreeGiB=60.56
+2026-10-27T12:36:29+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.54
+2026-10-27T12:37:30+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.54
+2026-10-27T12:38:30+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.51
+2026-10-27T12:39:31+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.30/0.15 peerFreeGiB=60.51
+2026-10-27T12:40:32+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.51
+2026-10-27T12:41:33+00:00 RATE MONITOR: capKiBps=512 pause=False localPSI=0.00/0.00 peerPSI=0.23/0.23 peerFreeGiB=60.51
+2026-10-27T12:42:18+00:00 RATE MONITOR: capKiBps=256 pause=True localPSI=15.68/15.05 peerPSI=0.00/0.00 peerFreeGiB=60.51
+2026-10-27T12:43:19+00:00 RATE MONITOR: capKiBps=256 pause=True localPSI=17.11/16.32 peerPSI=0.00/0.00 peerFreeGiB=60.53
+2026-10-27T12:44:20+00:00 RATE MONITOR: capKiBps=256 pause=True localPSI=28.36/27.66 peerPSI=0.00/0.00 peerFreeGiB=60.53
+2026-10-27T12:45:21+00:00 RATE MONITOR: capKiBps=256 pause=True localPSI=23.25/22.13 peerPSI=0.00/0.00 peerFreeGiB=60.53
+2026-10-27T12:46:22+00:00 RATE MONITOR: capKiBps=256 pause=True localPSI=2.81/2.73 peerPSI=0.00/0.00 peerFreeGiB=60.53
+2026-10-27T12:47:07+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.02/0.02 peerPSI=0.00/0.00 peerFreeGiB=60.53
+2026-10-27T12:48:08+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.52
+2026-10-27T12:49:09+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.52
+2026-10-27T12:50:10+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.51
+2026-10-27T12:51:10+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.51
+2026-10-27T12:52:11+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.51
+2026-10-27T12:53:12+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.04/0.04 peerFreeGiB=60.50
+2026-10-27T12:54:13+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.49
+2026-10-27T12:55:14+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.05/0.05 peerPSI=0.00/0.00 peerFreeGiB=60.47
+2026-10-27T12:56:14+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.46
+2026-10-27T12:57:15+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.44
+2026-10-27T12:58:16+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.01/0.01 peerFreeGiB=60.45
+2026-10-27T12:59:17+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.44
+2026-10-27T13:00:17+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.43
+2026-10-27T13:01:18+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.43
+2026-10-27T13:02:19+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.42
+2026-10-27T13:03:20+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.41
+2026-10-27T13:04:20+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.40
+2026-10-27T13:05:03+00:00 RATE MONITOR START: requested copy768KiB/s; both hosts PSI guard some10%/full2%; high pressure pauses and lowers cap256, recovery requires3 low samples; backing pool20%+2Gi floor
+2026-10-27T13:05:04+00:00 RATE MONITOR: capKiBps=768 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.39
+2026-10-27T13:05:04+00:00 RATE LIMIT APPLIED: copyKiBps=768 verifyKiBps=512 pause=False
+2026-10-27T13:06:05+00:00 RATE MONITOR: capKiBps=768 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.37
+2026-10-27T13:07:05+00:00 RATE MONITOR: capKiBps=768 pause=False localPSI=0.00/0.00 peerPSI=0.08/0.02 peerFreeGiB=60.33
+2026-10-27T13:08:06+00:00 RATE MONITOR: capKiBps=768 pause=False localPSI=0.00/0.00 peerPSI=0.04/0.04 peerFreeGiB=60.30
+2026-10-27T13:08:27+00:00 RATE MONITOR START: requested copy1024KiB/s; both hosts PSI guard some10%/full2%; high pressure pauses and lowers cap256, recovery requires3 low samples; backing pool20%+2Gi floor
+2026-10-27T13:08:27+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.28
+2026-10-27T13:08:27+00:00 RATE LIMIT APPLIED: copyKiBps=1024 verifyKiBps=512 pause=False
+2026-10-27T13:09:28+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.28
+2026-10-27T13:10:29+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.14/0.13 peerFreeGiB=60.27
+2026-10-27T13:11:29+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.32/0.04 peerFreeGiB=60.28
+2026-10-27T13:12:30+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.05/0.05 peerFreeGiB=60.27
+2026-10-27T13:13:31+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.08/0.04 peerFreeGiB=60.26
+2026-10-27T13:14:32+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.45/0.36 peerFreeGiB=60.26
+2026-10-27T13:15:33+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.06/0.06 peerFreeGiB=60.23
+2026-10-27T13:16:33+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.39/0.26 peerFreeGiB=60.16
+2026-10-27T13:17:34+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.22/0.21 peerFreeGiB=60.12
+2026-10-27T13:18:35+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.05/0.00 peerFreeGiB=60.08
+2026-10-27T13:19:59+00:00 USER RATE INCREASE2MiB/s: old worker checkpointed without helper/staging deletion; no guard alert, source remains0. Verified-resume and2MiB limiter tests passed. Live-control ceiling widened to16MiB/s for future changes without restart; actual requested cap2MiB/s, PSI pause/fallback256 unchanged. Existing files must be fully revalidated before reuse.
+2026-10-27T13:19:59+00:00 START CONTROLLER waiting: Maximum-throttle workflow active; original Mailpile remains stopped
+2026-10-27T13:19:59+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=0
+2026-10-27T13:20:00+00:00 RATE MONITOR START: requested copy2048KiB/s; both hosts PSI guard some10%/full2%; high pressure pauses and lowers cap256, recovery requires3 low samples; backing pool20%+2Gi floor
+2026-10-27T13:20:00+00:00 RATE MONITOR: capKiBps=2048 pause=False localPSI=0.00/0.00 peerPSI=0.01/0.01 peerFreeGiB=60.04
+2026-10-27T13:20:00+00:00 RATE LIMIT APPLIED: copyKiBps=2048 verifyKiBps=512 pause=False
+2026-10-27T13:20:15+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=15
+2026-10-27T13:20:31+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=31
+2026-10-27T13:20:46+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=46
+2026-10-27T13:21:01+00:00 RATE MONITOR: capKiBps=2048 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.03
+2026-10-27T13:21:02+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=62
+2026-10-27T13:21:18+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=78
+2026-10-27T13:21:33+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=93
+2026-10-27T13:21:49+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=109
+2026-10-27T13:22:01+00:00 RATE MONITOR: capKiBps=2048 pause=False localPSI=0.00/0.00 peerPSI=0.03/0.00 peerFreeGiB=60.04
+2026-10-27T13:22:04+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=125
+2026-10-27T13:22:20+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=140
+2026-10-27T13:22:36+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=156
+2026-10-27T13:22:51+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=172
+2026-10-27T13:23:02+00:00 RATE MONITOR: capKiBps=2048 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=60.03
+2026-10-27T13:23:07+00:00 START CONTROLLER starting: Prerequisites stable; starting guarded migration with512KiB/s copy and512KiB/s restored-file hashing; helper rate file allows live adjustment
+2026-10-27T13:23:08+00:00 RESOURCE ACTION: kubectl -n apps-mailpile annotate pvc mailpile-path1 helm.sh/resource-policy=keep --overwrite
+2026-10-27T13:23:08+00:00 RESOURCE ACTION: kubectl patch pv pvc-efd00fa3-e42b-4129-85f9-2a2c36912dcc --type=merge -p {"spec":{"persistentVolumeReclaimPolicy":"Retain"}}
+2026-10-27T13:23:08+00:00 RESOURCE ACTION: kubectl -n apps-mailpile annotate pvc mailpile-path2 helm.sh/resource-policy=keep --overwrite
+2026-10-27T13:23:08+00:00 RESOURCE ACTION: kubectl patch pv pvc-3d4c4ac7-14b9-43fd-a5de-55afb60accc7 --type=merge -p {"spec":{"persistentVolumeReclaimPolicy":"Retain"}}
+2026-10-27T13:23:08+00:00 RESOURCE ACTION: kubectl -n apps-mailpile scale deployment mailpile --replicas=0
+2026-10-27T13:23:08+00:00 WRITER STOPPED: original Mailpile pod gone; original claims protected; starting sole-writer/API guard
+2026-10-27T13:24:03+00:00 RATE MONITOR: capKiBps=2048 pause=False localPSI=0.00/0.00 peerPSI=1.69/1.33 peerFreeGiB=60.03
+2026-10-27T13:25:04+00:00 RATE MONITOR: capKiBps=2048 pause=False localPSI=0.00/0.00 peerPSI=1.44/1.35 peerFreeGiB=60.03
+2026-10-27T13:26:05+00:00 RATE MONITOR: capKiBps=2048 pause=False localPSI=0.00/0.00 peerPSI=1.48/1.19 peerFreeGiB=60.03
+2026-10-27T13:26:13+00:00 RATE MONITOR START: requested copy3072KiB/s; both hosts PSI guard some10%/full2%; high pressure pauses and lowers cap256, recovery requires3 low samples; backing pool20%+2Gi floor
+2026-10-27T13:26:13+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.54/1.08 peerFreeGiB=60.03
+2026-10-27T13:26:13+00:00 RATE LIMIT APPLIED: copyKiBps=3072 verifyKiBps=512 pause=False
+2026-10-27T13:27:14+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.55/1.42 peerFreeGiB=60.03
+2026-10-27T13:28:15+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.51/1.14 peerFreeGiB=60.03
+2026-10-27T13:29:16+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.47/1.22 peerFreeGiB=60.03
+2026-10-27T13:30:17+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.87/0.82 peerFreeGiB=60.03
+2026-10-27T13:31:17+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.16/0.05 peerFreeGiB=60.03
+2026-10-27T13:32:18+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.44/1.18 peerFreeGiB=60.03
+2026-10-27T13:33:19+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.79/1.75 peerFreeGiB=60.03
+2026-10-27T13:34:20+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.93/1.73 peerFreeGiB=60.04
+2026-10-27T13:35:20+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.66/1.58 peerFreeGiB=60.03
+2026-10-27T13:36:21+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=2.25/1.89 peerFreeGiB=60.03
+2026-10-27T13:37:22+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.75/1.68 peerFreeGiB=60.03
+2026-10-27T13:38:23+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=2.02/1.66 peerFreeGiB=60.03
+2026-10-27T13:39:24+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=2.18/1.81 peerFreeGiB=60.03
+2026-10-27T13:40:24+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.92/1.59 peerFreeGiB=60.03
+2026-10-27T13:41:25+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.63/1.27 peerFreeGiB=60.03
+2026-10-27T13:42:26+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.50/1.27 peerFreeGiB=60.03
+2026-10-27T13:43:27+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.45/1.14 peerFreeGiB=60.03
+2026-10-27T13:44:27+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.33/1.13 peerFreeGiB=60.03
+2026-10-27T13:45:28+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.98/0.85 peerFreeGiB=60.03
+2026-10-27T13:46:29+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.24/1.23 peerFreeGiB=60.03
+2026-10-27T13:47:30+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.03/0.77 peerFreeGiB=60.03
+2026-10-27T13:48:31+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.13/1.02 peerFreeGiB=60.02
+2026-10-27T13:49:31+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.05/0.84 peerFreeGiB=60.03
+2026-10-27T13:50:32+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.96/0.76 peerFreeGiB=60.03
+2026-10-27T13:51:33+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.04/0.97 peerFreeGiB=60.03
+2026-10-27T13:52:34+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.51/1.36 peerFreeGiB=60.03
+2026-10-27T13:53:34+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.78/1.60 peerFreeGiB=60.02
+2026-10-27T13:54:35+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.19/0.82 peerFreeGiB=60.03
+2026-10-27T13:55:36+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.18/1.18 peerFreeGiB=60.03
+2026-10-27T13:56:37+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.03/0.80 peerFreeGiB=59.85
+2026-10-27T13:57:38+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.19/1.09 peerFreeGiB=60.03
+2026-10-27T13:58:38+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.07/0.76 peerFreeGiB=60.02
+2026-10-27T13:59:39+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.82/0.72 peerFreeGiB=60.03
+2026-10-27T14:00:40+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.65/1.40 peerFreeGiB=60.03
+2026-10-27T14:01:41+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.95/0.36 peerFreeGiB=59.85
+2026-10-27T14:02:42+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.18/1.02 peerFreeGiB=60.03
+2026-10-27T14:03:42+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.59/0.50 peerFreeGiB=60.03
+2026-10-27T14:04:43+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.71/1.65 peerFreeGiB=60.03
+2026-10-27T14:05:44+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.85/0.74 peerFreeGiB=60.03
+2026-10-27T14:06:45+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.86/0.59 peerFreeGiB=59.84
+2026-10-27T14:07:45+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.74/1.63 peerFreeGiB=60.03
+2026-10-27T14:08:46+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.70/0.61 peerFreeGiB=60.02
+2026-10-27T14:09:47+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.71/1.53 peerFreeGiB=60.03
+2026-10-27T14:10:48+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.95/1.34 peerFreeGiB=60.03
+2026-10-27T14:11:48+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.95/1.75 peerFreeGiB=59.84
+2026-10-27T14:12:49+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.21/0.19 peerFreeGiB=60.01
+2026-10-27T14:13:50+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.18/0.11 peerFreeGiB=59.91
+2026-10-27T14:14:51+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.39/0.36 peerFreeGiB=59.81
+2026-10-27T14:15:52+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.20/0.00 peerFreeGiB=59.77
+2026-10-27T14:16:52+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.43/0.27 peerFreeGiB=59.72
+2026-10-27T14:17:53+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.22/0.04 peerFreeGiB=59.64
+2026-10-27T14:18:54+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.12/0.12 peerFreeGiB=59.60
+2026-10-27T14:19:55+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.26/0.11 peerFreeGiB=59.55
+2026-10-27T14:20:56+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.16/0.09 peerFreeGiB=59.52
+2026-10-27T14:21:56+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.20/0.15 peerFreeGiB=59.46
+2026-10-27T14:22:57+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.12/0.12 peerFreeGiB=59.38
+2026-10-27T14:23:58+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.24/0.24 peerPSI=0.02/0.02 peerFreeGiB=59.34
+2026-10-27T14:24:59+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.06/0.06 peerFreeGiB=59.30
+2026-10-27T14:25:59+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.11/0.00 peerFreeGiB=59.24
+2026-10-27T14:27:00+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.69/0.41 peerFreeGiB=59.18
+2026-10-27T14:28:01+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=1.21/0.93 peerFreeGiB=59.12
+2026-10-27T14:29:02+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.19/0.09 peerFreeGiB=59.01
+2026-10-27T14:30:03+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.09/0.09 peerPSI=1.33/1.23 peerFreeGiB=58.85
+2026-10-27T14:31:03+00:00 RATE MONITOR: capKiBps=3072 pause=False localPSI=0.00/0.00 peerPSI=0.89/0.88 peerFreeGiB=58.81
+2026-10-27T14:31:34+00:00 RATE MONITOR: capKiBps=256 pause=True localPSI=0.51/0.41 peerPSI=4.38/4.21 peerFreeGiB=58.75
+2026-10-27T14:31:34+00:00 RATE LIMIT APPLIED: copyKiBps=256 verifyKiBps=512 pause=True
+2026-10-27T14:32:20+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.07/0.05 peerFreeGiB=58.73
+2026-10-27T14:32:20+00:00 RATE LIMIT APPLIED: copyKiBps=256 verifyKiBps=512 pause=False
+2026-10-27T14:33:20+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.72
+2026-10-27T14:34:21+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.70
+2026-10-27T14:35:22+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.69
+2026-10-27T14:36:23+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.68
+2026-10-27T14:37:24+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.01/0.01 peerFreeGiB=58.67
+2026-10-27T14:38:24+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.66
+2026-10-27T14:39:25+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.66
+2026-10-27T14:40:26+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.11/0.11 peerPSI=0.00/0.00 peerFreeGiB=58.66
+2026-10-27T14:41:27+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.65
+2026-10-27T14:42:27+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.63
+2026-10-27T14:43:28+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.61
+2026-10-27T14:44:29+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.60
+2026-10-27T14:45:30+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.60
+2026-10-27T14:46:31+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.58
+2026-10-27T14:47:31+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.57
+2026-10-27T14:48:32+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.55
+2026-10-27T14:49:33+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.18/0.18 peerPSI=0.00/0.00 peerFreeGiB=58.55
+2026-10-27T14:50:34+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.53
+2026-10-27T14:51:35+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.42
+2026-10-27T14:52:35+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.51
+2026-10-27T14:53:36+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.49
+2026-10-27T14:54:37+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.48
+2026-10-27T14:55:38+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.46
+2026-10-27T14:56:39+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.32/0.00 peerFreeGiB=58.27
+2026-10-27T14:57:39+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.03/0.03 peerFreeGiB=58.44
+2026-10-27T14:58:40+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.43
+2026-10-27T14:59:41+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.42
+2026-10-27T15:00:42+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.41
+2026-10-27T15:01:42+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.09/0.00 peerFreeGiB=58.21
+2026-10-27T15:02:43+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.38
+2026-10-27T15:03:44+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.08/0.00 peerFreeGiB=58.36
+2026-10-27T15:04:45+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.01/0.01 peerFreeGiB=58.36
+2026-10-27T15:05:46+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.34
+2026-10-27T15:06:46+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.13/0.00 peerFreeGiB=58.14
+2026-10-27T15:07:47+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.31
+2026-10-27T15:08:48+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.05/0.05 peerPSI=0.00/0.00 peerFreeGiB=58.30
+2026-10-27T15:09:49+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.29
+2026-10-27T15:10:49+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.17/0.17 peerFreeGiB=58.27
+2026-10-27T15:11:50+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.08/0.00 peerFreeGiB=58.08
+2026-10-27T15:12:51+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.25
+2026-10-27T15:13:52+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.15/0.15 peerFreeGiB=58.24
+2026-10-27T15:14:53+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.22
+2026-10-27T15:15:53+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.22
+2026-10-27T15:16:54+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.05/0.00 peerFreeGiB=58.20
+2026-10-27T15:17:55+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.02/0.02 peerFreeGiB=58.19
+2026-10-27T15:18:56+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.01/0.01 peerPSI=0.00/0.00 peerFreeGiB=58.18
+2026-10-27T15:19:56+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.17
+2026-10-27T15:20:57+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.15
+2026-10-27T15:21:58+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.03/0.00 peerFreeGiB=58.14
+2026-10-27T15:22:59+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.02/0.02 peerFreeGiB=58.12
+2026-10-27T15:24:00+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.11
+2026-10-27T15:25:00+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.08/0.07 peerFreeGiB=58.10
+2026-10-27T15:26:01+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.08
+2026-10-27T15:27:02+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.03/0.00 peerFreeGiB=58.07
+2026-10-27T15:28:03+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.13/0.13 peerFreeGiB=58.06
+2026-10-27T15:29:03+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.05
+2026-10-27T15:30:04+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.04
+2026-10-27T15:31:05+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.03
+2026-10-27T15:32:06+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.02/0.00 peerFreeGiB=58.02
+2026-10-27T15:33:07+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=58.01
+2026-10-27T15:34:07+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.02/0.00 peerFreeGiB=58.00
+2026-10-27T15:35:08+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.98
+2026-10-27T15:36:09+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.96
+2026-10-27T15:37:10+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.01/0.00 peerFreeGiB=57.95
+2026-10-27T15:38:11+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.01/0.01 peerPSI=0.06/0.06 peerFreeGiB=57.94
+2026-10-27T15:39:11+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.01/0.01 peerFreeGiB=57.93
+2026-10-27T15:40:12+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.92
+2026-10-27T15:41:13+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.91
+2026-10-27T15:42:14+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.88
+2026-10-27T15:43:15+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.87
+2026-10-27T15:44:15+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.86
+2026-10-27T15:45:16+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.85
+2026-10-27T15:46:17+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.83
+2026-10-27T15:47:18+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.82
+2026-10-27T15:48:18+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.81
+2026-10-27T15:49:19+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.80
+2026-10-27T15:50:20+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.78
+2026-10-27T15:51:21+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.78
+2026-10-27T15:52:21+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.77
+2026-10-27T15:53:22+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.75
+2026-10-27T15:54:23+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.73
+2026-10-27T15:55:24+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.73
+2026-10-27T15:56:25+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.71
+2026-10-27T15:57:25+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.44/0.44 peerPSI=0.00/0.00 peerFreeGiB=57.69
+2026-10-27T15:58:26+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.68
+2026-10-27T15:59:27+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.67
+2026-10-27T16:00:28+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.66
+2026-10-27T16:01:28+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.65
+2026-10-27T16:02:29+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.63
+2026-10-27T16:03:30+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.61
+2026-10-27T16:04:31+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.15/0.15 peerFreeGiB=57.60
+2026-10-27T16:05:32+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.59
+2026-10-27T16:06:32+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.58
+2026-10-27T16:07:33+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.01/0.01 peerPSI=0.00/0.00 peerFreeGiB=57.56
+2026-10-27T16:08:34+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.54
+2026-10-27T16:09:35+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.54
+2026-10-27T16:10:35+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.53
+2026-10-27T16:11:36+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.36/0.00 peerFreeGiB=57.32
+2026-10-27T16:12:37+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.50
+2026-10-27T16:13:38+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.47
+2026-10-27T16:14:39+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.47
+2026-10-27T16:15:39+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.45
+2026-10-27T16:16:40+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.24/0.00 peerFreeGiB=57.26
+2026-10-27T16:17:41+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.42
+2026-10-27T16:18:42+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.08/0.08 peerFreeGiB=57.41
+2026-10-27T16:19:43+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.39
+2026-10-27T16:20:43+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.38
+2026-10-27T16:21:44+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.16/0.00 peerFreeGiB=57.18
+2026-10-27T16:22:45+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.36
+2026-10-27T16:23:46+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.33
+2026-10-27T16:24:46+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.33
+2026-10-27T16:25:47+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.30
+2026-10-27T16:26:48+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.10/0.00 peerFreeGiB=57.11
+2026-10-27T16:27:49+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.28
+2026-10-27T16:28:49+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.05/0.05 peerFreeGiB=57.27
+2026-10-27T16:29:50+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.25
+2026-10-27T16:30:51+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.24
+2026-10-27T16:31:52+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.08/0.00 peerFreeGiB=57.23
+2026-10-27T16:32:53+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.01/0.01 peerFreeGiB=57.21
+2026-10-27T16:33:53+00:00 RATE MONITOR: capKiBps=256 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.20
+2026-10-27T16:34:53+00:00 RATE MONITOR START: requested copy1024KiB/s; both hosts PSI guard some10%/full2%; high pressure pauses and lowers cap256, recovery requires3 low samples; backing pool20%+2Gi floor
+2026-10-27T16:34:53+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.19
+2026-10-27T16:34:53+00:00 RATE LIMIT APPLIED: copyKiBps=1024 verifyKiBps=512 pause=False
+2026-10-27T16:35:54+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.01/0.00 peerFreeGiB=57.16
+2026-10-27T16:36:54+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.06/0.00 peerFreeGiB=57.12
+2026-10-27T16:37:55+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.07
+2026-10-27T16:38:56+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=57.03
+2026-10-27T16:39:57+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.19/0.19 peerFreeGiB=56.96
+2026-10-27T16:40:58+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=56.92
+2026-10-27T16:41:58+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.05/0.00 peerFreeGiB=56.88
+2026-10-27T16:42:59+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.18/0.02 peerFreeGiB=56.82
+2026-10-27T16:44:00+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.04/0.00 peerFreeGiB=56.78
+2026-10-27T16:45:01+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.01/0.01 peerPSI=0.38/0.36 peerFreeGiB=56.73
+2026-10-27T16:46:01+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.18/0.18 peerFreeGiB=56.68
+2026-10-27T16:47:02+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.04/0.00 peerFreeGiB=56.65
+2026-10-27T16:48:03+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=56.60
+2026-10-27T16:49:04+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.32/0.32 peerFreeGiB=56.55
+2026-10-27T16:50:05+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.20/0.00 peerFreeGiB=56.52
+2026-10-27T16:51:05+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=56.47
+2026-10-27T16:52:06+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.13/0.00 peerFreeGiB=56.43
+2026-10-27T16:53:07+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.01/0.01 peerPSI=0.14/0.14 peerFreeGiB=56.39
+2026-10-27T16:54:08+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=56.33
+2026-10-27T16:55:08+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.04/0.04 peerFreeGiB=56.27
+2026-10-27T16:56:09+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.20/0.19 peerFreeGiB=56.22
+2026-10-27T16:57:10+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.02/0.00 peerFreeGiB=56.17
+2026-10-27T16:58:11+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.02/0.02 peerFreeGiB=56.12
+2026-10-27T16:59:12+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.37/0.22 peerFreeGiB=56.05
+2026-10-27T17:00:12+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.28/0.28 peerFreeGiB=56.00
+2026-10-27T17:01:13+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.12/0.09 peerPSI=0.41/0.23 peerFreeGiB=55.96
+2026-10-27T17:02:14+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.45/0.43 peerFreeGiB=55.91
+2026-10-27T17:03:15+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.10/0.00 peerFreeGiB=55.86
+2026-10-27T17:04:15+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.84
+2026-10-27T17:05:16+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.03/0.03 peerFreeGiB=55.80
+2026-10-27T17:06:17+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.17/0.07 peerPSI=0.15/0.15 peerFreeGiB=55.75
+2026-10-27T17:07:18+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.03/0.02 peerFreeGiB=55.70
+2026-10-27T17:08:19+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.07/0.07 peerFreeGiB=55.65
+2026-10-27T17:09:20+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.14/0.01 peerPSI=0.12/0.00 peerFreeGiB=55.59
+2026-10-27T17:10:21+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.45/0.45 peerPSI=0.00/0.00 peerFreeGiB=55.57
+2026-10-27T17:11:22+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.01/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.52
+2026-10-27T17:12:22+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.03/0.03 peerPSI=0.01/0.00 peerFreeGiB=55.46
+2026-10-27T17:13:23+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.12/0.08 peerPSI=0.00/0.00 peerFreeGiB=55.39
+2026-10-27T17:14:24+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.34
+2026-10-27T17:15:25+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=1.11/1.00 peerFreeGiB=55.28
+2026-10-27T17:16:25+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.97/0.76 peerFreeGiB=55.24
+2026-10-27T17:17:26+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=1.01/0.95 peerFreeGiB=55.19
+2026-10-27T17:18:27+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.01/0.01 peerFreeGiB=55.16
+2026-10-27T17:19:28+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.16
+2026-10-27T17:20:29+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.16
+2026-10-27T17:21:29+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.15
+2026-10-27T17:22:30+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.15
+2026-10-27T17:23:31+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.02/0.02 peerPSI=0.01/0.01 peerFreeGiB=55.15
+2026-10-27T17:24:32+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.16
