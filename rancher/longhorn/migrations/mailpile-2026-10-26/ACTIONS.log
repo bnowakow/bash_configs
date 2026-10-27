@@ -970,3 +970,4 @@
 2026-10-27T18:17:47+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.14/0.14 peerPSI=1.64/1.28 peerFreeGiB=55.20
 2026-10-27T18:18:48+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.25/1.12 peerFreeGiB=55.20
 2026-10-27T18:19:49+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.68/1.16 peerFreeGiB=55.20
+2026-10-27T18:20:50+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.61/1.33 peerFreeGiB=55.20
