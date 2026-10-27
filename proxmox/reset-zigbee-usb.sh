@@ -3,7 +3,7 @@ set -euo pipefail
 
 expected_id="1a86:7523"
 sysfs_root="/sys/bus/usb/devices"
-vm_id="300"
+vm_id=""
 usb_slot="usb0"
 # Optional: set this to an SSH target for the Home Assistant OS shell, for
 # example "root@homeassistant", to verify when the guest serial device is
@@ -65,6 +65,26 @@ wait_for_ha_serial() {
     return 1
 }
 
+vm_list="$(qm list)"
+while read -r candidate_id; do
+    [[ -n ${candidate_id} ]] || continue
+    candidate_config="$(qm config "${candidate_id}" --current 1)"
+    candidate_usb_config=""
+    while IFS= read -r line; do
+        [[ ${line} == "${usb_slot}: "* ]] || continue
+        candidate_usb_config="${line#*: }"
+    done <<< "${candidate_config}"
+    [[ ,${candidate_usb_config}, == *",host=${expected_id},"* ]] || continue
+    if [[ -n ${vm_id} ]]; then
+        echo "Multiple running VMs in range 300-399 reference ${expected_id} on ${usb_slot}; refusing to choose." >&2
+        exit 1
+    fi
+    vm_id="${candidate_id}"
+done < <(awk '$1 ~ /^[0-9]+$/ && $1 >= 300 && $1 <= 399 && $3 == "running" { print $1 }' <<< "${vm_list}")
+[[ -n ${vm_id} ]] || {
+    echo "No running local VM in range 300-399 references host=${expected_id} on ${usb_slot}." >&2
+    exit 1
+}
 [[ $(qm status "${vm_id}") == "status: running" ]] || { echo "VM ${vm_id} must be running." >&2; exit 1; }
 # Refuse pending changes so restoration cannot overwrite them.
 pending="$(qm pending "${vm_id}")"
