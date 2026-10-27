@@ -1,0 +1,15 @@
+{
+  "measuredUTC": "2026-10-27T18:20:16.879345+00:00",
+  "trees": {
+    "data": {
+      "uniqueRegularBytes": 10315431773,
+      "entries": 78230,
+      "uniqueRegularFiles": 78079
+    },
+    "keys": {
+      "uniqueRegularBytes": 600,
+      "entries": 3,
+      "uniqueRegularFiles": 3
+    }
+  }
+}
