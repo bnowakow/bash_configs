@@ -1,3 +1,15 @@
+# Latest verification status —27October18:20UTC
+
+**Verification remains incomplete; do not restore applications yet.** Copied
+files are retained, but the earlier fixed-rate inventory pass was checkpointed
+at user request. The new worker is revalidating staged bytes and will emit exact
+per-inventory counters. Current monitored limits are4MiB/s revalidation and
+40metadata entries/s after an8MiB/s+100/s trial triggered the I/O guard.
+See [VERIFICATION.md](VERIFICATION.md), RATE.json and the private coordinator
+stream for the current stage; older byte counts below are historical snapshots.
+The user requested verification percentages every minute. Applications must be
+restored to Fleet desired state only after all migration checks pass.
+
 # Mailpile migration — copying performed, final verification pending
 
 Latest documented observation: **27 October2026,17:34UTC**. This supersedes the

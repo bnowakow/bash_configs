@@ -1,3 +1,22 @@
+# Current verification controls —27October18:20UTC
+
+User requests documentation and percentage updates every minute. Current source
+measurement: data10,315,431,773 unique regular bytes,78,230entries; keys600bytes,
+3entries (verification-totals.json). Staging remains intact. Old fixed20/s
+inventory was checkpointed; new verified resume started18:00UTC with counters.
+8MiB/s+100/s trial caused pressure pause/fallback; moderate live trial from18:11
+is copy256, revalidation4096, restored hash1024KiB/s, metadata40/s. Rate monitor
+PID1230382/session12970, supervisorPID1191355/session10397; source0, all other
+applications quiesced. Cap changes automatically recorded in TRANSFER-CAPS.md.
+All limits are now live-adjustable; do not restart verifier again just for caps.
+
+Read VERIFICATION.md for stage percentage calculations; do not equate staged
+byte completion with completed migration. New inventory progress lines provide
+exact per-pass entry counts. Continue60-second user updates. Success is not yet
+verified; restore Fleet-desired application state only after STATE complete and
+fresh validation, through the maintenance watcher/session67109 and restore-fleet.py.
+Historical snapshots below are superseded where inconsistent.
+
 # Latest status —27October17:34UTC, validation pending
 
 User requested documentation, verification of migration success, then application
@@ -258,3 +277,7 @@ throughout copy/restore verification. Exact per-inventory and restored-hash
 progress logging added. All limits now live-adjustable; do not restart again
 merely to tune metadata. Revalidation must complete before any success claim.
 Fleet-desired conditional restoration watcher/session67109 remains active.
+
+## Latest18:26UTC verification observation
+
+Moderate4MiB/s+40/s verification trial also fell back at18:15 (automatic row in TRANSFER-CAPS). Current revalidation1024KiB/s, metadata20/s, future restore hash512KiB/s, copy256KiB/s;1238MiB rechecked=12.6% of measured data source. Source data fully staged, all production apps remain quiesced pending successful validation. Continue user verification percentages every minute. No additional worker restart needed for limit changes; current supervisor1191355, monitor1230382.

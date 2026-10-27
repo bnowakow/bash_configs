@@ -971,3 +971,146 @@
 2026-10-27T18:18:48+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.25/1.12 peerFreeGiB=55.20
 2026-10-27T18:19:49+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.68/1.16 peerFreeGiB=55.20
 2026-10-27T18:20:50+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.61/1.33 peerFreeGiB=55.20
+2026-10-27T18:21:51+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.06/0.03 peerPSI=1.61/1.19 peerFreeGiB=55.20
+2026-10-27T18:22:52+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.06/0.89 peerFreeGiB=55.20
+2026-10-27T18:23:53+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.98/0.76 peerFreeGiB=55.20
+2026-10-27T18:24:54+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.08/0.78 peerFreeGiB=55.20
+2026-10-27T18:25:55+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.08/0.79 peerFreeGiB=55.20
+2026-10-27T18:26:56+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.21/0.16 peerFreeGiB=55.20
+2026-10-27T18:27:57+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.89/0.80 peerFreeGiB=55.20
+2026-10-27T18:28:44+00:00 RATE MONITOR START: {"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 2048, "verifyKiBps": 512}; both hosts PSI some10%/full2%, pressure pause and conservative reductions; recovery requires3 low samples; continues through backup/restore verification
+2026-10-27T18:28:44+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 2048, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.26/0.23 peerFreeGiB=55.20
+2026-10-27T18:28:44+00:00 RATE LIMITS APPLIED: helper=mailpile-transfer-20261026 {"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 2048, "verifyKiBps": 512} pause=False
+2026-10-27T18:29:45+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 2048, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.41/1.16 peerFreeGiB=55.20
+2026-10-27T18:30:25+00:00 RATE MONITOR START: {"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512}; both hosts PSI some10%/full2%, pressure pause and conservative reductions; recovery requires3 low samples; continues through backup/restore verification
+2026-10-27T18:30:25+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.27/0.16 peerFreeGiB=55.20
+2026-10-27T18:30:25+00:00 RATE LIMITS APPLIED: helper=mailpile-transfer-20261026 {"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False
+2026-10-27T18:31:26+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.19/0.90 peerFreeGiB=55.20
+2026-10-27T18:32:27+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.43/0.18 peerPSI=1.34/1.33 peerFreeGiB=55.20
+2026-10-27T18:33:28+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.37/1.10 peerFreeGiB=55.20
+2026-10-27T18:34:29+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.44/0.93 peerFreeGiB=55.20
+2026-10-27T18:35:30+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.60/1.58 peerFreeGiB=55.20
+2026-10-27T18:36:31+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.41/1.20 peerFreeGiB=55.20
+2026-10-27T18:37:32+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.42/0.38 peerFreeGiB=55.20
+2026-10-27T18:38:33+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.38/1.04 peerFreeGiB=55.19
+2026-10-27T18:39:34+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.95/0.94 peerPSI=1.40/1.06 peerFreeGiB=55.20
+2026-10-27T18:40:35+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.83/0.62 peerFreeGiB=55.20
+2026-10-27T18:41:36+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.14/0.95 peerFreeGiB=55.01
+2026-10-27T18:42:37+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.02/0.95 peerFreeGiB=55.19
+2026-10-27T18:43:38+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.88/0.80 peerFreeGiB=55.19
+2026-10-27T18:44:39+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.67/1.64 peerFreeGiB=55.20
+2026-10-27T18:45:40+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.87/0.43 peerPSI=1.82/1.68 peerFreeGiB=55.20
+2026-10-27T18:46:41+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.39/0.67 peerFreeGiB=55.01
+2026-10-27T18:47:42+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.79/1.71 peerFreeGiB=55.19
+2026-10-27T18:48:43+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.31/1.12 peerFreeGiB=55.19
+2026-10-27T18:49:44+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.83/1.59 peerFreeGiB=55.20
+2026-10-27T18:50:45+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.05/0.05 peerPSI=1.48/1.35 peerFreeGiB=55.20
+2026-10-27T18:51:46+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.31/0.98 peerFreeGiB=55.01
+2026-10-27T18:52:47+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.63/1.28 peerFreeGiB=55.20
+2026-10-27T18:53:48+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.77/1.57 peerFreeGiB=55.19
+2026-10-27T18:54:49+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.01/0.01 peerPSI=1.20/1.13 peerFreeGiB=55.19
+2026-10-27T18:55:50+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.20/1.18 peerFreeGiB=55.20
+2026-10-27T18:56:51+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.15/0.15 peerPSI=1.95/1.58 peerFreeGiB=55.01
+2026-10-27T18:57:52+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.11/0.85 peerFreeGiB=55.19
+2026-10-27T18:58:53+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.59/0.57 peerFreeGiB=55.20
+2026-10-27T18:59:54+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.69/1.56 peerFreeGiB=55.19
+2026-10-27T19:00:55+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.77/1.60 peerFreeGiB=55.20
+2026-10-27T19:01:56+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.93/1.61 peerFreeGiB=55.19
+2026-10-27T19:02:56+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.22/1.21 peerFreeGiB=55.19
+2026-10-27T19:03:58+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 3072, "verifyKiBps": 512} pause=False localPSI=0.15/0.08 peerPSI=1.67/1.58 peerFreeGiB=55.20
+
+2026-10-27T19:03:42+00:00 CAP INCREASE DEFERRED: reuse remains3072KiB/s metadata20/s; revalidation4815MiB=48.9%; peer fullPSI1.99 recent worker2.18%; local full0.34%; no writer/API alert. Monitoring continues.
+2026-10-27T19:04:43+00:00 RATE LIMITS APPLIED: helper=mailpile-transfer-20261026 {"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=True
+2026-10-27T19:04:59+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=True localPSI=0.00/0.00 peerPSI=0.53/0.50 peerFreeGiB=55.19
+2026-10-27T19:05:29+00:00 RATE LIMITS APPLIED: helper=mailpile-transfer-20261026 {"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False
+2026-10-27T19:06:00+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.15/1.00 peerFreeGiB=55.19
+
+2026-10-27T19:06:00+00:00 MONITORED OUTCOME: revalidation4913MiB=49.9%; worker confirmed reuse1024KiB/s after automatic safety fallback; resumed; local PSI0/0 peer1.15/1.00. Verification remains pending.
+2026-10-27T19:07:01+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.79/1.52 peerFreeGiB=55.20
+2026-10-27T19:08:02+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.32/1.15 peerFreeGiB=55.19
+2026-10-27T19:09:03+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.10/0.09 peerFreeGiB=55.20
+2026-10-27T19:10:03+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.08/0.91 peerFreeGiB=55.20
+2026-10-27T19:11:04+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.69/0.48 peerFreeGiB=55.19
+2026-10-27T19:12:06+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.25/0.90 peerFreeGiB=55.20
+2026-10-27T19:13:06+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.08/0.74 peerFreeGiB=55.19
+2026-10-27T19:14:07+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.68/0.58 peerFreeGiB=55.19
+2026-10-27T19:15:08+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.28/0.28 peerPSI=0.98/0.95 peerFreeGiB=55.19
+2026-10-27T19:16:09+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.20/0.20 peerFreeGiB=55.20
+2026-10-27T19:17:10+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.79/0.66 peerFreeGiB=55.19
+2026-10-27T19:18:11+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.25/1.21 peerFreeGiB=55.19
+
+2026-10-27T19:18:27+00:00 Staged-data revalidation 5419/9837.56 MiB (55.1%). Live cap 1024 KiB/s; paused=False; local PSI={'some': 0.0, 'full': 0.0}, peer PSI={'some': 0.96, 'full': 0.95}. User requests continued minute progress reports. Full migration verification remains pending.
+2026-10-27T19:19:12+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.45/0.45 peerFreeGiB=55.19
+
+2026-10-27T19:19:27+00:00 staged-data revalidation 55.5% (5463/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.46, 'full': 0.41}; alert=False
+2026-10-27T19:20:13+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.23/0.23 peerFreeGiB=55.20
+
+2026-10-27T19:20:28+00:00 staged-data revalidation 56.0% (5513/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.04, 'full': 0.04}; alert=False
+2026-10-27T19:21:14+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.11/0.11 peerFreeGiB=55.19
+
+2026-10-27T19:21:29+00:00 staged-data revalidation 56.6% (5570/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.02, 'full': 0.02}; alert=False
+2026-10-27T19:22:15+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.06/0.06 peerFreeGiB=55.20
+
+2026-10-27T19:22:30+00:00 staged-data revalidation 57.2% (5626/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.01, 'full': 0.01}; alert=False
+2026-10-27T19:23:16+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.15/0.00 peerFreeGiB=55.19
+
+2026-10-27T19:23:31+00:00 staged-data revalidation 57.8% (5683/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.03, 'full': 0.0}; alert=False
+2026-10-27T19:24:17+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.44/0.31 peerFreeGiB=55.19
+
+2026-10-27T19:24:32+00:00 staged-data revalidation 58.5% (5757/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.44, 'full': 0.41}; alert=False
+2026-10-27T19:25:18+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.34/0.20 peerFreeGiB=55.19
+
+2026-10-27T19:25:33+00:00 staged-data revalidation 59.1% (5812/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.08, 'full': 0.04}; alert=False
+2026-10-27T19:26:19+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.61/0.45 peerFreeGiB=55.19
+
+2026-10-27T19:26:49+00:00 staged-data revalidation 59.6% (5859/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.84, 'full': 0.62}; alert=False
+2026-10-27T19:27:20+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.51/0.44 peerFreeGiB=55.19
+
+2026-10-27T19:27:50+00:00 staged-data revalidation 60.1% (5910/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.42, 'full': 0.28}; alert=False
+2026-10-27T19:28:21+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.78/0.66 peerFreeGiB=55.19
+
+2026-10-27T19:28:51+00:00 staged-data revalidation 60.6% (5960/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.69, 'full': 0.65}; alert=False
+2026-10-27T19:29:22+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.77/0.67 peerFreeGiB=55.19
+
+2026-10-27T19:29:52+00:00 staged-data revalidation 61.1% (6007/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.5, 'full': 0.46}; alert=False
+2026-10-27T19:30:23+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.59/1.31 peerFreeGiB=55.19
+
+2026-10-27T19:30:53+00:00 staged-data revalidation 61.5% (6055/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.28, 'full': 0.19}; alert=False
+2026-10-27T19:31:24+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.93/0.82 peerFreeGiB=55.19
+
+2026-10-27T19:31:54+00:00 staged-data revalidation 62.0% (6103/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.17, 'full': 0.08}; alert=False
+2026-10-27T19:32:25+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.07/0.03 peerFreeGiB=55.19
+
+2026-10-27T19:32:55+00:00 staged-data revalidation 62.6% (6161/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.23, 'full': 0.23}; alert=False
+2026-10-27T19:33:26+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.23/0.20 peerFreeGiB=55.19
+
+2026-10-27T19:33:56+00:00 staged-data revalidation 63.1% (6210/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 1.14, 'full': 1.13}; alert=False
+2026-10-27T19:34:27+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.92/0.74 peerFreeGiB=55.19
+
+2026-10-27T19:34:57+00:00 staged-data revalidation 63.6% (6258/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.44, 'full': 0.36}; alert=False
+2026-10-27T19:35:28+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.75/0.47 peerFreeGiB=55.19
+
+2026-10-27T19:35:58+00:00 staged-data revalidation 64.1% (6305/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 1.12, 'full': 0.93}; alert=False
+2026-10-27T19:36:28+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.23/0.22 peerFreeGiB=55.19
+
+2026-10-27T19:36:59+00:00 staged-data revalidation 64.7% (6361/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.29, 'full': 0.23}; alert=False
+2026-10-27T19:37:29+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.94/0.64 peerFreeGiB=55.19
+
+2026-10-27T19:38:00+00:00 staged-data revalidation 65.1% (6409/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.88, 'full': 0.62}; alert=False
+2026-10-27T19:38:30+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.38/0.21 peerFreeGiB=55.18
+
+2026-10-27T19:39:16+00:00 staged-data revalidation 65.7% (6462/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.67, 'full': 0.58}; alert=False
+2026-10-27T19:39:31+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.61/0.41 peerFreeGiB=55.19
+2026-10-27T19:40:32+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.10/0.10 peerFreeGiB=55.19
+2026-10-27T19:41:33+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.45/0.41 peerFreeGiB=55.19
+2026-10-27T19:42:34+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.66/0.50 peerFreeGiB=55.19
+2026-10-27T19:43:35+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.26/1.24 peerFreeGiB=55.19
+2026-10-27T19:44:36+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.93/0.92 peerFreeGiB=55.19
+2026-10-27T19:45:37+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.35/0.34 peerFreeGiB=55.19
+2026-10-27T19:46:38+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=1.39/0.79 peerFreeGiB=55.01
+2026-10-27T19:47:39+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.20/0.15 peerFreeGiB=55.19
+2026-10-27T19:48:40+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.65/0.55 peerFreeGiB=55.19
+2026-10-27T19:49:41+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.18/0.18 peerFreeGiB=55.19
+2026-10-27T19:50:42+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.35/0.19 peerFreeGiB=55.19
+
+2026-10-27T19:51:28+00:00 staged-data revalidation 71.8% (7067/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.07, 'full': 0.04}; alert=False

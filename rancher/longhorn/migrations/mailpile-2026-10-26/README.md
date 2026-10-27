@@ -205,3 +205,5 @@ Python byte limits govern the copier/hash verifier, not native engine traffic.
 Fixture checks passed full copy/resume/restore with hardlinks, symlinks, sparse
 files, FIFO, corruption repair, stale-entry cleanup and metadata equality; live
 metadata20→100/s and independent8MiB/s revalidation limiter were also verified.
+
+See [VERIFICATION.md](VERIFICATION.md) for the measured source totals, per-stage percentage reporting every minute, current live verification controls, the aggressive-trial fallback and the moderate4MiB/s+40entries/s trial. Every accepted adjustment remains in TRANSFER-CAPS.md.
