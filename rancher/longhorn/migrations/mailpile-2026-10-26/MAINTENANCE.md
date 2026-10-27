@@ -1,5 +1,28 @@
 # Temporary workload shutdown for Mailpile migration — 27 October 2026
 
+## Latest restoration instruction —27October
+
+After successful Mailpile migration, restore applications to **Fleet desired
+state**, as explicitly requested by the user. This supersedes saved live replica
+counts as the application restoration authority. `restore-fleet.py --plan`
+validated all52 targets without changing workloads: applications/schedules map
+to Fleet bundles and rendered manifests, supporting services outside Fleet use
+the saved state. Current Fleet counts happen to match the saved application
+counts, including Filebot at0; no count is guessed from an application name.
+
+`quiesce-workloads.py restore` delegates to `/usr/bin/python3 restore-fleet.py`
+(system PyYAML is installed). It requires STATE phasecomplete and reruns final
+migration verification before restoration. Databases return first, applications
+gradually with rollout and both-host pressure checks, supporting services and
+schedules afterward; Fleet readiness must converge. RESTORATION.json is the
+restoration completion record. The maintenance watcher invokes this automatically
+once the migration has genuinely passed validation. No application restart has
+been performed merely because the byte counter is near100%.
+
+The original saved plan below remains an audit/recovery record. Its historical
+restoration wording is superseded by this instruction.
+
+
 The user authorized stopping everything practical to reduce I/O pressure, then
 starting the migration. Mailpile's guarded copy had already started when the
 shutdown was applied; it was deliberately left running. The source remains

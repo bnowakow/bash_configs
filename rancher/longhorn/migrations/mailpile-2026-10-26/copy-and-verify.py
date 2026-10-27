@@ -24,7 +24,12 @@ class Rate:
   io_guard();self.count+=n;self.next=max(self.next,time.monotonic())+n/self.rate;time.sleep(max(0,self.next-time.monotonic()))
 def record(p):
  global last_metadata
- io_guard();time.sleep(max(0,last_metadata+0.05-time.monotonic()));last_metadata=time.monotonic()
+ io_guard();eps=40
+ try:
+  value=json.loads(P('/tmp/mailpile-rate.json').read_text()).get('metadataEntriesPerSecond',eps)
+  if isinstance(value,(int,float)) and 5<=value<=500:eps=value
+ except (OSError,ValueError,TypeError):pass
+ time.sleep(max(0,last_metadata+1/eps-time.monotonic()));last_metadata=time.monotonic()
  s=p.lstat();r={'mode':stat.S_IMODE(s.st_mode),'uid':s.st_uid,'gid':s.st_gid,'mtimeNs':s.st_mtime_ns}
  if stat.S_ISLNK(s.st_mode):r.update(type='symlink',link=os.readlink(p))
  elif stat.S_ISDIR(s.st_mode):r['type']='directory'
@@ -34,9 +39,10 @@ def record(p):
  return s,r
 def ownerstat(src,dst,s):
  os.chown(dst,s.st_uid,s.st_gid,follow_symlinks=False);shutil.copystat(src,dst,follow_symlinks=False)
-def describe(root,hashes=True,rate=None):
- result={};inodes={}
- for p in sorted(root.rglob('*')):
+def describe(root,hashes=True,rate=None,total_bytes=None):
+ result={};inodes={};paths=[p for p in sorted(root.rglob('*')) if str(p.relative_to(root))!='lost+found' and not str(p.relative_to(root)).startswith('lost+found/')];last_report=time.monotonic();hashed_bytes=0
+ print('INVENTORY_START tree='+str(root)+' entries='+str(len(paths))+' hashing='+str(hashes),flush=True)
+ for number,p in enumerate(paths,1):
   rel=str(p.relative_to(root))
   if rel=='lost+found' or rel.startswith('lost+found/'):continue
   s,r=record(p)
@@ -49,10 +55,15 @@ def describe(root,hashes=True,rate=None):
      h=hashlib.sha256()
      with p.open('rb') as f:
       while b:=f.read(1024**2):
-       h.update(b)
+       h.update(b);hashed_bytes+=len(b)
        if rate:rate.account(len(b))
+       if time.monotonic()-last_report>=30:
+        print('HASH_PROGRESS tree=%s checked_MiB=%d total_MiB=%d entries=%d/%d'%(root,hashed_bytes//1024**2,(total_bytes or 0)//1024**2,number,len(paths)),flush=True);last_report=time.monotonic()
      r['sha256']=h.hexdigest()
   result[rel]=r
+  if time.monotonic()-last_report>=30:
+   print('INVENTORY_PROGRESS tree=%s entries=%d/%d percent=%.1f'%(root,number,len(paths),100*number/max(1,len(paths))),flush=True);last_report=time.monotonic()
+ print('INVENTORY_COMPLETE tree='+str(root)+' entries='+str(len(paths)),flush=True)
  s=root.stat();return {'root':[stat.S_IMODE(s.st_mode),s.st_uid,s.st_gid,s.st_mtime_ns],'entries':result}
 def without_hashes(m):
  d=json.loads(json.dumps(m))
@@ -61,7 +72,7 @@ def without_hashes(m):
 manifest=P('/tmp/mailpile-manifest.json');mode=sys.argv[1];claimnames=('data','keys')
 try:
  if mode in ('copy','resume'):
-  resume=mode=='resume';records={};rate=Rate(0.5);total=0;last=time.monotonic();entrycount=0;newentries=0;reusedbytes=0;reusedfiles=0;rechecked=0
+  resume=mode=='resume';records={};rate=Rate(0.5);reuse_rate=Rate(8,'reuseKiBps');total=0;last=time.monotonic();entrycount=0;newentries=0;reusedbytes=0;reusedfiles=0;rechecked=0
   for claim in claimnames:
    src=P('/source')/claim;dst=P('/target')/claim
    assert src.is_mount() and dst.is_mount() and src!=dst
@@ -93,11 +104,11 @@ try:
        reused=True
        with p.open('rb',buffering=0) as f,q.open('rb',buffering=0) as g:
         while block:=f.read(1024**2):
-         rate.account(len(block));rechecked+=len(block)
+         reuse_rate.account(len(block));rechecked+=len(block)
          if g.read(len(block))!=block:reused=False;break
          h.update(block)
          if time.monotonic()-last>=30:
-          print('RESUME_VALIDATION rechecked_MiB=%d reused_files=%d rate_limit=%dKiB/s'%(rechecked//1024**2,reusedfiles,rate.rate/1024),flush=True);last=time.monotonic()
+          print('RESUME_VALIDATION rechecked_MiB=%d reused_files=%d rate_limit=%dKiB/s'%(rechecked//1024**2,reusedfiles,reuse_rate.rate/1024),flush=True);last=time.monotonic()
        if reused:total+=s.st_size;reusedbytes+=s.st_size;reusedfiles+=1;r['sha256']=h.hexdigest()
       if not reused:
        h=hashlib.sha256();check=hashlib.sha256()
@@ -136,9 +147,10 @@ try:
   print('COPY_COMPLETE verified_bytes='+str(total)+'; private manifest saved',flush=True)
   if resume:print('RESUME_REUSED verified_bytes='+str(reusedbytes)+' files='+str(reusedfiles),flush=True)
  elif mode=='verify':
-  records=json.loads(manifest.read_text());rate=Rate(0.5,'verifyKiBps')
+  records=json.loads(manifest.read_text())
   for claim in claimnames:
-   actual=describe(P('/target')/claim,True,rate);assert actual==records[claim],'Restored tree mismatch'
+   rate=Rate(1,'verifyKiBps');total_bytes=sum(r['size'] for r in records[claim]['entries'].values() if r['type']=='file' and 'hardlink_to' not in r)
+   actual=describe(P('/target')/claim,True,rate,total_bytes);assert actual==records[claim],'Restored tree mismatch'
    print('RESTORE_VERIFIED tree='+claim+' entries='+str(len(actual['entries']))+'; complete SHA256/ownership/modes/timestamps/link match',flush=True)
  elif mode=='source-metadata':
   records=json.loads(manifest.read_text())

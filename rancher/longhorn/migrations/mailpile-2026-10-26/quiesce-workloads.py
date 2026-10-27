@@ -1,5 +1,5 @@
 """Temporary maintenance shutdown and gradual restoration from saved replica counts."""
-import datetime,json,pathlib,subprocess,sys,time
+import datetime,json,pathlib,subprocess,sys,time,os
 from action_log import log
 HERE=pathlib.Path(__file__).resolve().parent
 PRIVATE=pathlib.Path('/tmp/longhorn-mailpile-20261026')
@@ -60,6 +60,9 @@ def rollout(row):
  raise RuntimeError('Restored workload did not become ready: '+row['namespace']+'/'+row['name'])
 
 plan=make_plan();mode=sys.argv[1]
+if mode=='restore':
+ # Latest user instruction: application scales come from Fleet, not saved live counts.
+ os.execv('/usr/bin/python3',['/usr/bin/python3',str(HERE/'restore-fleet.py')])
 if mode=='plan':
  print(json.dumps({'stop':[r['namespace']+'/'+r['name'] for r in plan['workloads'] if r['replicas']>0],'keep':[r['namespace']+'/'+r['name'] for r in plan['kept']]},indent=2))
 elif mode=='stop':
@@ -73,8 +76,8 @@ elif mode=='stop':
   if row['replicas']>0 and database(row):mutate(row,0)
  for row in plan['cronjobs']:mutate(row,True)
  log('MAINTENANCE SHUTDOWN REQUESTS ACCEPTED: '+str(sum(r['replicas']>0 for r in rows))+' workloads; '+str(len(plan['cronjobs']))+' CronJobs suspended; verify actual Pods gone before claiming shutdown complete')
-elif mode in ['restore-controller','restore-agent','restore-control','restore']:
- rows=[r for r in plan['workloads'] if r['replicas']>0 and r['name']!='mailpile' and (mode=='restore' or (mode=='restore-control' and controls(r)) or (mode=='restore-controller' and r['name']=='fleet-controller') or (mode=='restore-agent' and r['name']=='fleet-agent'))]
+elif mode in ['restore-controller','restore-agent','restore-control','restore-saved']:
+ rows=[r for r in plan['workloads'] if r['replicas']>0 and r['name']!='mailpile' and (mode=='restore-saved' or (mode=='restore-control' and controls(r)) or (mode=='restore-controller' and r['name']=='fleet-controller') or (mode=='restore-agent' and r['name']=='fleet-agent'))]
  rows.sort(key=lambda r:(0 if database(r) else 1 if controls(r) else 2,r['namespace'],r['name']))
  donefile=PRIVATE/'maintenance-restored.json';done=set(json.loads(donefile.read_text())) if donefile.exists() else set()
  for row in rows:
@@ -85,7 +88,7 @@ elif mode in ['restore-controller','restore-agent','restore-control','restore']:
    assert all(claim in bundle for claim in ['mailpile-path1-longhorn-rwo','mailpile-path2-longhorn-rwo']),'Do not restore Fleet agent while Mailpile still has old source bundle'
   wait_low_io();mutate(row,row['replicas']);rollout(row);done.add(key);donefile.write_text(json.dumps(sorted(done)))
   log('MAINTENANCE RESTORED READY: '+key+' replicas='+str(row['replicas']));time.sleep(5)
- if mode=='restore':
+ if mode=='restore-saved':
   for row in plan['cronjobs']:mutate(row,row['suspend'])
   log('MAINTENANCE RESTORE COMPLETE: original replica counts restored gradually; original zero-replica workloads preserved; Mailpile managed by its migration')
 else:raise SystemExit('Expected stop, restore-control or restore')

@@ -31,7 +31,7 @@ while time.monotonic()<deadline:
   if stable is None:stable=time.monotonic()
   seconds=int(time.monotonic()-stable)
   if seconds<180:state('observing_stability','Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed='+str(seconds));time.sleep(15);continue
-  state('starting','Prerequisites stable; starting guarded migration with512KiB/s copy and512KiB/s restored-file hashing; helper rate file allows live adjustment')
+  state('starting','Prerequisites stable; starting guarded resume; live byte and metadata limits are in RATE.json')
   with (PRIVATE/'coordinator-output.log').open('ab') as output:r=subprocess.run([sys.executable,'-u',str(HERE/'migrate.py')]+(['--source-stopped'] if source_stopped else [])+(['--resume-copy'] if '--resume-copy' in sys.argv else []),stdout=output,stderr=subprocess.STDOUT)
   if r.returncode:state('failed_requires_review','Migration stopped; inspect private diagnostics and ACTIONS.log; no automatic rerun over partial staging');raise SystemExit(1)
   state('rollout_complete','Coordinator reports app Ready on targets; running final independent runtime validation')

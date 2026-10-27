@@ -884,3 +884,80 @@
 2026-10-27T17:22:30+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.15
 2026-10-27T17:23:31+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.02/0.02 peerPSI=0.01/0.01 peerFreeGiB=55.15
 2026-10-27T17:24:32+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.16
+2026-10-27T17:25:32+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.60/0.48 peerPSI=0.00/0.00 peerFreeGiB=55.16
+2026-10-27T17:26:33+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.03/0.03 peerFreeGiB=55.15
+2026-10-27T17:27:34+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.01/0.00 peerFreeGiB=55.16
+2026-10-27T17:28:35+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.15
+2026-10-27T17:29:36+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.15
+2026-10-27T17:30:36+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.15
+2026-10-27T17:31:37+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.36/0.00 peerFreeGiB=54.97
+2026-10-27T17:32:38+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.16
+2026-10-27T17:33:39+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.15
+2026-10-27T17:34:39+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:35:40+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:36:41+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.24/0.00 peerFreeGiB=55.00
+2026-10-27T17:36:49+00:00 USER RESTORATION POLICY: document pending inventory verification; restore applications to actual Fleet desired state only after successful migration. Read-only52-target plan validated; incomplete-migration restoration rejection tested. Updating maintenance watcher only; active copy/inventory worker remains untouched.
+2026-10-27T17:36:49+00:00 MAINTENANCE WATCH STARTED: Fleet stays stopped during copy; controller resumes after copy verification, agent only after new target BundleDeployment; applications restored to Fleet desired state after migration completion
+2026-10-27T17:37:42+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:38:43+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:39:43+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:40:44+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:41:45+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.16/0.00 peerFreeGiB=55.00
+2026-10-27T17:42:46+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:43:46+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:44:47+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:45:48+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:46:49+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.05/0.05 peerPSI=0.10/0.00 peerFreeGiB=55.00
+2026-10-27T17:47:50+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:48:50+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:49:51+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:50:52+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:51:53+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.07/0.00 peerFreeGiB=55.18
+2026-10-27T17:52:53+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:53:54+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:54:55+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:55:56+00:00 RATE MONITOR: capKiBps=1024 pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:57:00+00:00 VERIFICATION SPEED INCREASE: user requested faster verification and progress. Prior fixed20/s inventory worker checkpointed without deleting helper/staging; source remains0, no guard alert. New live limits: copy1024KiB/s unchanged, staged revalidation8192KiB/s, restore hashing2048KiB/s, metadata100entries/s. Existing bytes fully revalidated before reuse; exact per-inventory progress now printed. Fixture/full-manifest tests passed; both-host pressure pauses/reductions remain active.
+2026-10-27T17:57:00+00:00 START CONTROLLER waiting: Maximum-throttle workflow active; original Mailpile remains stopped
+2026-10-27T17:57:01+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=0
+2026-10-27T17:57:02+00:00 RATE MONITOR START: {"copyKiBps": 1024, "metadataEntriesPerSecond": 100, "reuseKiBps": 8192, "verifyKiBps": 2048}; both hosts PSI some10%/full2%, pressure pause and conservative reductions; recovery requires3 low samples; continues through backup/restore verification
+2026-10-27T17:57:02+00:00 RATE MONITOR: limits={"copyKiBps": 1024, "metadataEntriesPerSecond": 100, "reuseKiBps": 8192, "verifyKiBps": 2048} pause=False localPSI=0.00/0.00 peerPSI=0.01/0.00 peerFreeGiB=55.18
+2026-10-27T17:57:02+00:00 RATE LIMITS APPLIED: helper=mailpile-transfer-20261026 {"copyKiBps": 1024, "metadataEntriesPerSecond": 100, "reuseKiBps": 8192, "verifyKiBps": 2048} pause=False
+2026-10-27T17:57:17+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=15
+2026-10-27T17:57:32+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=31
+2026-10-27T17:57:48+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=46
+2026-10-27T17:58:03+00:00 RATE MONITOR: limits={"copyKiBps": 1024, "metadataEntriesPerSecond": 100, "reuseKiBps": 8192, "verifyKiBps": 2048} pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:58:04+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=62
+2026-10-27T17:58:19+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=78
+2026-10-27T17:58:35+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=93
+2026-10-27T17:58:51+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=109
+2026-10-27T17:59:04+00:00 RATE MONITOR: limits={"copyKiBps": 1024, "metadataEntriesPerSecond": 100, "reuseKiBps": 8192, "verifyKiBps": 2048} pause=False localPSI=0.20/0.19 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T17:59:06+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=125
+2026-10-27T17:59:22+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=140
+2026-10-27T17:59:38+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=156
+2026-10-27T17:59:53+00:00 START CONTROLLER observing_stability: Health, healthy targets and physical headroom passed; requiring180s unchanged readiness; elapsed=172
+2026-10-27T18:00:05+00:00 RATE MONITOR: limits={"copyKiBps": 1024, "metadataEntriesPerSecond": 100, "reuseKiBps": 8192, "verifyKiBps": 2048} pause=False localPSI=0.00/0.00 peerPSI=0.00/0.00 peerFreeGiB=55.18
+2026-10-27T18:00:09+00:00 START CONTROLLER starting: Prerequisites stable; starting guarded resume; live byte and metadata limits are in RATE.json
+2026-10-27T18:00:09+00:00 RESOURCE ACTION: kubectl -n apps-mailpile annotate pvc mailpile-path1 helm.sh/resource-policy=keep --overwrite
+2026-10-27T18:00:10+00:00 RESOURCE ACTION: kubectl patch pv pvc-efd00fa3-e42b-4129-85f9-2a2c36912dcc --type=merge -p {"spec":{"persistentVolumeReclaimPolicy":"Retain"}}
+2026-10-27T18:00:10+00:00 RESOURCE ACTION: kubectl -n apps-mailpile annotate pvc mailpile-path2 helm.sh/resource-policy=keep --overwrite
+2026-10-27T18:00:10+00:00 RESOURCE ACTION: kubectl patch pv pvc-3d4c4ac7-14b9-43fd-a5de-55afb60accc7 --type=merge -p {"spec":{"persistentVolumeReclaimPolicy":"Retain"}}
+2026-10-27T18:00:10+00:00 RESOURCE ACTION: kubectl -n apps-mailpile scale deployment mailpile --replicas=0
+2026-10-27T18:00:10+00:00 WRITER STOPPED: original Mailpile pod gone; original claims protected; starting sole-writer/API guard
+2026-10-27T18:01:06+00:00 RATE MONITOR: limits={"copyKiBps": 1024, "metadataEntriesPerSecond": 100, "reuseKiBps": 8192, "verifyKiBps": 2048} pause=False localPSI=0.00/0.00 peerPSI=2.00/1.77 peerFreeGiB=55.20
+2026-10-27T18:01:21+00:00 RATE LIMITS APPLIED: helper=mailpile-transfer-20261026 {"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=True
+2026-10-27T18:02:07+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.03/0.02 peerFreeGiB=55.20
+2026-10-27T18:02:07+00:00 RATE LIMITS APPLIED: helper=mailpile-transfer-20261026 {"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False
+2026-10-27T18:03:08+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.76/0.74 peerFreeGiB=55.20
+2026-10-27T18:04:09+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.44/0.43 peerFreeGiB=55.20
+2026-10-27T18:05:10+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.85/0.80 peerFreeGiB=55.20
+2026-10-27T18:06:11+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.02/0.01 peerPSI=0.56/0.54 peerFreeGiB=55.20
+2026-10-27T18:07:12+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.45/0.44 peerFreeGiB=55.20
+2026-10-27T18:08:13+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.52/0.51 peerFreeGiB=55.20
+2026-10-27T18:09:14+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.16/0.11 peerFreeGiB=55.20
+2026-10-27T18:10:15+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.27/0.16 peerFreeGiB=55.20
+2026-10-27T18:11:16+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 20, "reuseKiBps": 1024, "verifyKiBps": 512} pause=False localPSI=0.00/0.00 peerPSI=0.39/0.37 peerFreeGiB=55.20
+2026-10-27T18:11:41+00:00 RATE MONITOR START: {"copyKiBps": 256, "metadataEntriesPerSecond": 40, "reuseKiBps": 4096, "verifyKiBps": 1024}; both hosts PSI some10%/full2%, pressure pause and conservative reductions; recovery requires3 low samples; continues through backup/restore verification
+2026-10-27T18:11:41+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 40, "reuseKiBps": 4096, "verifyKiBps": 1024} pause=False localPSI=0.00/0.00 peerPSI=0.28/0.03 peerFreeGiB=55.01
+2026-10-27T18:11:41+00:00 RATE LIMITS APPLIED: helper=mailpile-transfer-20261026 {"copyKiBps": 256, "metadataEntriesPerSecond": 40, "reuseKiBps": 4096, "verifyKiBps": 1024} pause=False
+2026-10-27T18:12:42+00:00 RATE MONITOR: limits={"copyKiBps": 256, "metadataEntriesPerSecond": 40, "reuseKiBps": 4096, "verifyKiBps": 1024} pause=False localPSI=0.00/0.00 peerPSI=1.68/1.38 peerFreeGiB=55.20

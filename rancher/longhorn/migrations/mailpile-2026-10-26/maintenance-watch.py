@@ -15,7 +15,7 @@ while not baseline.exists():
  except (subprocess.CalledProcessError,subprocess.TimeoutExpired,ValueError):
   log('MAINTENANCE WATCH WAIT: cannot yet save old deployment ID');time.sleep(15)
 old=json.loads(baseline.read_text());controller=False;agent=False
-log('MAINTENANCE WATCH STARTED: Fleet stays stopped during copy; controller resumes after copy verification, agent only after new target BundleDeployment; saved replicas restored after migration completion')
+log('MAINTENANCE WATCH STARTED: Fleet stays stopped during copy; controller resumes after copy verification, agent only after new target BundleDeployment; applications restored to Fleet desired state after migration completion')
 while True:
  try:
   state=json.loads((HERE/'STATE.json').read_text());phase=state['phase']
@@ -31,7 +31,7 @@ while True:
     if bd['spec']['deploymentID']!=old['spec']['deploymentID'] and not bd['spec'].get('paused') and not bd['spec'].get('waitingForValues'):
      restore('restore-agent');agent=True;log('MAINTENANCE WATCH: Fleet agent restored only after new target deploymentID observed; old source bundle was never reactivated')
   if phase=='complete':
-   restore('restore');log('MAINTENANCE WATCH COMPLETE: all saved application replica counts and schedules restored after verified Mailpile migration');break
+   restore('restore');log('MAINTENANCE WATCH COMPLETE: applications restored to verified Fleet desired state after successful Mailpile migration; supporting services/schedules restored');break
  except (subprocess.CalledProcessError,subprocess.TimeoutExpired,ValueError,KeyError):
   log('MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state')
  time.sleep(15)

@@ -1,3 +1,21 @@
+# Latest status —27October17:34UTC, validation pending
+
+User requested documentation, verification of migration success, then application
+restoration **to Fleet desired state**. Success is not yet verified. Last copy
+counter9818MiB (~9.59GiB); stopped source apparent total~9.61GiB. Metadata/link
+inventory checks are pending; no completed backup/restore/cutover is claimed.
+Both hosts PSI0 and no writer/API alert at latest check. Keep applications stopped.
+
+`restore-fleet.py --plan` validated52 targets read-only. It derives application
+replicas and CronJob suspension from applied Fleet Helm/raw manifests, with
+saved-state fallback only for supporting services outside Fleet. Mailpile is
+excluded from bulk restoration. `quiesce-workloads.py restore` now delegates to
+this script, requiring STATE complete and repeat final verification. Gradual
+restoration and Fleet readiness are required before RESTORATION.json is written.
+Maintenance watcher must continue safe controller/agent sequencing for cutover.
+See RESULTS.md, MAINTENANCE.md and fleet-restoration-plan.json for current details.
+Historical preparation/cap/shutdown notes below are superseded where inconsistent.
+
 # Current status — 27 October, maintenance shutdown and active copy
 
 **Mailpile migration is actively copying**, not waiting to start. Latest verified
@@ -227,3 +245,16 @@ Previous monitor reduced512→256 at12:42 after local PSI15.68%some/15.05%full (
 ## 27-Oct13:10 cap trial
 
 User requested another modest increase: live cap1024KiB/s (1MiB/s), worker-confirmed. New rate monitor PID439650/session76672, --cap1024. Copy progress3859MiB, no guard alert. Latest local PSI0.07/0.04, peer0.19/0.03; free60.28GiB. Short trial passed, documented in TRANSFER-CAPS.md. Safety pause/fallback256 retained; no copy restart.
+
+## Verification-cap update —27October17:55UTC
+
+User requested faster verification and percentage reporting. Old fixed20/s
+inventory had~28% estimated completion, not exact. It was checkpointed; no
+helper/PVC deletion or source restart. New supervisor session10397 runs
+--source-stopped --resume-copy; rate monitor session62027 requests copy1024,
+reuse8192, restored hash2048KiB/s and metadata100entries/s. Old start marker
+archived privately. Both-host pressure guards and conservative reductions apply
+throughout copy/restore verification. Exact per-inventory and restored-hash
+progress logging added. All limits now live-adjustable; do not restart again
+merely to tune metadata. Revalidation must complete before any success claim.
+Fleet-desired conditional restoration watcher/session67109 remains active.

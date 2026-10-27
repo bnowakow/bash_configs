@@ -165,3 +165,43 @@ repair, sparse files, hardlinks, symlinks, FIFO, metadata/full-manifest restore
 validation, stale-entry cleanup, and live256→512 cap updates/invalid-zero rejection.
 
 Every transfer-cap change and observed result is recorded in [TRANSFER-CAPS.md](TRANSFER-CAPS.md). The27-Oct13:05 trial raised the live copy cap to768KiB/s after an earlier automatic fallback to256. At13:07, worker output confirmed768 and progress; local PSI0/0, peer0.08%some/0.02%full, no guard alert. Continuous monitoring and automatic pause/fallback remain active.
+
+## Conditional restoration to Fleet desired state
+
+Latest user instruction: verify migration success, then scale applications back
+to Fleet desired state. See RESULTS.md for current pending status. The maintenance
+watcher invokes `quiesce-workloads.py restore`, now delegated to `restore-fleet.py`
+using systemPython/PyYAML. Read-only `restore-fleet.py --plan` validates ownership,
+applied deployment IDs and rendered manifests before recording desired counts.
+The execute path requires STATE complete and repeats final migration checks,
+then restores gradually and verifies Fleet readiness. Do not restore applications
+while final metadata/backup/restore/cutover validation is incomplete.
+
+## Faster verification with live controls —27October
+
+User requested increasing verification limits while monitoring I/O and reporting
+progress. Fixed20entries/s metadata worker was checkpointed (only supervisor,
+coordinator and worker stopped; helper and all staged files retained). A fresh
+verified resume rechecks existing bytes before reuse; prior in-memory inventory
+progress is not treated as a completed result. No data is trusted or activated
+without the full checks. The old inventory estimate was~28%, not an exact count.
+
+New requested limits: copy1024KiB/s unchanged, staged-file revalidation8192KiB/s,
+restored-data hashing2048KiB/s, metadata100entries/s. All four limits now update
+live from /tmp/mailpile-rate.json. Metadata valid range5–500entries/s; byte
+limits64–16384KiB/s. INVENTORY_START/PROGRESS/COMPLETE print exact entry counts
+and per-pass percentages; HASH_PROGRESS prints checked bytes and expected total
+for restored-data verification. No message contents or filenames are printed.
+
+The rate watcher now continues through backup/restore verification and applies
+limits to both transfer and restore helpers as they become Ready. Either host
+PSI some>10% or full>2%, low peer physical headroom, or missing telemetry pauses
+work and reduces copy256KiB/s, revalidation1024KiB/s, restore hash512KiB/s and
+metadata20entries/s. Three low samples are required before resume; reduced limits
+are retained. Every accepted cap/metadata change is appended to TRANSFER-CAPS.md.
+Native Longhorn backup/restore traffic has separate concurrency controls; these
+Python byte limits govern the copier/hash verifier, not native engine traffic.
+
+Fixture checks passed full copy/resume/restore with hardlinks, symlinks, sparse
+files, FIFO, corruption repair, stale-entry cleanup and metadata equality; live
+metadata20→100/s and independent8MiB/s revalidation limiter were also verified.
