@@ -1,6 +1,9 @@
 name: mailpile
 defaultNamespace: apps-mailpile
 
+dependsOn:
+  - name: longhorn-mailpile-storage
+
 helm:
   chart: oci://oci.trueforge.org/truecharts/mailpile
   version: 10.0.4

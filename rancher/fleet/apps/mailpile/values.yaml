@@ -2,14 +2,12 @@ persistence:
   path1:
     enabled: true
     type: pvc
-    storageClass: local-path
-    size: 20Gi
+    existingClaim: mailpile-path1-longhorn-rwo
     mountPath: /root/.local/share/Mailpile
   path2:
     enabled: true
     type: pvc
-    storageClass: local-path
-    size: 1Gi
+    existingClaim: mailpile-path2-longhorn-rwo
     mountPath: /root/.gnupg
 
 ingress:
@@ -35,3 +33,9 @@ ingress:
         entrypoints:
           - websecure
         forceTLS: true
+
+# Single owner for mail/index state and GnuPG keyring.
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate

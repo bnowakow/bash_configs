@@ -1,6 +1,6 @@
 # Mailpile verification progress and limits
 
-**Latest observation:** 2026-10-27T19:51:28+00:00 staged-data revalidation 71.8% (7067/9837.56 MiB); cap 1024 KiB/s; paused=False; local={'some': 0.0, 'full': 0.0}; peer={'some': 0.07, 'full': 0.04}; alert=False. Full inventory, independent restore verification and cutover remain pending.
+**Latest observation 28 October 14:45 UTC:** independent restore verification PASSED after scratch root timestamp repair. Original-source full recheck5084/9837MiB=51.7%, entries44746/78230, RO original claims on proxmox2-old. Worker-confirmed hash cap2560KiB/s (2.5MiB/s), metadata30entries/s. Full PSI0% on both hosts; unpaused, no source recheck error. Cap changes/outcomes are in TRANSFER-CAPS.md. Prior API guard remains retained pending successful source revalidation and reviewed cutover. Cutover/final validation and application restoration to Fleet desired state still remain. Source verifier uses /target mount paths for RO originals, not scratch restore.
 
 The user requested documenting the verification and reporting its percentage
 **every minute** while this migration is monitored. Keep applications stopped
@@ -84,3 +84,9 @@ Validation of the control changes included full copy/resume/restore fixtures,
 valid-file reuse, corruption repair, sparse files, hardlinks, symlinks, FIFO,
 metadata equality, stale-entry cleanup, independent live byte limits and live
 metadata pacing. Original claims and source0 remain protected throughout.
+
+## Scratch restore root timestamp repair
+
+The first independent restore failed its strict manifest comparison after scanning all bytes. Both scratch volume root directories had different modification timestamps; their modes and ownership matched. The explicit `prepare-restore-roots` step now restores only those root timestamps from the verified manifest after checking root mode/ownership. It is called only for scratch restores by the migration and recovery flows. Full byte hashes, metadata, ownership and link comparison still must pass. Expected manifests are not changed.
+
+The verifier now retains each computed tree manifest privately with mode0600 before comparison and reports aggregate mismatch-field counts. A later diagnostic will not require rereading data solely to inspect the difference. Focused fixtures confirm root timestamp mismatch detection/repair, strict success afterward, rejection of corrupted file contents and preservation of the computed manifest. Existing copy/resume/restore fixtures also pass. The live repeat pass is still in progress; no successful migration is claimed.

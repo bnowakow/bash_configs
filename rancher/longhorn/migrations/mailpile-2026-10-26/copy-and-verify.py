@@ -146,11 +146,32 @@ try:
   finally:os.umask(old)
   print('COPY_COMPLETE verified_bytes='+str(total)+'; private manifest saved',flush=True)
   if resume:print('RESUME_REUSED verified_bytes='+str(reusedbytes)+' files='+str(reusedfiles),flush=True)
+ elif mode=='prepare-restore-roots':
+  records=json.loads(manifest.read_text())
+  for claim in claimnames:
+   root=P('/target')/claim;assert root.is_mount(),'Expected scratch restore mount'
+   s=root.stat();expected=records[claim]['root']
+   assert [stat.S_IMODE(s.st_mode),s.st_uid,s.st_gid]==expected[:3],'Scratch restore root mode/owner mismatch'
+   if s.st_mtime_ns!=expected[3]:
+    os.utime(root,ns=(s.st_atime_ns,expected[3]))
+    print('RESTORE_ROOT_MTIME_RESTORED tree='+claim+'; directory mode/ownership preserved; full tree verification still required',flush=True)
  elif mode=='verify':
   records=json.loads(manifest.read_text())
   for claim in claimnames:
    rate=Rate(1,'verifyKiBps');total_bytes=sum(r['size'] for r in records[claim]['entries'].values() if r['type']=='file' and 'hardlink_to' not in r)
-   actual=describe(P('/target')/claim,True,rate,total_bytes);assert actual==records[claim],'Restored tree mismatch'
+   actual=describe(P('/target')/claim,True,rate,total_bytes)
+   # Retain computed hashes privately so a mismatch can be audited without rereading.
+   oldmask=os.umask(0o077)
+   try:P('/tmp/mailpile-actual-'+claim+'.json').write_text(json.dumps(actual))
+   finally:os.umask(oldmask)
+   if actual!=records[claim]:
+    expected=records[claim];fields={};missing=set(expected['entries'])-set(actual['entries']);extra=set(actual['entries'])-set(expected['entries'])
+    for name in set(expected['entries']) & set(actual['entries']):
+     left=expected['entries'][name];right=actual['entries'][name]
+     for field in set(left)|set(right):
+      if left.get(field)!=right.get(field):fields[field]=fields.get(field,0)+1
+    print('MANIFEST_MISMATCH tree='+claim+' rootFields='+str([i for i,(a,b) in enumerate(zip(expected['root'],actual['root'])) if a!=b])+' entryFieldCounts='+json.dumps(fields,sort_keys=True)+' missing='+str(len(missing))+' extra='+str(len(extra)),flush=True)
+    raise AssertionError('Restored tree mismatch; private computed manifest retained')
    print('RESTORE_VERIFIED tree='+claim+' entries='+str(len(actual['entries']))+'; complete SHA256/ownership/modes/timestamps/link match',flush=True)
  elif mode=='source-metadata':
   records=json.loads(manifest.read_text())

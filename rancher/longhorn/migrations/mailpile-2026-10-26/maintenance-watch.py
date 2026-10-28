@@ -1,6 +1,7 @@
 """Bridge the already-running migration to safe Fleet cutover and gradual restore."""
 import fcntl,json,pathlib,subprocess,sys,time
 from action_log import log
+from fleet_values_guard import target_values_ready
 HERE=pathlib.Path(__file__).resolve().parent;PRIVATE=pathlib.Path('/tmp/longhorn-mailpile-20261026')
 lock=(PRIVATE/'maintenance-watch.lock').open('w');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
 K=['kubectl','--kubeconfig','/etc/rancher/k3s/k3s.yaml','--request-timeout=10s']
@@ -25,11 +26,9 @@ while True:
   if not controller and 'COPY PASSED: every regular-file source/target byte verified' in audit:
    restore('restore-controller');controller=True
   if controller and not agent:
-   bundle=obj(['-n','fleet-local','get','bundle','mailpile'])
-   if all(c in json.dumps(bundle['spec']) for c in ['mailpile-path1-longhorn-rwo','mailpile-path2-longhorn-rwo']):
-    bd=obj(['-n',old['metadata']['namespace'],'get','bundledeployment','mailpile'])
-    if bd['spec']['deploymentID']!=old['spec']['deploymentID'] and not bd['spec'].get('paused') and not bd['spec'].get('waitingForValues'):
-     restore('restore-agent');agent=True;log('MAINTENANCE WATCH: Fleet agent restored only after new target deploymentID observed; old source bundle was never reactivated')
+   bd=obj(['-n',old['metadata']['namespace'],'get','bundledeployment','mailpile'])
+   if bd['spec']['deploymentID']!=old['spec']['deploymentID'] and not bd['spec'].get('paused') and not bd['spec'].get('waitingForValues') and target_values_ready(obj,old['metadata']['namespace']):
+    restore('restore-agent');agent=True;log('MAINTENANCE WATCH: Fleet agent restored only after new target deploymentID and active downstream values confirmed both Longhorn claims/one replica/Recreate')
   if phase=='complete':
    restore('restore');log('MAINTENANCE WATCH COMPLETE: applications restored to verified Fleet desired state after successful Mailpile migration; supporting services/schedules restored');break
  except (subprocess.CalledProcessError,subprocess.TimeoutExpired,ValueError,KeyError):

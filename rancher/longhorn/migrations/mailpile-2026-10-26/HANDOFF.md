@@ -281,3 +281,11 @@ Fleet-desired conditional restoration watcher/session67109 remains active.
 ## Latest18:26UTC verification observation
 
 Moderate4MiB/s+40/s verification trial also fell back at18:15 (automatic row in TRANSFER-CAPS). Current revalidation1024KiB/s, metadata20/s, future restore hash512KiB/s, copy256KiB/s;1238MiB rechecked=12.6% of measured data source. Source data fully staged, all production apps remain quiesced pending successful validation. Continue user verification percentages every minute. No additional worker restart needed for limit changes; current supervisor1191355, monitor1230382.
+
+## COMPLETED 2026-10-28T16:10:02+00:00
+
+Final runtime, Fleet, Secret, target replicas, retained sources and HTTPS checks passed. See RESULTS.md/ACTIONS.log. Source rollback PVCs remain; global throttles remain1 pending operator stability review. No commit/push performed.
+
+## COMPLETED 2026-10-28T16:10:16+00:00
+
+Final runtime, Fleet, Secret, target replicas, retained sources and HTTPS checks passed. See RESULTS.md/ACTIONS.log. Source rollback PVCs remain; global throttles remain1 pending operator stability review. No commit/push performed.

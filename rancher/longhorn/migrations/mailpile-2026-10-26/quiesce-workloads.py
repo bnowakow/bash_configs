@@ -1,6 +1,7 @@
 """Temporary maintenance shutdown and gradual restoration from saved replica counts."""
 import datetime,json,pathlib,subprocess,sys,time,os
 from action_log import log
+from fleet_values_guard import target_values_ready
 HERE=pathlib.Path(__file__).resolve().parent
 PRIVATE=pathlib.Path('/tmp/longhorn-mailpile-20261026')
 PLAN=HERE/'maintenance-plan.json'
@@ -84,8 +85,9 @@ elif mode in ['restore-controller','restore-agent','restore-control','restore-sa
   key=row['namespace']+'/'+row['kind']+'/'+row['name']
   if key in done:continue
   if row['name']=='fleet-agent':
-   bundle=call(['-n','fleet-local','get','bundle','mailpile','-o','json']).decode()
-   assert all(claim in bundle for claim in ['mailpile-path1-longhorn-rwo','mailpile-path2-longhorn-rwo']),'Do not restore Fleet agent while Mailpile still has old source bundle'
+   bd=next(b for b in json.loads(call(['get','bundledeployments','-A','-o','json']))['items'] if b['metadata']['name']=='mailpile')
+   def values_obj(args):return json.loads(call(args+['-o','json']))
+   assert target_values_ready(values_obj,bd['metadata']['namespace']),'Do not restore Fleet agent before downstream Mailpile values reference verified Longhorn claims'
   wait_low_io();mutate(row,row['replicas']);rollout(row);done.add(key);donefile.write_text(json.dumps(sorted(done)))
   log('MAINTENANCE RESTORED READY: '+key+' replicas='+str(row['replicas']));time.sleep(5)
  if mode=='restore-saved':

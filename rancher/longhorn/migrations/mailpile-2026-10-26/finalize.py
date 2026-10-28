@@ -37,7 +37,10 @@ Stopped-copy logical data: **{logical:,} bytes**; data entries:
 **{len(manifest['data']['entries']):,}**. Every copied regular-file chunk was read
 back and source/target SHA256 compared. Full metadata, ownership, modes,
 timestamps, sparse content, symlinks and hardlink relationships were preserved.
-An unexpected writer/API gap blocks cutover. Source inventory was rechecked.
+An API readiness gap blocked the initial cutover. A fresh full original-source
+hash/metadata/link recheck passed before recovered cutover. Scratch restore root
+timestamps were restored to the expected manifest values; strict full restore
+verification and cloned keyring checks then passed.
 
 Quiesced native NAS backups of both targets were independently restored and
 verified against the complete manifest; cloned GnuPG parsing passed using the
@@ -47,7 +50,8 @@ extra peer-pool pressure. Production retained two replicas. Scratch restore
 claims/classes/helpers and temporary backup membership were cleaned up.
 
 File transfer started at **256KiB/s**, then resumed with verified file reuse
-and live cap adjustments at user request; restore hashing stayed **512KiB/s**.
+and live cap adjustments at user request; hashing caps were adjusted live under
+both-host pressure monitoring.
 Every cap change and observed outcome is recorded in **TRANSFER-CAPS.md**.
 The rate monitor watches both hosts, pauses under pressure and reduces the copy
 cap to256KiB/s if necessary; ACTIONS.log records actual adjustments.

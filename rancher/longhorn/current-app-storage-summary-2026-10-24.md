@@ -1,5 +1,27 @@
 # Current app storage summary — 2026-10-24
 
+**Mailpile completed — 2026-10-28T16:10:16+00:00:** final planned migration finished last.
+Mailpile uses 12Gi data + 256Mi keys on Longhorn RWO/two replicas. Planned inventory
+now records **41 completed claims / 50.25Gi requested**. No planned
+application remains on active local-path storage; Mailpile's two original local
+claims are retained unused rollback copies, not live mounts. Earlier pending/
+staging and active-local statements below are historical, superseded by this
+completion. See [results](migrations/mailpile-2026-10-26/RESULTS.md) and
+[action log](migrations/mailpile-2026-10-26/ACTIONS.log). User functional tests
+remain; no default replica policy or general migration cap was changed.
+
+
+**Mailpile completed — 2026-10-28T16:10:02+00:00:** final planned migration finished last.
+Mailpile uses 12Gi data + 256Mi keys on Longhorn RWO/two replicas. Planned inventory
+now records **41 completed claims / 50.25Gi requested**. No planned
+application remains on active local-path storage; Mailpile's two original local
+claims are retained unused rollback copies, not live mounts. Earlier pending/
+staging and active-local statements below are historical, superseded by this
+completion. See [results](migrations/mailpile-2026-10-26/RESULTS.md) and
+[action log](migrations/mailpile-2026-10-26/ACTIONS.log). User functional tests
+remain; no default replica policy or general migration cap was changed.
+
+
 **Mailpile preparation update — 2026-10-26:** source growth to 9.41GiB logical
 requires a 12Gi data target plus 256Mi keys (12.25Gi total), still RWO/two replicas.
 That storage request was applied; final expansion/health could not be verified
