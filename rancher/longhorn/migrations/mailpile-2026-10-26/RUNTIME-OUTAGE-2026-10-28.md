@@ -18,3 +18,7 @@ Stabilize API/etcd and investigate host I/O pressure, then inspect Mailpile Pod 
 - Peer ZFS rpool reports healthy, but physical free space was approximately 35.17 GiB. This differs from free space inside the Longhorn ext4 filesystem.
 - Latest sampled full I/O PSI: peer24.56%, local14.70%; local k3s NRestarts181. Peer API explicitly failed etcd/etcd-readiness. Backup/rebuild inventory unavailable through the unstable API.
 - Recommended recovery order: identify and pause nonessential bulk storage activity; if necessary temporarily quiesce application workloads using a fresh replica/schedule snapshot, preserving Kubernetes/DNS/admission/Longhorn/CSI; investigate host disk/ZFS/etcd latency with root access; restore applications gradually after stable API and storage health. Do not blindly restart k3s, stop Longhorn engines, or reuse the migration's obsolete shutdown snapshot. No new workload or storage changes performed.
+
+## Observed recovery completion — 2026-10-28T19:23:54.627477+00:00
+
+Read-only minute monitoring observed degraded volumes fall4→2→1→0, ending with43 healthy volumes and4 detached/unknown volumes. All attached volumes, including both Mailpile volumes, are healthy. Both API readiness endpoints passed. k3s restart counts stayed186(proxmox3)/91(proxmox2-old) during this monitoring interval. Final full I/O PSI avg10 was0.30% local and1.53% peer. No recovery settings or workloads were changed during monitoring. This is observed current recovery, not proof the underlying recurring I/O/control-plane problem is resolved.

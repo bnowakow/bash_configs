@@ -1,5 +1,9 @@
 # Mailpile migration completed — 2026-10-28T18:28:35+00:00
 
+## Original host directories removed — 2026-10-28T19:18:10.322549+00:00
+
+At the user's explicit request, removed both obsolete Mailpile local-path directories on proxmox2-old using idle I/O priority and nice19. Verified ordinary non-symlink directories and no source mounts across process mount namespaces before deletion; verified both paths absent afterward. Their last measured filesystem allocation totaled 8,991,901,184 bytes (~8.37GiB). Longhorn data was untouched. ZFS free bytes before/after were 39,343,177,728 / 38,902,493,184; concurrent storage activity and deferred frees mean no immediate physical-pool gain can be attributed from these samples. API instability prevented a complete fresh target-health audit; Mailpile Pod was Ready and data volume healthy in successful prechecks.
+
 ## Original PV object deletion — 2026-10-28
 
 Deleted both Released original Mailpile PV objects (`pvc-efd00fa3-e42b-4129-85f9-2a2c36912dcc`, `pvc-3d4c4ac7-14b9-43fd-a5de-55afb60accc7`) at the user’s request, with UID/resourceVersion preconditions. Verified deletion. Their Retain policy preserved the original host directories; disk space has not been reclaimed. Longhorn target PVs were unchanged.
