@@ -1,5 +1,10 @@
 # Current verification controls —27October18:20UTC
 
+## Current status — 2026-10-28T18:41:14+00:00
+
+Migration verification100% passed, Mailpile on healthy two-replica Longhorn claims, and all52 maintenance targets restored to Fleet desired state. RESTORATION.json and RESULTS.md are the final records. CloudCasa remains a documented unchanged pre-existing Fleet template-drift exception with a Ready agent. Original Mailpile PVCs retained; no active bulk copy/verifier; no commit/push. Post-restoration peer runtime recovery and BookStack256→512Mi config expansion are documented in ACTIONS.log. Historical running/pending sections below are superseded.
+
+
 User requests documentation and percentage updates every minute. Current source
 measurement: data10,315,431,773 unique regular bytes,78,230entries; keys600bytes,
 3entries (verification-totals.json). Staging remains intact. Old fixed20/s
@@ -303,5 +308,9 @@ Final runtime, Fleet, Secret, target replicas, retained sources and HTTPS checks
 Final runtime, Fleet, Secret, target replicas, retained sources and HTTPS checks passed. See RESULTS.md/ACTIONS.log. Source rollback PVCs remain; global throttles remain1 pending operator stability review. No commit/push performed.
 
 ## COMPLETED 2026-10-28T17:43:13+00:00
+
+Final runtime, Fleet, Secret, target replicas, retained sources and HTTPS checks passed. See RESULTS.md/ACTIONS.log. Source rollback PVCs remain; global throttles remain1 pending operator stability review. No commit/push performed.
+
+## COMPLETED 2026-10-28T18:28:35+00:00
 
 Final runtime, Fleet, Secret, target replicas, retained sources and HTTPS checks passed. See RESULTS.md/ACTIONS.log. Source rollback PVCs remain; global throttles remain1 pending operator stability review. No commit/push performed.

@@ -1,4 +1,4 @@
-# Mailpile migration completed — 2026-10-28T17:43:13+00:00
+# Mailpile migration completed — 2026-10-28T18:28:35+00:00
 
 Mailpile now runs on **12Gi data + 256Mi keys**, RWO with **two healthy replicas
 on distinct hosts**. One app instance, Recreate. Current chart/image/env and
@@ -33,8 +33,9 @@ rebuild concurrency were temporarily limited to one. Those global limits
 remain at one for now; previous values are recorded privately for an operator
 to restore after stability review. Peer manager recovery, unverified staging
 replacement and bounded free-block reclamation are recorded in ACTIONS.log.
-No storage finalizer was forced. Only a confirmed stale manager Pod record was
-force-deleted after normal deletion failed and its daemon was absent.
+No storage finalizer was forced. Stale Pod API records were cleared only after normal deletion stalled and
+exact-UID host cgroup audits confirmed no live workload remained. No storage
+engine process was killed by those API record deletions.
 
 Private stopped-copy manifest SHA256: `ce30de35b64360b047e198ab0688ef770f233070d8dc9fd9a6b63bea14f98986`. Its filenames and all Secret/
 mail/key contents remain outside Git under `/tmp/longhorn-mailpile-20261026`.
@@ -50,3 +51,11 @@ and [procedure](README.md).
 
 - data: `backup-8aa200a6b8d94045`, created `2026-10-28T08:11:22Z`, source volume `pvc-775212e9-ac49-4664-9dd0-a239dc72bf1c`.
 - keys: `backup-5a7db56e56314650`, created `2026-10-28T07:59:46Z`, source volume `pvc-dbe22a3b-837b-48c9-a83d-4b710065bc12`.
+
+## Application restoration completed — 2026-10-28T18:41:14+00:00
+
+All52 maintenance targets match their Fleet desired replica/suspend states and are Ready where applicable. Filebot remains0 and Homer-test2. See [RESTORATION.json](RESTORATION.json). One unchanged pre-existing Fleet exception remains: CloudCasa manager container-template drift; its live template matches the pre-maintenance snapshot exactly, its desired deployment ID is applied and its one replica is Ready. The working agent image was not reverted.
+
+Post-restoration I/O/API instability caused stale peer Longhorn/CSI/instance-manager records and temporary degraded volumes. Exact-UID pause-only cgroup audits preceded stale-record cleanup; peer components recovered and both Mailpile volumes returned healthy with two replicas. Five stale deleting application records were similarly cleared after proving no app process remained. Cleanuparr required normal cleanup of its obsolete CSI attachment; no force detach/finalizer change. BookStack config was100% full and expanded256→512Mi through Fleet; its filesystem now464Mi total,219Mi used,240Mi free, and BookStack is Ready. Homer config-copy no longer declares its unused local-path claim; its Fleet bundle is Ready.
+
+Final live inventory:46 Bound Longhorn claims,79.259765625Gi requested, including idle retained/test claims. Historical CSV suggested sizes are not live allocation totals. No original Mailpile PVC was deleted; no commit/push performed.

@@ -1,0 +1,46 @@
+{
+  "completedUTC": "2026-10-28T18:37:07.946476+00:00",
+  "restoredWorkloads": 52,
+  "verifiedFleetBundles": [
+    "audiobookshelf",
+    "authelia",
+    "bazarr",
+    "bindery",
+    "bookstack",
+    "calibre",
+    "calibre-cover-maintenance",
+    "calibre-web",
+    "cleanuparr",
+    "ddclient",
+    "docker-mailserver",
+    "duckdns",
+    "filebot",
+    "flaresolverr",
+    "fleet-agent-local",
+    "homer",
+    "homer-test",
+    "homer-without-auth",
+    "homer-without-auth-config-copy",
+    "jellyseerr",
+    "kavita",
+    "longhorn",
+    "openbooks",
+    "profilarr",
+    "prowlarr",
+    "radarr",
+    "scrutiny",
+    "smokeping",
+    "sonarr",
+    "ubooquity",
+    "uptime-kuma",
+    "youtubedl-material",
+    "zabbix"
+  ],
+  "preExistingFleetExceptions": [
+    {
+      "bundle": "cloudcasa",
+      "reason": "Pre-existing container-template drift; live template exactly matches pre-maintenance snapshot; one available replica; deployment ID applied",
+      "fleetReady": false
+    }
+  ]
+}

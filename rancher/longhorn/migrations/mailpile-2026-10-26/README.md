@@ -1,5 +1,10 @@
 # Mailpile final migration — 2026-10-26
 
+## Current status — 2026-10-28T18:41:14+00:00
+
+Migration verification100% passed, Mailpile on healthy two-replica Longhorn claims, and all52 maintenance targets restored to Fleet desired state. RESTORATION.json and RESULTS.md are the final records. CloudCasa remains a documented unchanged pre-existing Fleet template-drift exception with a Ready agent. Original Mailpile PVCs retained; no active bulk copy/verifier; no commit/push. Post-restoration peer runtime recovery and BookStack256→512Mi config expansion are documented in ACTIONS.log. Historical running/pending sections below are superseded.
+
+
 Authorized scope: existing local-path mail/index data and GnuPG directory to
 Longhorn RWO with two production replicas. Current chart 10.0.4 and exact app
 image remain unchanged. Original source PVCs/PVs stay keep/Retain until a later

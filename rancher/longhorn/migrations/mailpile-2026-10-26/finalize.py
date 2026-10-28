@@ -1,5 +1,5 @@
 """Read-only final runtime validation and completion records after successful cutover."""
-import csv,datetime,hashlib,io,json,pathlib,subprocess,sys,time
+import csv,datetime,hashlib,io,json,pathlib,subprocess,sys,time,re
 from action_log import log
 HERE=pathlib.Path(__file__).resolve().parent;ROOT=HERE.parents[2];PRIVATE=pathlib.Path('/tmp/longhorn-mailpile-20261026');K=['kubectl','--kubeconfig','/etc/rancher/k3s/k3s.yaml','--request-timeout=20s'];NS='apps-mailpile'
 def obj(args):return json.loads(subprocess.check_output(K+args+['-o','json']))
@@ -60,8 +60,9 @@ rebuild concurrency were temporarily limited to one. Those global limits
 remain at one for now; previous values are recorded privately for an operator
 to restore after stability review. Peer manager recovery, unverified staging
 replacement and bounded free-block reclamation are recorded in ACTIONS.log.
-No storage finalizer was forced. Only a confirmed stale manager Pod record was
-force-deleted after normal deletion failed and its daemon was absent.
+No storage finalizer was forced. Stale Pod API records were cleared only after normal deletion stalled and
+exact-UID host cgroup audits confirmed no live workload remained. No storage
+engine process was killed by those API record deletions.
 
 Private stopped-copy manifest SHA256: `{digest}`. Its filenames and all Secret/
 mail/key contents remain outside Git under `/tmp/longhorn-mailpile-20261026`.
@@ -82,9 +83,18 @@ and [procedure](README.md).
  for r in rows:
   if r['namespace']==NS:r['migration_wave']='completed-mailpile-rwo';r['remaining_size_rank']=''
  out=io.StringIO(newline='');w=csv.DictWriter(out,fieldnames=fields,lineterminator='\n');w.writeheader();w.writerows(rows);p.write_text(out.getvalue());done=[r for r in rows if r['migration_wave'].startswith('completed')];total=sum(float(r['suggested_GiB']) for r in done)
+ liveclaims=[p for p in obj(['get','pvc','-A'])['items'] if p['status']['phase']=='Bound' and p['spec'].get('storageClassName','').startswith('longhorn')]
+ def requested_gib(q):
+  units={'Ki':2**10,'Mi':2**20,'Gi':2**30,'Ti':2**40,'K':10**3,'M':10**6,'G':10**9,'T':10**12}
+  for unit in sorted(units,key=len,reverse=True):
+   if q.endswith(unit):return float(q[:-len(unit)])*units[unit]/2**30
+  return float(q)/2**30
+ live_total=sum(requested_gib(p['spec']['resources']['requests']['storage']) for p in liveclaims)
  notice=f'''\n**Mailpile completed — {stamp}:** final planned migration finished last.
 Mailpile uses12Gi data +256Mi keys on Longhorn RWO/two replicas. Planned inventory
-now records **{len(done)} completed claims / {total:g}Gi requested**. No planned
+records **{len(done)} historical planned source claims migrated**. Live cluster
+inventory is **{len(liveclaims)} Bound Longhorn claims / {live_total:g}Gi requested**,
+including idle retained/test claims; this is not a count of active applications. No planned
 application remains on active local-path storage; Mailpile's two original local
 claims are retained unused rollback copies, not live mounts. Earlier pending/
 staging and active-local statements below are historical, superseded by this
@@ -92,8 +102,8 @@ completion. See [results](migrations/mailpile-2026-10-26/RESULTS.md) and
 [action log](migrations/mailpile-2026-10-26/ACTIONS.log). User functional tests
 remain; no default replica policy or general migration cap was changed.\n\n'''.replace('uses12Gi','uses 12Gi').replace('+256Mi','+ 256Mi')
  for name in ['current-app-storage-summary-2026-10-24.md','remaining-migration-priority-2026-10-24.md']:
-  p=ROOT/'longhorn'/name;s=p.read_text();a=s.index('\n')+1;p.write_text(s[:a]+notice+s[a:])
+  p=ROOT/'longhorn'/name;s=p.read_text();s=re.sub(r'\n\*\*Mailpile completed — .*?\n\n','\n',s,flags=re.S);a=s.index('\n')+1;p.write_text(s[:a]+notice+s[a:])
  with (HERE/'HANDOFF.md').open('a') as f:f.write('\n## COMPLETED '+stamp+'\n\nFinal runtime, Fleet, Secret, target replicas, retained sources and HTTPS checks passed. See RESULTS.md/ACTIONS.log. Source rollback PVCs remain; global throttles remain1 pending operator stability review. No commit/push performed.\n')
- log('FINAL VALIDATION AND DOCUMENTATION PASSED: Mailpile Ready on targets, Fleet Ready, identical image/env/Opaque Secrets, healthy two-host replicas, retained originals, both HTTPS200, NAS backups/restores verified; inventory complete claims='+str(len(done))+' Gi='+str(total))
+ log('FINAL VALIDATION AND DOCUMENTATION PASSED: Mailpile Ready on targets, Fleet Ready, identical image/env/Opaque Secrets, healthy two-host replicas, retained originals, both HTTPS200, NAS backups/restores verified; inventory complete claims='+str(len(done))+' liveLonghornClaims='+str(len(liveclaims))+' requestedGiB='+str(live_total))
 except BaseException as e:
  log('FINAL VALIDATION FAILED: '+type(e).__name__+'; target already cut over, no blind rollback');raise

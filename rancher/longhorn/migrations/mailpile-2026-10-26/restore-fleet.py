@@ -67,6 +67,12 @@ def low_io():
 def apply(row):
  field='suspend' if row['kind']=='cronjob' else 'replicas';value=row[field]
  current=obj(['-n',row['namespace'],'get',row['kind'],row['name']])
+ matches=current['spec'].get(field,False if field=='suspend' else 1)==value
+ status=current.get('status',{})
+ converged=(field=='suspend' or (value==0 and status.get('replicas',0)==0) or (status.get('availableReplicas',0)==value and status.get('updatedReplicas',0)==value and status.get('observedGeneration',0)>=current['metadata']['generation']))
+ if matches and converged:
+  log('FLEET RESTORED VERIFIED: '+row['namespace']+'/'+row['name']+' '+field+'='+str(value)+' (already converged; no patch)');return False
+ low_io()
  ops=[{'op':'test','path':'/metadata/uid','value':current['metadata']['uid']},{'op':'add','path':'/spec/'+field,'value':value}]
  log('FLEET RESTORE ACTION: '+row['namespace']+'/'+row['name']+' '+field+'='+str(value)+'; '+row['basis'])
  subprocess.run(K+['-n',row['namespace'],'patch',row['kind'],row['name'],'--type=json','-p',json.dumps(ops)],stdout=subprocess.DEVNULL,check=True,timeout=25)
@@ -78,7 +84,7 @@ def apply(row):
   else:raise RuntimeError('Restored workload not Ready: '+row['namespace']+'/'+row['name'])
  check=obj(['-n',row['namespace'],'get',row['kind'],row['name']]);assert check['spec'].get(field,False if field=='suspend' else 1)==value
  if field=='replicas' and value==0:assert check.get('status',{}).get('replicas',0)==0
- log('FLEET RESTORED VERIFIED: '+row['namespace']+'/'+row['name']+' '+field+'='+str(value))
+ log('FLEET RESTORED VERIFIED: '+row['namespace']+'/'+row['name']+' '+field+'='+str(value));return True
 
 def main():
  parser=argparse.ArgumentParser();parser.add_argument('--plan',action='store_true');args=parser.parse_args()
@@ -96,15 +102,27 @@ def main():
   if row['namespace'].startswith('cattle-fleet-') and row['name'] in ['gitjob','helmops']:return 3
   return 2
  rows=sorted(plan['workloads'],key=lambda r:(order(r),r['namespace'],r['name']))
- for row in rows:low_io();apply(row);time.sleep(5)
+ for row in rows:
+  if apply(row):time.sleep(5)
+ # Accept only explicitly proven unchanged pre-maintenance CloudCasa runtime drift.
+ # This is recorded, never presented as Fleet Ready or silently overwritten.
+ exceptions=[]
+ def unchanged_cloudcasa(b):
+  if b['metadata']['name']!='cloudcasa' or b['spec']['deploymentID']!=b.get('status',{}).get('appliedDeploymentID'):return False
+  saved=json.loads((PRIVATE/'deployments-before-quiesce.json').read_text())['items']
+  old=next(d for d in saved if d['metadata']['namespace']=='cloudcasa-io' and d['metadata']['name']=='cloudcasa-kubeagent-manager')
+  live=obj(['-n','cloudcasa-io','get','deployment','cloudcasa-kubeagent-manager'])
+  return live['spec']['template']['spec']['containers']==old['spec']['template']['spec']['containers'] and live['spec']['replicas']==live.get('status',{}).get('availableReplicas')==1
  # Verify managed applications have converged, rather than accepting scale requests alone.
  names={r['bundle'] for r in rows if 'bundle' in r}
  for _ in range(60):
   bs=[b for b in obj(['get','bundledeployments','-A'])['items'] if b['metadata']['name'] in names]
-  if len(bs)==len(names) and all(b['spec']['deploymentID']==b.get('status',{}).get('appliedDeploymentID') and any(c['type']=='Ready' and c['status']=='True' for c in b.get('status',{}).get('conditions',[])) for b in bs):break
+  not_ready=[b for b in bs if not (b['spec']['deploymentID']==b.get('status',{}).get('appliedDeploymentID') and any(c['type']=='Ready' and c['status']=='True' for c in b.get('status',{}).get('conditions',[])))]
+  if len(bs)==len(names) and all(unchanged_cloudcasa(b) for b in not_ready):
+   exceptions=[{'bundle':b['metadata']['name'],'reason':'Pre-existing container-template drift; live template exactly matches pre-maintenance snapshot; one available replica; deployment ID applied','fleetReady':False} for b in not_ready];break
   time.sleep(5)
  else:raise RuntimeError('Some restored application bundles are not Fleet Ready')
- report={'completedUTC':datetime.datetime.now(datetime.timezone.utc).isoformat(),'restoredWorkloads':len(rows),'verifiedFleetBundles':sorted(names)}
- (HERE/'RESTORATION.json').write_text(json.dumps(report,indent=2)+'\n');log('FLEET RESTORATION COMPLETE: application scales match applied Fleet manifests; supporting services/schedules restored and rollouts/Fleet readiness verified')
+ report={'completedUTC':datetime.datetime.now(datetime.timezone.utc).isoformat(),'restoredWorkloads':len(rows),'verifiedFleetBundles':sorted(names-{e['bundle'] for e in exceptions}),'preExistingFleetExceptions':exceptions}
+ (HERE/'RESTORATION.json').write_text(json.dumps(report,indent=2)+'\n');log('FLEET RESTORATION COMPLETE: application scales match applied Fleet manifests; supporting services/schedules restored and rollouts verified; unchanged pre-existing Fleet exceptions='+str(len(exceptions)))
 
 if __name__=='__main__':main()

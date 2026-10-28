@@ -4,7 +4,7 @@ BookStack and MariaDB now use **Longhorn RWO with two replicas**:
 
 | Claim | Request | State |
 | --- | ---: | --- |
-| `bookstack-config-longhorn-rwo` | 256Mi | Live config, keys and uploads preserved from container layer |
+| `bookstack-config-longhorn-rwo` | 512Mi (expanded28Oct; initial256Mi) | Live config, keys and uploads preserved from container layer |
 | `bookstack-mariadb-data-longhorn-rwo` | 1Gi | MariaDB 13.1.1, one database owner |
 
 Both Deployments use Recreate and one replica. Chart 23.0.6 and exact app/DB image
@@ -91,3 +91,9 @@ unverified staging is separate from production. See the
 - db: `backup-e70bfb5c277c4e67`, created `2026-10-25T13:30:40Z`, volume `pvc-ad162742-8668-4b9f-8c32-88f80cb56801`.
 
 Final validation completed 2026-10-25T13:40:27+00:00. Laravel effective key also matched the original; inspected app/DB logs had no matching storage/auth/SQL errors.
+
+## Config capacity increase — 28 October 2026
+
+During restoration after the Mailpile maintenance window, `/config` was 100% full (219MiB used on the 256Mi claim; filesystem capacity224MiB). The same RWO/two-replica claim was increased to512Mi through its Fleet storage bundle. No source data or log files were deleted. The additional request is256Mi per replica. Final filesystem expansion/readiness is verified in the Mailpile action log.
+
+Expansion verified28October: Fleet storage bundle Ready/applied; mounted filesystem464Mi total,219Mi used,240Mi free; BookStack Ready.

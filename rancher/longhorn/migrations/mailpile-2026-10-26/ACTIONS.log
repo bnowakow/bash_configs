@@ -2998,3 +2998,512 @@
 2026-10-28T17:48:06+00:00 FLEET RESTORED VERIFIED: apps-homer/homer-without-auth-config-copy suspend=False
 2026-10-28T17:48:12+00:00 FLEET RESTORE ACTION: apps-zabbix/zabbix-nodesclean suspend=False; Fleet bundle zabbix applied deployment s-fe77b1719efd2c8e21e00b8bcd8e74c453734da07850da186f729775e77ac:b96aa3dc290a17fef98cd9a915124571c188925f4cd18a29f0f2d7066f1fac9e
 2026-10-28T17:48:12+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-nodesclean suspend=False
+2026-10-28T17:48:17+00:00 FLEET RESTORE ACTION: cattle-fleet-system/fleet-cleanup-gitrepo-jobs suspend=False; Saved state: supporting service outside Fleet
+2026-10-28T17:48:17+00:00 FLEET RESTORED VERIFIED: cattle-fleet-system/fleet-cleanup-gitrepo-jobs suspend=False
+2026-10-28T17:48:22+00:00 FLEET RESTORE ACTION: fleet-local/rke2-machineconfig-cleanup-cronjob suspend=False; Saved state: supporting service outside Fleet
+2026-10-28T17:48:23+00:00 FLEET RESTORED VERIFIED: fleet-local/rke2-machineconfig-cleanup-cronjob suspend=False
+2026-10-28T17:48:28+00:00 FLEET RESTORE ACTION: longhorn-system/nas-daily-backup suspend=False; Saved state: supporting service outside Fleet
+2026-10-28T17:48:28+00:00 FLEET RESTORED VERIFIED: longhorn-system/nas-daily-backup suspend=False
+2026-10-28T17:49:10+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:49:25+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:49:25+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
+2026-10-28T17:49:25+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:49:40+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:49:40+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
+2026-10-28T17:49:40+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:49:55+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:49:55+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
+2026-10-28T17:49:55+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:50:10+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:50:10+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
+2026-10-28T17:50:11+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:50:26+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:50:26+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
+2026-10-28T17:50:26+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:50:41+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:50:41+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
+2026-10-28T17:50:41+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:50:56+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:50:56+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
+2026-10-28T17:50:56+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:51:11+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:51:11+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
+2026-10-28T17:51:11+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:51:26+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:51:46+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
+2026-10-28T17:51:46+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:52:01+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:52:22+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
+2026-10-28T17:52:22+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:52:37+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:52:57+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
+2026-10-28T17:52:57+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:53:12+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:53:57+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
+2026-10-28T17:53:57+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:54:12+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:54:13+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:54:13+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:54:28+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:54:35+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:54:35+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:54:50+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:55:03+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
+2026-10-28T17:55:03+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:55:18+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:55:19+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:55:19+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:55:34+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:55:34+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:55:34+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:55:49+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:55:52+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:55:52+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:56:07+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:56:07+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:56:07+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:56:22+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:56:23+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:56:23+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:56:38+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:56:38+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:56:38+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:56:53+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:56:54+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:56:54+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:57:09+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:57:09+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:57:09+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:57:24+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:57:24+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:57:25+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:57:40+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:57:40+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:57:40+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:57:55+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:57:55+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:57:55+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:58:10+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:58:11+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:58:11+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:58:26+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:58:26+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:58:26+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:58:41+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:58:42+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:58:42+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:58:57+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:58:57+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:58:57+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:59:12+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:59:13+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:59:13+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:59:28+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:59:28+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:59:28+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:59:43+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:59:44+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:59:44+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:59:59+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:59:59+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:59:59+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:00:14+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:00:15+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:00:15+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:00:30+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:00:30+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:00:30+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:00:45+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:00:46+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:00:46+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:01:01+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:01:01+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:01:01+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:01:16+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:01:17+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:01:17+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:01:32+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:01:32+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:01:32+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:01:47+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:01:47+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:01:48+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:02:03+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:02:03+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:02:03+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:02:18+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:02:18+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:02:18+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:02:33+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:02:34+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:02:34+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:02:49+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:02:49+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:02:49+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:03:04+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:03:05+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:03:05+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:03:20+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:03:20+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:03:20+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:03:35+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:03:36+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:03:36+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:03:51+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:03:51+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:03:51+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:04:06+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:04:07+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:04:07+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:04:22+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:04:22+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:04:22+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:04:37+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:04:38+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:04:38+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:04:53+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:04:53+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:04:53+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:05:08+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:05:09+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:05:09+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:05:24+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:05:24+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:05:24+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:05:39+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:05:40+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:05:40+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:05:55+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:05:55+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:05:55+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:06:05+00:00 MAINTENANCE WATCH STARTED: Fleet stays stopped during copy; controller resumes after copy verification, agent only after new target BundleDeployment; applications restored to Fleet desired state after migration completion
+2026-10-28T18:06:05+00:00 MAINTENANCE WATCH: restore-controller requested
+2026-10-28T18:06:05+00:00 MAINTENANCE WATCH: restore-agent requested
+2026-10-28T18:06:05+00:00 MAINTENANCE WATCH: Fleet agent restored only after new target deploymentID and active downstream values confirmed both Longhorn claims/one replica/Recreate
+2026-10-28T18:06:05+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:06:06+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:06:06+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:06:21+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:06:21+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:06:21+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:06:36+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:06:37+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:06:37+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:06:52+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:06:52+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:06:52+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:07:07+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:07:08+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:07:08+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:07:23+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:07:24+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:07:24+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:07:39+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:07:39+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:07:40+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:07:55+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:07:55+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:07:55+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:08:10+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:08:10+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:08:11+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:08:26+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:08:26+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:08:26+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:08:41+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:08:41+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:08:42+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:08:57+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:08:57+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:08:57+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:09:12+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:09:13+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:09:13+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:09:28+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:09:28+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:09:28+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:09:43+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:09:44+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:09:44+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:09:59+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:09:59+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:09:59+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:10:07+00:00 POST-RESTORATION RECOVERY: both Mailpile volumes degraded because peer Longhorn manager down (ManagerPodDown), not capacity; peer disk reports110.55Gi free. Normal delete accepted for down manager and Error CSI plugin. Peer process-name audit found no instance-manager/engine processes; normal delete requested for stale ContainerStatusUnknown instance-manager. No force delete, finalizer edit or replica-count reduction. Migration data/source/restore verification passed; final current storage-health audit still pending.
+2026-10-28T18:10:14+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:10:15+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:10:15+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:10:30+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:10:30+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:10:30+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:10:45+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:10:46+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:10:46+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:11:01+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:11:01+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:11:01+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:11:16+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:11:16+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:11:17+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:11:32+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:11:32+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:11:32+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:11:47+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:11:47+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:11:47+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:12:02+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:12:03+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:12:03+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:12:18+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:12:18+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:12:18+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:12:33+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:12:34+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:12:34+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:12:49+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:12:49+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:12:49+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:13:04+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:13:05+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:13:05+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:13:20+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:13:20+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:13:20+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:13:35+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:13:36+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:13:36+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:13:51+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:13:52+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:13:52+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:14:07+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:14:16+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:14:16+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:14:31+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:14:31+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:14:32+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:14:47+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:14:47+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:14:47+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:15:02+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:15:03+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:15:03+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:15:18+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:15:19+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:15:19+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:15:34+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:15:34+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:15:34+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:15:49+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:15:50+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:15:50+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:16:05+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:16:06+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:16:06+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:16:21+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:16:21+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:16:21+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:16:36+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:16:37+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:16:37+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:16:52+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:16:53+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:16:53+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:17:08+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:17:09+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:17:09+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:17:24+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:17:24+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:17:24+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:17:39+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:17:40+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:17:40+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:17:55+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:17:56+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:17:56+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:18:11+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:18:11+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:18:11+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:18:26+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:18:27+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:18:27+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:18:42+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:18:43+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:18:43+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:18:58+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:18:58+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:18:58+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:19:14+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:19:14+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:19:14+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:19:29+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:19:30+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:19:30+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:19:45+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:19:46+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:19:46+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:20:01+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:20:01+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:20:01+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:20:16+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:20:17+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:20:17+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:20:28+00:00 STALE POD API RECORD CLEAR: longhorn-manager-vr89r UID=6bdcd299-a798-4433-b3ce-06709e7491f2; normal deletion stuck; fresh exact-cgroup audit pause-only, no engine processes; UID-preconditioned grace0 API deletion only
+2026-10-28T18:20:28+00:00 STALE POD API RECORD CLEAR: longhorn-csi-plugin-sxzwn UID=15d50c11-8cce-4199-bde6-d8f696d33813; normal deletion stuck; fresh exact-cgroup audit pause-only, no engine processes; UID-preconditioned grace0 API deletion only
+2026-10-28T18:20:28+00:00 STALE POD API RECORD CLEAR: instance-manager-d3fcafc43c01bde60d0358c3be85ac94 UID=a232f23c-29dd-4121-a06e-9a684e8abacf; normal deletion stuck; fresh exact-cgroup audit pause-only, no engine processes; UID-preconditioned grace0 API deletion only
+2026-10-28T18:20:32+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:20:33+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:20:33+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:20:48+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:20:48+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:20:48+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:21:03+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:21:04+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:21:04+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:21:19+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:21:19+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:21:19+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:21:34+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:21:35+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:21:35+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:21:50+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:21:50+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:21:50+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:22:05+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:22:06+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:22:06+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:22:21+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:22:21+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:22:21+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:22:36+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:22:37+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:22:37+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:22:52+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:22:52+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:22:52+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:23:07+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:23:08+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:23:08+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:23:23+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:23:23+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:23:23+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:23:38+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:23:39+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:23:39+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:23:54+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:23:54+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:23:54+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:24:09+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:24:10+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:24:10+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:24:25+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:24:25+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:24:25+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:24:40+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:24:41+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:24:41+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:24:56+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:24:56+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:24:56+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:25:11+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:25:12+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:25:12+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:25:27+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:25:27+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:25:27+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:25:42+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:25:43+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:25:43+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:25:58+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:25:58+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:25:58+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:26:13+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:26:14+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:26:14+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:26:29+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:26:29+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:26:29+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:26:44+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:26:45+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:26:45+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:27:00+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:27:00+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:27:00+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:27:15+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:27:16+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:27:16+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:27:31+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:27:32+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:27:32+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:27:47+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:27:47+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:27:47+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:28:02+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:28:03+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:28:03+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:28:18+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:28:18+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T18:28:18+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T18:28:33+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T18:28:35+00:00 FINAL VALIDATION AND DOCUMENTATION PASSED: Mailpile Ready on targets, Fleet Ready, identical image/env/Opaque Secrets, healthy two-host replicas, retained originals, both HTTPS200, NAS backups/restores verified; inventory complete claims=41 Gi=50.25
+2026-10-28T18:28:41+00:00 FLEET RESTORED VERIFIED: apps-bookstack/bookstack-mariadb replicas=1 (already converged; no patch)
+2026-10-28T18:28:41+00:00 FLEET RESTORED VERIFIED: apps-youtubedl-material/youtubedl-material-mongodb replicas=1 (already converged; no patch)
+2026-10-28T18:28:41+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-postgresql replicas=1 (already converged; no patch)
+2026-10-28T18:28:41+00:00 FLEET RESTORED VERIFIED: apps-audiobookshelf/audiobookshelf replicas=1 (already converged; no patch)
+2026-10-28T18:28:41+00:00 FLEET RESTORED VERIFIED: apps-authelia/authelia replicas=1 (already converged; no patch)
+2026-10-28T18:28:41+00:00 FLEET RESTORED VERIFIED: apps-bazarr/bazarr replicas=1 (already converged; no patch)
+2026-10-28T18:28:41+00:00 FLEET RESTORED VERIFIED: apps-bindery/bindery replicas=1 (already converged; no patch)
+2026-10-28T18:28:41+00:00 FLEET RESTORE ACTION: apps-bookstack/bookstack replicas=1; Fleet bundle bookstack applied deployment s-2b8098b050fb99466a862849ecfbfa306af903a97bf8d24c7f656a138abf8:2a03406aceefe3773d08581dc82c68fa13abaacf4993b89fa4b4fd97c3e6804d
+2026-10-28T18:29:25+00:00 STALE APP POD RECORD CLEAR: apps-cleanuparr/cleanuparr-74647f6df8-x544l UID=91e164a5-d1ae-4579-8de1-d9ff2eab9653; already deleting >60s; exact old cgroup has only pause/no app processes; UID-preconditioned API deletion only
+2026-10-28T18:29:25+00:00 STALE APP POD RECORD CLEAR: apps-jellyseerr/jellyseerr-54d7b9d8d-487tp UID=a891527f-ad87-4323-b3ec-a6cefe7a9c59; already deleting >60s; exact old cgroup has only pause/no app processes; UID-preconditioned API deletion only
+2026-10-28T18:29:25+00:00 STALE APP POD RECORD CLEAR: apps-prowlarr/prowlarr-794d9f8668-r484r UID=99bbaecc-6860-42d2-bc65-f57e73783ee1; already deleting >60s; exact old cgroup has only pause/no app processes; UID-preconditioned API deletion only
+2026-10-28T18:29:25+00:00 STALE APP POD RECORD CLEAR: apps-sonarr/sonarr-56bdffd8d8-5hgsr UID=c74f9111-e610-41f9-b304-54cbd25edbac; already deleting >60s; exact old cgroup has only pause/no app processes; UID-preconditioned API deletion only
+2026-10-28T18:29:26+00:00 STALE APP POD RECORD CLEAR: apps-uptime-kuma/uptime-kuma-6b849c54-4g6bt UID=db56ff4a-8ea9-4fff-9bd9-55e7f9ed3381; already deleting >60s; exact old cgroup has only pause/no app processes; UID-preconditioned API deletion only
+2026-10-28 POST-RESTORE BOOKSTACK CAPACITY FIX:config filesystem224MiB with219MiB used and0available, rw mount. Fleet request256→512Mi prepared; no log/data deletion. Existing RWO/two-replica claim, no PVC migration or bulk copy.
+2026-10-28T18:36:30+00:00 FLEET RESTORED VERIFIED: apps-bookstack/bookstack replicas=1
+2026-10-28T18:36:35+00:00 FLEET RESTORED VERIFIED: apps-calibre/calibre replicas=1 (already converged; no patch)
+2026-10-28T18:36:35+00:00 FLEET RESTORED VERIFIED: apps-calibre/calibre-web replicas=1 (already converged; no patch)
+2026-10-28T18:36:35+00:00 FLEET RESTORED VERIFIED: apps-calibre/kavita replicas=1 (already converged; no patch)
+2026-10-28T18:36:35+00:00 FLEET RESTORE ACTION: apps-cleanuparr/cleanuparr replicas=1; Fleet bundle cleanuparr applied deployment s-2fe8b6b2bbee2cf0bd861e56f798831995ef18b404249aece91e32bb6e13d:cdd3d50d3add9879dd245e3bec98551fc05e2df41c2e9b529ddc3fa2f68252dd
+2026-10-28T18:37:00+00:00 FLEET RESTORED VERIFIED: apps-cleanuparr/cleanuparr replicas=1
+2026-10-28T18:37:05+00:00 FLEET RESTORED VERIFIED: apps-ddclient/ddclient replicas=1 (already converged; no patch)
+2026-10-28T18:37:05+00:00 FLEET RESTORED VERIFIED: apps-docker-mailserver/docker-mailserver replicas=1 (already converged; no patch)
+2026-10-28T18:37:05+00:00 FLEET RESTORED VERIFIED: apps-duckdns/duckdns replicas=1 (already converged; no patch)
+2026-10-28T18:37:05+00:00 FLEET RESTORED VERIFIED: apps-filebot/filebot replicas=0 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-flaresolverr/flaresolverr replicas=1 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-homer/homer replicas=1 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-homer/homer-without-auth replicas=1 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-homer-test/homer-test replicas=2 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-jellyseerr/jellyseerr replicas=1 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-openbooks/openbooks replicas=1 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-profilarr/profilarr replicas=1 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-prowlarr/prowlarr replicas=1 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-radarr/radarr replicas=1 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-scrutiny/scrutiny replicas=1 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-smokeping/smokeping replicas=1 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-sonarr/sonarr replicas=1 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-ubooquity/ubooquity replicas=1 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-uptime-kuma/uptime-kuma replicas=1 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-youtubedl-material/youtubedl-material replicas=1 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-zabbix-server replicas=1 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-zabbix-web replicas=1 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-zabbix-webservice replicas=1 (already converged; no patch)
+2026-10-28T18:37:06+00:00 FLEET RESTORED VERIFIED: cattle-capi-system/capi-controller-manager replicas=1 (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORED VERIFIED: cattle-fleet-local-system/fleet-agent replicas=1 (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORED VERIFIED: cattle-fleet-system/fleet-controller replicas=1 (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORED VERIFIED: cattle-system/rancher replicas=3 (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORED VERIFIED: cattle-system/system-upgrade-controller replicas=1 (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORED VERIFIED: cattle-turtles-system/rancher-turtles-controller-manager replicas=1 (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORED VERIFIED: cloudcasa-io/cloudcasa-kubeagent-manager replicas=1 (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORED VERIFIED: cloudcasa-io/kubeagent replicas=1 (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORED VERIFIED: kube-system/metrics-server replicas=1 (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORED VERIFIED: longhorn-system/longhorn-ui replicas=2 (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORED VERIFIED: cattle-fleet-system/gitjob replicas=1 (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORED VERIFIED: cattle-fleet-system/helmops replicas=1 (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORED VERIFIED: apps-calibre/calibre-cover-maintenance suspend=False (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORED VERIFIED: apps-homer/homer-without-auth-config-copy suspend=False (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-nodesclean suspend=False (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORED VERIFIED: cattle-fleet-system/fleet-cleanup-gitrepo-jobs suspend=False (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORED VERIFIED: fleet-local/rke2-machineconfig-cleanup-cronjob suspend=False (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORED VERIFIED: longhorn-system/nas-daily-backup suspend=False (already converged; no patch)
+2026-10-28T18:37:07+00:00 FLEET RESTORATION COMPLETE: application scales match applied Fleet manifests; supporting services/schedules restored and rollouts verified; unchanged pre-existing Fleet exceptions=1
+2026-10-28T18:37:07+00:00 MAINTENANCE WATCH COMPLETE: applications restored to verified Fleet desired state after successful Mailpile migration; supporting services/schedules restored
+2026-10-28T18:41:14+00:00 COMPLETION AUDIT: all52 targets restored/currently Ready as applicable; Mailpile volumes healthy/two RW replicas each; both HTTP200/Fleet final checks passed. BookStack resize512Mi applied/Fleet Ready and filesystem240Mi free; Cleanuparr obsolete attachment cleanup resolved startup. CloudCasa unchanged pre-maintenance template drift recorded as explicit exception, not claimed Fleet Ready. Live Bound Longhorn46claims79.259765625Gi inclidle/test. Original Mailpile claims retained; docs updated; no commit/push.

@@ -1,69 +1,13 @@
 # Remaining migration priority — refreshed 2026-10-26
 
-**Mailpile completed — 2026-10-28T17:43:13+00:00:** final planned migration finished last.
-Mailpile uses 12Gi data + 256Mi keys on Longhorn RWO/two replicas. Planned inventory
-now records **41 completed claims / 50.25Gi requested**. No planned
-application remains on active local-path storage; Mailpile's two original local
-claims are retained unused rollback copies, not live mounts. Earlier pending/
-staging and active-local statements below are historical, superseded by this
-completion. See [results](migrations/mailpile-2026-10-26/RESULTS.md) and
-[action log](migrations/mailpile-2026-10-26/ACTIONS.log). User functional tests
-remain; no default replica policy or general migration cap was changed.
+**Mailpile completed — 2026-10-28T18:41:14+00:00:** Mailpile runs on12Gi data +256Mi keys, RWO/two healthy replicas. All52 maintenance targets are restored to Fleet desired state and Ready where applicable. Live inventory: **46 Bound Longhorn claims /79.259765625Gi requested**, including idle retained/test claims. BookStack config is now512Mi (online expansion after a full-filesystem startup failure). CloudCasa has one documented unchanged pre-existing template-drift exception; its agent is Ready. See [migration results](migrations/mailpile-2026-10-26/RESULTS.md) and [restoration report](migrations/mailpile-2026-10-26/RESTORATION.json). Original Mailpile local claims remain unused rollback copies.
 
 
-**Mailpile completed — 2026-10-28T17:17:16+00:00:** final planned migration finished last.
-Mailpile uses 12Gi data + 256Mi keys on Longhorn RWO/two replicas. Planned inventory
-now records **41 completed claims / 50.25Gi requested**. No planned
-application remains on active local-path storage; Mailpile's two original local
-claims are retained unused rollback copies, not live mounts. Earlier pending/
-staging and active-local statements below are historical, superseded by this
-completion. See [results](migrations/mailpile-2026-10-26/RESULTS.md) and
-[action log](migrations/mailpile-2026-10-26/ACTIONS.log). User functional tests
-remain; no default replica policy or general migration cap was changed.
 
 
-**Mailpile completed — 2026-10-28T17:00:21+00:00:** final planned migration finished last.
-Mailpile uses 12Gi data + 256Mi keys on Longhorn RWO/two replicas. Planned inventory
-now records **41 completed claims / 50.25Gi requested**. No planned
-application remains on active local-path storage; Mailpile's two original local
-claims are retained unused rollback copies, not live mounts. Earlier pending/
-staging and active-local statements below are historical, superseded by this
-completion. See [results](migrations/mailpile-2026-10-26/RESULTS.md) and
-[action log](migrations/mailpile-2026-10-26/ACTIONS.log). User functional tests
-remain; no default replica policy or general migration cap was changed.
 
 
-**Mailpile completed — 2026-10-28T16:48:17+00:00:** final planned migration finished last.
-Mailpile uses 12Gi data + 256Mi keys on Longhorn RWO/two replicas. Planned inventory
-now records **41 completed claims / 50.25Gi requested**. No planned
-application remains on active local-path storage; Mailpile's two original local
-claims are retained unused rollback copies, not live mounts. Earlier pending/
-staging and active-local statements below are historical, superseded by this
-completion. See [results](migrations/mailpile-2026-10-26/RESULTS.md) and
-[action log](migrations/mailpile-2026-10-26/ACTIONS.log). User functional tests
-remain; no default replica policy or general migration cap was changed.
 
-
-**Mailpile completed — 2026-10-28T16:10:16+00:00:** final planned migration finished last.
-Mailpile uses 12Gi data + 256Mi keys on Longhorn RWO/two replicas. Planned inventory
-now records **41 completed claims / 50.25Gi requested**. No planned
-application remains on active local-path storage; Mailpile's two original local
-claims are retained unused rollback copies, not live mounts. Earlier pending/
-staging and active-local statements below are historical, superseded by this
-completion. See [results](migrations/mailpile-2026-10-26/RESULTS.md) and
-[action log](migrations/mailpile-2026-10-26/ACTIONS.log). User functional tests
-remain; no default replica policy or general migration cap was changed.
-
-
-**Mailpile completed — 2026-10-28T16:10:02+00:00:** final planned migration finished last.
-Mailpile uses 12Gi data + 256Mi keys on Longhorn RWO/two replicas. Planned inventory
-now records **41 completed claims / 50.25Gi requested**. No planned
-application remains on active local-path storage; Mailpile's two original local
-claims are retained unused rollback copies, not live mounts. Earlier pending/
-staging and active-local statements below are historical, superseded by this
-completion. See [results](migrations/mailpile-2026-10-26/RESULTS.md) and
-[action log](migrations/mailpile-2026-10-26/ACTIONS.log). User functional tests
-remain; no default replica policy or general migration cap was changed.
 
 
 **Mailpile preparation update — 2026-10-26:** user authorized the final migration.
