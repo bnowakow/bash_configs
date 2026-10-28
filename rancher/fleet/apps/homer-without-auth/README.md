@@ -2,7 +2,9 @@
 
 This copies the Homer chart and editor with `homer-without-auth` hostnames.
 It shares the `apps-homer` namespace so the copy Job can mount the original
-`homer-config` PVC read-only and its own `homer-without-auth-config` PVC.
+`homer-config-longhorn-rwo` PVC read-only and its own
+`homer-without-auth-config-longhorn-rwo` PVC. Both claims are managed by the
+`longhorn-pilot-storage` bundle; the config-copy bundle declares no local-path claim.
 
 Fleet installs `homer-without-auth-config-copy` after Homer, then waits for its
 Job to finish before installing this instance. The Job copies all assets and
@@ -19,7 +21,7 @@ To refresh immediately, delete the completed deployment Job and let Fleet
 recreate it:
 
 ```sh
-kubectl -n apps-homer delete job homer-without-auth-config-copy
+kubectl -n apps-homer delete job homer-without-auth-config-copy-longhorn
 ```
 
 The existing Homer authentication routes match only the original hostnames.
