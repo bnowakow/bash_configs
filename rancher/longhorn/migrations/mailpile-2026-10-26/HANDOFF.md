@@ -1,5 +1,8 @@
 # Current verification controls —27October18:20UTC
 
+**Subsequent runtime outage — 2026-10-28T18:56:07+00:00:** both Mailpile volumes are degraded again and HTTPS returns503/no available server; both APIs intermittently unready, peer full I/O PSI74.2%. Earlier verification/restoration passed, but current runtime health has regressed. See [incident](RUNTIME-OUTAGE-2026-10-28.md).
+
+
 ## Current status — 2026-10-28T18:41:14+00:00
 
 Migration verification100% passed, Mailpile on healthy two-replica Longhorn claims, and all52 maintenance targets restored to Fleet desired state. RESTORATION.json and RESULTS.md are the final records. CloudCasa remains a documented unchanged pre-existing Fleet template-drift exception with a Ready agent. Original Mailpile PVCs retained; no active bulk copy/verifier; no commit/push. Post-restoration peer runtime recovery and BookStack256→512Mi config expansion are documented in ACTIONS.log. Historical running/pending sections below are superseded.

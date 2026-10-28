@@ -1,5 +1,8 @@
 # Mailpile migration completed — 2026-10-28T18:28:35+00:00
 
+**Subsequent runtime outage — 2026-10-28T18:56:07+00:00:** both Mailpile volumes are degraded again and HTTPS returns503/no available server; both APIs intermittently unready, peer full I/O PSI74.2%. Earlier verification/restoration passed, but current runtime health has regressed. See [incident](RUNTIME-OUTAGE-2026-10-28.md).
+
+
 Mailpile now runs on **12Gi data + 256Mi keys**, RWO with **two healthy replicas
 on distinct hosts**. One app instance, Recreate. Current chart/image/env and
 Opaque Secret data were preserved. Actual pod target mounts, Fleet deployment
