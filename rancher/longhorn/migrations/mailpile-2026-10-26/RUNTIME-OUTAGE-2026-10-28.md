@@ -11,3 +11,10 @@ This is a later runtime incident after successful migration, full source/restore
 - No new migration copy or verification is running. Original Mailpile PVCs and verified NAS backup records are retained. No restart, scale-down, volume deletion or configuration mutation was performed during this diagnostic turn.
 
 Stabilize API/etcd and investigate host I/O pressure, then inspect Mailpile Pod readiness/endpoints/logs and current engine replica modes. Preserve live Longhorn data and do not switch back to stale local originals. The API outage currently blocks a reliable application diagnosis.
+
+## Recovery investigation — 2026-10-28T19:02:47.529938+00:00
+
+- Confirmed peer `/var/lib/longhorn` is ext4 on `/dev/zd0`. Two one-second samples showed approximately 250 MiB/s reads on that device, 99–100% utilization and 21–24 ms read latency. Underlying NVMe showed 91–92% utilization and 63–75 ms write latency. These short samples establish substantial storage activity/latency, not which process caused it.
+- Peer ZFS rpool reports healthy, but physical free space was approximately 35.17 GiB. This differs from free space inside the Longhorn ext4 filesystem.
+- Latest sampled full I/O PSI: peer24.56%, local14.70%; local k3s NRestarts181. Peer API explicitly failed etcd/etcd-readiness. Backup/rebuild inventory unavailable through the unstable API.
+- Recommended recovery order: identify and pause nonessential bulk storage activity; if necessary temporarily quiesce application workloads using a fresh replica/schedule snapshot, preserving Kubernetes/DNS/admission/Longhorn/CSI; investigate host disk/ZFS/etcd latency with root access; restore applications gradually after stable API and storage health. Do not blindly restart k3s, stop Longhorn engines, or reuse the migration's obsolete shutdown snapshot. No new workload or storage changes performed.
