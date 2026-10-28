@@ -2467,3 +2467,534 @@
 2026-10-28T16:46:24+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
 2026-10-28T16:46:24+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
 2026-10-28T16:46:39+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T16:47:24+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
+2026-10-28T16:47:24+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T16:47:39+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T16:48:00+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
+2026-10-28T16:48:00+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T16:48:15+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T16:48:17+00:00 FINAL VALIDATION AND DOCUMENTATION PASSED: Mailpile Ready on targets, Fleet Ready, identical image/env/Opaque Secrets, healthy two-host replicas, retained originals, both HTTPS200, NAS backups/restores verified; inventory complete claims=41 Gi=50.25
+2026-10-28T16:48:31+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:48:46+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:49:01+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:49:17+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:49:32+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:49:48+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:50:03+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:50:18+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:50:34+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:50:50+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:51:05+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:51:20+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:51:36+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:51:51+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:52:07+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:52:22+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:52:38+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:52:53+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:53:08+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:53:23+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:53:39+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:53:54+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:54:09+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:54:25+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:54:40+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:54:55+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:55:10+00:00 FLEET RESTORE ACTION: apps-bookstack/bookstack-mariadb replicas=1; Fleet bundle bookstack applied deployment s-2b8098b050fb99466a862849ecfbfa306af903a97bf8d24c7f656a138abf8:2a03406aceefe3773d08581dc82c68fa13abaacf4993b89fa4b4fd97c3e6804d
+2026-10-28T16:55:11+00:00 FLEET RESTORED VERIFIED: apps-bookstack/bookstack-mariadb replicas=1
+2026-10-28T16:55:16+00:00 FLEET RESTORE ACTION: apps-youtubedl-material/youtubedl-material-mongodb replicas=1; Fleet bundle youtubedl-material applied deployment s-5f090a79e227d1d7976634ba3af550ca2aa7b0735c01304b1d8aa17db5afa:d86531ae31522e2d7f0017bc065611a9c5b1e1d205eeec31f8ca6bfc786660f6
+2026-10-28T16:55:16+00:00 FLEET RESTORED VERIFIED: apps-youtubedl-material/youtubedl-material-mongodb replicas=1
+2026-10-28T16:55:21+00:00 FLEET RESTORE ACTION: apps-zabbix/zabbix-postgresql replicas=1; Fleet bundle zabbix applied deployment s-fe77b1719efd2c8e21e00b8bcd8e74c453734da07850da186f729775e77ac:b96aa3dc290a17fef98cd9a915124571c188925f4cd18a29f0f2d7066f1fac9e
+2026-10-28T16:55:22+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-postgresql replicas=1
+2026-10-28T16:55:27+00:00 FLEET RESTORE ACTION: apps-audiobookshelf/audiobookshelf replicas=1; Fleet bundle audiobookshelf applied deployment s-5a802b2aadc015f6e5cded22768bfb089ba363400e3f578512913a7d7a730:890d32ca4341c9430011fca035fcbaec5ccf3c7e4d289aeba295a6356ded2edf
+2026-10-28T16:55:27+00:00 FLEET RESTORED VERIFIED: apps-audiobookshelf/audiobookshelf replicas=1
+2026-10-28T16:55:32+00:00 FLEET RESTORE ACTION: apps-authelia/authelia replicas=1; Fleet bundle authelia applied deployment s-83e0ee7bf3858ed61519b098b540f3ddd9c3ba05f07dd8dfc7f59a873af99:712eb842c2bf3d47e66eec7270692455ee986e4dcf5cf27a2210aed34cef5633
+2026-10-28T16:55:33+00:00 FLEET RESTORED VERIFIED: apps-authelia/authelia replicas=1
+2026-10-28T16:55:38+00:00 FLEET RESTORE ACTION: apps-bazarr/bazarr replicas=1; Fleet bundle bazarr applied deployment s-739aa19618b0182331441eaf632669a9b02b2d86a3782bad1cb12ff19fa96:22adaf02ffb055d44931f21fba24e2c3ac0274d09ca5467f6255d48d0305b02e
+2026-10-28T16:55:38+00:00 FLEET RESTORED VERIFIED: apps-bazarr/bazarr replicas=1
+2026-10-28T16:55:43+00:00 FLEET RESTORE ACTION: apps-bindery/bindery replicas=1; Fleet bundle bindery applied deployment s-fa59ca6ae3f04dc4b59c6f4440330f52c624dedf2b3107ea263b03c8be597:b553523d2219ed2c08ac18ee0f8bffcd63f1269758a51e68eacc8ec81adff02f
+2026-10-28T16:55:43+00:00 FLEET RESTORED VERIFIED: apps-bindery/bindery replicas=1
+2026-10-28T16:55:49+00:00 FLEET RESTORE ACTION: apps-bookstack/bookstack replicas=1; Fleet bundle bookstack applied deployment s-2b8098b050fb99466a862849ecfbfa306af903a97bf8d24c7f656a138abf8:2a03406aceefe3773d08581dc82c68fa13abaacf4993b89fa4b4fd97c3e6804d
+2026-10-28T16:55:49+00:00 FLEET RESTORED VERIFIED: apps-bookstack/bookstack replicas=1
+2026-10-28T16:55:54+00:00 FLEET RESTORE ACTION: apps-calibre/calibre replicas=1; Fleet bundle calibre applied deployment s-f2169ea21b6358507815b964555155148f6a2126f8a6dddf71181ffb50c3d:1532cf57a3fe2599d73335e493873b488aed3b7f6882dbc306dda52af9cbc0c1
+2026-10-28T16:55:55+00:00 FLEET RESTORED VERIFIED: apps-calibre/calibre replicas=1
+2026-10-28T16:56:00+00:00 FLEET RESTORE ACTION: apps-calibre/calibre-web replicas=1; Fleet bundle calibre-web applied deployment s-ad311077fe6f73698011445c9a5b518575b8cd7db29af613ce225be6e874b:dcdcad51f7555163aead0e79791cb3dd6a25bf8638d05df665cf38479d205d3e
+2026-10-28T16:56:00+00:00 FLEET RESTORED VERIFIED: apps-calibre/calibre-web replicas=1
+2026-10-28T16:56:05+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:56:21+00:00 FLEET RESTORE ACTION: apps-calibre/kavita replicas=1; Fleet bundle kavita applied deployment s-cde268b70637796de8f7dbf1d6a2ed67e9ad22610863fd2d5a4e93ddcdd34:ddc7db12c0ff02416533a91010794d525d2cc1cf68ebca0bc211ea7363cc1082
+2026-10-28T16:56:21+00:00 FLEET RESTORED VERIFIED: apps-calibre/kavita replicas=1
+2026-10-28T16:56:26+00:00 FLEET RESTORE ACTION: apps-cleanuparr/cleanuparr replicas=1; Fleet bundle cleanuparr applied deployment s-2fe8b6b2bbee2cf0bd861e56f798831995ef18b404249aece91e32bb6e13d:cdd3d50d3add9879dd245e3bec98551fc05e2df41c2e9b529ddc3fa2f68252dd
+2026-10-28T16:56:26+00:00 FLEET RESTORED VERIFIED: apps-cleanuparr/cleanuparr replicas=1
+2026-10-28T16:56:31+00:00 FLEET RESTORE ACTION: apps-ddclient/ddclient replicas=1; Fleet bundle ddclient applied deployment s-b9eb341d614e555d96df58aea3af24db9db915ff50ac1fcbebfa815903620:d19f09c8cec3f9edbe434f878b5b2551317b97a2eb25f2c2042d69776ac4e5d5
+2026-10-28T16:56:32+00:00 FLEET RESTORED VERIFIED: apps-ddclient/ddclient replicas=1
+2026-10-28T16:56:37+00:00 FLEET RESTORE ACTION: apps-docker-mailserver/docker-mailserver replicas=1; Fleet bundle docker-mailserver applied deployment s-7f25a82d855b27a1e6e973ddbcb8af656581643073fdf4803427ead14f6f3:f20023405df08ad9e0d720b19ff0c4c257365a6bf6317ff3bf7bc945d5f247b8
+2026-10-28T16:56:37+00:00 FLEET RESTORED VERIFIED: apps-docker-mailserver/docker-mailserver replicas=1
+2026-10-28T16:56:42+00:00 FLEET RESTORE ACTION: apps-duckdns/duckdns replicas=1; Fleet bundle duckdns applied deployment s-b4729c5517f448f59c37694f445e171374de0a663f538f58ac0e1c8deb70f:ee93b575e9406593035d568685b07ed24673c86aed990471a110ef5b3166f171
+2026-10-28T16:56:42+00:00 FLEET RESTORED VERIFIED: apps-duckdns/duckdns replicas=1
+2026-10-28T16:56:48+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:57:03+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:57:19+00:00 FLEET RESTORE ACTION: apps-filebot/filebot replicas=0; Fleet bundle filebot applied deployment s-6411366ac8911dd52c9a4db4725e9be1223563f90416f20aeb3e9d3bc5207:6151c1ed33629c16e7ac1c44f6c58cdfdbec159e1f08c3e9b43e90c9e8988f43
+2026-10-28T16:57:19+00:00 FLEET RESTORED VERIFIED: apps-filebot/filebot replicas=0
+2026-10-28T16:57:24+00:00 FLEET RESTORE ACTION: apps-flaresolverr/flaresolverr replicas=1; Fleet bundle flaresolverr applied deployment s-0b5b49614d1c0906ad186b606f97982cceca74449bba6db3e99969b3246fd:ecb6000ba0f77844a5d268cd97e2cebd7c77b19657fec80e83fc378496d7357b
+2026-10-28T16:57:24+00:00 FLEET RESTORED VERIFIED: apps-flaresolverr/flaresolverr replicas=1
+2026-10-28T16:57:29+00:00 FLEET RESTORE ACTION: apps-homer/homer replicas=1; Fleet bundle homer applied deployment s-c1b94b4983baff49b38421b17f039bc5dc2c225fd3dc5dd036a14f0a23e16:7a860753f4d550895ce1671d83ee591d100831c066a0b8ca08dcbb51536d55ca
+2026-10-28T16:57:30+00:00 FLEET RESTORED VERIFIED: apps-homer/homer replicas=1
+2026-10-28T16:57:35+00:00 FLEET RESTORE ACTION: apps-homer/homer-without-auth replicas=1; Fleet bundle homer-without-auth applied deployment s-3972028e428d867c554d353919479e435d7abd9b19d16c14a2f8b2cfb85b1:c90e10fbdeef7bc6feb2d20b4d2b9291599d86b2de123e8afe81d2ecdaa2b548
+2026-10-28T16:57:35+00:00 FLEET RESTORED VERIFIED: apps-homer/homer-without-auth replicas=1
+2026-10-28T16:57:40+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:57:56+00:00 FLEET RESTORE ACTION: apps-homer-test/homer-test replicas=2; Fleet bundle homer-test applied deployment s-9eab2efd316b28aaa8eab095b874c8b5361fa5fe7b825ceaf436017d0be9b:f7742df4ad176455853f76f5b88b32caf826aa670e31bf75e0097dd1b6b310c6
+2026-10-28T16:57:56+00:00 FLEET RESTORED VERIFIED: apps-homer-test/homer-test replicas=2
+2026-10-28T16:58:01+00:00 FLEET RESTORE ACTION: apps-jellyseerr/jellyseerr replicas=1; Fleet bundle jellyseerr applied deployment s-bb5293af139cda7cae99b12cb77f80420286bf768078a90f97c403550a9a9:fb0a0e53d54f6dcd32e00b56df0ef2d3d5eb29352648a65bc05296d504cd393d
+2026-10-28T16:58:01+00:00 FLEET RESTORED VERIFIED: apps-jellyseerr/jellyseerr replicas=1
+2026-10-28T16:58:07+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:58:22+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:58:37+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:58:52+00:00 FLEET RESTORE ACTION: apps-openbooks/openbooks replicas=1; Fleet bundle openbooks applied deployment s-7fbd7f390dd1e17b99f85f082983fb8a5c58872549ff689d60a9b92556a56:c565aeaea3d120608ef952b6ebab8f8932c8e35d166a35b5c6df70c49eb2f8d0
+2026-10-28T16:58:53+00:00 FLEET RESTORED VERIFIED: apps-openbooks/openbooks replicas=1
+2026-10-28T16:58:58+00:00 FLEET RESTORE ACTION: apps-profilarr/profilarr replicas=1; Fleet bundle profilarr applied deployment s-d89f1538d69ee13b7f440627eb7d74b8d2560a634a2eafa555460d1b3288e:dcaa34a01d1ed79cd4f9a513885d01844d3c5daca57d747dda7d7748caf50755
+2026-10-28T16:58:58+00:00 FLEET RESTORED VERIFIED: apps-profilarr/profilarr replicas=1
+2026-10-28T16:59:03+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T16:59:19+00:00 FLEET RESTORE ACTION: apps-prowlarr/prowlarr replicas=1; Fleet bundle prowlarr applied deployment s-9f45984dd8b59ff798e799148951e5ea8ecbdff2854ef67d6aea1a13ffd65:47fbb65bd55076940f9bcd340a7857b052032cd96ac5b2a3bbe5034d94d96498
+2026-10-28T16:59:19+00:00 FLEET RESTORED VERIFIED: apps-prowlarr/prowlarr replicas=1
+2026-10-28T16:59:24+00:00 FLEET RESTORE ACTION: apps-radarr/radarr replicas=1; Fleet bundle radarr applied deployment s-afbbd29bf3f309ebbf023d6735fa5fa7d28cb8f00e71b0dd5608402bca8c0:f700827e91d1b328f6cc3a8b44f34bcc10515d32872658d62a6bf7a95e42183c
+2026-10-28T16:59:24+00:00 FLEET RESTORED VERIFIED: apps-radarr/radarr replicas=1
+2026-10-28T16:59:29+00:00 FLEET RESTORE ACTION: apps-scrutiny/scrutiny replicas=1; Fleet bundle scrutiny applied deployment s-80186df5fbca6fc883907478527beced24a1f867a6c97d61a600d947825f2:008a5468d7a43d226944cc3d9bdad0b4cc945db343c087fa0050b9860fe945b1
+2026-10-28T16:59:30+00:00 FLEET RESTORED VERIFIED: apps-scrutiny/scrutiny replicas=1
+2026-10-28T16:59:35+00:00 FLEET RESTORE ACTION: apps-smokeping/smokeping replicas=1; Fleet bundle smokeping applied deployment s-c9f7491076c5afd641b4bb8be406de7db94b0c3bdbaa307f1f5dbd2f33d20:cc5c8e116065694f8c7f81112acf0453a90ca01dd8ea247fb66d5fbdbf4274f3
+2026-10-28T16:59:35+00:00 FLEET RESTORED VERIFIED: apps-smokeping/smokeping replicas=1
+2026-10-28T16:59:41+00:00 FLEET RESTORE ACTION: apps-sonarr/sonarr replicas=1; Fleet bundle sonarr applied deployment s-fb1e87c9751c077ddacd05abd179017f8f54fbc5eb0f4e6d9b33cfbedcf5b:1e99dfd2720f75a6cd0dd2e7706f01c06529673cc0773d6813153352cd138ca2
+2026-10-28T16:59:41+00:00 FLEET RESTORED VERIFIED: apps-sonarr/sonarr replicas=1
+2026-10-28T16:59:50+00:00 FLEET RESTORE ACTION: apps-ubooquity/ubooquity replicas=1; Fleet bundle ubooquity applied deployment s-e3318ba6c234b64342aaaee35859ef576a7358e66b1ac6403a528404cfddb:b6ef9fd3cca9c2cdb3dc5536435c0293a15ae616b0ad0725cd07fe8f06923986
+2026-10-28T17:00:05+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:00:20+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:00:21+00:00 FINAL VALIDATION AND DOCUMENTATION PASSED: Mailpile Ready on targets, Fleet Ready, identical image/env/Opaque Secrets, healthy two-host replicas, retained originals, both HTTPS200, NAS backups/restores verified; inventory complete claims=41 Gi=50.25
+2026-10-28T17:00:30+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:00:45+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:01:01+00:00 FLEET RESTORE ACTION: apps-bookstack/bookstack-mariadb replicas=1; Fleet bundle bookstack applied deployment s-2b8098b050fb99466a862849ecfbfa306af903a97bf8d24c7f656a138abf8:2a03406aceefe3773d08581dc82c68fa13abaacf4993b89fa4b4fd97c3e6804d
+2026-10-28T17:01:01+00:00 FLEET RESTORED VERIFIED: apps-bookstack/bookstack-mariadb replicas=1
+2026-10-28T17:01:06+00:00 FLEET RESTORE ACTION: apps-youtubedl-material/youtubedl-material-mongodb replicas=1; Fleet bundle youtubedl-material applied deployment s-5f090a79e227d1d7976634ba3af550ca2aa7b0735c01304b1d8aa17db5afa:d86531ae31522e2d7f0017bc065611a9c5b1e1d205eeec31f8ca6bfc786660f6
+2026-10-28T17:01:06+00:00 FLEET RESTORED VERIFIED: apps-youtubedl-material/youtubedl-material-mongodb replicas=1
+2026-10-28T17:01:12+00:00 FLEET RESTORE ACTION: apps-zabbix/zabbix-postgresql replicas=1; Fleet bundle zabbix applied deployment s-fe77b1719efd2c8e21e00b8bcd8e74c453734da07850da186f729775e77ac:b96aa3dc290a17fef98cd9a915124571c188925f4cd18a29f0f2d7066f1fac9e
+2026-10-28T17:01:12+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-postgresql replicas=1
+2026-10-28T17:01:17+00:00 FLEET RESTORE ACTION: apps-audiobookshelf/audiobookshelf replicas=1; Fleet bundle audiobookshelf applied deployment s-5a802b2aadc015f6e5cded22768bfb089ba363400e3f578512913a7d7a730:890d32ca4341c9430011fca035fcbaec5ccf3c7e4d289aeba295a6356ded2edf
+2026-10-28T17:01:17+00:00 FLEET RESTORED VERIFIED: apps-audiobookshelf/audiobookshelf replicas=1
+2026-10-28T17:01:22+00:00 FLEET RESTORE ACTION: apps-authelia/authelia replicas=1; Fleet bundle authelia applied deployment s-83e0ee7bf3858ed61519b098b540f3ddd9c3ba05f07dd8dfc7f59a873af99:712eb842c2bf3d47e66eec7270692455ee986e4dcf5cf27a2210aed34cef5633
+2026-10-28T17:01:23+00:00 FLEET RESTORED VERIFIED: apps-authelia/authelia replicas=1
+2026-10-28T17:01:28+00:00 FLEET RESTORE ACTION: apps-bazarr/bazarr replicas=1; Fleet bundle bazarr applied deployment s-739aa19618b0182331441eaf632669a9b02b2d86a3782bad1cb12ff19fa96:22adaf02ffb055d44931f21fba24e2c3ac0274d09ca5467f6255d48d0305b02e
+2026-10-28T17:01:28+00:00 FLEET RESTORED VERIFIED: apps-bazarr/bazarr replicas=1
+2026-10-28T17:01:33+00:00 FLEET RESTORE ACTION: apps-bindery/bindery replicas=1; Fleet bundle bindery applied deployment s-fa59ca6ae3f04dc4b59c6f4440330f52c624dedf2b3107ea263b03c8be597:b553523d2219ed2c08ac18ee0f8bffcd63f1269758a51e68eacc8ec81adff02f
+2026-10-28T17:01:34+00:00 FLEET RESTORED VERIFIED: apps-bindery/bindery replicas=1
+2026-10-28T17:01:39+00:00 FLEET RESTORE ACTION: apps-bookstack/bookstack replicas=1; Fleet bundle bookstack applied deployment s-2b8098b050fb99466a862849ecfbfa306af903a97bf8d24c7f656a138abf8:2a03406aceefe3773d08581dc82c68fa13abaacf4993b89fa4b4fd97c3e6804d
+2026-10-28T17:01:39+00:00 FLEET RESTORED VERIFIED: apps-bookstack/bookstack replicas=1
+2026-10-28T17:01:44+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:02:00+00:00 FLEET RESTORE ACTION: apps-calibre/calibre replicas=1; Fleet bundle calibre applied deployment s-f2169ea21b6358507815b964555155148f6a2126f8a6dddf71181ffb50c3d:1532cf57a3fe2599d73335e493873b488aed3b7f6882dbc306dda52af9cbc0c1
+2026-10-28T17:02:00+00:00 FLEET RESTORED VERIFIED: apps-calibre/calibre replicas=1
+2026-10-28T17:02:05+00:00 FLEET RESTORE ACTION: apps-calibre/calibre-web replicas=1; Fleet bundle calibre-web applied deployment s-ad311077fe6f73698011445c9a5b518575b8cd7db29af613ce225be6e874b:dcdcad51f7555163aead0e79791cb3dd6a25bf8638d05df665cf38479d205d3e
+2026-10-28T17:02:05+00:00 FLEET RESTORED VERIFIED: apps-calibre/calibre-web replicas=1
+2026-10-28T17:02:10+00:00 FLEET RESTORE ACTION: apps-calibre/kavita replicas=1; Fleet bundle kavita applied deployment s-cde268b70637796de8f7dbf1d6a2ed67e9ad22610863fd2d5a4e93ddcdd34:ddc7db12c0ff02416533a91010794d525d2cc1cf68ebca0bc211ea7363cc1082
+2026-10-28T17:02:11+00:00 FLEET RESTORED VERIFIED: apps-calibre/kavita replicas=1
+2026-10-28T17:02:16+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:02:31+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:02:46+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:03:02+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:03:17+00:00 FLEET RESTORE ACTION: apps-cleanuparr/cleanuparr replicas=1; Fleet bundle cleanuparr applied deployment s-2fe8b6b2bbee2cf0bd861e56f798831995ef18b404249aece91e32bb6e13d:cdd3d50d3add9879dd245e3bec98551fc05e2df41c2e9b529ddc3fa2f68252dd
+2026-10-28T17:03:17+00:00 FLEET RESTORED VERIFIED: apps-cleanuparr/cleanuparr replicas=1
+2026-10-28T17:03:22+00:00 FLEET RESTORE ACTION: apps-ddclient/ddclient replicas=1; Fleet bundle ddclient applied deployment s-b9eb341d614e555d96df58aea3af24db9db915ff50ac1fcbebfa815903620:d19f09c8cec3f9edbe434f878b5b2551317b97a2eb25f2c2042d69776ac4e5d5
+2026-10-28T17:03:23+00:00 FLEET RESTORED VERIFIED: apps-ddclient/ddclient replicas=1
+2026-10-28T17:03:28+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:03:43+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:03:58+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:04:14+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:04:29+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:04:44+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:04:59+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:05:15+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:05:30+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:05:45+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:06:00+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:06:16+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:06:31+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:06:46+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:07:01+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:07:17+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:07:32+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:07:47+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:08:02+00:00 FLEET RESTORE ACTION: apps-docker-mailserver/docker-mailserver replicas=1; Fleet bundle docker-mailserver applied deployment s-7f25a82d855b27a1e6e973ddbcb8af656581643073fdf4803427ead14f6f3:f20023405df08ad9e0d720b19ff0c4c257365a6bf6317ff3bf7bc945d5f247b8
+2026-10-28T17:08:03+00:00 FLEET RESTORED VERIFIED: apps-docker-mailserver/docker-mailserver replicas=1
+2026-10-28T17:08:08+00:00 FLEET RESTORE ACTION: apps-duckdns/duckdns replicas=1; Fleet bundle duckdns applied deployment s-b4729c5517f448f59c37694f445e171374de0a663f538f58ac0e1c8deb70f:ee93b575e9406593035d568685b07ed24673c86aed990471a110ef5b3166f171
+2026-10-28T17:08:08+00:00 FLEET RESTORED VERIFIED: apps-duckdns/duckdns replicas=1
+2026-10-28T17:08:13+00:00 FLEET RESTORE ACTION: apps-filebot/filebot replicas=0; Fleet bundle filebot applied deployment s-6411366ac8911dd52c9a4db4725e9be1223563f90416f20aeb3e9d3bc5207:6151c1ed33629c16e7ac1c44f6c58cdfdbec159e1f08c3e9b43e90c9e8988f43
+2026-10-28T17:08:13+00:00 FLEET RESTORED VERIFIED: apps-filebot/filebot replicas=0
+2026-10-28T17:08:19+00:00 FLEET RESTORE ACTION: apps-flaresolverr/flaresolverr replicas=1; Fleet bundle flaresolverr applied deployment s-0b5b49614d1c0906ad186b606f97982cceca74449bba6db3e99969b3246fd:ecb6000ba0f77844a5d268cd97e2cebd7c77b19657fec80e83fc378496d7357b
+2026-10-28T17:08:19+00:00 FLEET RESTORED VERIFIED: apps-flaresolverr/flaresolverr replicas=1
+2026-10-28T17:08:24+00:00 FLEET RESTORE ACTION: apps-homer/homer replicas=1; Fleet bundle homer applied deployment s-c1b94b4983baff49b38421b17f039bc5dc2c225fd3dc5dd036a14f0a23e16:7a860753f4d550895ce1671d83ee591d100831c066a0b8ca08dcbb51536d55ca
+2026-10-28T17:08:24+00:00 FLEET RESTORED VERIFIED: apps-homer/homer replicas=1
+2026-10-28T17:08:30+00:00 FLEET RESTORE ACTION: apps-homer/homer-without-auth replicas=1; Fleet bundle homer-without-auth applied deployment s-5dbbdfca1e72357bad00f14ff9b9e9c1a8244b72b3bc1eaf028459c078a46:c90e10fbdeef7bc6feb2d20b4d2b9291599d86b2de123e8afe81d2ecdaa2b548
+2026-10-28T17:08:30+00:00 FLEET RESTORED VERIFIED: apps-homer/homer-without-auth replicas=1
+2026-10-28T17:08:35+00:00 FLEET RESTORE ACTION: apps-homer-test/homer-test replicas=2; Fleet bundle homer-test applied deployment s-9eab2efd316b28aaa8eab095b874c8b5361fa5fe7b825ceaf436017d0be9b:f7742df4ad176455853f76f5b88b32caf826aa670e31bf75e0097dd1b6b310c6
+2026-10-28T17:08:35+00:00 FLEET RESTORED VERIFIED: apps-homer-test/homer-test replicas=2
+2026-10-28T17:08:40+00:00 FLEET RESTORE ACTION: apps-jellyseerr/jellyseerr replicas=1; Fleet bundle jellyseerr applied deployment s-bb5293af139cda7cae99b12cb77f80420286bf768078a90f97c403550a9a9:fb0a0e53d54f6dcd32e00b56df0ef2d3d5eb29352648a65bc05296d504cd393d
+2026-10-28T17:08:41+00:00 FLEET RESTORED VERIFIED: apps-jellyseerr/jellyseerr replicas=1
+2026-10-28T17:08:46+00:00 FLEET RESTORE ACTION: apps-openbooks/openbooks replicas=1; Fleet bundle openbooks applied deployment s-7fbd7f390dd1e17b99f85f082983fb8a5c58872549ff689d60a9b92556a56:c565aeaea3d120608ef952b6ebab8f8932c8e35d166a35b5c6df70c49eb2f8d0
+2026-10-28T17:08:46+00:00 FLEET RESTORED VERIFIED: apps-openbooks/openbooks replicas=1
+2026-10-28T17:08:51+00:00 FLEET RESTORE ACTION: apps-profilarr/profilarr replicas=1; Fleet bundle profilarr applied deployment s-d89f1538d69ee13b7f440627eb7d74b8d2560a634a2eafa555460d1b3288e:dcaa34a01d1ed79cd4f9a513885d01844d3c5daca57d747dda7d7748caf50755
+2026-10-28T17:08:52+00:00 FLEET RESTORED VERIFIED: apps-profilarr/profilarr replicas=1
+2026-10-28T17:08:57+00:00 FLEET RESTORE ACTION: apps-prowlarr/prowlarr replicas=1; Fleet bundle prowlarr applied deployment s-9f45984dd8b59ff798e799148951e5ea8ecbdff2854ef67d6aea1a13ffd65:47fbb65bd55076940f9bcd340a7857b052032cd96ac5b2a3bbe5034d94d96498
+2026-10-28T17:08:57+00:00 FLEET RESTORED VERIFIED: apps-prowlarr/prowlarr replicas=1
+2026-10-28T17:09:02+00:00 FLEET RESTORE ACTION: apps-radarr/radarr replicas=1; Fleet bundle radarr applied deployment s-afbbd29bf3f309ebbf023d6735fa5fa7d28cb8f00e71b0dd5608402bca8c0:f700827e91d1b328f6cc3a8b44f34bcc10515d32872658d62a6bf7a95e42183c
+2026-10-28T17:09:02+00:00 FLEET RESTORED VERIFIED: apps-radarr/radarr replicas=1
+2026-10-28T17:09:08+00:00 FLEET RESTORE ACTION: apps-scrutiny/scrutiny replicas=1; Fleet bundle scrutiny applied deployment s-80186df5fbca6fc883907478527beced24a1f867a6c97d61a600d947825f2:008a5468d7a43d226944cc3d9bdad0b4cc945db343c087fa0050b9860fe945b1
+2026-10-28T17:09:08+00:00 FLEET RESTORED VERIFIED: apps-scrutiny/scrutiny replicas=1
+2026-10-28T17:09:13+00:00 FLEET RESTORE ACTION: apps-smokeping/smokeping replicas=1; Fleet bundle smokeping applied deployment s-c9f7491076c5afd641b4bb8be406de7db94b0c3bdbaa307f1f5dbd2f33d20:cc5c8e116065694f8c7f81112acf0453a90ca01dd8ea247fb66d5fbdbf4274f3
+2026-10-28T17:09:13+00:00 FLEET RESTORED VERIFIED: apps-smokeping/smokeping replicas=1
+2026-10-28T17:09:19+00:00 FLEET RESTORE ACTION: apps-sonarr/sonarr replicas=1; Fleet bundle sonarr applied deployment s-fb1e87c9751c077ddacd05abd179017f8f54fbc5eb0f4e6d9b33cfbedcf5b:1e99dfd2720f75a6cd0dd2e7706f01c06529673cc0773d6813153352cd138ca2
+2026-10-28T17:09:19+00:00 FLEET RESTORED VERIFIED: apps-sonarr/sonarr replicas=1
+2026-10-28T17:09:24+00:00 FLEET RESTORE ACTION: apps-ubooquity/ubooquity replicas=1; Fleet bundle ubooquity applied deployment s-e3318ba6c234b64342aaaee35859ef576a7358e66b1ac6403a528404cfddb:b6ef9fd3cca9c2cdb3dc5536435c0293a15ae616b0ad0725cd07fe8f06923986
+2026-10-28T17:09:24+00:00 FLEET RESTORED VERIFIED: apps-ubooquity/ubooquity replicas=1
+2026-10-28T17:09:30+00:00 FLEET RESTORE ACTION: apps-uptime-kuma/uptime-kuma replicas=1; Fleet bundle uptime-kuma applied deployment s-a8971dac2806cf29d01b65f653802b33a9ad50c78742002728c10c7a787bb:5ff3e8f45923a49770bc1e914b529f87696862020cd8318434b09f8b5eee3a6c
+2026-10-28T17:09:30+00:00 FLEET RESTORED VERIFIED: apps-uptime-kuma/uptime-kuma replicas=1
+2026-10-28T17:09:35+00:00 FLEET RESTORE ACTION: apps-youtubedl-material/youtubedl-material replicas=1; Fleet bundle youtubedl-material applied deployment s-5f090a79e227d1d7976634ba3af550ca2aa7b0735c01304b1d8aa17db5afa:d86531ae31522e2d7f0017bc065611a9c5b1e1d205eeec31f8ca6bfc786660f6
+2026-10-28T17:09:35+00:00 FLEET RESTORED VERIFIED: apps-youtubedl-material/youtubedl-material replicas=1
+2026-10-28T17:09:40+00:00 FLEET RESTORE ACTION: apps-zabbix/zabbix-zabbix-server replicas=1; Fleet bundle zabbix applied deployment s-fe77b1719efd2c8e21e00b8bcd8e74c453734da07850da186f729775e77ac:b96aa3dc290a17fef98cd9a915124571c188925f4cd18a29f0f2d7066f1fac9e
+2026-10-28T17:09:41+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-zabbix-server replicas=1
+2026-10-28T17:09:46+00:00 FLEET RESTORE ACTION: apps-zabbix/zabbix-zabbix-web replicas=1; Fleet bundle zabbix applied deployment s-fe77b1719efd2c8e21e00b8bcd8e74c453734da07850da186f729775e77ac:b96aa3dc290a17fef98cd9a915124571c188925f4cd18a29f0f2d7066f1fac9e
+2026-10-28T17:09:46+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-zabbix-web replicas=1
+2026-10-28T17:09:51+00:00 FLEET RESTORE ACTION: apps-zabbix/zabbix-zabbix-webservice replicas=1; Fleet bundle zabbix applied deployment s-fe77b1719efd2c8e21e00b8bcd8e74c453734da07850da186f729775e77ac:b96aa3dc290a17fef98cd9a915124571c188925f4cd18a29f0f2d7066f1fac9e
+2026-10-28T17:09:52+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-zabbix-webservice replicas=1
+2026-10-28T17:09:57+00:00 FLEET RESTORE ACTION: cattle-capi-system/capi-controller-manager replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:09:57+00:00 FLEET RESTORED VERIFIED: cattle-capi-system/capi-controller-manager replicas=1
+2026-10-28T17:10:02+00:00 FLEET RESTORE ACTION: cattle-fleet-local-system/fleet-agent replicas=1; Fleet bundle fleet-agent-local applied deployment s-8485a5dc16708bb7c6c863f3d8b5710a8fba51dfddb8712ac22b4c69b6fca:8a42b4463e55a59ce2ccdf3c53c32455ce5fd0f601587bf57b5624b3cf8bb623
+2026-10-28T17:10:03+00:00 FLEET RESTORED VERIFIED: cattle-fleet-local-system/fleet-agent replicas=1
+2026-10-28T17:10:08+00:00 FLEET RESTORE ACTION: cattle-fleet-system/fleet-controller replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:10:08+00:00 FLEET RESTORED VERIFIED: cattle-fleet-system/fleet-controller replicas=1
+2026-10-28T17:10:13+00:00 FLEET RESTORE ACTION: cattle-system/rancher replicas=3; Saved state: supporting service outside Fleet
+2026-10-28T17:10:13+00:00 FLEET RESTORED VERIFIED: cattle-system/rancher replicas=3
+2026-10-28T17:10:19+00:00 FLEET RESTORE ACTION: cattle-system/system-upgrade-controller replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:10:19+00:00 FLEET RESTORED VERIFIED: cattle-system/system-upgrade-controller replicas=1
+2026-10-28T17:10:24+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:10:40+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:10:55+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:11:10+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:11:26+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:11:41+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:11:56+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:12:12+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:12:27+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:12:42+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:12:57+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:13:13+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:13:28+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:13:43+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:13:59+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:14:14+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:14:29+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:14:44+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:15:00+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:15:15+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:15:30+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:15:45+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:16:27+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:16:42+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:16:42+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
+2026-10-28T17:16:42+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:16:57+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:16:57+00:00 FINAL VALIDATION FAILED: CalledProcessError; target already cut over, no blind rollback
+2026-10-28T17:16:57+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:17:12+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:17:16+00:00 FINAL VALIDATION AND DOCUMENTATION PASSED: Mailpile Ready on targets, Fleet Ready, identical image/env/Opaque Secrets, healthy two-host replicas, retained originals, both HTTPS200, NAS backups/restores verified; inventory complete claims=41 Gi=50.25
+2026-10-28T17:17:26+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:17:42+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:17:57+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:18:12+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:18:27+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:18:43+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:18:58+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:19:13+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:19:28+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:19:44+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:20:10+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:20:25+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:20:41+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:20:56+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:21:11+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:21:26+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:21:41+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:21:57+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:22:12+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:22:27+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:23:02+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:23:17+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:23:33+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:23:48+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:24:03+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:24:19+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:24:34+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:24:49+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:25:04+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:25:20+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:25:35+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:25:50+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:26:06+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:26:21+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:26:36+00:00 FLEET RESTORE ACTION: apps-bookstack/bookstack-mariadb replicas=1; Fleet bundle bookstack applied deployment s-2b8098b050fb99466a862849ecfbfa306af903a97bf8d24c7f656a138abf8:2a03406aceefe3773d08581dc82c68fa13abaacf4993b89fa4b4fd97c3e6804d
+2026-10-28T17:26:36+00:00 FLEET RESTORED VERIFIED: apps-bookstack/bookstack-mariadb replicas=1
+2026-10-28T17:26:42+00:00 FLEET RESTORE ACTION: apps-youtubedl-material/youtubedl-material-mongodb replicas=1; Fleet bundle youtubedl-material applied deployment s-5f090a79e227d1d7976634ba3af550ca2aa7b0735c01304b1d8aa17db5afa:d86531ae31522e2d7f0017bc065611a9c5b1e1d205eeec31f8ca6bfc786660f6
+2026-10-28T17:26:45+00:00 FLEET RESTORED VERIFIED: apps-youtubedl-material/youtubedl-material-mongodb replicas=1
+2026-10-28T17:26:50+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:27:05+00:00 FLEET RESTORE ACTION: apps-zabbix/zabbix-postgresql replicas=1; Fleet bundle zabbix applied deployment s-fe77b1719efd2c8e21e00b8bcd8e74c453734da07850da186f729775e77ac:b96aa3dc290a17fef98cd9a915124571c188925f4cd18a29f0f2d7066f1fac9e
+2026-10-28T17:27:05+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-postgresql replicas=1
+2026-10-28T17:27:11+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:27:26+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:27:41+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:27:57+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:28:12+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:28:30+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:28:45+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:29:00+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:29:15+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:29:31+00:00 FLEET RESTORE ACTION: apps-audiobookshelf/audiobookshelf replicas=1; Fleet bundle audiobookshelf applied deployment s-5a802b2aadc015f6e5cded22768bfb089ba363400e3f578512913a7d7a730:890d32ca4341c9430011fca035fcbaec5ccf3c7e4d289aeba295a6356ded2edf
+2026-10-28T17:29:31+00:00 FLEET RESTORED VERIFIED: apps-audiobookshelf/audiobookshelf replicas=1
+2026-10-28T17:29:36+00:00 FLEET RESTORE ACTION: apps-authelia/authelia replicas=1; Fleet bundle authelia applied deployment s-83e0ee7bf3858ed61519b098b540f3ddd9c3ba05f07dd8dfc7f59a873af99:712eb842c2bf3d47e66eec7270692455ee986e4dcf5cf27a2210aed34cef5633
+2026-10-28T17:29:36+00:00 FLEET RESTORED VERIFIED: apps-authelia/authelia replicas=1
+2026-10-28T17:29:42+00:00 FLEET RESTORE ACTION: apps-bazarr/bazarr replicas=1; Fleet bundle bazarr applied deployment s-739aa19618b0182331441eaf632669a9b02b2d86a3782bad1cb12ff19fa96:22adaf02ffb055d44931f21fba24e2c3ac0274d09ca5467f6255d48d0305b02e
+2026-10-28T17:29:42+00:00 FLEET RESTORED VERIFIED: apps-bazarr/bazarr replicas=1
+2026-10-28T17:29:47+00:00 FLEET RESTORE ACTION: apps-bindery/bindery replicas=1; Fleet bundle bindery applied deployment s-fa59ca6ae3f04dc4b59c6f4440330f52c624dedf2b3107ea263b03c8be597:b553523d2219ed2c08ac18ee0f8bffcd63f1269758a51e68eacc8ec81adff02f
+2026-10-28T17:29:47+00:00 FLEET RESTORED VERIFIED: apps-bindery/bindery replicas=1
+2026-10-28T17:29:53+00:00 FLEET RESTORE ACTION: apps-bookstack/bookstack replicas=1; Fleet bundle bookstack applied deployment s-2b8098b050fb99466a862849ecfbfa306af903a97bf8d24c7f656a138abf8:2a03406aceefe3773d08581dc82c68fa13abaacf4993b89fa4b4fd97c3e6804d
+2026-10-28T17:29:53+00:00 FLEET RESTORED VERIFIED: apps-bookstack/bookstack replicas=1
+2026-10-28T17:29:58+00:00 FLEET RESTORE ACTION: apps-calibre/calibre replicas=1; Fleet bundle calibre applied deployment s-f2169ea21b6358507815b964555155148f6a2126f8a6dddf71181ffb50c3d:1532cf57a3fe2599d73335e493873b488aed3b7f6882dbc306dda52af9cbc0c1
+2026-10-28T17:29:58+00:00 FLEET RESTORED VERIFIED: apps-calibre/calibre replicas=1
+2026-10-28T17:30:04+00:00 FLEET RESTORE ACTION: apps-calibre/calibre-web replicas=1; Fleet bundle calibre-web applied deployment s-ad311077fe6f73698011445c9a5b518575b8cd7db29af613ce225be6e874b:dcdcad51f7555163aead0e79791cb3dd6a25bf8638d05df665cf38479d205d3e
+2026-10-28T17:30:04+00:00 FLEET RESTORED VERIFIED: apps-calibre/calibre-web replicas=1
+2026-10-28T17:30:09+00:00 FLEET RESTORE ACTION: apps-calibre/kavita replicas=1; Fleet bundle kavita applied deployment s-cde268b70637796de8f7dbf1d6a2ed67e9ad22610863fd2d5a4e93ddcdd34:ddc7db12c0ff02416533a91010794d525d2cc1cf68ebca0bc211ea7363cc1082
+2026-10-28T17:30:09+00:00 FLEET RESTORED VERIFIED: apps-calibre/kavita replicas=1
+2026-10-28T17:30:15+00:00 FLEET RESTORE ACTION: apps-cleanuparr/cleanuparr replicas=1; Fleet bundle cleanuparr applied deployment s-2fe8b6b2bbee2cf0bd861e56f798831995ef18b404249aece91e32bb6e13d:cdd3d50d3add9879dd245e3bec98551fc05e2df41c2e9b529ddc3fa2f68252dd
+2026-10-28T17:30:15+00:00 FLEET RESTORED VERIFIED: apps-cleanuparr/cleanuparr replicas=1
+2026-10-28T17:30:20+00:00 FLEET RESTORE ACTION: apps-ddclient/ddclient replicas=1; Fleet bundle ddclient applied deployment s-b9eb341d614e555d96df58aea3af24db9db915ff50ac1fcbebfa815903620:d19f09c8cec3f9edbe434f878b5b2551317b97a2eb25f2c2042d69776ac4e5d5
+2026-10-28T17:30:20+00:00 FLEET RESTORED VERIFIED: apps-ddclient/ddclient replicas=1
+2026-10-28T17:30:25+00:00 FLEET RESTORE ACTION: apps-docker-mailserver/docker-mailserver replicas=1; Fleet bundle docker-mailserver applied deployment s-7f25a82d855b27a1e6e973ddbcb8af656581643073fdf4803427ead14f6f3:f20023405df08ad9e0d720b19ff0c4c257365a6bf6317ff3bf7bc945d5f247b8
+2026-10-28T17:30:26+00:00 FLEET RESTORED VERIFIED: apps-docker-mailserver/docker-mailserver replicas=1
+2026-10-28T17:30:31+00:00 FLEET RESTORE ACTION: apps-duckdns/duckdns replicas=1; Fleet bundle duckdns applied deployment s-b4729c5517f448f59c37694f445e171374de0a663f538f58ac0e1c8deb70f:ee93b575e9406593035d568685b07ed24673c86aed990471a110ef5b3166f171
+2026-10-28T17:30:31+00:00 FLEET RESTORED VERIFIED: apps-duckdns/duckdns replicas=1
+2026-10-28T17:30:36+00:00 FLEET RESTORE ACTION: apps-filebot/filebot replicas=0; Fleet bundle filebot applied deployment s-6411366ac8911dd52c9a4db4725e9be1223563f90416f20aeb3e9d3bc5207:6151c1ed33629c16e7ac1c44f6c58cdfdbec159e1f08c3e9b43e90c9e8988f43
+2026-10-28T17:30:37+00:00 FLEET RESTORED VERIFIED: apps-filebot/filebot replicas=0
+2026-10-28T17:30:42+00:00 FLEET RESTORE ACTION: apps-flaresolverr/flaresolverr replicas=1; Fleet bundle flaresolverr applied deployment s-0b5b49614d1c0906ad186b606f97982cceca74449bba6db3e99969b3246fd:ecb6000ba0f77844a5d268cd97e2cebd7c77b19657fec80e83fc378496d7357b
+2026-10-28T17:30:42+00:00 FLEET RESTORED VERIFIED: apps-flaresolverr/flaresolverr replicas=1
+2026-10-28T17:30:47+00:00 FLEET RESTORE ACTION: apps-homer/homer replicas=1; Fleet bundle homer applied deployment s-c1b94b4983baff49b38421b17f039bc5dc2c225fd3dc5dd036a14f0a23e16:7a860753f4d550895ce1671d83ee591d100831c066a0b8ca08dcbb51536d55ca
+2026-10-28T17:30:47+00:00 FLEET RESTORED VERIFIED: apps-homer/homer replicas=1
+2026-10-28T17:30:53+00:00 FLEET RESTORE ACTION: apps-homer/homer-without-auth replicas=1; Fleet bundle homer-without-auth applied deployment s-5dbbdfca1e72357bad00f14ff9b9e9c1a8244b72b3bc1eaf028459c078a46:c90e10fbdeef7bc6feb2d20b4d2b9291599d86b2de123e8afe81d2ecdaa2b548
+2026-10-28T17:30:53+00:00 FLEET RESTORED VERIFIED: apps-homer/homer-without-auth replicas=1
+2026-10-28T17:30:58+00:00 FLEET RESTORE ACTION: apps-homer-test/homer-test replicas=2; Fleet bundle homer-test applied deployment s-9eab2efd316b28aaa8eab095b874c8b5361fa5fe7b825ceaf436017d0be9b:f7742df4ad176455853f76f5b88b32caf826aa670e31bf75e0097dd1b6b310c6
+2026-10-28T17:30:58+00:00 FLEET RESTORED VERIFIED: apps-homer-test/homer-test replicas=2
+2026-10-28T17:31:04+00:00 FLEET RESTORE ACTION: apps-jellyseerr/jellyseerr replicas=1; Fleet bundle jellyseerr applied deployment s-bb5293af139cda7cae99b12cb77f80420286bf768078a90f97c403550a9a9:fb0a0e53d54f6dcd32e00b56df0ef2d3d5eb29352648a65bc05296d504cd393d
+2026-10-28T17:31:04+00:00 FLEET RESTORED VERIFIED: apps-jellyseerr/jellyseerr replicas=1
+2026-10-28T17:31:09+00:00 FLEET RESTORE ACTION: apps-openbooks/openbooks replicas=1; Fleet bundle openbooks applied deployment s-7fbd7f390dd1e17b99f85f082983fb8a5c58872549ff689d60a9b92556a56:c565aeaea3d120608ef952b6ebab8f8932c8e35d166a35b5c6df70c49eb2f8d0
+2026-10-28T17:31:09+00:00 FLEET RESTORED VERIFIED: apps-openbooks/openbooks replicas=1
+2026-10-28T17:31:14+00:00 FLEET RESTORE ACTION: apps-profilarr/profilarr replicas=1; Fleet bundle profilarr applied deployment s-d89f1538d69ee13b7f440627eb7d74b8d2560a634a2eafa555460d1b3288e:dcaa34a01d1ed79cd4f9a513885d01844d3c5daca57d747dda7d7748caf50755
+2026-10-28T17:31:15+00:00 FLEET RESTORED VERIFIED: apps-profilarr/profilarr replicas=1
+2026-10-28T17:31:20+00:00 FLEET RESTORE ACTION: apps-prowlarr/prowlarr replicas=1; Fleet bundle prowlarr applied deployment s-9f45984dd8b59ff798e799148951e5ea8ecbdff2854ef67d6aea1a13ffd65:47fbb65bd55076940f9bcd340a7857b052032cd96ac5b2a3bbe5034d94d96498
+2026-10-28T17:31:20+00:00 FLEET RESTORED VERIFIED: apps-prowlarr/prowlarr replicas=1
+2026-10-28T17:31:25+00:00 FLEET RESTORE ACTION: apps-radarr/radarr replicas=1; Fleet bundle radarr applied deployment s-afbbd29bf3f309ebbf023d6735fa5fa7d28cb8f00e71b0dd5608402bca8c0:f700827e91d1b328f6cc3a8b44f34bcc10515d32872658d62a6bf7a95e42183c
+2026-10-28T17:31:26+00:00 FLEET RESTORED VERIFIED: apps-radarr/radarr replicas=1
+2026-10-28T17:31:31+00:00 FLEET RESTORE ACTION: apps-scrutiny/scrutiny replicas=1; Fleet bundle scrutiny applied deployment s-80186df5fbca6fc883907478527beced24a1f867a6c97d61a600d947825f2:008a5468d7a43d226944cc3d9bdad0b4cc945db343c087fa0050b9860fe945b1
+2026-10-28T17:31:31+00:00 FLEET RESTORED VERIFIED: apps-scrutiny/scrutiny replicas=1
+2026-10-28T17:31:36+00:00 FLEET RESTORE ACTION: apps-smokeping/smokeping replicas=1; Fleet bundle smokeping applied deployment s-c9f7491076c5afd641b4bb8be406de7db94b0c3bdbaa307f1f5dbd2f33d20:cc5c8e116065694f8c7f81112acf0453a90ca01dd8ea247fb66d5fbdbf4274f3
+2026-10-28T17:31:37+00:00 FLEET RESTORED VERIFIED: apps-smokeping/smokeping replicas=1
+2026-10-28T17:31:42+00:00 FLEET RESTORE ACTION: apps-sonarr/sonarr replicas=1; Fleet bundle sonarr applied deployment s-fb1e87c9751c077ddacd05abd179017f8f54fbc5eb0f4e6d9b33cfbedcf5b:1e99dfd2720f75a6cd0dd2e7706f01c06529673cc0773d6813153352cd138ca2
+2026-10-28T17:31:42+00:00 FLEET RESTORED VERIFIED: apps-sonarr/sonarr replicas=1
+2026-10-28T17:31:47+00:00 FLEET RESTORE ACTION: apps-ubooquity/ubooquity replicas=1; Fleet bundle ubooquity applied deployment s-e3318ba6c234b64342aaaee35859ef576a7358e66b1ac6403a528404cfddb:b6ef9fd3cca9c2cdb3dc5536435c0293a15ae616b0ad0725cd07fe8f06923986
+2026-10-28T17:31:48+00:00 FLEET RESTORED VERIFIED: apps-ubooquity/ubooquity replicas=1
+2026-10-28T17:31:53+00:00 FLEET RESTORE ACTION: apps-uptime-kuma/uptime-kuma replicas=1; Fleet bundle uptime-kuma applied deployment s-a8971dac2806cf29d01b65f653802b33a9ad50c78742002728c10c7a787bb:5ff3e8f45923a49770bc1e914b529f87696862020cd8318434b09f8b5eee3a6c
+2026-10-28T17:31:53+00:00 FLEET RESTORED VERIFIED: apps-uptime-kuma/uptime-kuma replicas=1
+2026-10-28T17:31:58+00:00 FLEET RESTORE ACTION: apps-youtubedl-material/youtubedl-material replicas=1; Fleet bundle youtubedl-material applied deployment s-5f090a79e227d1d7976634ba3af550ca2aa7b0735c01304b1d8aa17db5afa:d86531ae31522e2d7f0017bc065611a9c5b1e1d205eeec31f8ca6bfc786660f6
+2026-10-28T17:31:58+00:00 FLEET RESTORED VERIFIED: apps-youtubedl-material/youtubedl-material replicas=1
+2026-10-28T17:32:04+00:00 FLEET RESTORE ACTION: apps-zabbix/zabbix-zabbix-server replicas=1; Fleet bundle zabbix applied deployment s-fe77b1719efd2c8e21e00b8bcd8e74c453734da07850da186f729775e77ac:b96aa3dc290a17fef98cd9a915124571c188925f4cd18a29f0f2d7066f1fac9e
+2026-10-28T17:32:04+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-zabbix-server replicas=1
+2026-10-28T17:32:09+00:00 FLEET RESTORE ACTION: apps-zabbix/zabbix-zabbix-web replicas=1; Fleet bundle zabbix applied deployment s-fe77b1719efd2c8e21e00b8bcd8e74c453734da07850da186f729775e77ac:b96aa3dc290a17fef98cd9a915124571c188925f4cd18a29f0f2d7066f1fac9e
+2026-10-28T17:32:09+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-zabbix-web replicas=1
+2026-10-28T17:32:15+00:00 FLEET RESTORE ACTION: apps-zabbix/zabbix-zabbix-webservice replicas=1; Fleet bundle zabbix applied deployment s-fe77b1719efd2c8e21e00b8bcd8e74c453734da07850da186f729775e77ac:b96aa3dc290a17fef98cd9a915124571c188925f4cd18a29f0f2d7066f1fac9e
+2026-10-28T17:32:15+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-zabbix-webservice replicas=1
+2026-10-28T17:32:20+00:00 FLEET RESTORE ACTION: cattle-capi-system/capi-controller-manager replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:32:20+00:00 FLEET RESTORED VERIFIED: cattle-capi-system/capi-controller-manager replicas=1
+2026-10-28T17:32:26+00:00 FLEET RESTORE ACTION: cattle-fleet-local-system/fleet-agent replicas=1; Fleet bundle fleet-agent-local applied deployment s-8485a5dc16708bb7c6c863f3d8b5710a8fba51dfddb8712ac22b4c69b6fca:8a42b4463e55a59ce2ccdf3c53c32455ce5fd0f601587bf57b5624b3cf8bb623
+2026-10-28T17:32:26+00:00 FLEET RESTORED VERIFIED: cattle-fleet-local-system/fleet-agent replicas=1
+2026-10-28T17:32:31+00:00 FLEET RESTORE ACTION: cattle-fleet-system/fleet-controller replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:32:31+00:00 FLEET RESTORED VERIFIED: cattle-fleet-system/fleet-controller replicas=1
+2026-10-28T17:32:37+00:00 FLEET RESTORE ACTION: cattle-system/rancher replicas=3; Saved state: supporting service outside Fleet
+2026-10-28T17:32:37+00:00 FLEET RESTORED VERIFIED: cattle-system/rancher replicas=3
+2026-10-28T17:32:42+00:00 FLEET RESTORE ACTION: cattle-system/system-upgrade-controller replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:32:42+00:00 FLEET RESTORED VERIFIED: cattle-system/system-upgrade-controller replicas=1
+2026-10-28T17:32:47+00:00 FLEET RESTORE ACTION: cattle-turtles-system/rancher-turtles-controller-manager replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:32:48+00:00 FLEET RESTORED VERIFIED: cattle-turtles-system/rancher-turtles-controller-manager replicas=1
+2026-10-28T17:32:53+00:00 FLEET RESTORE ACTION: cloudcasa-io/cloudcasa-kubeagent-manager replicas=1; Fleet bundle cloudcasa applied deployment s-6b0f0230322c83f449aa6079398738d8e355d6c13dc21cc6bbe7198da908d:dc590c440f9842e43472860e283f1834884e4219626d7026b59005bed2094873
+2026-10-28T17:32:53+00:00 FLEET RESTORED VERIFIED: cloudcasa-io/cloudcasa-kubeagent-manager replicas=1
+2026-10-28T17:32:58+00:00 FLEET RESTORE ACTION: cloudcasa-io/kubeagent replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:32:59+00:00 FLEET RESTORED VERIFIED: cloudcasa-io/kubeagent replicas=1
+2026-10-28T17:33:04+00:00 FLEET RESTORE ACTION: kube-system/metrics-server replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:33:04+00:00 FLEET RESTORED VERIFIED: kube-system/metrics-server replicas=1
+2026-10-28T17:33:09+00:00 FLEET RESTORE ACTION: longhorn-system/longhorn-ui replicas=2; Fleet bundle longhorn applied deployment s-a7ff2d1030f43f8d4ec08e9e4792f4b1021650ad51392e041908fc9b10e73:c2aee4bd40de3084b3466dec62d8614ef72d7b49a85526d4429876b3bac3b8f9
+2026-10-28T17:33:09+00:00 FLEET RESTORED VERIFIED: longhorn-system/longhorn-ui replicas=2
+2026-10-28T17:33:15+00:00 FLEET RESTORE ACTION: cattle-fleet-system/gitjob replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:33:15+00:00 FLEET RESTORED VERIFIED: cattle-fleet-system/gitjob replicas=1
+2026-10-28T17:33:20+00:00 FLEET RESTORE ACTION: cattle-fleet-system/helmops replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:33:20+00:00 FLEET RESTORED VERIFIED: cattle-fleet-system/helmops replicas=1
+2026-10-28T17:33:26+00:00 FLEET RESTORE ACTION: apps-calibre/calibre-cover-maintenance suspend=False; Fleet bundle calibre-cover-maintenance applied deployment s-1324486441444a0cd119873bf8d58fbe99a47e180b9388daad0145062b25d:819db71ec25e4d0c1514f4f1fdd2ace95c113f70104f087e62624a98a5609e51
+2026-10-28T17:33:26+00:00 FLEET RESTORED VERIFIED: apps-calibre/calibre-cover-maintenance suspend=False
+2026-10-28T17:33:31+00:00 FLEET RESTORE ACTION: apps-homer/homer-without-auth-config-copy suspend=False; Fleet bundle homer-without-auth-config-copy applied deployment s-3a547092cab532049093045397407c9342c6e8ee5fa271443dc6ba9f03d90:d705399490d22f086d1218bec853ba806426f1418e9a8f04028153d6a22b18c9
+2026-10-28T17:33:31+00:00 FLEET RESTORED VERIFIED: apps-homer/homer-without-auth-config-copy suspend=False
+2026-10-28T17:33:36+00:00 FLEET RESTORE ACTION: apps-zabbix/zabbix-nodesclean suspend=False; Fleet bundle zabbix applied deployment s-fe77b1719efd2c8e21e00b8bcd8e74c453734da07850da186f729775e77ac:b96aa3dc290a17fef98cd9a915124571c188925f4cd18a29f0f2d7066f1fac9e
+2026-10-28T17:33:37+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-nodesclean suspend=False
+2026-10-28T17:33:42+00:00 FLEET RESTORE ACTION: cattle-fleet-system/fleet-cleanup-gitrepo-jobs suspend=False; Saved state: supporting service outside Fleet
+2026-10-28T17:33:42+00:00 FLEET RESTORED VERIFIED: cattle-fleet-system/fleet-cleanup-gitrepo-jobs suspend=False
+2026-10-28T17:33:47+00:00 FLEET RESTORE ACTION: fleet-local/rke2-machineconfig-cleanup-cronjob suspend=False; Saved state: supporting service outside Fleet
+2026-10-28T17:33:47+00:00 FLEET RESTORED VERIFIED: fleet-local/rke2-machineconfig-cleanup-cronjob suspend=False
+2026-10-28T17:33:53+00:00 FLEET RESTORE ACTION: longhorn-system/nas-daily-backup suspend=False; Saved state: supporting service outside Fleet
+2026-10-28T17:33:53+00:00 FLEET RESTORED VERIFIED: longhorn-system/nas-daily-backup suspend=False
+2026-10-28T17:39:04+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:39:19+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:39:19+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:39:19+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:39:34+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:39:34+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:39:35+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:39:50+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:39:50+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:39:50+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:40:05+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:40:05+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:40:05+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:40:20+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:40:21+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:40:21+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:40:36+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:40:36+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:40:36+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:40:51+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:40:52+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:40:52+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:41:07+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:41:07+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:41:08+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:41:23+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:41:23+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:41:23+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:41:38+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:41:39+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:41:39+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:41:54+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:41:54+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:41:54+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:42:09+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:42:10+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:42:10+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:42:25+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:42:25+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:42:25+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:42:40+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:42:41+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:42:41+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:42:56+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:42:56+00:00 FINAL VALIDATION FAILED: AssertionError; target already cut over, no blind rollback
+2026-10-28T17:42:56+00:00 MAINTENANCE WATCH WAIT: API/read/restore unavailable; preserving current safe state
+2026-10-28T17:43:11+00:00 MAINTENANCE WATCH: restore requested
+2026-10-28T17:43:13+00:00 FINAL VALIDATION AND DOCUMENTATION PASSED: Mailpile Ready on targets, Fleet Ready, identical image/env/Opaque Secrets, healthy two-host replicas, retained originals, both HTTPS200, NAS backups/restores verified; inventory complete claims=41 Gi=50.25
+2026-10-28T17:43:19+00:00 FLEET RESTORE ACTION: apps-bookstack/bookstack-mariadb replicas=1; Fleet bundle bookstack applied deployment s-2b8098b050fb99466a862849ecfbfa306af903a97bf8d24c7f656a138abf8:2a03406aceefe3773d08581dc82c68fa13abaacf4993b89fa4b4fd97c3e6804d
+2026-10-28T17:43:20+00:00 FLEET RESTORED VERIFIED: apps-bookstack/bookstack-mariadb replicas=1
+2026-10-28T17:43:25+00:00 FLEET RESTORE ACTION: apps-youtubedl-material/youtubedl-material-mongodb replicas=1; Fleet bundle youtubedl-material applied deployment s-5f090a79e227d1d7976634ba3af550ca2aa7b0735c01304b1d8aa17db5afa:d86531ae31522e2d7f0017bc065611a9c5b1e1d205eeec31f8ca6bfc786660f6
+2026-10-28T17:43:25+00:00 FLEET RESTORED VERIFIED: apps-youtubedl-material/youtubedl-material-mongodb replicas=1
+2026-10-28T17:43:30+00:00 FLEET RESTORE ACTION: apps-zabbix/zabbix-postgresql replicas=1; Fleet bundle zabbix applied deployment s-fe77b1719efd2c8e21e00b8bcd8e74c453734da07850da186f729775e77ac:b96aa3dc290a17fef98cd9a915124571c188925f4cd18a29f0f2d7066f1fac9e
+2026-10-28T17:43:31+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-postgresql replicas=1
+2026-10-28T17:43:36+00:00 FLEET RESTORE ACTION: apps-audiobookshelf/audiobookshelf replicas=1; Fleet bundle audiobookshelf applied deployment s-5a802b2aadc015f6e5cded22768bfb089ba363400e3f578512913a7d7a730:890d32ca4341c9430011fca035fcbaec5ccf3c7e4d289aeba295a6356ded2edf
+2026-10-28T17:43:36+00:00 FLEET RESTORED VERIFIED: apps-audiobookshelf/audiobookshelf replicas=1
+2026-10-28T17:43:41+00:00 FLEET RESTORE ACTION: apps-authelia/authelia replicas=1; Fleet bundle authelia applied deployment s-83e0ee7bf3858ed61519b098b540f3ddd9c3ba05f07dd8dfc7f59a873af99:712eb842c2bf3d47e66eec7270692455ee986e4dcf5cf27a2210aed34cef5633
+2026-10-28T17:43:41+00:00 FLEET RESTORED VERIFIED: apps-authelia/authelia replicas=1
+2026-10-28T17:43:47+00:00 FLEET RESTORE ACTION: apps-bazarr/bazarr replicas=1; Fleet bundle bazarr applied deployment s-739aa19618b0182331441eaf632669a9b02b2d86a3782bad1cb12ff19fa96:22adaf02ffb055d44931f21fba24e2c3ac0274d09ca5467f6255d48d0305b02e
+2026-10-28T17:43:47+00:00 FLEET RESTORED VERIFIED: apps-bazarr/bazarr replicas=1
+2026-10-28T17:43:52+00:00 FLEET RESTORE ACTION: apps-bindery/bindery replicas=1; Fleet bundle bindery applied deployment s-fa59ca6ae3f04dc4b59c6f4440330f52c624dedf2b3107ea263b03c8be597:b553523d2219ed2c08ac18ee0f8bffcd63f1269758a51e68eacc8ec81adff02f
+2026-10-28T17:43:52+00:00 FLEET RESTORED VERIFIED: apps-bindery/bindery replicas=1
+2026-10-28T17:43:58+00:00 FLEET RESTORE ACTION: apps-bookstack/bookstack replicas=1; Fleet bundle bookstack applied deployment s-2b8098b050fb99466a862849ecfbfa306af903a97bf8d24c7f656a138abf8:2a03406aceefe3773d08581dc82c68fa13abaacf4993b89fa4b4fd97c3e6804d
+2026-10-28T17:43:58+00:00 FLEET RESTORED VERIFIED: apps-bookstack/bookstack replicas=1
+2026-10-28T17:44:03+00:00 FLEET RESTORE ACTION: apps-calibre/calibre replicas=1; Fleet bundle calibre applied deployment s-f2169ea21b6358507815b964555155148f6a2126f8a6dddf71181ffb50c3d:1532cf57a3fe2599d73335e493873b488aed3b7f6882dbc306dda52af9cbc0c1
+2026-10-28T17:44:03+00:00 FLEET RESTORED VERIFIED: apps-calibre/calibre replicas=1
+2026-10-28T17:44:09+00:00 FLEET RESTORE ACTION: apps-calibre/calibre-web replicas=1; Fleet bundle calibre-web applied deployment s-ad311077fe6f73698011445c9a5b518575b8cd7db29af613ce225be6e874b:dcdcad51f7555163aead0e79791cb3dd6a25bf8638d05df665cf38479d205d3e
+2026-10-28T17:44:09+00:00 FLEET RESTORED VERIFIED: apps-calibre/calibre-web replicas=1
+2026-10-28T17:44:14+00:00 FLEET RESTORE ACTION: apps-calibre/kavita replicas=1; Fleet bundle kavita applied deployment s-cde268b70637796de8f7dbf1d6a2ed67e9ad22610863fd2d5a4e93ddcdd34:ddc7db12c0ff02416533a91010794d525d2cc1cf68ebca0bc211ea7363cc1082
+2026-10-28T17:44:14+00:00 FLEET RESTORED VERIFIED: apps-calibre/kavita replicas=1
+2026-10-28T17:44:19+00:00 FLEET RESTORE ACTION: apps-cleanuparr/cleanuparr replicas=1; Fleet bundle cleanuparr applied deployment s-2fe8b6b2bbee2cf0bd861e56f798831995ef18b404249aece91e32bb6e13d:cdd3d50d3add9879dd245e3bec98551fc05e2df41c2e9b529ddc3fa2f68252dd
+2026-10-28T17:44:20+00:00 FLEET RESTORED VERIFIED: apps-cleanuparr/cleanuparr replicas=1
+2026-10-28T17:44:25+00:00 FLEET RESTORE ACTION: apps-ddclient/ddclient replicas=1; Fleet bundle ddclient applied deployment s-b9eb341d614e555d96df58aea3af24db9db915ff50ac1fcbebfa815903620:d19f09c8cec3f9edbe434f878b5b2551317b97a2eb25f2c2042d69776ac4e5d5
+2026-10-28T17:44:25+00:00 FLEET RESTORED VERIFIED: apps-ddclient/ddclient replicas=1
+2026-10-28T17:44:30+00:00 FLEET RESTORE ACTION: apps-docker-mailserver/docker-mailserver replicas=1; Fleet bundle docker-mailserver applied deployment s-7f25a82d855b27a1e6e973ddbcb8af656581643073fdf4803427ead14f6f3:f20023405df08ad9e0d720b19ff0c4c257365a6bf6317ff3bf7bc945d5f247b8
+2026-10-28T17:44:31+00:00 FLEET RESTORED VERIFIED: apps-docker-mailserver/docker-mailserver replicas=1
+2026-10-28T17:44:36+00:00 FLEET RESTORE ACTION: apps-duckdns/duckdns replicas=1; Fleet bundle duckdns applied deployment s-b4729c5517f448f59c37694f445e171374de0a663f538f58ac0e1c8deb70f:ee93b575e9406593035d568685b07ed24673c86aed990471a110ef5b3166f171
+2026-10-28T17:44:36+00:00 FLEET RESTORED VERIFIED: apps-duckdns/duckdns replicas=1
+2026-10-28T17:44:41+00:00 FLEET RESTORE ACTION: apps-filebot/filebot replicas=0; Fleet bundle filebot applied deployment s-6411366ac8911dd52c9a4db4725e9be1223563f90416f20aeb3e9d3bc5207:6151c1ed33629c16e7ac1c44f6c58cdfdbec159e1f08c3e9b43e90c9e8988f43
+2026-10-28T17:44:41+00:00 FLEET RESTORED VERIFIED: apps-filebot/filebot replicas=0
+2026-10-28T17:44:47+00:00 FLEET RESTORE ACTION: apps-flaresolverr/flaresolverr replicas=1; Fleet bundle flaresolverr applied deployment s-0b5b49614d1c0906ad186b606f97982cceca74449bba6db3e99969b3246fd:ecb6000ba0f77844a5d268cd97e2cebd7c77b19657fec80e83fc378496d7357b
+2026-10-28T17:44:47+00:00 FLEET RESTORED VERIFIED: apps-flaresolverr/flaresolverr replicas=1
+2026-10-28T17:44:52+00:00 FLEET RESTORE ACTION: apps-homer/homer replicas=1; Fleet bundle homer applied deployment s-c1b94b4983baff49b38421b17f039bc5dc2c225fd3dc5dd036a14f0a23e16:7a860753f4d550895ce1671d83ee591d100831c066a0b8ca08dcbb51536d55ca
+2026-10-28T17:44:52+00:00 FLEET RESTORED VERIFIED: apps-homer/homer replicas=1
+2026-10-28T17:44:58+00:00 FLEET RESTORE ACTION: apps-homer/homer-without-auth replicas=1; Fleet bundle homer-without-auth applied deployment s-5dbbdfca1e72357bad00f14ff9b9e9c1a8244b72b3bc1eaf028459c078a46:c90e10fbdeef7bc6feb2d20b4d2b9291599d86b2de123e8afe81d2ecdaa2b548
+2026-10-28T17:44:58+00:00 FLEET RESTORED VERIFIED: apps-homer/homer-without-auth replicas=1
+2026-10-28T17:45:03+00:00 FLEET RESTORE ACTION: apps-homer-test/homer-test replicas=2; Fleet bundle homer-test applied deployment s-9eab2efd316b28aaa8eab095b874c8b5361fa5fe7b825ceaf436017d0be9b:f7742df4ad176455853f76f5b88b32caf826aa670e31bf75e0097dd1b6b310c6
+2026-10-28T17:45:03+00:00 FLEET RESTORED VERIFIED: apps-homer-test/homer-test replicas=2
+2026-10-28T17:45:08+00:00 FLEET RESTORE ACTION: apps-jellyseerr/jellyseerr replicas=1; Fleet bundle jellyseerr applied deployment s-bb5293af139cda7cae99b12cb77f80420286bf768078a90f97c403550a9a9:fb0a0e53d54f6dcd32e00b56df0ef2d3d5eb29352648a65bc05296d504cd393d
+2026-10-28T17:45:09+00:00 FLEET RESTORED VERIFIED: apps-jellyseerr/jellyseerr replicas=1
+2026-10-28T17:45:14+00:00 FLEET RESTORE ACTION: apps-openbooks/openbooks replicas=1; Fleet bundle openbooks applied deployment s-7fbd7f390dd1e17b99f85f082983fb8a5c58872549ff689d60a9b92556a56:c565aeaea3d120608ef952b6ebab8f8932c8e35d166a35b5c6df70c49eb2f8d0
+2026-10-28T17:45:14+00:00 FLEET RESTORED VERIFIED: apps-openbooks/openbooks replicas=1
+2026-10-28T17:45:19+00:00 FLEET RESTORE ACTION: apps-profilarr/profilarr replicas=1; Fleet bundle profilarr applied deployment s-d89f1538d69ee13b7f440627eb7d74b8d2560a634a2eafa555460d1b3288e:dcaa34a01d1ed79cd4f9a513885d01844d3c5daca57d747dda7d7748caf50755
+2026-10-28T17:45:20+00:00 FLEET RESTORED VERIFIED: apps-profilarr/profilarr replicas=1
+2026-10-28T17:45:25+00:00 FLEET RESTORE ACTION: apps-prowlarr/prowlarr replicas=1; Fleet bundle prowlarr applied deployment s-9f45984dd8b59ff798e799148951e5ea8ecbdff2854ef67d6aea1a13ffd65:47fbb65bd55076940f9bcd340a7857b052032cd96ac5b2a3bbe5034d94d96498
+2026-10-28T17:45:25+00:00 FLEET RESTORED VERIFIED: apps-prowlarr/prowlarr replicas=1
+2026-10-28T17:45:30+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:45:46+00:00 FLEET RESTORE WAIT: pressure above some10%/full2% on a host
+2026-10-28T17:46:01+00:00 FLEET RESTORE ACTION: apps-radarr/radarr replicas=1; Fleet bundle radarr applied deployment s-afbbd29bf3f309ebbf023d6735fa5fa7d28cb8f00e71b0dd5608402bca8c0:f700827e91d1b328f6cc3a8b44f34bcc10515d32872658d62a6bf7a95e42183c
+2026-10-28T17:46:01+00:00 FLEET RESTORED VERIFIED: apps-radarr/radarr replicas=1
+2026-10-28T17:46:06+00:00 FLEET RESTORE ACTION: apps-scrutiny/scrutiny replicas=1; Fleet bundle scrutiny applied deployment s-80186df5fbca6fc883907478527beced24a1f867a6c97d61a600d947825f2:008a5468d7a43d226944cc3d9bdad0b4cc945db343c087fa0050b9860fe945b1
+2026-10-28T17:46:06+00:00 FLEET RESTORED VERIFIED: apps-scrutiny/scrutiny replicas=1
+2026-10-28T17:46:12+00:00 FLEET RESTORE ACTION: apps-smokeping/smokeping replicas=1; Fleet bundle smokeping applied deployment s-c9f7491076c5afd641b4bb8be406de7db94b0c3bdbaa307f1f5dbd2f33d20:cc5c8e116065694f8c7f81112acf0453a90ca01dd8ea247fb66d5fbdbf4274f3
+2026-10-28T17:46:12+00:00 FLEET RESTORED VERIFIED: apps-smokeping/smokeping replicas=1
+2026-10-28T17:46:17+00:00 FLEET RESTORE ACTION: apps-sonarr/sonarr replicas=1; Fleet bundle sonarr applied deployment s-fb1e87c9751c077ddacd05abd179017f8f54fbc5eb0f4e6d9b33cfbedcf5b:1e99dfd2720f75a6cd0dd2e7706f01c06529673cc0773d6813153352cd138ca2
+2026-10-28T17:46:17+00:00 FLEET RESTORED VERIFIED: apps-sonarr/sonarr replicas=1
+2026-10-28T17:46:23+00:00 FLEET RESTORE ACTION: apps-ubooquity/ubooquity replicas=1; Fleet bundle ubooquity applied deployment s-e3318ba6c234b64342aaaee35859ef576a7358e66b1ac6403a528404cfddb:b6ef9fd3cca9c2cdb3dc5536435c0293a15ae616b0ad0725cd07fe8f06923986
+2026-10-28T17:46:23+00:00 FLEET RESTORED VERIFIED: apps-ubooquity/ubooquity replicas=1
+2026-10-28T17:46:28+00:00 FLEET RESTORE ACTION: apps-uptime-kuma/uptime-kuma replicas=1; Fleet bundle uptime-kuma applied deployment s-a8971dac2806cf29d01b65f653802b33a9ad50c78742002728c10c7a787bb:5ff3e8f45923a49770bc1e914b529f87696862020cd8318434b09f8b5eee3a6c
+2026-10-28T17:46:28+00:00 FLEET RESTORED VERIFIED: apps-uptime-kuma/uptime-kuma replicas=1
+2026-10-28T17:46:34+00:00 FLEET RESTORE ACTION: apps-youtubedl-material/youtubedl-material replicas=1; Fleet bundle youtubedl-material applied deployment s-5f090a79e227d1d7976634ba3af550ca2aa7b0735c01304b1d8aa17db5afa:d86531ae31522e2d7f0017bc065611a9c5b1e1d205eeec31f8ca6bfc786660f6
+2026-10-28T17:46:34+00:00 FLEET RESTORED VERIFIED: apps-youtubedl-material/youtubedl-material replicas=1
+2026-10-28T17:46:39+00:00 FLEET RESTORE ACTION: apps-zabbix/zabbix-zabbix-server replicas=1; Fleet bundle zabbix applied deployment s-fe77b1719efd2c8e21e00b8bcd8e74c453734da07850da186f729775e77ac:b96aa3dc290a17fef98cd9a915124571c188925f4cd18a29f0f2d7066f1fac9e
+2026-10-28T17:46:39+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-zabbix-server replicas=1
+2026-10-28T17:46:45+00:00 FLEET RESTORE ACTION: apps-zabbix/zabbix-zabbix-web replicas=1; Fleet bundle zabbix applied deployment s-fe77b1719efd2c8e21e00b8bcd8e74c453734da07850da186f729775e77ac:b96aa3dc290a17fef98cd9a915124571c188925f4cd18a29f0f2d7066f1fac9e
+2026-10-28T17:46:45+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-zabbix-web replicas=1
+2026-10-28T17:46:50+00:00 FLEET RESTORE ACTION: apps-zabbix/zabbix-zabbix-webservice replicas=1; Fleet bundle zabbix applied deployment s-fe77b1719efd2c8e21e00b8bcd8e74c453734da07850da186f729775e77ac:b96aa3dc290a17fef98cd9a915124571c188925f4cd18a29f0f2d7066f1fac9e
+2026-10-28T17:46:50+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-zabbix-webservice replicas=1
+2026-10-28T17:46:55+00:00 FLEET RESTORE ACTION: cattle-capi-system/capi-controller-manager replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:46:56+00:00 FLEET RESTORED VERIFIED: cattle-capi-system/capi-controller-manager replicas=1
+2026-10-28T17:47:01+00:00 FLEET RESTORE ACTION: cattle-fleet-local-system/fleet-agent replicas=1; Fleet bundle fleet-agent-local applied deployment s-8485a5dc16708bb7c6c863f3d8b5710a8fba51dfddb8712ac22b4c69b6fca:8a42b4463e55a59ce2ccdf3c53c32455ce5fd0f601587bf57b5624b3cf8bb623
+2026-10-28T17:47:01+00:00 FLEET RESTORED VERIFIED: cattle-fleet-local-system/fleet-agent replicas=1
+2026-10-28T17:47:06+00:00 FLEET RESTORE ACTION: cattle-fleet-system/fleet-controller replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:47:06+00:00 FLEET RESTORED VERIFIED: cattle-fleet-system/fleet-controller replicas=1
+2026-10-28T17:47:12+00:00 FLEET RESTORE ACTION: cattle-system/rancher replicas=3; Saved state: supporting service outside Fleet
+2026-10-28T17:47:12+00:00 FLEET RESTORED VERIFIED: cattle-system/rancher replicas=3
+2026-10-28T17:47:17+00:00 FLEET RESTORE ACTION: cattle-system/system-upgrade-controller replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:47:17+00:00 FLEET RESTORED VERIFIED: cattle-system/system-upgrade-controller replicas=1
+2026-10-28T17:47:23+00:00 FLEET RESTORE ACTION: cattle-turtles-system/rancher-turtles-controller-manager replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:47:23+00:00 FLEET RESTORED VERIFIED: cattle-turtles-system/rancher-turtles-controller-manager replicas=1
+2026-10-28T17:47:28+00:00 FLEET RESTORE ACTION: cloudcasa-io/cloudcasa-kubeagent-manager replicas=1; Fleet bundle cloudcasa applied deployment s-6b0f0230322c83f449aa6079398738d8e355d6c13dc21cc6bbe7198da908d:dc590c440f9842e43472860e283f1834884e4219626d7026b59005bed2094873
+2026-10-28T17:47:28+00:00 FLEET RESTORED VERIFIED: cloudcasa-io/cloudcasa-kubeagent-manager replicas=1
+2026-10-28T17:47:34+00:00 FLEET RESTORE ACTION: cloudcasa-io/kubeagent replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:47:34+00:00 FLEET RESTORED VERIFIED: cloudcasa-io/kubeagent replicas=1
+2026-10-28T17:47:39+00:00 FLEET RESTORE ACTION: kube-system/metrics-server replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:47:39+00:00 FLEET RESTORED VERIFIED: kube-system/metrics-server replicas=1
+2026-10-28T17:47:44+00:00 FLEET RESTORE ACTION: longhorn-system/longhorn-ui replicas=2; Fleet bundle longhorn applied deployment s-a7ff2d1030f43f8d4ec08e9e4792f4b1021650ad51392e041908fc9b10e73:c2aee4bd40de3084b3466dec62d8614ef72d7b49a85526d4429876b3bac3b8f9
+2026-10-28T17:47:45+00:00 FLEET RESTORED VERIFIED: longhorn-system/longhorn-ui replicas=2
+2026-10-28T17:47:50+00:00 FLEET RESTORE ACTION: cattle-fleet-system/gitjob replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:47:50+00:00 FLEET RESTORED VERIFIED: cattle-fleet-system/gitjob replicas=1
+2026-10-28T17:47:55+00:00 FLEET RESTORE ACTION: cattle-fleet-system/helmops replicas=1; Saved state: supporting service outside Fleet
+2026-10-28T17:47:55+00:00 FLEET RESTORED VERIFIED: cattle-fleet-system/helmops replicas=1
+2026-10-28T17:48:01+00:00 FLEET RESTORE ACTION: apps-calibre/calibre-cover-maintenance suspend=False; Fleet bundle calibre-cover-maintenance applied deployment s-1324486441444a0cd119873bf8d58fbe99a47e180b9388daad0145062b25d:819db71ec25e4d0c1514f4f1fdd2ace95c113f70104f087e62624a98a5609e51
+2026-10-28T17:48:01+00:00 FLEET RESTORED VERIFIED: apps-calibre/calibre-cover-maintenance suspend=False
+2026-10-28T17:48:06+00:00 FLEET RESTORE ACTION: apps-homer/homer-without-auth-config-copy suspend=False; Fleet bundle homer-without-auth-config-copy applied deployment s-3a547092cab532049093045397407c9342c6e8ee5fa271443dc6ba9f03d90:d705399490d22f086d1218bec853ba806426f1418e9a8f04028153d6a22b18c9
+2026-10-28T17:48:06+00:00 FLEET RESTORED VERIFIED: apps-homer/homer-without-auth-config-copy suspend=False
+2026-10-28T17:48:12+00:00 FLEET RESTORE ACTION: apps-zabbix/zabbix-nodesclean suspend=False; Fleet bundle zabbix applied deployment s-fe77b1719efd2c8e21e00b8bcd8e74c453734da07850da186f729775e77ac:b96aa3dc290a17fef98cd9a915124571c188925f4cd18a29f0f2d7066f1fac9e
+2026-10-28T17:48:12+00:00 FLEET RESTORED VERIFIED: apps-zabbix/zabbix-nodesclean suspend=False

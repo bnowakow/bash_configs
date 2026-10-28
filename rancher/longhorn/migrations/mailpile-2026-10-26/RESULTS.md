@@ -1,4 +1,4 @@
-# Mailpile migration completed — 2026-10-28T16:10:16+00:00
+# Mailpile migration completed — 2026-10-28T17:43:13+00:00
 
 Mailpile now runs on **12Gi data + 256Mi keys**, RWO with **two healthy replicas
 on distinct hosts**. One app instance, Recreate. Current chart/image/env and

@@ -1,5 +1,5 @@
 {
-  "createdUTC": "2026-10-28T16:10:21.750808+00:00",
+  "createdUTC": "2026-10-28T17:43:19.626240+00:00",
   "workloads": [
     {
       "namespace": "apps-audiobookshelf",
@@ -160,7 +160,7 @@
       "name": "homer-without-auth",
       "uid": "7e290dcb-6253-4539-b120-74b4c270245a",
       "replicas": 1,
-      "basis": "Fleet bundle homer-without-auth applied deployment s-3972028e428d867c554d353919479e435d7abd9b19d16c14a2f8b2cfb85b1:c90e10fbdeef7bc6feb2d20b4d2b9291599d86b2de123e8afe81d2ecdaa2b548",
+      "basis": "Fleet bundle homer-without-auth applied deployment s-5dbbdfca1e72357bad00f14ff9b9e9c1a8244b72b3bc1eaf028459c078a46:c90e10fbdeef7bc6feb2d20b4d2b9291599d86b2de123e8afe81d2ecdaa2b548",
       "bundle": "homer-without-auth"
     },
     {
@@ -421,7 +421,7 @@
       "name": "homer-without-auth-config-copy",
       "uid": "88df3eac-f224-42ec-a4fe-24ab213955ad",
       "suspend": false,
-      "basis": "Fleet bundle homer-without-auth-config-copy applied deployment s-1d229131773ba431f61ff37cd3d137fedb41df150d4103fc78af4ddaa9661:d705399490d22f086d1218bec853ba806426f1418e9a8f04028153d6a22b18c9",
+      "basis": "Fleet bundle homer-without-auth-config-copy applied deployment s-3a547092cab532049093045397407c9342c6e8ee5fa271443dc6ba9f03d90:d705399490d22f086d1218bec853ba806426f1418e9a8f04028153d6a22b18c9",
       "bundle": "homer-without-auth-config-copy"
     },
     {
