@@ -1,5 +1,13 @@
 # Current verification controls —27October18:20UTC
 
+## Original PV object deletion — 2026-10-28
+
+Deleted both Released original Mailpile PV objects (`pvc-efd00fa3-e42b-4129-85f9-2a2c36912dcc`, `pvc-3d4c4ac7-14b9-43fd-a5de-55afb60accc7`) at the user’s request, with UID/resourceVersion preconditions. Verified deletion. Their Retain policy preserved the original host directories; disk space has not been reclaimed. Longhorn target PVs were unchanged.
+
+## Original PVC cleanup — 2026-10-28 19:12 UTC
+
+Mailpile was verified Ready using only `mailpile-path1-longhorn-rwo` and `mailpile-path2-longhorn-rwo`; both Longhorn volumes were healthy. No Pod referenced either original claim. Deleted `apps-mailpile/mailpile-path1` and `mailpile-path2` with UID/resourceVersion preconditions. Both original PVs remain **Released / Retain**, preserving their host data; this operation does not reclaim disk space. No target claims or running workloads were changed. See ACTIONS.log.
+
 **Subsequent runtime outage — 2026-10-28T18:56:07+00:00:** both Mailpile volumes are degraded again and HTTPS returns503/no available server; both APIs intermittently unready, peer full I/O PSI74.2%. Earlier verification/restoration passed, but current runtime health has regressed. See [incident](RUNTIME-OUTAGE-2026-10-28.md).
 
 
