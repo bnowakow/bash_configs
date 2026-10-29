@@ -40,13 +40,25 @@ mkdir -p "$current_backup_local_dir"
 remote_dir="/etc/pve/qemu-server"
 remote_file_name="*.conf*"
 remote_path="$remote_dir/$remote_file_name";
-rsync --partial --progress --rsh=ssh -r $remote_user@$remote_host:$remote_path $current_backup_local_dir/qemu-server/;
-number_of_copied_files=$(find $current_backup_local_dir/qemu-server -type f -name "$remote_file_name" | wc -l)
-if [ $number_of_copied_files = 0 ]; then
-    error "copy of $remote_dir on $remote_host failed"
-    rm -rf $current_backup_local_dir
-    exit
+if ! remote_entries=$(ssh -o BatchMode=yes -o ConnectTimeout=10 "$remote_user@$remote_host" "ls -A '$remote_dir'"); then
+    error "could not check $remote_dir on $remote_host"
+    rm -rf "$current_backup_local_dir"
+    exit 1
+fi
+if [ -z "$remote_entries" ]; then
+    warning "$remote_dir on $remote_host is empty; skipping VM configs"
 else
+    if ! rsync --partial --progress --rsh=ssh -r "$remote_user@$remote_host:$remote_path" "$current_backup_local_dir/qemu-server/"; then
+        error "copy of $remote_dir on $remote_host failed"
+        rm -rf "$current_backup_local_dir"
+        exit 1
+    fi
+    number_of_copied_files=$(find "$current_backup_local_dir/qemu-server" -type f -name "$remote_file_name" | wc -l)
+    if [ "$number_of_copied_files" -eq 0 ]; then
+        error "copy of $remote_dir on $remote_host produced no VM configs"
+        rm -rf "$current_backup_local_dir"
+        exit 1
+    fi
     success "copied $number_of_copied_files files from $remote_dir"
 fi
 
