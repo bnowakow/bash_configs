@@ -1,6 +1,6 @@
 #!/bin/bash
 
-proxmox_vm_id=600;
+proxmox_vm_id=""
 
 #https://gist.github.com/tree-s/1b2177bac1d8f2b70fac9e235a7f262c
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -58,19 +58,33 @@ get_vm_boot_time() {
 
 validate_proxmox_vm_id() {
     local qm_list_output
+    local matching_vm_ids
 
     if ! command -v qm >/dev/null 2>&1; then
         print_status "failure" "missing required command: qm"
         exit 1
     fi
 
-    qm_list_output="$(qm list 2>&1)"
-    if ! printf '%s\n' "$qm_list_output" | awk 'NR > 1 {print $1}' | grep -x -q "$proxmox_vm_id"; then
-        print_status "failure" "configured Proxmox VM ID does not exist: $proxmox_vm_id"
+    if ! qm_list_output="$(qm list 2>&1)"; then
+        print_status "failure" "could not list Proxmox VMs: $qm_list_output"
+        exit 1
+    fi
+
+    matching_vm_ids=$(printf '%s\n' "$qm_list_output" | awk '$1 ~ /^6[0-9][0-9]$/ {print $1}')
+    if [ -z "$matching_vm_ids" ]; then
+        print_status "failure" "no Proxmox VM found in the VM ID range 600-699"
         print_status "" "Available VMs from 'qm list':"
         printf '%s\n' "$qm_list_output"
         exit 1
     fi
+
+    if [[ "$matching_vm_ids" == *$'\n'* ]]; then
+        print_status "failure" "multiple Proxmox VMs found in the VM ID range 600-699; cannot choose safely: ${matching_vm_ids//$'\n'/ }"
+        exit 1
+    fi
+
+    proxmox_vm_id="$matching_vm_ids"
+    print_status "" "Using Proxmox VM ID $proxmox_vm_id"
 }
 
 require_root() {
@@ -235,6 +249,34 @@ for try in `seq 1 $transmission_check_attempts`; do
     print_status "" "Sleeping $transmission_check_interval before next transmission HTTP API check"
     sleep $transmission_check_interval; # Comment while DEBUG
 done
+
+if [ "$transmission_http_code" != "200" ]; then
+    print_status "" "Checking SSH access before attempting Transmission config repair"
+    if ssh -o BatchMode=yes -o ConnectTimeout=10 "root@$host" true; then
+        print_status "" "Running Transmission config repair on $host"
+        if ! ssh -o BatchMode=yes -o ConnectTimeout=10 "root@$host" \
+            /home/sup/code/bash_configs/transmission/fix-config.sh; then
+            print_status "failure" "Transmission config repair command failed; checking whether Transmission recovers anyway"
+        fi
+
+        print_status "" "Waiting 1 minute after Transmission config repair"
+        sleep 1m
+        transmission_http_code=$(curl_transmission)
+        if [ "$transmission_http_code" = "200" ]; then
+            print_status "success" "Transmission responds after config repair"
+            check_transmission_tracker_connectivity
+            if check_vm_internet_connectivity; then
+                print_status "success" "Transmission and VM connectivity checks passed"
+                exit 0
+            fi
+            print_status "failure" "Transmission responds, but VM connectivity check failed"
+        else
+            print_status "failure" "Transmission still does not respond after config repair (HTTP $transmission_http_code)"
+        fi
+    else
+        print_status "failure" "SSH unavailable; could not attempt Transmission config repair"
+    fi
+fi
 
 if transmission_vm_boot_date_time_before_reboot=$(get_vm_boot_time "root@$host"); then
     echo transmission_vm_boot_date_time_before_reboot=$transmission_vm_boot_date_time_before_reboot;
