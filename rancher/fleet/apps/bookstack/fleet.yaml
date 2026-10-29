@@ -6,7 +6,7 @@ dependsOn:
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/bookstack
-  version: 23.0.8
+  version: 23.0.9
   releaseName: bookstack
   waitForJobs: true
   valuesFiles:
