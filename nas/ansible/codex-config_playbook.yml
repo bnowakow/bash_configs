@@ -1,0 +1,62 @@
+- name: Configure Codex command approvals for sup and sudo
+  hosts: all
+  remote_user: sup
+  gather_facts: false
+  tasks:
+    - name: Verify that Ansible is connected as sup
+      ansible.builtin.command: id -un
+      register: codex_config_account
+      changed_when: false
+      check_mode: false
+
+    - name: Refuse to configure another user's Codex installation
+      ansible.builtin.assert:
+        that: codex_config_account.stdout == 'sup'
+
+    - name: Find sup's home directory
+      ansible.builtin.getent:
+        database: passwd
+        key: sup
+
+    - name: Create sup's Codex config directory
+      ansible.builtin.file:
+        path: "{{ ansible_facts.getent_passwd['sup'][4] }}/.codex"
+        state: directory
+        mode: '0700'
+
+    - name: Disable Codex command approval prompts for sup
+      ansible.builtin.script:
+        cmd: >-
+          files/set_codex_approval_policy.py
+          {{ ansible_facts.getent_passwd['sup'][4] | quote }}
+          {{ '--check' if ansible_check_mode else '' }}
+        executable: /usr/bin/python3
+      register: codex_config_result
+      changed_when: codex_config_result.stdout | trim in ['changed', 'would-change']
+      check_mode: false
+
+    - name: Find root's home directory used by sudo Codex
+      ansible.builtin.getent:
+        database: passwd
+        key: root
+
+    - name: Create root's Codex config directory
+      ansible.builtin.file:
+        path: "{{ ansible_facts.getent_passwd['root'][4] }}/.codex"
+        state: directory
+        owner: root
+        group: root
+        mode: '0700'
+      become: true
+
+    - name: Disable Codex command approval prompts under sudo
+      ansible.builtin.script:
+        cmd: >-
+          files/set_codex_approval_policy.py
+          {{ ansible_facts.getent_passwd['root'][4] | quote }}
+          {{ '--check' if ansible_check_mode else '' }}
+        executable: /usr/bin/python3
+      become: true
+      register: sudo_codex_config_result
+      changed_when: sudo_codex_config_result.stdout | trim in ['changed', 'would-change']
+      check_mode: false
