@@ -3517,3 +3517,4 @@
 2026-10-28T19:13:55.305257+00:00 Deleted released original Mailpile PV pvc-3d4c4ac7-14b9-43fd-a5de-55afb60accc7 with UID/resourceVersion preconditions; Retain host directory preserved.
 2026-10-28T19:18:10.322549+00:00 Removed both obsolete Mailpile local-path directories on proxmox2-old after all-process mount audit, at ionice3/nice19; verified absent. Last allocated size ~8.37GiB; physical pool gain not established.
 2026-10-28T19:23:54.627477+00:00 Observed recovery complete:43 healthy,4 detached/unknown,0 degraded; both APIs ready; k3s restart counts unchanged186/91 during monitoring; full PSI0.30%/1.53%.
+2026-10-28T20:17:57.117013+00:00 Post-peer-reboot recovery confirmed twice:43 healthy,4 detached/unknown,0 rebuilds; both APIs ready; restart counts stable193/4. Cleared next planned host reboot with expected API outage.

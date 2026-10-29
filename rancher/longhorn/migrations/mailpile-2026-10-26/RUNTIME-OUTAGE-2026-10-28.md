@@ -22,3 +22,7 @@ Stabilize API/etcd and investigate host I/O pressure, then inspect Mailpile Pod 
 ## Observed recovery completion — 2026-10-28T19:23:54.627477+00:00
 
 Read-only minute monitoring observed degraded volumes fall4→2→1→0, ending with43 healthy volumes and4 detached/unknown volumes. All attached volumes, including both Mailpile volumes, are healthy. Both API readiness endpoints passed. k3s restart counts stayed186(proxmox3)/91(proxmox2-old) during this monitoring interval. Final full I/O PSI avg10 was0.30% local and1.53% peer. No recovery settings or workloads were changed during monitoring. This is observed current recovery, not proof the underlying recurring I/O/control-plane problem is resolved.
+
+## Post-proxmox2-old reboot recovery — 2026-10-28T20:17:57.117013+00:00
+
+Read-only monitoring observed initial apparently healthy inventory regress after boot: peer k3s restarted4 times, local k3s reached193 restarts, API/etcd readiness failed repeatedly and storage degraded. Rebuilds eventually completed. At20:16:44Z and20:17:43Z, all43 active volumes were healthy,4 idle detached volumes unknown, no rebuilds active, both APIs ready; both nodes Ready at20:16:44Z. k3s restart counts remained193local/4peer in final samples and unchanged since20:05Z. Final peer full PSI avg10=5.00%. User advised that proxmox3 may now undergo a planned maintenance reboot with API downtime expected from two-voter etcd topology. No reboot initiated by this session. Monitoring on proxmox3 will disconnect during reboot. Root cause of recurring I/O pressure remains unresolved.
