@@ -784,7 +784,7 @@ fleet_bundledeployment_failure_message() {
   local since="${3:-}"
   local message
 
-  message="$(kubectl get bundledeployment "$bundledeployment_name" \
+  message="$(timeout 20s kubectl --request-timeout=15s get bundledeployment "$bundledeployment_name" \
     --kubeconfig "$kubeconfig_path" --namespace "$bundledeployment_namespace" \
     -o json 2>>"$log_file" | jq -r --arg since "$since" '
       # A chart upgrade can briefly leave PVC version labels behind. Wait
@@ -799,9 +799,23 @@ fleet_bundledeployment_failure_message() {
              (.metadata | keys) == ["labels"] and
              (.metadata.labels | type) == "object")
         ) catch false) // false);
+      . as $deployment |
       (.status.conditions[]? |
         select(.status == "False") |
-        select($since == "" or (.lastUpdateTime // "") >= $since) |
+        select(
+          if .type == "Deployed" and
+             ((.message // "") | contains("dependent bundle(s) are not ready"))
+          then
+            .message as $message |
+            any($deployment.spec.dependsOn[]?;
+              .name as $name | $message | contains($name))
+          else true end
+        ) |
+        # A dependency blocker remains applicable even when its timestamp
+        # predates this upgrade; Fleet can retain it across retries.
+        select($since == "" or (.lastUpdateTime // "") >= $since or
+          (.type == "Deployed" and
+           ((.message // "") | contains("dependent bundle(s) are not ready")))) |
         select(pvc_label_drift | not) |
         "\(.type): \(.reason): \(.message)"),
       (if $since == "" then (.status.display.message // empty) else empty end)
@@ -822,7 +836,7 @@ helm_release_failure_message() {
   local namespace="$2"
   local message
 
-  message="$(helm status "$app" \
+  message="$(timeout 20s helm status "$app" \
     --kubeconfig "$kubeconfig_path" \
     --namespace "$namespace" \
     -o json 2>>"$log_file" | \
@@ -1017,6 +1031,8 @@ apply_fleet_bundle() {
   local current_desired_deployment_id
   local bundledeployment_lookup_attempts=0
   local bundledeployment_wait_attempts=0
+  local deployment_deadline
+  local next_progress_at
   local applied_deployment_id
   local bundledeployment_ready
   local failure_message
@@ -1029,6 +1045,7 @@ apply_fleet_bundle() {
   local native_apply_labels=()
   local existing_label
   local prune_candidates
+  local dependency_repair_attempted=0
   local fleet_repair_attempted=0
   local fleet_status_retry=0
 
@@ -1187,10 +1204,12 @@ apply_fleet_bundle() {
   # BundleDeployment has already failed".  Poll both states so a failed Helm
   # revision is reported immediately instead of leaving the script frozen for
   # ten minutes.
-  while [ "$bundledeployment_wait_attempts" -lt 600 ]; do
-    applied_deployment_id="$(kubectl -n "$bundledeployment_namespace" get bundledeployment "$bundledeployment_name" \
+  deployment_deadline=$((SECONDS + 600))
+  next_progress_at=$SECONDS
+  while [ "$SECONDS" -lt "$deployment_deadline" ]; do
+    applied_deployment_id="$(timeout 20s kubectl --request-timeout=15s -n "$bundledeployment_namespace" get bundledeployment "$bundledeployment_name" \
       --kubeconfig "$kubeconfig_path" -o jsonpath='{.status.appliedDeploymentID}' 2>>"$log_file" || true)"
-    bundledeployment_ready="$(kubectl -n "$bundledeployment_namespace" get bundledeployment "$bundledeployment_name" \
+    bundledeployment_ready="$(timeout 20s kubectl --request-timeout=15s -n "$bundledeployment_namespace" get bundledeployment "$bundledeployment_name" \
       --kubeconfig "$kubeconfig_path" -o jsonpath='{.status.ready}' 2>>"$log_file" || true)"
     failure_message="$(fleet_bundledeployment_failure_message "$bundledeployment_namespace" "$bundledeployment_name" "$reconciliation_started_at")"
 
@@ -1198,11 +1217,15 @@ apply_fleet_bundle() {
     # failed the new revision, without publishing Ready=False on the
     # BundleDeployment. Detect that state directly so this loop cannot wait
     # indefinitely for an appliedDeploymentID that will never arrive.
-    helm_status_json="$(helm status "$app" --kubeconfig "$kubeconfig_path" \
+    helm_status_json="$(timeout 20s helm status "$app" --kubeconfig "$kubeconfig_path" \
       --namespace "$namespace" -o json 2>>"$log_file" || true)"
     helm_status="$(printf '%s' "$helm_status_json" | jq -r '.info.status // empty' 2>>"$log_file" || true)"
     current_helm_revision="$(printf '%s' "$helm_status_json" | jq -r '.version // 0' 2>>"$log_file" || true)"
     [[ "$current_helm_revision" =~ ^[0-9]+$ ]] || current_helm_revision=0
+    if [ "$SECONDS" -ge "$next_progress_at" ]; then
+      log "$app: Fleet apply pending: desired=$desired_deployment_id applied=${applied_deployment_id:-unknown} ready=${bundledeployment_ready:-unknown} helm=${helm_status:-unavailable} revision=$current_helm_revision"
+      next_progress_at=$((SECONDS + 30))
+    fi
     # A failed revision predating this reconciliation is not its outcome.
     # Wait for Fleet to create a newer Helm revision before reporting failure.
     if [ "$helm_status" = "failed" ] && [ "$current_helm_revision" -gt "$previous_helm_revision" ]; then
@@ -1236,6 +1259,29 @@ apply_fleet_bundle() {
     if [ -n "$failure_message" ] && \
       { [ -z "$previous_applied_deployment_id" ] || \
         [ "$desired_deployment_id" != "$previous_applied_deployment_id" ]; }; then
+      if [[ "$failure_message" == *"dependent bundle(s) are not ready"* ]] && \
+        [ "$dependency_repair_attempted" -eq 0 ]; then
+        dependency_repair_attempted=1
+        # Ask explicitly even in --yes mode: this is a separate repair action.
+        if dialog --clear --begin 2 10 --defaultno \
+          --title "Attempt Fleet dependency recovery ($app)?" \
+          --yesno "Fleet reports:\n$failure_message\n\nReapply this app's local Fleet configuration and request one fresh reconciliation? This can clear an obsolete dependency after a storage migration. Dependencies still declared locally must be repaired separately.\n\nThis action does not edit storage definitions or delete PVCs. Attempt recovery?" 22 110; then
+          log "$app: user approved Fleet dependency recovery; reapplying local bundle"
+          if apply_fleet_bundle_with_repair "$app" --kubeconfig "$kubeconfig_path" \
+            --namespace fleet-local "${native_apply_labels[@]}" \
+            "$bundle_name" "$relative_fleet_dir" && \
+            request_fleet_reconciliation_retry "$bundle_name" "$bundledeployment_namespace" \
+              "$bundledeployment_name" "$desired_deployment_id"; then
+            reconciliation_started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            deployment_deadline=$((SECONDS + 600))
+            log "$app: dependency recovery requested; checking the new deployment"
+            continue
+          fi
+          log "$app: Fleet dependency recovery did not start successfully"
+        else
+          log "$app: user declined Fleet dependency recovery"
+        fi
+      fi
       log "$app: Fleet BundleDeployment reported failure: $failure_message" \
         "$(color_blue "$app"): Fleet Helm reconciliation failed"
       record_failure_and_maybe_abort "Fleet Helm reconciliation failed ($app)" \
@@ -1252,6 +1298,12 @@ apply_fleet_bundle() {
   done
 
   if [ "$applied_deployment_id" != "$desired_deployment_id" ]; then
+    log "$app: Fleet apply deadline exceeded; collecting BundleDeployment, Helm and pod diagnostics"
+    timeout 20s kubectl --request-timeout=15s -n "$bundledeployment_namespace" get bundledeployment "$bundledeployment_name" -o yaml \
+      --kubeconfig "$kubeconfig_path" >>"$log_file" 2>&1 || true
+    timeout 20s helm status "$app" --namespace "$namespace" --kubeconfig "$kubeconfig_path" >>"$log_file" 2>&1 || true
+    timeout 20s kubectl --request-timeout=15s -n "$namespace" get pods -o wide \
+      --kubeconfig "$kubeconfig_path" >>"$log_file" 2>&1 || true
     record_failure_and_maybe_abort "Fleet BundleDeployment did not apply ($app)" \
       "Fleet did not apply deployment $desired_deployment_id for bundle $bundle_name."
     return 1
@@ -1819,10 +1871,33 @@ get_ingress_targets() {
     ' | sort -u)
 }
 
-get_release_pods() {
+# Follow controller ownership because some charts omit instance labels on pods.
+get_release_resources() {
   local app="$1"
   local namespace="$2"
-  kubectl get pods -n "$namespace" --kubeconfig "$kubeconfig_path" -l "app.kubernetes.io/instance=$app" -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' 2>/dev/null | awk 'NF' | sort -u
+  local kinds="$3"
+  local resources
+  resources="$(kubectl get pods,deployment,statefulset,daemonset,replicaset,job,cronjob \
+    -n "$namespace" --kubeconfig "$kubeconfig_path" -o json)" || return 1
+  jq -r --arg app "$app" --arg kinds "$kinds" '
+    .items as $items
+    | def owned:
+        (.metadata.annotations["meta.helm.sh/release-name"] == $app)
+        or (.metadata.labels["app.kubernetes.io/instance"] == $app)
+        or (.metadata.labels.release == $app)
+        or any(.metadata.ownerReferences[]?;
+          .uid as $uid | any($items[];
+            .metadata.uid == $uid and owned));
+      $items[]
+      | select(.kind as $kind | $kinds | split(",") | index($kind))
+      | select(owned)
+      | if .kind == "Pod" then .metadata.name
+        else (.kind | ascii_downcase) + "/" + .metadata.name end
+  ' <<< "$resources" | sort -u
+}
+
+get_release_pods() {
+  get_release_resources "$1" "$2" "Pod"
 }
 
 collect_no_ingress_pod_log_summary() {
@@ -1838,11 +1913,15 @@ collect_no_ingress_pod_log_summary() {
   check_summary_title="Pod logs (last 10 lines per pod)"
   check_summary_kind="pod-logs"
 
-  pods="$(get_release_pods "$app" "$namespace")"
+  if ! pods="$(get_release_pods "$app" "$namespace")"; then
+    check_summary_body="Unable to discover release pods in namespace $namespace."
+    log "$app [$phase]: $check_summary_body"
+    return 1
+  fi
   if [ -z "$pods" ]; then
-    check_summary_body="No release-labeled pods found for app.kubernetes.io/instance=$app"
-    log "$app [$phase]: no ingress hosts found and no release-labeled pods were found for pod log review" "$(color_blue "$app") [$phase]: no ingress hosts found and no release-labeled pods were found for pod log review"
-    return 0
+    check_summary_body="No pods found belonging to Helm release $app; log review is unavailable."
+    log "$app [$phase]: no ingress hosts found and no release pods were found for pod log review" "$(color_blue "$app") [$phase]: no ingress hosts found and no release pods were found for pod log review"
+    return 1
   fi
 
   while IFS= read -r pod; do
@@ -1882,7 +1961,7 @@ check_ingress_http_codes() {
 
   if [ -z "$ingress_targets" ]; then
     collect_no_ingress_pod_log_summary "$app" "$namespace" "$phase"
-    return 0
+    return $?
   fi
 
   local fail=0
@@ -1934,7 +2013,7 @@ check_rollout_ready() {
   local phase="$3"
 
   local resources
-  resources="$(kubectl get deployment,statefulset -n "$namespace" --kubeconfig "$kubeconfig_path" -l "app.kubernetes.io/instance=$app" -o name 2>/dev/null || true)"
+  resources="$(get_release_resources "$app" "$namespace" "Deployment,StatefulSet,DaemonSet")" || return 1
 
   if [ -z "$resources" ]; then
     log "$app [$phase]: no release-labeled deployment/statefulset resources found for app.kubernetes.io/instance=$app" "$(color_blue "$app") [$phase]: no release-labeled deployment/statefulset resources found for app.kubernetes.io/instance=$app"
@@ -1967,7 +2046,7 @@ run_prechecks() {
   fi
 
   if ! check_ingress_http_codes "$app" "$namespace" "precheck"; then
-    record_failure_and_maybe_abort "Precheck HTTP failed ($app)" "Failed ingress hosts for $app:\n$check_failed_ingress_summary"
+    record_failure_and_maybe_abort "Precheck HTTP failed ($app)" "Health checks failed for $app:\n$check_summary_body"
     return 1
   fi
 
@@ -1984,7 +2063,7 @@ run_postchecks() {
   fi
 
   if ! check_ingress_http_codes "$app" "$namespace" "postcheck"; then
-    record_failure_and_maybe_abort "Postcheck HTTP failed ($app)" "Failed ingress hosts for $app after upgrade:\n$check_failed_ingress_summary"
+    record_failure_and_maybe_abort "Postcheck HTTP failed ($app)" "Health checks failed for $app after upgrade:\n$check_summary_body"
     return 1
   fi
 
