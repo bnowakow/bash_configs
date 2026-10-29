@@ -3,11 +3,10 @@ defaultNamespace: apps-calibre
 
 dependsOn:
   - name: longhorn-calibre-arr-storage
-  - name: calibre-storage
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/calibre
-  version: 21.1.1
+  version: 21.1.2
   releaseName: calibre
   waitForJobs: true
   valuesFiles:

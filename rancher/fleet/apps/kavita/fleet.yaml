@@ -3,7 +3,6 @@ defaultNamespace: apps-calibre
 
 dependsOn:
   - name: longhorn-calibre-arr-storage
-  - name: calibre-storage
 
 helm:
   chart: oci://oci.trueforge.org/truecharts/kavita

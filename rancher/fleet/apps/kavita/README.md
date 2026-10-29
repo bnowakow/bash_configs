@@ -1,7 +1,7 @@
 # Kavita
 
 TrueCharts Kavita chart `14.0.3` runs in `apps-calibre` and depends on
-`calibre-storage` and `longhorn-calibre-arr-storage`. It has its own 256Mi
+`longhorn-calibre-arr-storage`. It has its own 256Mi
 Longhorn RWO `kavita-config-longhorn-rwo` PVC mounted at `/config`.
 
 - https://kavita.rancher.tailscale.bnowakowski.pl/
