@@ -109,6 +109,90 @@ consistency, or a repair of the CSI snapshot mechanism.
 Next evidence needed: final job status and per-PVC results, accounting for
 every selected claim, followed by a representative isolated restore test.
 
+## Completed run verified from the supplied ZIP
+
+The archive `cloudcasa-k8s_copy-6ae36a161aeff6e71701c6df.zip` was subsequently
+supplied from `/Users/sup/Downloads/` and inspected directly. This supersedes
+the earlier progress-only assessment above.
+
+- Resource backup: `BackupDone()` reported `Phase: Completed` and
+  `Backup Successful.` at 15:50:45 UTC / 16:50:45 Warsaw.
+- Data copy: at 16:01:59 UTC / 17:01:59 Warsaw, the agent reported
+  `Offload completed successfully`, followed by `Phase: Completed` and
+  `Copy completed`. `OffloadDone()` was sent at 16:02:01 UTC.
+- Deduplicating the main copy-agent's PVC progress records by namespace/name
+  yields **46 PVCs, all with final state `COMPLETED`**, all using
+  `LIVE_FROM_PVC`. The agent independently reports `PVC totalNum 46` and
+  32 movers. Both Mailpile PVCs completed.
+- Summing the final per-PVC counters gives **50,564,243,755 bytes read**
+  (50.56 GB decimal) and **11,431,819,513 bytes transferred** (11.43 GB
+  decimal). These are logged copy counters, not a measurement of restore
+  completeness or total repository size.
+- The snapshot helper contains a startup warning that the Velero node agent
+  was not found. CloudCasa's own movers nevertheless completed this copy.
+  Setup `repository already initialized` messages likewise did not prevent
+  successful completion. Do not equate raw log error/warning lines with the
+  previous job's final reported error/warning totals.
+
+The configuration change successfully bypassed the previous snapshot-binding
+failure for this run. CSI snapshot functionality itself remains unverified.
+A live database copy is not proof of application consistency, and no restore
+was tested here. Reconciliation against the intended cluster-wide PVC
+inventory remains a separate check: 46 completed claims confirms coverage of
+this run's reported copy inventory, not every claim in the cluster.
+
+### Completed PVC inventory
+
+The following unique claims all ended `COMPLETED` with `LIVE_FROM_PVC` in
+`agent/copy.kubeagent-5bb6cd65c4-zxwx4.kubeagent.log`:
+
+- `apps-adguard-home/adguard-home-config-longhorn-rwo`
+- `apps-adguard-home/adguard-home-data-longhorn-rwo`
+- `apps-audiobookshelf/audiobookshelf-config-longhorn-rwo`
+- `apps-audiobookshelf/audiobookshelf-metadata-longhorn-rwo`
+- `apps-authelia/authelia-config-longhorn-rwo`
+- `apps-bazarr/bazarr-config-longhorn-rwo`
+- `apps-bindery/bindery-config-longhorn-rwo`
+- `apps-bookstack/bookstack-config-longhorn-rwo`
+- `apps-bookstack/bookstack-mariadb-data-longhorn-rwo`
+- `apps-calibre/calibre-config-longhorn-rwo`
+- `apps-calibre/calibre-library-longhorn-rwo`
+- `apps-calibre/calibre-web-config-longhorn-rwo`
+- `apps-calibre/kavita-config-longhorn-rwo`
+- `apps-cleanuparr/cleanuparr-config-longhorn-rwo`
+- `apps-ddclient/ddclient-config-longhorn-rwo`
+- `apps-docker-mailserver/docker-mailserver-mail-config-longhorn-rwo`
+- `apps-docker-mailserver/docker-mailserver-mail-data-longhorn-rwo`
+- `apps-docker-mailserver/docker-mailserver-mail-log-longhorn-rwo`
+- `apps-docker-mailserver/docker-mailserver-mail-state-longhorn-rwo`
+- `apps-duckdns/duckdns-config-longhorn-rwo`
+- `apps-filebot/filebot-config-longhorn-rwo`
+- `apps-filebot/filebot-output-longhorn-rwo`
+- `apps-filebot/filebot-watch-longhorn-rwo`
+- `apps-flaresolverr/flaresolverr-config-longhorn-rwo`
+- `apps-homer-test/homer-test-config-longhorn-rwx`
+- `apps-homer/homer-config-longhorn-rwo`
+- `apps-homer/homer-without-auth-config-longhorn-rwo`
+- `apps-jellyseerr/jellyseerr-config-longhorn-rwo`
+- `apps-mailpile/mailpile-path1-longhorn-rwo`
+- `apps-mailpile/mailpile-path2-longhorn-rwo`
+- `apps-openbooks/openbooks-books-longhorn-rwo`
+- `apps-openbooks/openbooks-logs-longhorn-rwo`
+- `apps-profilarr/profilarr-config-longhorn-rwo`
+- `apps-prowlarr/prowlarr-config-longhorn-rwo`
+- `apps-radarr/radarr-config-longhorn-rwo`
+- `apps-scrutiny/scrutiny-config-longhorn-rwo`
+- `apps-scrutiny/scrutiny-influxdb-longhorn-rwo`
+- `apps-smokeping/smokeping-config-longhorn`
+- `apps-smokeping/smokeping-data-longhorn`
+- `apps-sonarr/sonarr-config-longhorn-rwo`
+- `apps-ubooquity/ubooquity-config-longhorn-rwo`
+- `apps-uptime-kuma/uptime-kuma-config-longhorn-rwo`
+- `apps-youtubedl-material/youtubedl-material-appdata-longhorn-rwo`
+- `apps-youtubedl-material/youtubedl-material-mongodb-data-longhorn-rwo`
+- `apps-youtubedl-material/youtubedl-material-users-longhorn-rwo`
+- `apps-zabbix/zabbix-postgresql-data-longhorn-rwo`
+
 ## Continue analyzing the run on proxmox3
 
 1. Record the new job ID, start/end times, final state, warnings and errors.
