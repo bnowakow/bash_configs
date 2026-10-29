@@ -1,0 +1,133 @@
+---
+- name: Install default SSH keys for sup and root when absent
+  hosts: all
+  become: false
+  gather_facts: true
+  vars:
+    private_key_path: "{{ ansible_env.HOME }}/.ssh/id_ecdsa"
+  tasks:
+    - name: Check the source private key on the controller
+      ansible.builtin.stat:
+        path: "{{ default_ssh_private_key_source }}"
+        checksum_algorithm: sha256
+      delegate_to: localhost
+      register: source_private_key
+      no_log: true
+
+    - name: Require the source private key
+      ansible.builtin.assert:
+        that: source_private_key.stat.isreg | default(false)
+        fail_msg: The SSH private key source is missing.
+
+    - name: Check the existing private key
+      ansible.builtin.stat:
+        path: "{{ private_key_path }}"
+        checksum_algorithm: sha256
+      register: existing_private_key
+      no_log: true
+
+    - name: Warn when the existing private key differs
+      ansible.builtin.debug:
+        msg: "WARNING: {{ private_key_path }} differs from the source key; leaving it unchanged."
+      when:
+        - existing_private_key.stat.exists
+        - existing_private_key.stat.checksum | default('') != source_private_key.stat.checksum
+      # TODO: Offer to move the existing key pair to another name, replace it, or ignore the difference.
+
+    - name: Ensure the SSH directory exists
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/.ssh"
+        state: directory
+        mode: '0700'
+
+    - name: Install the source private key when absent
+      ansible.builtin.copy:
+        src: "{{ default_ssh_private_key_source }}"
+        dest: "{{ private_key_path }}"
+        mode: '0600'
+      when: not existing_private_key.stat.exists
+      no_log: true
+
+    - name: Find root's home directory
+      ansible.builtin.command: getent passwd root
+      register: root_passwd
+      changed_when: false
+      check_mode: false
+
+    - name: Check the source public key on the controller
+      ansible.builtin.stat:
+        path: "{{ default_ssh_public_key_source }}"
+        checksum_algorithm: sha256
+      delegate_to: localhost
+      register: source_public_key
+
+    - name: Require the source public key
+      ansible.builtin.assert:
+        that: source_public_key.stat.isreg | default(false)
+        fail_msg: The SSH public key source is missing.
+
+    - name: Install root's default SSH key pair when absent
+      become: true
+      vars:
+        root_ssh_dir: "{{ root_passwd.stdout.split(':')[5] }}/.ssh"
+        root_private_key_path: "{{ root_ssh_dir }}/id_ecdsa"
+        root_public_key_path: "{{ root_ssh_dir }}/id_ecdsa.pub"
+      block:
+        - name: Check root's existing private key
+          ansible.builtin.stat:
+            path: "{{ root_private_key_path }}"
+            checksum_algorithm: sha256
+          register: root_private_key
+          no_log: true
+
+        - name: Check root's existing public key
+          ansible.builtin.stat:
+            path: "{{ root_public_key_path }}"
+            checksum_algorithm: sha256
+          register: root_public_key
+
+        - name: Determine whether root's existing key pair conflicts
+          ansible.builtin.set_fact:
+            root_key_conflict: >-
+              {{ (root_private_key.stat.exists and
+                  root_private_key.stat.checksum | default('') != source_private_key.stat.checksum) or
+                 (root_public_key.stat.exists and
+                  root_public_key.stat.checksum | default('') != source_public_key.stat.checksum) }}
+
+        - name: Warn when root's existing key pair differs
+          ansible.builtin.debug:
+            msg: "WARNING: root's SSH key pair differs from the source pair; leaving it unchanged."
+          when: root_key_conflict
+          # TODO: Offer to move the existing key pair to another name, replace it, or ignore the difference.
+
+        - name: Ensure root's SSH directory exists
+          ansible.builtin.file:
+            path: "{{ root_ssh_dir }}"
+            state: directory
+            owner: root
+            group: root
+            mode: '0700'
+          when: not root_key_conflict
+
+        - name: Install root's private key when absent
+          ansible.builtin.copy:
+            src: "{{ default_ssh_private_key_source }}"
+            dest: "{{ root_private_key_path }}"
+            owner: root
+            group: root
+            mode: '0600'
+          when:
+            - not root_key_conflict
+            - not root_private_key.stat.exists
+          no_log: true
+
+        - name: Install root's public key when absent
+          ansible.builtin.copy:
+            src: "{{ default_ssh_public_key_source }}"
+            dest: "{{ root_public_key_path }}"
+            owner: root
+            group: root
+            mode: '0644'
+          when:
+            - not root_key_conflict
+            - not root_public_key.stat.exists

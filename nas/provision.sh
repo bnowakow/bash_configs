@@ -146,14 +146,9 @@ sudo add-apt-repository -y 'deb [arch=amd64] https://repo.zabbix.com/zabbix/7.0/
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv D913219AB5333005
 sudo apt-get update
 apt_install -y zabbix-agent2
-sudo cp /mnt/MargokPool/home/sup/code/bash_configs/zabbix/zabbix_agent2.conf /etc/zabbix
-cd /etc/zabbix/zabbix_agent2.d
-sudo ln -sfnT /mnt/MargokPool/home/sup/code/bash_configs /etc/zabbix/zabbix_agent2.d/bash_configs
-cd bash_configs
-sudo chown sup:sup -R .
-mkdir -p repos
-sudo chown zabbix:zabbix repos
-cd ../
+provision_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+ansible-playbook -i "$provision_dir/ansible/inventory/nas-local.yml" \
+    "$provision_dir/ansible/zabbix-repository-migration_playbook.yml" --ask-become-pass
 sudo usermod -a -G docker zabbix
 sudo mkdir -p /var/lib/zabbix/
 sudo chown zabbix:zabbix /var/lib/zabbix
@@ -250,5 +245,4 @@ if ((${#APT_CONFIG_WARNINGS[@]})); then
     printf '\n%bWARNING: package configuration completed with errors:%b\n' "$YELLOW" "$RESET" >&2
     printf '%b- %s%b\n' "$YELLOW" "${APT_CONFIG_WARNINGS[@]}" "$RESET" >&2
 fi
-
 

@@ -26,13 +26,6 @@
         name: user.email
         scope: global
         value: dobrowolski.nowakowski@gmail.com
-    - name: install GitHub SSH private key
-      ansible.builtin.copy:
-        src: "{{ github_ssh_private_key_source }}"
-        dest: "{{ ansible_env.HOME }}/.ssh/id_ecdsa"
-        mode: "0600"
-      when: github_ssh_private_key_source is defined
-      no_log: true
     - name: Check whether bash_configs is already cloned
       ansible.builtin.stat:
         path: "{{ ansible_env.HOME }}/code/bash_configs/.git"

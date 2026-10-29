@@ -60,7 +60,7 @@ proxmox_become_password_file=$selected_become_password_file
 export ANSIBLE_BECOME_PASSWORD_FILE=$proxmox_become_password_file
 
 # The root-only bootstrap is a separate, one-time playbook.
-for playbook in initial-config_playbook.yml git-config_playbook.yml; do
+for playbook in initial-config_playbook.yml ssh-private-key_playbook.yml git-config_playbook.yml; do
   ansible-playbook -i "$inventory" "$playbook"
 done
 ansible-playbook -i "$inventory" zabbix-agent2_playbook.yml
@@ -74,6 +74,7 @@ ansible-playbook -i "$inventory" codex-config_playbook.yml
 select_become_password_file NAS "${NAS_ANSIBLE_BECOME_PASSWORD_FILE:-}"
 export ANSIBLE_BECOME_PASSWORD_FILE=$selected_become_password_file
 ansible-playbook -i inventory/nas-local.yml github-ssh_playbook.yml
+ansible-playbook -i inventory/nas-local.yml ssh-private-key_playbook.yml
 ansible-playbook -i inventory/nas-local.yml zabbix-agent2_playbook.yml
 ansible-playbook -i inventory/nas-local.yml zabbix-repository-migration_playbook.yml
 ansible-playbook -i inventory/nas-local.yml zabbix-update-metadata_playbook.yml
@@ -83,6 +84,7 @@ ansible-playbook -i inventory/nas-local.yml codex-config_playbook.yml
 select_become_password_file OVH "${OVH_ANSIBLE_BECOME_PASSWORD_FILE:-}"
 export ANSIBLE_BECOME_PASSWORD_FILE=$selected_become_password_file
 ansible-playbook -i inventory/ovh.yml github-ssh_playbook.yml
+ansible-playbook -i inventory/ovh.yml ssh-private-key_playbook.yml
 ansible-playbook -i inventory/ovh.yml zabbix-agent2_playbook.yml
 ansible-playbook -i inventory/ovh.yml zabbix-repository-migration_playbook.yml
 ansible-playbook -i inventory/ovh.yml zabbix-update-metadata_playbook.yml
