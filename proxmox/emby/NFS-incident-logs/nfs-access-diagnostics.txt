@@ -1,0 +1,19 @@
+uid=1000(sup) gid=1000(sup) groups=1000(sup),27(sudo),100(users),116(zabbix),995(docker)
+f: /home/sup/code/bash_configs/proxmox/emby
+drwxr-xr-x root root /
+drwxr-xr-x root root home
+drwxr-x--- sup  sup  sup
+drwxr-xr-x sup  sup  code
+drwxr-xr-x sup  sup  bash_configs
+drwxr-xr-x sup  sup  proxmox
+drwxrwxr-x sup  sup  emby
+TARGET SOURCE           FSTYPE OPTIONS
+/      rpool/ROOT/pve-1 zfs    rw,relatime,xattr,posixacl,casesensitive
+  File: /home/sup/code/bash_configs/proxmox/emby
+  Size: 14        	Blocks: 17         IO Block: 1024   directory
+Device: 0,29	Inode: 5011261     Links: 4
+Access: (0775/drwxrwxr-x)  Uid: ( 1000/     sup)   Gid: ( 1000/     sup)
+Access: 2026-10-30 10:47:32.211579752 +0100
+Modify: 2026-10-30 10:50:31.726537885 +0100
+Change: 2026-10-30 10:50:31.726537885 +0100
+ Birth: 2026-08-21 19:01:08.767252644 +0200

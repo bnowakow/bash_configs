@@ -12,6 +12,8 @@ its own users, settings, databases, media mount and published port.
 Both use `/dev/dri` and UID/GID 568. Nubile also has group 1000 for Movies
 permissions (1000:1000, mode 770). Both config directories are ignored by Git.
 The external Docker NFS volume `nubile_movies` is reused without copying media.
+For recurring missing-media symptoms, evidence and recovery steps are recorded
+in [NFS-incident.md](NFS-incident.md).
 On a new host, create it before starting:
 
 ```sh
