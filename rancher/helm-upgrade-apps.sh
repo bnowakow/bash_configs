@@ -861,6 +861,44 @@ ask_attempt_fleet_repair() {
     --yesno "Helm release $namespace/$app is failed, but Fleet still has the previous deployment applied.\n\nThe old deployment should remain available. Attempt one fresh Fleet reconciliation before marking this app failed?" 18 110
 }
 
+# Relinquish only the self-updater's ownership on the three objects reported
+# by this known CloudCasa conflict. Preserve live values and other managers.
+repair_cloudcasa_field_ownership() {
+  local resource name object patch
+  if ! dialog --clear --begin 2 10 --defaultno \
+    --title "Attempt CloudCasa ownership repair?" \
+    --yesno "CloudCasa's self-updater owns fields needed by the Helm upgrade.\n\nRelease the cloudcasa-kubeagent-manager field ownership on ServiceAccount cloudcasa-io, ClusterRoleBinding cloudcasa-io, and Deployment cloudcasa-kubeagent-manager, then retry Fleet once?\n\nLive values remain unchanged during ownership repair. The subsequent upgrade may replace the agent image and restart it, interrupting an active backup. Other managers and PVCs are preserved.\n\nAttempt this repair?" 24 110; then
+    log "cloudcasa: user declined ownership repair"
+    return 1
+  fi
+  log "cloudcasa: user approved scoped self-updater ownership repair"
+  for resource in serviceaccount clusterrolebinding deployment; do
+    name=cloudcasa-io
+    [ "$resource" != deployment ] || name=cloudcasa-kubeagent-manager
+    object="$(timeout 20s kubectl --request-timeout=15s get "$resource" "$name" \
+      --namespace cloudcasa-io --kubeconfig "$kubeconfig_path" \
+      --show-managed-fields -o json 2>>"$log_file")" || return 1
+    patch="$(printf '%s' "$object" | jq -c '
+      (.metadata.managedFields // []) as $fields |
+      if any($fields[]; .manager == "cloudcasa-kubeagent-manager") then
+        [{op:"test", path:"/metadata/resourceVersion", value:.metadata.resourceVersion},
+         {op:"test", path:"/metadata/managedFields", value:$fields},
+         {op:"replace", path:"/metadata/managedFields",
+          value:[$fields[] | select(.manager != "cloudcasa-kubeagent-manager")]}]
+      else [] end')" || return 1
+    if [ "$patch" = '[]' ]; then
+      log "cloudcasa: $resource/$name already has no self-updater ownership"
+      continue
+    fi
+    printf '%s\n' "$object" | jq '{kind, metadata: {name:.metadata.name, namespace:.metadata.namespace, resourceVersion:.metadata.resourceVersion, managedFields:.metadata.managedFields}}' \
+      > "$log_dir/cloudcasa-ownership-$resource-$(date +%Y%m%d-%H%M%S).json"
+    timeout 20s kubectl --request-timeout=15s patch "$resource" "$name" \
+      --namespace cloudcasa-io --kubeconfig "$kubeconfig_path" \
+      --type=json --patch "$patch" >>"$log_file" 2>&1 || return 1
+    log "cloudcasa: released self-updater ownership on $resource/$name"
+  done
+}
+
 request_fleet_reconciliation_retry() {
   local bundle_name="$1"
   local bundledeployment_namespace="$2"
@@ -1233,12 +1271,31 @@ apply_fleet_bundle() {
       if [ -z "$helm_failure_message" ]; then
         helm_failure_message="No Helm failure description was reported. See $log_file for command output."
       fi
-      log "$app: Helm release is failed: $helm_failure_message" \
+      log "$app: Helm revision $current_helm_revision is failed (baseline=$previous_helm_revision): $helm_failure_message" \
         "$(color_blue "$app"): Helm release failed: $helm_failure_message"
       if [ "$fleet_repair_attempted" -eq 0 ]; then
         fleet_repair_attempted=1
-        if ask_attempt_fleet_repair "$app" "$namespace"; then
-          previous_helm_revision="$current_helm_revision"
+        local repair_approved=0
+        if [ "$app" = cloudcasa ] && [ "$namespace" = cloudcasa-io ] && \
+          [[ "$helm_failure_message" == *'conflict with "cloudcasa-kubeagent-manager"'* ||
+             "$helm_failure_message" == *'conflicts with "cloudcasa-kubeagent-manager"'* ]]; then
+          repair_cloudcasa_field_ownership && repair_approved=1
+        elif ask_attempt_fleet_repair "$app" "$namespace"; then
+          repair_approved=1
+        fi
+        if [ "$repair_approved" -eq 1 ]; then
+          # Fleet may create another failed revision while the repair dialog
+          # is open. Baseline the latest revision after repair, not the one
+          # observed before asking the user.
+          previous_helm_revision="$(timeout 20s helm status "$app" \
+            --kubeconfig "$kubeconfig_path" --namespace "$namespace" -o json \
+            2>>"$log_file" | jq -er '.version | select(type == "number")' \
+            2>>"$log_file")" || {
+            log "$app: could not establish post-repair Helm revision; refusing an ambiguous retry"
+            return 1
+          }
+          log "$app: recovery baseline Helm revision=$previous_helm_revision; waiting for a newer revision"
+          deployment_deadline=$((SECONDS + 600))
           reconciliation_started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           if request_fleet_reconciliation_retry \
             "$bundle_name" "$bundledeployment_namespace" "$bundledeployment_name" "$desired_deployment_id"; then
