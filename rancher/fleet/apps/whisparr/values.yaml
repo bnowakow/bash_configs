@@ -1,0 +1,69 @@
+persistence:
+  config:
+    enabled: true
+    type: pvc
+    existingClaim: whisparr-config-longhorn-rwo
+    mountPath: /config
+  movies:
+    enabled: true
+    type: nfs
+    server: nas.localdomain.bnowakowski.pl
+    path: /mnt/MargokPool/archive/Movies/nubile
+    targetSelector:
+      main:
+        main:
+          mountPath: /mnt/MargokPool/archive/Movies/nubile
+  downloads:
+    enabled: true
+    type: nfs
+    server: nas.localdomain.bnowakowski.pl
+    path: /mnt/MargokPool/archive/Movies/Whisparr
+    targetSelector:
+      main:
+        main:
+          mountPath: /mnt/MargokPool/archive/Movies/Whisparr
+  transmission-downloads:
+    enabled: true
+    type: nfs
+    server: nas.localdomain.bnowakowski.pl
+    path: /mnt/PlexPool/plex
+    targetSelector:
+      main:
+        main:
+          mountPath: /mnt/PlexPool/plex
+resources:
+  limits:
+    cpu: 12000m
+  requests:
+    cpu: 30m
+TZ: Europe/Warsaw
+metrics:
+  main:
+    enabled: false
+ingress:
+  main:
+    enabled: true
+    primary: true
+    ingressClassName: traefik
+    hosts:
+    - host: whisparr.rancher.tailscale.bnowakowski.pl
+      paths:
+      - path: /
+        pathType: Prefix
+    - host: whisparr.rancher.localdomain.bnowakowski.pl
+      paths:
+      - path: /
+        pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt
+      traefik:
+        enabled: true
+        entrypoints:
+        - websecure
+        forceTLS: true
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate

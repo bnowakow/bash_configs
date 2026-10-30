@@ -1,0 +1,4 @@
+name: whisparr-storage
+defaultNamespace: apps-whisparr
+dependsOn:
+  - name: longhorn-pilot-storage
