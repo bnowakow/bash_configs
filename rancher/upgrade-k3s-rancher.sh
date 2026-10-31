@@ -25,9 +25,13 @@ color_reset=""
 
 usage() {
   cat <<USAGE
-Usage: $(basename "$0") [--help]
+Usage: $(basename "$0") [--help] [--rancher-only]
 
 Upgrades Rancher first, then the current k3s server node, then cert-manager.
+
+  --rancher-only   Upgrade only the Rancher Helm release. Refuses to run when
+                   the installed k3s minor is outside the selected Rancher
+                   version's supported k3s range (run without this option).
 
 The script discovers current compatible versions from SUSE/GitHub, prints the
 selected versions and source URLs, attempts a pre-upgrade k3s snapshot, and then
@@ -264,6 +268,28 @@ parse_supported_k3s_minor() {
     grep -Eoi 'k3s[[:space:]]+v[0-9]+\.[0-9]+[[:space:]]+v[0-9]+\.[0-9]+' |
     head -n 1 |
     awk '{print $3}'
+}
+
+# Print "<min> <max>" k3s minors from a Rancher support-matrix page row such as
+# "k3s v1.34 v1.36".
+parse_supported_k3s_minor_range() {
+  local matrix_html="$1"
+  local text
+  text="$(printf '%s\n' "$matrix_html" | tr '\n' ' ' | strip_html_tags | tr -s ' ')"
+
+  printf '%s\n' "$text" |
+    grep -Eoi 'k3s[[:space:]]+v[0-9]+\.[0-9]+[[:space:]]+v[0-9]+\.[0-9]+' |
+    head -n 1 |
+    awk '{print $2, $3}'
+}
+
+k3s_minor_in_range() {
+  local current="$1"
+  local min="$2"
+  local max="$3"
+
+  [ "$(printf '%s\n%s\n' "$min" "$current" | sort -V | head -n 1)" = "$min" ] &&
+    [ "$(printf '%s\n%s\n' "$current" "$max" | sort -V | tail -n 1)" = "$max" ]
 }
 
 json_release_tags() {
@@ -775,6 +801,106 @@ skip_if_already_current() {
   fi
 }
 
+upgrade_rancher_release() {
+  local rancher_version="$1"
+  local rancher_chart_version="$2"
+  local hostname_fqdn="$3"
+  local current_rancher_version="$4"
+  local setup_password
+
+  log "Upgrading $(component_text "Rancher") from $(version_text "${current_rancher_version:-not detected}") to $(version_text "$rancher_version")."
+  run_cmd helm --kubeconfig "$kubeconfig_path" upgrade --install rancher rancher-stable/rancher \
+    --namespace cattle-system \
+    --create-namespace \
+    --version "${rancher_version#v}" \
+    --set "hostname=$hostname_fqdn" \
+    --set bootstrapPassword=admin \
+    --set ingress.tls.source=letsEncrypt \
+    --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com
+
+  run_cmd kubectl --kubeconfig "$kubeconfig_path" -n cattle-system rollout status deploy/rancher --timeout="$rollout_timeout"
+  run_cmd kubectl --kubeconfig "$kubeconfig_path" -n cattle-system get deploy rancher
+
+  update_ansible_rancher_chart_version "$rancher_chart_version"
+
+  setup_password="$(kubectl --kubeconfig "$kubeconfig_path" get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')"
+  log_success "$(component_text "Rancher") setup URL: https://$hostname_fqdn/dashboard/?setup=$setup_password"
+
+  run_cmd "$script_dir/rancher_add_cluster_repos.sh"
+}
+
+# Upgrade only the Rancher release; k3s and cert-manager are left untouched.
+run_rancher_only_upgrade() {
+  local rancher_version="$1"
+  local rancher_chart_version="$2"
+  local rancher_matrix_url="$3"
+  local rancher_matrix_html="$4"
+  local hostname_fqdn
+  local k3s_min=""
+  local k3s_max=""
+  local current_k3s_version
+  local current_k3s_minor
+  local current_rancher_version
+  local current_rancher_status
+  local actual_rancher_version
+
+  hostname_fqdn="$(hostname).tailscale.bnowakowski.pl"
+  read -r k3s_min k3s_max <<<"$(parse_supported_k3s_minor_range "$rancher_matrix_html")" || true
+  current_k3s_version="$(installed_k3s_version || true)"
+  current_k3s_minor="$(printf '%s\n' "$current_k3s_version" | sed -nE 's/^v?([0-9]+\.[0-9]+).*/v\1/p')"
+
+  log "Selected $(component_text "Rancher") version: $(version_text "$rancher_version")"
+  log "$(component_text "Rancher") support matrix URL: $rancher_matrix_url"
+  log "Supported $(component_text "k3s") minors: $(version_text "${k3s_min:-unknown}") - $(version_text "${k3s_max:-unknown}"); installed $(component_text "k3s"): $(version_text "${current_k3s_version:-not detected}")"
+
+  if [ -z "$k3s_min" ] || [ -z "$k3s_max" ] || [ -z "$current_k3s_minor" ]; then
+    log_error "Unable to confirm that installed $(component_text "k3s") is supported by $(component_text "Rancher") $(version_text "$rancher_version"). Refusing Rancher-only upgrade."
+    return 1
+  fi
+  if ! k3s_minor_in_range "$current_k3s_minor" "$k3s_min" "$k3s_max"; then
+    log_error "$(component_text "Rancher") $(version_text "$rancher_version") supports $(component_text "k3s") $k3s_min-$k3s_max, but $(version_text "$current_k3s_version") is installed. Run $(basename "$0") without --rancher-only to upgrade Rancher and k3s together."
+    return 1
+  fi
+
+  current_rancher_version="$(helm_release_field rancher cattle-system app_version || true)"
+  current_rancher_status="$(helm_release_status rancher cattle-system || true)"
+  if [ -n "$current_rancher_status" ] && [ "$current_rancher_status" != "deployed" ]; then
+    log_warning "Rancher Helm release is present at $(version_text "${current_rancher_version:-unknown}") but has status $(version_text "$current_rancher_status")."
+  fi
+  if ! recover_pending_rancher_upgrade "$current_rancher_status"; then
+    return 1
+  fi
+  current_rancher_version="$(helm_release_field rancher cattle-system app_version || true)"
+
+  if ! target_version_is_newer "$current_rancher_version" "$rancher_version"; then
+    log_success "Skipping $(component_text "Rancher"); installed version is $(version_text "${current_rancher_version:-not detected}") and target $(version_text "$rancher_version") is not newer."
+    return 0
+  fi
+
+  show_current_status
+  save_snapshot_or_confirm
+
+  printf '%b\n' "
+
+About to run the Rancher-only upgrade with:
+  $(component_text "Rancher"):       $(version_transition_text "$current_rancher_version" "$rancher_version")
+  $(component_text "Rancher") URL:   $rancher_matrix_url
+  $(component_text "k3s"):           $(version_text "$current_k3s_version") (unchanged; supported $k3s_min-$k3s_max)
+  hostname:      $hostname_fqdn
+  log file:      $log_file
+
+"
+
+  confirm "Do these versions and settings look good?" || return 1
+
+  upgrade_rancher_release "$rancher_version" "$rancher_chart_version" "$hostname_fqdn" "$current_rancher_version"
+
+  actual_rancher_version="$(helm_release_field rancher cattle-system app_version)"
+  run_cmd helm --kubeconfig "$kubeconfig_path" list --all --namespace cattle-system --filter '^rancher$'
+  require_equal_version "Rancher app_version" "$rancher_version" "$actual_rancher_version"
+  log_success "Rancher-only upgrade completed."
+}
+
 verify_final_versions() {
   local expected_k3s_version="$1"
   local expected_cert_manager_version="$2"
@@ -821,10 +947,18 @@ ensure_helm_repo() {
 main() {
   init_colors
 
-  if [ "${1:-}" = "--help" ]; then
-    usage
-    exit 0
-  fi
+  local rancher_only=0
+
+  case "${1:-}" in
+    --help)
+      usage
+      exit 0
+      ;;
+    --rancher-only)
+      rancher_only=1
+      shift
+      ;;
+  esac
 
   if [ "$#" -gt 0 ]; then
     printf '%b\n' "$(error_text "Unknown argument: $1")" >&2
@@ -839,7 +973,9 @@ main() {
 
   log "Run started. log_file=$log_file"
   ensure_helm_repo "rancher-stable" "https://releases.rancher.com/server-charts/stable"
-  ensure_helm_repo "jetstack" "https://charts.jetstack.io"
+  if [ "$rancher_only" -eq 0 ]; then
+    ensure_helm_repo "jetstack" "https://charts.jetstack.io"
+  fi
   run_cmd helm repo update
 
   log "Discovering latest $(component_text "Rancher"), $(component_text "k3s"), and $(component_text "cert-manager") versions."
@@ -868,7 +1004,6 @@ main() {
   local final_cert_manager_version
   local final_rancher_version
   local hostname_fqdn
-  local setup_password
 
   rancher_effective_url="$(fetch_effective_url "$rancher_matrix_current_url")"
   rancher_index_html="$(fetch_url "$rancher_matrix_index_url" || true)"
@@ -888,6 +1023,12 @@ main() {
   fi
 
   rancher_matrix_html="$(fetch_url "$rancher_matrix_url")"
+
+  if [ "$rancher_only" -eq 1 ]; then
+    run_rancher_only_upgrade "$rancher_version" "$rancher_chart_version" "$rancher_matrix_url" "$rancher_matrix_html"
+    exit $?
+  fi
+
   supported_k3s_minor="$(parse_supported_k3s_minor "$rancher_matrix_html")"
 
   if [ -z "$rancher_version" ] || [ -z "$supported_k3s_minor" ]; then
@@ -998,25 +1139,7 @@ About to run the upgrade with:
   confirm "Do these versions and settings look good?" || exit 1
 
   if [ "$upgrade_rancher" -eq 1 ]; then
-    log "Upgrading $(component_text "Rancher") from $(version_text "${current_rancher_version:-not detected}") to $(version_text "$rancher_version")."
-    run_cmd helm --kubeconfig "$kubeconfig_path" upgrade --install rancher rancher-stable/rancher \
-      --namespace cattle-system \
-      --create-namespace \
-      --version "${rancher_version#v}" \
-      --set "hostname=$hostname_fqdn" \
-      --set bootstrapPassword=admin \
-      --set ingress.tls.source=letsEncrypt \
-      --set letsEncrypt.email=dobrowolski.nowakowski@gmail.com
-
-    run_cmd kubectl --kubeconfig "$kubeconfig_path" -n cattle-system rollout status deploy/rancher --timeout="$rollout_timeout"
-    run_cmd kubectl --kubeconfig "$kubeconfig_path" -n cattle-system get deploy rancher
-
-    update_ansible_rancher_chart_version "$rancher_chart_version"
-
-    setup_password="$(kubectl --kubeconfig "$kubeconfig_path" get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')"
-    log_success "$(component_text "Rancher") setup URL: https://$hostname_fqdn/dashboard/?setup=$setup_password"
-
-    run_cmd "$script_dir/rancher_add_cluster_repos.sh"
+    upgrade_rancher_release "$rancher_version" "$rancher_chart_version" "$hostname_fqdn" "$current_rancher_version"
   else
     log_success "Skipping $(component_text "Rancher"); installed version is $(version_text "${current_rancher_version:-not detected}") and target $(version_text "$rancher_version") is not newer."
   fi

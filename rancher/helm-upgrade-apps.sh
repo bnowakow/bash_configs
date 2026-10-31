@@ -82,6 +82,8 @@ exclude_patterns=(
 
 is_up_to_date_helper="$script_dir/zabbix/is-helm-image-up-to-date.sh"
 current_version_helper="$script_dir/zabbix/lib/helm-current-version-of-chart.sh"
+rancher_upgrade_script="$script_dir/upgrade-k3s-rancher.sh"
+rancher_ansible_vars_file="$script_dir/ansible/group_vars/all.yml"
 chart_repo_helper="/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-chart-repo-dir-or-helm-repo.sh"
 if [ ! -x "$chart_repo_helper" ]; then
   chart_repo_helper="$script_dir/zabbix/lib/helm-chart-repo-dir-or-helm-repo.sh"
@@ -1441,18 +1443,79 @@ apply_fleet_bundle() {
     return 1
   fi
 
-  local fleet_resource_counts
-  fleet_resource_counts="$(kubectl get bundledeployment -A \
-    --kubeconfig "$kubeconfig_path" \
-    -l "fleet.cattle.io/bundle-name=$bundle_name" \
-    -o jsonpath='{range .items[*]}{.status.resourceCounts.desiredReady} {.status.resourceCounts.ready}{"\n"}{end}' \
-    2>>"$log_file" | awk 'NF {print; exit}')"
-  if [ -z "$fleet_resource_counts" ] || [ "$fleet_resource_counts" = "0 0" ] || \
-    [ "${fleet_resource_counts%% *}" != "${fleet_resource_counts##* }" ]; then
-    record_failure_and_maybe_abort "Fleet deployed no ready resources ($app)" \
-      "Bundle $bundle_name reported resource counts: ${fleet_resource_counts:-unknown}."
+  # Read the counts separately: Fleet keeps BundleDeployment ready=true while
+  # a resource has drifted ("modified"), so desiredReady != ready alone does
+  # not mean that nothing is ready.
+  local fleet_counts_json fleet_desired fleet_ready fleet_modified
+  local fleet_not_ready fleet_missing fleet_modified_list fleet_counts_summary
+  local drift_repair_attempted=0 drift_wait
+  while :; do
+    fleet_counts_json="$(timeout 20s kubectl --request-timeout=15s \
+      -n "$bundledeployment_namespace" get bundledeployment "$bundledeployment_name" \
+      --kubeconfig "$kubeconfig_path" -o json 2>>"$log_file" || true)"
+    read -r fleet_desired fleet_ready fleet_modified fleet_not_ready fleet_missing < <(
+      printf '%s' "$fleet_counts_json" | jq -r '.status.resourceCounts // {} |
+        [.desiredReady // 0, .ready // 0, .modified // 0, .notReady // 0, .missing // 0] | @tsv' \
+        2>>"$log_file" || echo "0 0 0 0 0")
+    fleet_modified_list="$(printf '%s' "$fleet_counts_json" | jq -r '
+      .status.modifiedStatus // [] | .[] |
+      "\(.kind) \(.namespace // "-")/\(.name)\(if .missing then " (missing)" elif .delete then " (extra)" else " (modified)" end)"' \
+      2>>"$log_file" || true)"
+    fleet_counts_summary="desiredReady=${fleet_desired:-0} ready=${fleet_ready:-0} modified=${fleet_modified:-0} notReady=${fleet_not_ready:-0} missing=${fleet_missing:-0}"
+
+    if [ "${fleet_desired:-0}" -gt 0 ] && [ "$fleet_desired" = "$fleet_ready" ]; then
+      break
+    fi
+
+    # Drift-only state: every resource exists and none is NotReady, but some
+    # differ from the chart. Offer one Fleet redeploy to reset them.
+    if [ "$drift_repair_attempted" -eq 0 ] && [ "${fleet_modified:-0}" -gt 0 ] && \
+      [ "${fleet_not_ready:-0}" -eq 0 ] && [ "${fleet_missing:-0}" -eq 0 ]; then
+      drift_repair_attempted=1
+      local drift_note=""
+      if [ "$app" = cloudcasa ]; then
+        drift_note="\n\nCloudCasa's agent updates its own image (e.g. 3.1.0-prod -> 3.1.0-production.NN). A redeploy resets it to the chart image and restarts the agent, which can interrupt an active backup, and the agent may update itself again shortly afterwards. To stop this permanently, add a diff.comparePatches entry for the image and KUBEMOVER_IMAGE fields to fleet/infrastructure/cloudcasa/fleet.yaml."
+      fi
+      log "$app: Fleet reports drifted resources ($fleet_counts_summary): $(printf '%s' "$fleet_modified_list" | tr '\n' ';')"
+      # Ask explicitly even in --yes mode: this is a separate repair action.
+      if dialog --clear --begin 2 10 --defaultno \
+        --title "Attempt Fleet drift repair ($app)?" \
+        --yes-label "Attempt repair" --no-label "Skip repair" \
+        --yesno "Bundle $bundle_name is applied, but Fleet reports resources that differ from the chart:\n\n${fleet_modified_list:-unknown}\n\nCounts: $fleet_counts_summary\n\nRequest one fresh Fleet reconciliation (forceSyncGeneration) so Helm reapplies the chart and resets the drifted fields?${drift_note}\n\nNo PVCs or storage definitions are changed. Attempt repair?" 26 116; then
+        log "$app: user approved Fleet drift repair"
+        if request_fleet_reconciliation_retry "$bundle_name" "$bundledeployment_namespace" \
+          "$bundledeployment_name" "$desired_deployment_id"; then
+          log "$app: Fleet drift repair requested; waiting for deployment $desired_deployment_id" \
+            "$(color_blue "$app"): Fleet drift repair requested; waiting for reapply"
+          drift_wait=0
+          while [ "$drift_wait" -lt 300 ]; do
+            applied_deployment_id="$(timeout 20s kubectl --request-timeout=15s -n "$bundledeployment_namespace" \
+              get bundledeployment "$bundledeployment_name" --kubeconfig "$kubeconfig_path" \
+              -o jsonpath='{.status.appliedDeploymentID} {.status.ready}' 2>>"$log_file" || true)"
+            [ "$applied_deployment_id" = "$desired_deployment_id true" ] && break
+            drift_wait=$((drift_wait + 2))
+            sleep 2
+          done
+          # Give the agent a moment to refresh resourceCounts after apply.
+          sleep 10
+          continue
+        fi
+        log "$app: Fleet drift repair did not start successfully"
+      else
+        log "$app: user declined Fleet drift repair"
+      fi
+    fi
+
+    if [ "${fleet_modified:-0}" -gt 0 ] && [ "${fleet_not_ready:-0}" -eq 0 ] && \
+      [ "${fleet_missing:-0}" -eq 0 ]; then
+      record_failure_and_maybe_abort "Fleet resources drifted ($app)" \
+        "Bundle $bundle_name has resources that differ from the chart.\n\n${fleet_modified_list:-unknown}\n\nCounts: $fleet_counts_summary"
+    else
+      record_failure_and_maybe_abort "Fleet resources not ready ($app)" \
+        "Bundle $bundle_name reported resource counts: $fleet_counts_summary.${fleet_modified_list:+\n\n$fleet_modified_list}"
+    fi
     return 1
-  fi
+  done
 
   log "$app: Fleet bundle $bundle_name is Ready" \
     "$(color_blue "$app"): Fleet bundle $bundle_name is Ready"
@@ -2162,6 +2225,75 @@ perform_upgrade() {
   apply_fleet_bundle "$app" "$(dirname "$fleet_file")" "$namespace" "$target_version"
 }
 
+# Rancher is installed directly with Helm, not through Fleet.  Delegate to
+# upgrade-k3s-rancher.sh --rancher-only so the target comes from the SUSE
+# support matrix and its k3s compatibility check, etcd snapshot and
+# pending-upgrade recovery apply.  That script prompts on the terminal itself.
+process_rancher_upgrade() {
+  local app="$1"
+  local namespace="$2"
+  local local_version="$3"
+  local new_version
+  local release_status
+  local cmd
+
+  if [ "$dry_run" -eq 1 ]; then
+    log "$app: DRY RUN enabled, skipping $rancher_upgrade_script --rancher-only" \
+      "$(color_blue "$app"): DRY RUN enabled, skipping Rancher upgrade"
+    dry_run_approved_count=$((dry_run_approved_count + 1))
+    return 0
+  fi
+
+  if [ ! -x "$rancher_upgrade_script" ]; then
+    record_failure_and_maybe_abort "Rancher upgrade script unavailable" \
+      "Expected executable $rancher_upgrade_script."
+    return 1
+  fi
+
+  cmd=(env "ROLLOUT_TIMEOUT=$rollout_timeout" "$rancher_upgrade_script" --rancher-only)
+  if [ "${EUID:-$(id -u)}" -ne 0 ]; then
+    cmd=(sudo "${cmd[@]}")
+  fi
+
+  log "$app: running ${cmd[*]}" "$(color_blue "$app"): running upgrade-k3s-rancher.sh --rancher-only"
+  cleanup
+  clear 2>/dev/null || true
+  if ! "${cmd[@]}"; then
+    record_failure_and_maybe_abort "Rancher upgrade failed ($app)" \
+      "upgrade-k3s-rancher.sh --rancher-only failed or was declined. See $script_dir/logs/upgrade-k3s-rancher-*.log."
+    return 1
+  fi
+
+  new_version="$(get_local_chart_version "$app")"
+  release_status="$(helm list --kubeconfig "$kubeconfig_path" --namespace "$namespace" --all \
+    --filter '^rancher$' -o json 2>>"$log_file" | jq -r '.[0].status // empty' 2>>"$log_file" || true)"
+  if [ "$release_status" != deployed ]; then
+    record_failure_and_maybe_abort "Rancher release not deployed ($app)" \
+      "Helm release $namespace/$app has status ${release_status:-unknown} after upgrade."
+    return 1
+  fi
+  if [ "$new_version" = "$local_version" ]; then
+    log "$app: chart unchanged at $local_version (support-matrix target is not newer)" \
+      "$(color_blue "$app"): $(color_count "chart unchanged; support-matrix target is not newer" "$yellow")"
+    skipped_count=$((skipped_count + 1))
+    return 0
+  fi
+  log "$app: upgraded $local_version -> $new_version" \
+    "$(color_blue "$app"): upgraded $local_version -> $new_version"
+  updated_count=$((updated_count + 1))
+
+  if ! run_postchecks "$app" "$namespace"; then
+    log "$app: postchecks did not pass; Ansible vars were not staged"
+    return 1
+  fi
+  if ! git -C "$bash_configs_root" diff --quiet -- "$rancher_ansible_vars_file" 2>>"$log_file"; then
+    if stage_fleet_file "$rancher_ansible_vars_file"; then
+      staged_fleet_count=$((staged_fleet_count + 1))
+    fi
+  fi
+  return 0
+}
+
 ask_run_codex_commit() {
   if [ "$staged_fleet_count" -eq 0 ]; then
     return 0
@@ -2348,11 +2480,22 @@ for app in $apps; do
     continue
   fi
 
-  if show_app_modal "$app" "$namespace" "$local_version" "$target_version" "$check_summary_title" "$check_summary_body"; then
+  modal_summary_body="$check_summary_body"
+  if [ "$app" = rancher ]; then
+    modal_summary_body="${modal_summary_body}\Z0\n\nRancher is not Fleet-managed: this runs upgrade-k3s-rancher.sh --rancher-only, which picks the target from the SUSE support matrix, checks k3s compatibility, takes an etcd snapshot and asks for confirmation in the terminal."
+  fi
+  if show_app_modal "$app" "$namespace" "$local_version" "$target_version" "$check_summary_title" "$modal_summary_body"; then
     log "$app: upgrade approved" "$(color_blue "$app"): upgrade approved"
   else
     log "$app: upgrade skipped by user" "$(color_blue "$app"): upgrade skipped by user"
     skipped_count=$((skipped_count + 1))
+    current_app=""
+    continue
+  fi
+
+  if [ "$app" = rancher ]; then
+    process_rancher_upgrade "$app" "$namespace" "$local_version" || true
+    log "$app: processing complete" "$(color_blue "$app"): processing complete"
     current_app=""
     continue
   fi
