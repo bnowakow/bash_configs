@@ -72,6 +72,7 @@ exclude_patterns=(
   '^fleet$'
   '^fleet-agent-local$'
   '^fleet-crd$'
+  '^rancher$'
   '^rancher-turtles$'
   '^rancher-webhook$'
   '^system-upgrade-controller$'
