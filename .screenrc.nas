@@ -106,6 +106,10 @@ defnonblock 5
 # screen -t mail 8 mutt
 # screen -t daemon 9 tail -f /var/log/daemon.log
 
+# UTF-8 for all windows and the display (fixes mojibake in prompt glyphs / box-drawing)
+defutf8 on
+defencoding UTF-8
+
 shell -zsh
 
 # 0 
