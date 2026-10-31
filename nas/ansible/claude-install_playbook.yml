@@ -1,0 +1,78 @@
+- name: Install sup's Claude Code CLI and make sudo use it
+  hosts: all
+  remote_user: sup
+  gather_facts: false
+  tasks:
+    - name: Verify that Ansible is connected as sup
+      ansible.builtin.command: id -un
+      register: claude_account
+      changed_when: false
+      check_mode: false
+
+    - name: Refuse to install Claude Code for another user
+      ansible.builtin.assert:
+        that: claude_account.stdout == 'sup'
+
+    - name: Find sup's home directory
+      ansible.builtin.getent:
+        database: passwd
+        key: sup
+
+    - name: Check sup's Claude Code CLI
+      ansible.builtin.command: "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/claude --version"
+      register: sup_claude_cli
+      changed_when: false
+      failed_when: false
+      check_mode: false
+
+    # curl instead of get_url: ansible-core 2.14's get_url breaks on hosts with
+    # Python >= 3.12 (HTTPSConnection no longer accepts cert_file).
+    - name: Download the Claude Code native installer
+      ansible.builtin.command:
+        argv:
+          - curl
+          - -fsSL
+          - --output
+          - /tmp/claude-install-sup.sh
+          - https://claude.ai/install.sh
+      when: sup_claude_cli.rc != 0
+
+    - name: Install Claude Code CLI for sup when missing
+      ansible.builtin.command:
+        argv:
+          - bash
+          - /tmp/claude-install-sup.sh
+      environment:
+        HOME: "{{ ansible_facts.getent_passwd['sup'][4] }}"
+      when: sup_claude_cli.rc != 0
+
+    - name: Remove the Claude Code installer
+      ansible.builtin.file:
+        path: /tmp/claude-install-sup.sh
+        state: absent
+      when: sup_claude_cli.rc != 0
+
+    - name: Verify sup's Claude Code CLI
+      ansible.builtin.command: "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/claude --version"
+      changed_when: false
+      when: not ansible_check_mode or sup_claude_cli.rc == 0
+      check_mode: false
+
+    - name: Link sudo's Claude Code command to sup's installation
+      ansible.builtin.file:
+        src: "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/claude"
+        dest: /usr/local/bin/claude
+        state: link
+        force: true
+        follow: false
+      become: true
+
+    - name: Verify sudo resolves sup's Claude Code CLI
+      ansible.builtin.shell: |
+        set -e
+        command_path=$(command -v claude) || { printf 'sudo PATH=%s\n' "$PATH" >&2; exit 1; }
+        test "$(readlink -f "$command_path")" = "$(readlink -f "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/claude")"
+        claude --version
+      changed_when: false
+      become: true
+      when: not ansible_check_mode

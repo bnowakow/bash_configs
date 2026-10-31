@@ -69,6 +69,8 @@ ansible-playbook -i "$inventory" tailscale_playbook.yml
 ansible-playbook -i "$inventory" proxmox-post-install_playbook.yml
 ansible-playbook -i "$inventory" codex-sudo_playbook.yml
 ansible-playbook -i "$inventory" codex-config_playbook.yml
+ansible-playbook -i "$inventory" claude-install_playbook.yml
+ansible-playbook -i "$inventory" claude-upgrade_playbook.yml
 
 # NAS and OVH are outside the VM inventory and can have different sudo passwords.
 select_become_password_file NAS "${NAS_ANSIBLE_BECOME_PASSWORD_FILE:-}"
@@ -80,6 +82,8 @@ ansible-playbook -i inventory/nas-local.yml zabbix-repository-migration_playbook
 ansible-playbook -i inventory/nas-local.yml zabbix-update-metadata_playbook.yml
 ansible-playbook -i inventory/nas-local.yml codex-sudo_playbook.yml
 ansible-playbook -i inventory/nas-local.yml codex-config_playbook.yml
+ansible-playbook -i inventory/nas-local.yml claude-install_playbook.yml
+ansible-playbook -i inventory/nas-local.yml claude-upgrade_playbook.yml
 
 select_become_password_file OVH "${OVH_ANSIBLE_BECOME_PASSWORD_FILE:-}"
 export ANSIBLE_BECOME_PASSWORD_FILE=$selected_become_password_file
@@ -91,6 +95,8 @@ ansible-playbook -i inventory/ovh.yml zabbix-update-metadata_playbook.yml
 ansible-playbook -i inventory/ovh.yml tailscale_playbook.yml
 ansible-playbook -i inventory/ovh.yml codex-sudo_playbook.yml
 ansible-playbook -i inventory/ovh.yml codex-config_playbook.yml
+ansible-playbook -i inventory/ovh.yml claude-install_playbook.yml
+ansible-playbook -i inventory/ovh.yml claude-upgrade_playbook.yml
 
 export ANSIBLE_BECOME_PASSWORD_FILE=$proxmox_become_password_file
 

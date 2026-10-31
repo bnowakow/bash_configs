@@ -1,4 +1,4 @@
-.PHONY: help install-git-hooks codex-commit cron-install-rancher
+.PHONY: help install-git-hooks codex-commit claude-commit cron-install-rancher
 
 .DEFAULT_GOAL := help
 
@@ -7,6 +7,7 @@ help:
 	@echo ""
 	@echo "  install-git-hooks  Configure repository git hooks"
 	@echo "  codex-commit          Commit staged changes with Codex, and optionally push"
+	@echo "  claude-commit         Commit staged changes with Claude, and optionally push"
 	@echo "  cron-install-rancher  Install Rancher maintenance cron and logrotate"
 
 install-git-hooks:
@@ -40,6 +41,10 @@ install-git-hooks:
 
 codex-commit:
 	utilities/codex-commit.sh
+
+# Same flow as codex-commit, with Claude Code writing the message and resolving pull conflicts.
+claude-commit:
+	utilities/claude-commit.sh
 
 cron-install-rancher:
 	rancher/install-cron-rancher.sh

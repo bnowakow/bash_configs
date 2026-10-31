@@ -95,6 +95,10 @@ for inventory_file in "${inventory_files[@]}"; do
     "$bold_blue" "$inventory_file" "$normal" "$inventory_limit"
   ansible-playbook -i "$inventory_file" codex-upgrade_playbook.yml \
     --limit "$inventory_limit"
+  printf '\nUpgrading Claude Code for sup on hosts in %s%s%s: %s\n' \
+    "$bold_blue" "$inventory_file" "$normal" "$inventory_limit"
+  ansible-playbook -i "$inventory_file" claude-upgrade_playbook.yml \
+    --limit "$inventory_limit"
 done
 
 # Ubuntu release upgrades are interactive and apply only to opted-in hosts.

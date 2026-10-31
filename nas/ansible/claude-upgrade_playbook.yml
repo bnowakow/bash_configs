@@ -1,0 +1,83 @@
+- name: Upgrade sup's Claude Code CLI
+  hosts: all
+  remote_user: sup
+  become: false
+  gather_facts: false
+  tasks:
+    - name: Verify that Ansible is connected as sup
+      ansible.builtin.command: id -un
+      register: claude_account
+      changed_when: false
+      check_mode: false
+
+    - name: Refuse to update another user's Claude Code installation
+      ansible.builtin.assert:
+        that: claude_account.stdout == 'sup'
+
+    - name: Find sup's home directory
+      ansible.builtin.getent:
+        database: passwd
+        key: sup
+
+    - name: Resolve sup's Claude Code executable
+      ansible.builtin.command:
+        argv:
+          - readlink
+          - -f
+          - "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/claude"
+      register: claude_executable
+      changed_when: false
+      check_mode: false
+
+    - name: Require a supported sup-owned Claude Code installation
+      ansible.builtin.assert:
+        that:
+          - >-
+            claude_executable.stdout.startswith(ansible_facts.getent_passwd['sup'][4] ~ '/.local/share/claude/versions/') or
+            claude_executable.stdout.startswith(ansible_facts.getent_passwd['sup'][4] ~ '/.local/lib/node_modules/@anthropic-ai/claude-code/')
+        fail_msg: "Unexpected Claude Code installation at {{ claude_executable.stdout }}; review its update method."
+
+    - name: Read the installed Claude Code version
+      ansible.builtin.command: "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/claude --version"
+      register: claude_version_before
+      changed_when: false
+      check_mode: false
+
+    - name: Update a native Claude Code installation
+      ansible.builtin.command:
+        argv:
+          - "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/claude"
+          - update
+      environment:
+        HOME: "{{ ansible_facts.getent_passwd['sup'][4] }}"
+      changed_when: false
+      when:
+        - not ansible_check_mode
+        - "'/.local/share/claude/versions/' in claude_executable.stdout"
+
+    - name: Update an npm Claude Code installation
+      ansible.builtin.command:
+        argv:
+          - npm
+          - install
+          - --global
+          - --prefix
+          - "{{ ansible_facts.getent_passwd['sup'][4] }}/.local"
+          - '@anthropic-ai/claude-code@latest'
+      environment:
+        HOME: "{{ ansible_facts.getent_passwd['sup'][4] }}"
+      changed_when: false
+      when:
+        - not ansible_check_mode
+        - "'/.local/lib/node_modules/@anthropic-ai/claude-code/' in claude_executable.stdout"
+
+    - name: Verify the updated Claude Code version
+      ansible.builtin.command: "{{ ansible_facts.getent_passwd['sup'][4] }}/.local/bin/claude --version"
+      register: claude_version_after
+      changed_when: false
+      check_mode: false
+
+    - name: Report the Claude Code version change
+      ansible.builtin.debug:
+        msg: "{{ claude_version_before.stdout }} -> {{ claude_version_after.stdout }}"
+      changed_when: claude_version_before.stdout != claude_version_after.stdout

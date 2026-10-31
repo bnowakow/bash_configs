@@ -14,10 +14,28 @@ trap cleanup EXIT
 
 ui_fallback_explained=0
 
-codex_command=()
+# COMMIT_AGENT selects the CLI that writes commit messages and resolves pull
+# conflicts: "codex" (default) or "claude". utilities/claude-commit.sh sets it.
+commit_agent=${COMMIT_AGENT:-codex}
+case "$commit_agent" in
+	codex) agent_label=Codex ;;
+	claude) agent_label=Claude ;;
+	*)
+		echo "Unsupported COMMIT_AGENT '$commit_agent'; use codex or claude." >&2
+		exit 1
+		;;
+esac
+script_name="${commit_agent}-commit"
+
+agent_command=()
 resolve_codex_command() {
+	if [ -n "${CODEX_BIN:-}" ] && [ -x "${CODEX_BIN}" ]; then
+		agent_command=("${CODEX_BIN}")
+		return 0
+	fi
+
 	if command -v codex >/dev/null 2>&1; then
-		codex_command=(codex)
+		agent_command=(codex)
 		return 0
 	fi
 
@@ -34,13 +52,89 @@ resolve_codex_command() {
 			"Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex"; do
 			candidate="$app_path/$relative_path"
 			if [ -x "$candidate" ]; then
-				codex_command=("$candidate")
+				agent_command=("$candidate")
 				return 0
 			fi
 		done
 	done
 
 	return 1
+}
+
+resolve_claude_command() {
+	if [ -n "${CLAUDE_BIN:-}" ] && [ -x "${CLAUDE_BIN}" ]; then
+		agent_command=("${CLAUDE_BIN}")
+		return 0
+	fi
+
+	if command -v claude >/dev/null 2>&1; then
+		agent_command=(claude)
+		return 0
+	fi
+
+	local candidate
+	for candidate in \
+		"$HOME/.local/bin/claude" \
+		"$HOME/.claude/local/claude" \
+		"/opt/homebrew/bin/claude" \
+		"/usr/local/bin/claude"; do
+		if [ -x "$candidate" ]; then
+			agent_command=("$candidate")
+			return 0
+		fi
+	done
+
+	return 1
+}
+
+resolve_agent_command() {
+	case "$commit_agent" in
+		codex) resolve_codex_command ;;
+		claude) resolve_claude_command ;;
+	esac
+}
+
+agent_install_hint() {
+	case "$commit_agent" in
+		codex) printf "Install the Codex CLI, set CODEX_BIN, or add Codex.app's bundled CLI to PATH." ;;
+		claude) printf 'Install Claude Code (https://claude.com/claude-code), set CLAUDE_BIN, or add claude to PATH.' ;;
+	esac
+}
+
+# Run the agent non-interactively. $1 is "read-only" or "workspace-write",
+# $2 is the file that receives the final message, $3 is the prompt.
+run_agent() {
+	local mode=$1
+	local output_file=$2
+	local prompt=$3
+
+	if [ "$commit_agent" = codex ]; then
+		"${agent_command[@]}" exec \
+			-C "$repo_root" \
+			--sandbox "$mode" \
+			--output-last-message "$output_file" \
+			"$prompt"
+		return
+	fi
+
+	local read_tools="Read,Grep,Glob,Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git ls-files:*)"
+	local denied_tools="Bash(git commit:*),Bash(git push:*),Bash(git reset:*),Bash(git rebase:*),Bash(git checkout:*),Bash(git restore:*),Bash(git stash:*)"
+	local claude_args=(-p --output-format text --disallowedTools "$denied_tools")
+
+	if [ "$mode" = workspace-write ]; then
+		claude_args+=(--permission-mode acceptEdits --allowedTools "$read_tools,Edit,Write")
+	else
+		claude_args+=(--permission-mode default --allowedTools "$read_tools")
+	fi
+
+	# The commit-message skill may live outside the repository.
+	if [ -n "${commit_skill_path:-}" ]; then
+		claude_args+=(--add-dir "$(dirname "$commit_skill_path")")
+	fi
+
+	# --allowedTools/--disallowedTools/--add-dir take variadic values, so the
+	# prompt goes on stdin.
+	(cd "$repo_root" && printf '%s\n' "$prompt" | "${agent_command[@]}" "${claude_args[@]}") >"$output_file"
 }
 
 terminal_ui_unavailable_reason() {
@@ -265,45 +359,54 @@ view_last_commit_diff() {
 	fi
 }
 
-resolve_pull_conflict_with_codex() {
+resolve_pull_conflict_with_agent() {
 	local conflict_output
+	local conflicted_files=()
+	local file
 
-	conflict_output=$(mktemp "${TMPDIR:-/tmp}/bash-configs-codex-conflict.XXXXXX")
+	conflict_output=$(mktemp "${TMPDIR:-/tmp}/bash-configs-${commit_agent}-conflict.XXXXXX")
 	tmp_files+=("$conflict_output")
 
-	printf '\nGit pull produced conflicts. Attempting to resolve them with Codex...\n'
-	printf 'Conflicted files:\n'
-	git diff --name-only --diff-filter=U | sed 's/^/  - /'
+	while IFS= read -r file; do
+		conflicted_files+=("$file")
+	done < <(git diff --name-only --diff-filter=U)
 
-	if ! "${codex_command[@]}" exec \
-		-C "$repo_root" \
-		--sandbox workspace-write \
-		--output-last-message "$conflict_output" \
+	printf '\nGit pull produced conflicts. Attempting to resolve them with %s...\n' "$agent_label"
+	printf 'Conflicted files:\n'
+	printf '  - %s\n' "${conflicted_files[@]}"
+
+	if ! run_agent workspace-write "$conflict_output" \
 		'Git is currently stopped on a pull/rebase conflict. Inspect the conflicted files, resolve the conflict markers in the working tree, preserve the intended behavior from both sides where possible, and do not commit, push, reset, abort, or continue the rebase. After editing, report whether all conflict markers and unmerged paths are resolved.'; then
-		echo "Codex failed while attempting to resolve the pull conflict."
+		echo "$agent_label failed while attempting to resolve the pull conflict."
 		cat "$conflict_output" >&2
 		return 1
 	fi
 
+	# Paths stay unmerged in the index until they are staged, so check the
+	# files for leftover markers and then stage them.
+	for file in "${conflicted_files[@]}"; do
+		if [ -f "$file" ] && grep -qE '^(<<<<<<<|>>>>>>>)( |$)|^=======$' -- "$file"; then
+			echo "$agent_label was not able to resolve all git conflicts; markers remain in $file."
+			cat "$conflict_output" >&2
+			return 1
+		fi
+	done
+	git add -A -- "${conflicted_files[@]}"
+
 	if has_unmerged_paths; then
-		echo "Codex was not able to resolve all git conflicts."
+		echo "$agent_label was not able to resolve all git conflicts."
 		printf 'Still conflicted:\n'
 		git diff --name-only --diff-filter=U | sed 's/^/  - /'
 		cat "$conflict_output" >&2
 		return 1
 	fi
 
-	if ! git diff --check; then
-		echo "Codex edits still contain conflict markers or whitespace errors."
-		return 1
-	fi
-
 	if GIT_EDITOR=true git rebase --continue; then
-		echo "Codex resolved the git conflict and the rebase continued successfully."
+		echo "$agent_label resolved the git conflict and the rebase continued successfully."
 		return 0
 	fi
 
-	echo "Codex resolved the files, but git rebase --continue failed."
+	echo "$agent_label resolved the files, but git rebase --continue failed."
 	return 1
 }
 
@@ -336,17 +439,27 @@ extract_commit_message() {
 	printf '%s\n' "$message"
 }
 
-build_commit_prompt() {
+commit_skill_path=
+find_commit_skill() {
 	local skill_path
 
 	for skill_path in \
 		"$repo_root/doc/codex-skills/SKIL_suggest-commit-message/SKILL.md" \
-		"$HOME/.codex/skills/SKIL_suggest-commit-message/SKILL.md"; do
+		"$HOME/.codex/skills/SKIL_suggest-commit-message/SKILL.md" \
+		"$HOME/.claude/skills/SKIL_suggest-commit-message/SKILL.md" \
+		"$HOME/.claude/skills/suggest-commit-message/SKILL.md"; do
 		if [ -f "$skill_path" ]; then
-			printf 'Use the suggest-commit-message skill at %s to propose a concise commit message for the currently staged changes. If that path is inaccessible, inspect the staged changes directly. Return the recommended commit message as the first fenced code block.\n' "$skill_path"
+			commit_skill_path=$skill_path
 			return
 		fi
 	done
+}
+
+build_commit_prompt() {
+	if [ -n "$commit_skill_path" ]; then
+		printf 'Use the suggest-commit-message skill at %s to propose a concise commit message for the currently staged changes. If that path is inaccessible, inspect the staged changes directly. Return the recommended commit message as the first fenced code block.\n' "$commit_skill_path"
+		return
+	fi
 
 	printf 'Inspect the currently staged changes and propose a concise git commit message. Return the recommended commit message as the first fenced code block, with no extra text before it.\n'
 }
@@ -356,25 +469,22 @@ if ! has_staged_changes; then
 	exit 0
 fi
 
-if ! resolve_codex_command; then
-	echo "codex command not found. Install the Codex CLI or add Codex.app's bundled CLI to PATH." >&2
+if ! resolve_agent_command; then
+	echo "$commit_agent command not found. $(agent_install_hint)" >&2
 	exit 1
 fi
 
-codex_output=$(mktemp "${TMPDIR:-/tmp}/bash-configs-codex-commit.XXXXXX")
-tmp_files+=("$codex_output")
+agent_output=$(mktemp "${TMPDIR:-/tmp}/bash-configs-${commit_agent}-commit.XXXXXX")
+tmp_files+=("$agent_output")
+find_commit_skill
 commit_prompt=$(build_commit_prompt)
 
-"${codex_command[@]}" exec \
-	-C "$repo_root" \
-	--sandbox read-only \
-	--output-last-message "$codex_output" \
-	"$commit_prompt" >/dev/null
+run_agent read-only "$agent_output" "$commit_prompt" >/dev/null
 
-commit_message=$(extract_commit_message "$codex_output")
+commit_message=$(extract_commit_message "$agent_output")
 if [ -z "$commit_message" ]; then
-	echo "Could not parse a commit message from Codex output:" >&2
-	cat "$codex_output" >&2
+	echo "Could not parse a commit message from $agent_label output:" >&2
+	cat "$agent_output" >&2
 	exit 1
 fi
 
@@ -398,8 +508,8 @@ if upstream=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null
 			# rebasing the newly created commit onto the updated upstream.
 			if ! git pull --rebase --autostash; then
 				if has_unmerged_paths; then
-					resolve_pull_conflict_with_codex || {
-						echo "Aborting codex-commit because the git conflict was not resolved."
+					resolve_pull_conflict_with_agent || {
+						echo "Aborting $script_name because the git conflict was not resolved."
 						exit 1
 					}
 				else
