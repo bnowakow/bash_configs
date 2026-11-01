@@ -36,6 +36,32 @@ Resource limits are 4 CPU / 4Gi memory (requests 50m / 512Mi). Raise the
 memory limit together with `-Xmx` (`jenkins.java_opts`) if builds run on the
 built-in node.
 
+## Build agents (Kubernetes plugin)
+
+Builds don't run on the controller. The Jenkins `kubernetes` plugin starts a
+throwaway pod per build in `apps-jenkins`, from the pod YAML in each
+project's `Jenkinsfile`. For this, `values.yaml` creates the ServiceAccount
+`jenkins` with a namespaced Role (pods and pods/exec: create, delete, get,
+list, patch, update, watch; pods/log and events: read), and mounts its token
+into the controller pod (`workload.main.podSpec.automountServiceAccountToken`).
+Jenkins cannot create pods outside `apps-jenkins`; this was checked with
+`kubectl auth can-i`.
+
+The Jenkins cloud `kubernetes` uses the in-cluster API, namespace
+`apps-jenkins`, Jenkins URL `http://jenkins.apps-jenkins.svc:10280`, tunnel
+`jenkins-agent.apps-jenkins.svc:50000`, and allows at most 2 build pods at
+once. The cloud, plugins (`kubernetes`, `blueocean`) and jobs live in
+`JENKINS_HOME` on the PVC, not in Fleet.
+
+Jobs:
+
+- `cozadzban.pl`: Multibranch Pipeline for https://github.com/bnowakow/cozadzban.
+  It tests every branch and pushes the Docker image `bnowakow/cozadzban` from
+  `main`. Its build pods use a **privileged** Docker-in-Docker sidecar, with
+  the daemon bound to 127.0.0.1 only. Full documentation, including
+  credentials and gotchas, is in the cozadzban repository:
+  `doc/JENKINS_CI.md`.
+
 ## Deployment and validation (2026-11-01)
 
 Both bundles were applied with the Fleet CLI and the `rancher-cluster` GitRepo
