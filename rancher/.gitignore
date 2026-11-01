@@ -1,4 +1,3 @@
-.gitignore.posgresql_roundcube_password
 longhornctl
 logs
-
+tmp-jenkins-token

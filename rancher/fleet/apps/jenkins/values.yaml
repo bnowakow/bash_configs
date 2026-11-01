@@ -43,3 +43,23 @@ workload:
   main:
     replicas: 1
     strategy: Recreate
+    podSpec:
+      # The Kubernetes plugin uses this token to start build-agent pods.
+      automountServiceAccountToken: true
+# Build agents run as pods in this namespace only (Kubernetes plugin).
+serviceAccount:
+  main:
+    enabled: true
+    primary: true
+rbac:
+  main:
+    enabled: true
+    primary: true
+    clusterWide: false
+    rules:
+    - apiGroups: [""]
+      resources: ["pods", "pods/exec"]
+      verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
+    - apiGroups: [""]
+      resources: ["pods/log", "events"]
+      verbs: ["get", "list", "watch"]

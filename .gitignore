@@ -20,3 +20,6 @@ repos
 
 # Added by ggshield
 .cache_ggshield
+
+tmp-sudo-password
+
