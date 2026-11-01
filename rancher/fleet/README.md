@@ -18,6 +18,10 @@ Each child directory containing a `fleet.yaml` is a separate Fleet bundle:
   external credential and user Secrets as described in `apps/authelia/README.md`.
 - `apps/homer-config-auth` requires Authelia for all Homer paths on
   both main HTTPS hostnames, including the dashboard and configuration files.
+- `apps/jenkins` installs Jenkins from the TrueCharts OCI registry, with its
+  `JENKINS_HOME` PVC created by `infrastructure/jenkins-storage`.
+
+To add another TrueCharts application, follow [TRUECHARTS.md](TRUECHARTS.md).
 
 The chart versions are deliberately pinned. Upgrade them through a reviewed Git change.
 

@@ -1,0 +1,11 @@
+name: jenkins
+defaultNamespace: apps-jenkins
+dependsOn:
+- name: jenkins-storage
+helm:
+  chart: oci://oci.trueforge.org/truecharts/jenkins
+  version: 12.0.4
+  releaseName: jenkins
+  waitForJobs: true
+  valuesFiles:
+  - values.yaml

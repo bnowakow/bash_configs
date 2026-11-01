@@ -1,0 +1,45 @@
+persistence:
+  data:
+    enabled: true
+    type: pvc
+    existingClaim: jenkins-data-longhorn-rwo
+    mountPath: /var/jenkins_home
+resources:
+  limits:
+    cpu: 4000m
+    memory: 4Gi
+  requests:
+    cpu: 50m
+    memory: 512Mi
+TZ: Europe/Warsaw
+metrics:
+  main:
+    enabled: false
+ingress:
+  main:
+    enabled: true
+    primary: true
+    ingressClassName: traefik
+    hosts:
+    - host: jenkins.rancher.tailscale.bnowakowski.pl
+      paths:
+      - path: /
+        pathType: Prefix
+    - host: jenkins.rancher.localdomain.bnowakowski.pl
+      paths:
+      - path: /
+        pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt
+      traefik:
+        enabled: true
+        entrypoints:
+        - websecure
+        forceTLS: true
+# One controller owns JENKINS_HOME; never run two against the same RWO volume.
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate

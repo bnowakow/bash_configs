@@ -1,0 +1,4 @@
+name: jenkins-storage
+defaultNamespace: apps-jenkins
+dependsOn:
+  - name: longhorn-pilot-storage
