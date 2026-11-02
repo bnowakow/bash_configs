@@ -1,6 +1,7 @@
 ---
 - name: Prepare K3s and Longhorn hosts
   hosts: all
+  tags: [host-prep]
   become: true
   gather_facts: true
   tasks:
@@ -43,8 +44,26 @@
         mode: '0644'
       when: longhorn_dm_crypt_enabled | bool
 
+    # Proxmox ships /usr/lib/sysctl.d/10-pve.conf with bridge-nf-call-iptables = 0.
+    # k3s sets it to 1 only when it starts, so any later re-run of systemd-sysctl
+    # (e.g. an automatic pve-manager upgrade) silently broke ClusterIP Services
+    # between pods on the same node. A 99- file overrides the Proxmox default.
+    # See doc/incident-2026-11-02-bridge-netfilter.md.
+    - name: Keep bridged pod traffic going through iptables
+      ansible.posix.sysctl:
+        name: "{{ item }}"
+        value: '1'
+        sysctl_file: /etc/sysctl.d/99-kubernetes.conf
+        sysctl_set: true
+        state: present
+        reload: true
+      loop:
+        - net.bridge.bridge-nf-call-iptables
+        - net.bridge.bridge-nf-call-ip6tables
+
 - name: Prepare dedicated Longhorn disks
   hosts: longhorn_nodes
+  tags: [longhorn-disks]
   become: true
   gather_facts: false
   tasks:
@@ -58,6 +77,7 @@
           - "LABEL={{ longhorn_filesystem_label }}"
       register: longhorn_device_lookup
       changed_when: false
+      check_mode: false  # read-only lookup, also needed in --check runs
 
     - name: Require exactly one Longhorn device
       ansible.builtin.assert:
@@ -93,6 +113,7 @@
       ansible.builtin.command: blkid -s UUID -o value {{ longhorn_device }}
       register: longhorn_uuid
       changed_when: false
+      check_mode: false  # read-only lookup, also needed in --check runs
       failed_when: longhorn_uuid.rc != 0 or not longhorn_uuid.stdout | trim
 
     - name: Mount Longhorn filesystem persistently
@@ -107,6 +128,7 @@
 
 - name: Install the K3s init server
   hosts: k3s_servers
+  tags: [k3s]
   become: true
   gather_facts: false
   tasks:
@@ -212,6 +234,7 @@
 
 - name: Join additional K3s servers
   hosts: k3s_servers
+  tags: [k3s]
   become: true
   gather_facts: false
   tasks:
@@ -270,6 +293,7 @@
 
 - name: Join K3s agents
   hosts: k3s_agents
+  tags: [k3s]
   become: true
   gather_facts: false
   tasks:
@@ -285,6 +309,7 @@
 
 - name: Bootstrap Rancher, Fleet, and infrastructure
   hosts: "{{ k3s_init_host }}"
+  tags: [bootstrap]
   become: true
   gather_facts: false
   environment:
