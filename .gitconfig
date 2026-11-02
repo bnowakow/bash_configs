@@ -2,11 +2,11 @@
 [user]
 	name = Bartek Dobrowolski-Nowakowski
 	email = dobrowolski.nowakowski@gmail.com
-
-# commented - no longer have krypton
 #[gpg]
 #	program = /usr/local/bin/krgpg
 #[commit]
 #	gpgSign = true
 #[tag]
 #	forceSignAnnotated = true
+[safe]
+	directory = /home/sup/docker/piwigo/config/www/gallery/plugins/piwigo-videojs

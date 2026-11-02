@@ -84,6 +84,7 @@ ansible-playbook -i inventory/nas-local.yml codex-sudo_playbook.yml
 ansible-playbook -i inventory/nas-local.yml codex-config_playbook.yml
 ansible-playbook -i inventory/nas-local.yml claude-install_playbook.yml
 ansible-playbook -i inventory/nas-local.yml claude-upgrade_playbook.yml
+ansible-playbook -i inventory/nas-local.yml sup-dotfiles_playbook.yml
 
 select_become_password_file OVH "${OVH_ANSIBLE_BECOME_PASSWORD_FILE:-}"
 export ANSIBLE_BECOME_PASSWORD_FILE=$selected_become_password_file
@@ -97,13 +98,15 @@ ansible-playbook -i inventory/ovh.yml codex-sudo_playbook.yml
 ansible-playbook -i inventory/ovh.yml codex-config_playbook.yml
 ansible-playbook -i inventory/ovh.yml claude-install_playbook.yml
 ansible-playbook -i inventory/ovh.yml claude-upgrade_playbook.yml
+ansible-playbook -i inventory/ovh.yml sup-dotfiles_playbook.yml
 
 export ANSIBLE_BECOME_PASSWORD_FILE=$proxmox_become_password_file
 
 # Prezto is currently configured only for proxmox5 in its playbook.
 ansible-playbook -i "$inventory" proxmox-prezto_playbook.yml
 
-# Dotfiles are for Proxmox hosts; non-Proxmox VMs are not targeted.
+# Dotfiles are for Proxmox hosts, NAS and OVH; non-Proxmox VMs are not targeted.
+# Files and the per-host .screenrc mapping: vars/sup-dotfiles.yml.
 ansible-playbook -i "$inventory" sup-dotfiles_playbook.yml --limit 'proxmox*'
 
 # Package and firmware upgrades remain separate because apt-upgrade_playbook.yml

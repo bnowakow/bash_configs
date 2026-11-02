@@ -1,4 +1,4 @@
-.PHONY: help install-git-hooks codex-commit claude-commit cron-install-rancher
+.PHONY: help install-git-hooks codex-commit claude-commit cron-install-rancher sync-dotfiles
 
 .DEFAULT_GOAL := help
 
@@ -9,6 +9,7 @@ help:
 	@echo "  codex-commit          Commit staged changes with Codex, and optionally push"
 	@echo "  claude-commit         Commit staged changes with Claude, and optionally push"
 	@echo "  cron-install-rancher  Install Rancher maintenance cron and logrotate"
+	@echo "  sync-dotfiles         Copy this host's dotfiles from ~ into the repo and stage them"
 
 install-git-hooks:
 	git config core.hooksPath .githooks
@@ -48,3 +49,6 @@ claude-commit:
 
 cron-install-rancher:
 	rancher/install-cron-rancher.sh
+
+sync-dotfiles:
+	utilities/sync-dotfiles.sh

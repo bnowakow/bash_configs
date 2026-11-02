@@ -13,6 +13,7 @@
 # zstyle ':prezto:*:*' case-sensitive 'yes'
 
 # Color output (auto set to 'no' on dumb terminals).
+# https://stackoverflow.com/questions/31156517/how-to-get-rid-of-grep-warning-grep-options-is-deprecated-please-use-an-alia
 zstyle ':prezto:*:*' color 'yes'
 
 # Add additional directories to load prezto modules from

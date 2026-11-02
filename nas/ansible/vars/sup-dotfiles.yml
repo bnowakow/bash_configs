@@ -1,0 +1,22 @@
+# Dotfiles that live in the root of bash_configs and are shared with sup's home.
+# Used by sup-dotfiles_playbook.yml (repo -> hosts) and by
+# utilities/sync-dotfiles.sh (`make sync-dotfiles`, host -> repo).
+# Keep this flat format: the shell script reads it without a YAML library.
+
+# Same file on every host.
+sup_dotfiles:
+  - .gitconfig
+  - .p10k.zsh
+  - .vimrc
+  - .zpreztorc
+  - .zshrc
+
+# Host-specific ~/.screenrc. The first regex matching the short hostname
+# (`hostname -s` / ansible_hostname) wins.
+sup_screenrc_files:
+  - host_regex: '^nas$'
+    file: .screenrc.nas
+  - host_regex: '^ovh$'
+    file: .screenrc.ovh
+  - host_regex: '^proxmox'
+    file: .screenrc.proxmox3and4

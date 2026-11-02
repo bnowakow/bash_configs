@@ -1,24 +1,22 @@
-- name: Install sup's dotfiles on NAS and Proxmox hosts
+- name: Install sup's dotfiles on NAS, OVH and Proxmox hosts
   hosts: all
   remote_user: sup
   become: false
+  vars_files:
+    # Shared with utilities/sync-dotfiles.sh (`make sync-dotfiles`).
+    - vars/sup-dotfiles.yml
   vars:
-    dotfiles_source_dir: /mnt/MargokPool/home/sup/code/bash_configs
-    sup_dotfiles:
-      - .gitconfig
-      - .p10k.zsh
-      - .vimrc
-      - .zpreztorc
-      - .zshrc
+    dotfiles_source_dir: "{{ playbook_dir | dirname | dirname }}"
 
   tasks:
-    - name: Confirm that localhost is the NAS controller and login is sup
+    - name: Confirm that the target is NAS (localhost), OVH or a Proxmox host and login is sup
       ansible.builtin.assert:
         that:
           - ansible_user_id == 'sup'
           - inventory_hostname == 'localhost' or inventory_hostname is match('^proxmox')
+            or inventory_hostname == 'ovh.bnowakowski.pl'
           - inventory_hostname != 'localhost' or ansible_hostname == 'nas'
-        fail_msg: Run this playbook as sup, targeting a Proxmox host or localhost on NAS.
+        fail_msg: Run this playbook as sup, targeting a Proxmox host, OVH or localhost on NAS.
 
     - name: Find sup's home directory
       ansible.builtin.getent:
@@ -36,14 +34,20 @@
         backup: true
       loop: "{{ sup_dotfiles }}"
 
+    - name: Pick the host-specific screen configuration (first matching host_regex)
+      ansible.builtin.set_fact:
+        sup_screenrc_file: >-
+          {%- for entry in sup_screenrc_files if ansible_hostname is search(entry.host_regex) -%}
+          {{ entry.file if loop.first else '' }}
+          {%- endfor -%}
+
     - name: Copy the host-specific screen configuration
       ansible.builtin.copy:
-        src: >-
-          {{ dotfiles_source_dir }}/{{ '.screenrc.nas' if inventory_hostname == 'localhost'
-          else '.screenrc.proxmox3and4' }}
+        src: "{{ dotfiles_source_dir }}/{{ sup_screenrc_file }}"
         dest: "{{ ansible_facts.getent_passwd['sup'][4] }}/.screenrc"
         owner: sup
         group: sup
         mode: '0644'
         follow: false
         backup: true
+      when: sup_screenrc_file | length > 0
