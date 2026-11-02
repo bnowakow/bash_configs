@@ -150,6 +150,9 @@
             - "{{ san }}"
           {% endfor %}
           cluster-init: true
+          # Secrets are encrypted at rest in etcd (enabled 2026-11-02, see
+          # doc/k3s-secrets-encryption.md). Never start a server without it.
+          secrets-encryption: true
         owner: root
         group: root
         mode: '0644'
@@ -258,6 +261,7 @@
           {% for san in k3s_tls_sans %}
             - "{{ san }}"
           {% endfor %}
+          secrets-encryption: true
         owner: root
         group: root
         mode: '0644'

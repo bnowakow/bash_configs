@@ -1,0 +1,4 @@
+name: piwigo-storage
+defaultNamespace: apps-piwigo
+dependsOn:
+  - name: longhorn-crypto-storage

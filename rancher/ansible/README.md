@@ -39,9 +39,8 @@ Edit the inventory and variables. In particular, verify that each Longhorn host'
 dedicated filesystem has the configured `longhorn_filesystem_label` (default:
 `longhorn`); the playbook resolves the device path per host with `blkid`. Formatting
 is disabled by default and the playbook fails if the device has no filesystem UUID.
-`dm_crypt` loading is also disabled by default because this cluster does not use
-Longhorn volume or backup encryption. Set `longhorn_dm_crypt_enabled: true` if that
-feature is enabled later.
+`dm_crypt` is loaded and persisted (`longhorn_dm_crypt_enabled: true`) because the
+`longhorn-crypto-2replicas` StorageClass uses LUKS-encrypted Longhorn volumes.
 The inventory includes `nas.localdomain.bnowakowski.pl` as a third K3s server so embedded
 etcd can regain an odd-numbered quorum. The NAS is intentionally not in
 `longhorn_nodes`, so the Longhorn disk preparation tasks are not run there. Set

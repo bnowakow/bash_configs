@@ -1,0 +1,4 @@
+name: longhorn-crypto-storage
+defaultNamespace: longhorn-system
+# The StorageClass needs the passphrase Secret longhorn-system/longhorn-crypto,
+# which is created by hand and never stored in git. See README.md.

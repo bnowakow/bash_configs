@@ -1,0 +1,104 @@
+# Sensitive photos: every place Piwigo writes photo data is either an
+# encrypted Longhorn volume (longhorn-crypto-2replicas, see piwigo-storage) or
+# RAM. Nothing photo-related may land on the container's root filesystem,
+# which is on the node's unencrypted disk.
+persistence:
+  config:
+    enabled: true
+    type: pvc
+    existingClaim: piwigo-config-longhorn-crypto
+    mountPath: /config
+  gallery:
+    enabled: true
+    type: pvc
+    existingClaim: piwigo-gallery-longhorn-crypto
+    mountPath: /gallery
+  # PHP (uploads, sessions) and nginx (request body buffers) use /tmp.
+  # Keep it in RAM so uploads never touch an unencrypted disk.
+  tmp:
+    enabled: true
+    type: emptyDir
+    medium: Memory
+    size: 1Gi
+    mountPath: /tmp
+  # linuxserver.io runs executable files from /custom-cont-init.d at start.
+  custom-init:
+    enabled: true
+    type: configmap
+    objectName: custom-init
+    mountPath: /custom-cont-init.d
+    defaultMode: "0755"
+
+configmap:
+  custom-init:
+    enabled: true
+    data:
+      90-require-login.sh: |
+        #!/bin/bash
+        # Require a login for every page: no anonymous (guest) access.
+        # Re-applied on every start, so a UI or file change cannot undo it.
+        f=/config/www/local/config/config.inc.php
+        line="\$conf['guest_access'] = false;"
+        if [[ ! -f "$f" ]]; then
+          echo "[require-login] $f missing" >&2
+          exit 1
+        fi
+        if grep -q "^\$conf\['guest_access'\]" "$f"; then
+          sed -i "s/^\$conf\['guest_access'\].*/$line/" "$f"
+        elif head -n 1 "$f" | grep -q '^<?php'; then
+          { head -n 1 "$f"; echo "$line"; tail -n +2 "$f"; } > "$f.new" && cat "$f.new" > "$f" && rm "$f.new"
+        else
+          { echo "<?php $line ?>"; cat "$f"; } > "$f.new" && cat "$f.new" > "$f" && rm "$f.new"
+        fi
+        echo "[require-login] $(grep "^\$conf\['guest_access'\]" "$f")"
+
+mariadb:
+  workload:
+    main:
+      replicas: 1
+      strategy: Recreate
+  persistence:
+    data:
+      enabled: true
+      type: pvc
+      existingClaim: piwigo-mariadb-data-longhorn-crypto
+
+workload:
+  main:
+    replicas: 1
+    strategy: Recreate
+
+resources:
+  limits:
+    cpu: 2000m
+    # Includes the RAM-backed /tmp (up to 1Gi).
+    memory: 3Gi
+  requests:
+    cpu: 50m
+    memory: 256Mi
+
+TZ: Europe/Warsaw
+
+ingress:
+  main:
+    enabled: true
+    primary: true
+    ingressClassName: traefik
+    hosts:
+    - host: cycuszki.rancher.tailscale.bnowakowski.pl
+      paths:
+      - path: /
+        pathType: Prefix
+    - host: cycuszki.rancher.localdomain.bnowakowski.pl
+      paths:
+      - path: /
+        pathType: Prefix
+    integrations:
+      certManager:
+        enabled: true
+        certificateIssuer: letsencrypt
+      traefik:
+        enabled: true
+        entrypoints:
+        - websecure
+        forceTLS: true

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# https://forums.suse.com/t/k3s-w-etcd-fails-to-restart-after-ip-change/42496/2
+k3s server --cluster-reset
+
+# https://dev.to/shankar_t/my-k3s-pi-cluster-died-after-a-reboot-a-troubleshooting-war-story-m93
+# THIS NUKES k3s
+#sudo systemctl stop k3s.service
+#sudo rm -rf /var/lib/rancher/k3s/server/db/
+#sudo systemctl start k3s.service
+

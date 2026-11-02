@@ -1,0 +1,18 @@
+name: piwigo
+defaultNamespace: apps-piwigo
+dependsOn:
+- name: piwigo-storage
+helm:
+  chart: oci://oci.trueforge.org/truecharts/piwigo
+  version: 22.0.12
+  releaseName: piwigo
+  waitForJobs: true
+  valuesFiles:
+  - values.yaml
+  # Initial admin login (piwigo.admin_user/admin_pass/admin_email), created by
+  # hand so the password is not in git. See README.md.
+  valuesFrom:
+  - secretKeyRef:
+      name: piwigo-values
+      namespace: apps-piwigo
+      key: values.yaml
