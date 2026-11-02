@@ -145,5 +145,14 @@ plays of `site.yml`. The `k3s` and `bootstrap` tags are refused unless
 | `k3s` | install/upgrade/join k3s, **always restarts k3s** |
 | `bootstrap` | Helm, Rancher, Fleet, secrets, GitRepo |
 
+The same commands are available from `rancher/` through make (`make` lists them):
+
+```bash
+make k3s-inventory-check   # ./sync-k3s-inventory.sh --check
+make k3s-inventory         # ./sync-k3s-inventory.sh
+make k3s-nodes-check       # ./run-cluster-nodes.sh --check --diff
+make k3s-nodes-apply ARGS="--limit proxmox3"
+```
+
 Validated on 2026-11-02 with `--check --diff`: both nodes 12 ok, 0 changed,
 0 failed.
