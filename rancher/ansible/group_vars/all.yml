@@ -19,7 +19,7 @@ longhorn_format_device: false
 longhorn_dm_crypt_enabled: true  # longhorn-crypto-2replicas (Piwigo) uses LUKS volumes
 
 rancher_hostname: proxmox3.tailscale.bnowakowski.pl
-rancher_chart_version: "2.15.2"
+rancher_chart_version: "2.15.3"
 # Use the existing Cloudflare DNS-01 ClusterIssuer. Rancher's letsEncrypt mode
 # creates a separate HTTP-01 Issuer and is unsuitable for the private hostname.
 rancher_ingress_tls_source: secret

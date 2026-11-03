@@ -623,7 +623,7 @@ update_ansible_rancher_chart_version() {
   fi
 
   temp_file="$(mktemp "${file}.XXXXXX")"
-  if ! sed -E "s#^([[:space:]]*rancher_chart_version:[[:space:]]*).*$#\1\"${chart_version#v}\"#" "$file" >"$temp_file"; then
+  if ! sed -E "s#^([[:space:]]*rancher_chart_version:[[:space:]]*).*\$#\1\"${chart_version#v}\"#" "$file" >"$temp_file"; then
     rm -f "$temp_file"
     log_error "Unable to update Rancher chart version in $file"
     return 1
@@ -658,7 +658,7 @@ update_ansible_k3s_version() {
   fi
 
   temp_file="$(mktemp "${file}.XXXXXX")"
-  if ! sed -E "s#^([[:space:]]*k3s_version:[[:space:]]*).*$#\1${k3s_version}#" "$file" >"$temp_file"; then
+  if ! sed -E "s#^([[:space:]]*k3s_version:[[:space:]]*).*\$#\1${k3s_version}#" "$file" >"$temp_file"; then
     rm -f "$temp_file"
     log_error "Unable to update K3s version in $file"
     return 1
