@@ -32,6 +32,12 @@ redirects to the login page, and anonymous visitors see nothing.
 Self-registration is switched off in the database (`allow_user_registration`).
 Authelia is intentionally not in front.
 
+## Security considerations and open TODOs
+
+See [`doc/piwigo-security.md`](../../../doc/piwigo-security.md): where every
+kind of data is stored, what the encryption does and doesn't protect against,
+CloudCasa, keys, and the checklist for each Piwigo upgrade.
+
 ## Initial admin login (Secret, not in git)
 
 The chart installs Piwigo on first start with the admin account from the
