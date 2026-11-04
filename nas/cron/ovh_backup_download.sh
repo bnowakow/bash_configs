@@ -77,6 +77,18 @@ newest_file_name() {
     find "$dir" -maxdepth 1 -type f -name "$pattern" -printf '%T@ %f\n' | sort -nr | head -n 1 | cut -d' ' -f2-
 }
 
+# Prints the number of remote files matching the glob. Fails only when the
+# remote cannot be checked (e.g. ssh error), not when nothing matches.
+remote_backup_count() {
+    local remote_path="$1"
+
+    # The glob is expanded by the remote shell; nullglob makes "no match" empty.
+    ssh -o ConnectTimeout=30 "$remote_host" "shopt -s nullglob; files=( $remote_path ); echo \${#files[@]}"
+}
+
+# Backups are created daily on OVH, so a local copy younger than this is current.
+local_backup_max_age_minutes=$((26 * 60))
+
 user_names=( sup admin );
 for user_name in "${user_names[@]}"; do
     echo $user_name;
@@ -84,6 +96,18 @@ for user_name in "${user_names[@]}"; do
     remote_path="$remote_dir/$user_name*.tar";
     mkdir -p "$local_dir"
     
+    # rsync exits 23 when the glob matches nothing, e.g. when today's backup
+    # was already downloaded (--remove-source-files), so check before retrying.
+    if remote_count=$(remote_backup_count "$remote_path") && [ "$remote_count" = "0" ]; then
+        if [ -n "$(find "$local_dir" -maxdepth 1 -type f -name "$user_name*.tar" -mmin -"$local_backup_max_age_minutes")" ]; then
+            log_success "SUCCESS: no new backup on $remote_host for $user_name; newest local backup is current: $(newest_file_name "$local_dir" "$user_name*.tar")"
+        else
+            log_error "ERROR: no backup on $remote_host matches $remote_path and no local backup is newer than $((local_backup_max_age_minutes / 60))h"
+            exit_status=1
+        fi
+        continue
+    fi
+
     # download new backup
     # -e "ssh -i $HOME/.ssh/id_rsa"
     if ! download_backup "$remote_path" "$local_dir"; then
