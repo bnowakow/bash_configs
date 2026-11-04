@@ -4,6 +4,7 @@ set -Eeuo pipefail
 
 kubeconfig_path="/etc/rancher/k3s/k3s.yaml"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+bash_configs_root="$(cd "$script_dir/.." && pwd)"
 ansible_group_vars_file="$script_dir/ansible/group_vars/all.yml"
 cert_manager_fleet_file="$script_dir/fleet/infrastructure/cert-manager/fleet.yaml"
 log_dir="$script_dir/logs"
@@ -22,6 +23,7 @@ color_yellow=""
 color_green=""
 color_bold=""
 color_reset=""
+staged_repo_files=0
 
 usage() {
   cat <<USAGE
@@ -32,6 +34,11 @@ Upgrades Rancher first, then the current k3s server node, then cert-manager.
   --rancher-only   Upgrade only the Rancher Helm release. Refuses to run when
                    the installed k3s minor is outside the selected Rancher
                    version's supported k3s range (run without this option).
+
+After each component is upgraded and verified, the repository file that pins
+its version (ansible/group_vars/all.yml, or the cert-manager fleet.yaml) is
+staged with git add. Before exiting, the script asks whether to run
+make codex-commit in the bash_configs repository.
 
 The script discovers current compatible versions from SUSE/GitHub, prints the
 selected versions and source URLs, attempts a pre-upgrade k3s snapshot, and then
@@ -142,7 +149,7 @@ require_cmd() {
 require_dependencies() {
   local missing=0
   local cmd
-  for cmd in awk base64 chmod cp curl date grep helm hostname kubectl mkdir mktemp mv rm sed sleep sort systemctl tail tee tr; do
+  for cmd in awk base64 chmod chown cp curl date git grep helm hostname kubectl make mkdir mktemp mv rm sed sleep sort stat sudo systemctl tail tee tr; do
     if ! require_cmd "$cmd"; then
       missing=1
     fi
@@ -156,6 +163,63 @@ require_dependencies() {
     require_cmd jq
     require_cmd cmp
   fi
+}
+
+# The script runs as root, but the repository belongs to a normal user. Run git
+# and make as that user, so the index stays theirs and codex-commit uses their
+# home directory, credentials and git config.
+as_repo_owner() {
+  local owner
+  owner="$(stat -c %U "$bash_configs_root")"
+  if [ "${EUID:-$(id -u)}" -eq 0 ] && [ "$owner" != "root" ]; then
+    sudo -u "$owner" -H -- "$@"
+  else
+    "$@"
+  fi
+}
+
+# Stage a version file after its component was upgraded and verified.
+stage_repo_file() {
+  local file="$1"
+  local relative_file="${file#"$bash_configs_root/"}"
+
+  if [ ! -f "$file" ]; then
+    return 0
+  fi
+  if as_repo_owner git -C "$bash_configs_root" diff --quiet -- "$relative_file" 2>>"$log_file"; then
+    return 0
+  fi
+  if ! as_repo_owner git -C "$bash_configs_root" add -- "$relative_file" >>"$log_file" 2>&1; then
+    log_warning "Could not stage $relative_file with git add; stage it by hand."
+    return 0
+  fi
+  staged_repo_files=$((staged_repo_files + 1))
+  log_success "Staged $relative_file."
+}
+
+# Runs on every exit, so files staged for components that succeeded can still
+# be committed when a later step fails.
+ask_run_codex_commit() {
+  local exit_status=$?
+  trap - EXIT
+
+  if [ "$staged_repo_files" -gt 0 ]; then
+    if [ "$exit_status" -ne 0 ]; then
+      log_warning "The run did not finish (exit status $exit_status). Only files of components that were upgraded and verified are staged."
+    fi
+    if confirm "Upgraded version files are staged. Run make -C $bash_configs_root codex-commit now?"; then
+      log "+ make -C $bash_configs_root codex-commit"
+      if as_repo_owner make -C "$bash_configs_root" codex-commit; then
+        log_success "make codex-commit completed successfully."
+      else
+        log_error "make codex-commit failed; the staged files were left in place."
+      fi
+    else
+      log "User chose not to run make codex-commit; the staged files were left in place."
+    fi
+  fi
+
+  exit "$exit_status"
 }
 
 confirm() {
@@ -473,6 +537,8 @@ verify_cert_manager_health() {
   run_cmd kubectl --kubeconfig "$kubeconfig_path" get pods --namespace cert-manager -o wide
   run_cmd kubectl --kubeconfig "$kubeconfig_path" get issuers,clusterissuers,certificaterequests,certificates --all-namespaces
   log_success "$(component_text "cert-manager") health checks passed."
+  # Every caller syncs the Fleet version first, so it is verified at this point.
+  stage_repo_file "$cert_manager_fleet_file"
 }
 
 normalize_leading_v() {
@@ -630,6 +696,7 @@ update_ansible_rancher_chart_version() {
   fi
 
   chmod --reference="$file" "$temp_file"
+  chown --reference="$file" "$temp_file"
 
   if ! mv "$temp_file" "$file"; then
     rm -f "$temp_file"
@@ -665,6 +732,7 @@ update_ansible_k3s_version() {
   fi
 
   chmod --reference="$file" "$temp_file"
+  chown --reference="$file" "$temp_file"
 
   if ! mv "$temp_file" "$file"; then
     rm -f "$temp_file"
@@ -822,6 +890,7 @@ upgrade_rancher_release() {
   run_cmd kubectl --kubeconfig "$kubeconfig_path" -n cattle-system get deploy rancher
 
   update_ansible_rancher_chart_version "$rancher_chart_version"
+  stage_repo_file "$ansible_group_vars_file"
 
   setup_password="$(kubectl --kubeconfig "$kubeconfig_path" get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}')"
   log_success "$(component_text "Rancher") setup URL: https://$hostname_fqdn/dashboard/?setup=$setup_password"
@@ -968,6 +1037,7 @@ main() {
 
   require_root
   mkdir -p "$log_dir"
+  trap ask_run_codex_commit EXIT
   require_dependencies
   export KUBECONFIG="$kubeconfig_path"
 
@@ -1154,6 +1224,7 @@ About to run the upgrade with:
     log "Preserving existing k3s configuration in /etc/rancher/k3s."
     wait_for_kubectl
     update_ansible_k3s_version "$k3s_version"
+    stage_repo_file "$ansible_group_vars_file"
     log_error "IMPORTANT: Run Ansible to check and upgrade K3s on the other cluster nodes."
   else
     log_success "Skipping $(component_text "k3s"); installed version is $(version_text "${current_k3s_version:-not detected}") and target $(version_text "$k3s_version") is not newer."
