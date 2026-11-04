@@ -3,6 +3,9 @@ name: emby
 x-emby-common: &emby-common
   image: emby/embyserver:latest
   restart: unless-stopped
+  # Reduce selection priority during host-wide OOM; keep killing enabled so
+  # the host can still recover if memory is exhausted.
+  oom_score_adj: -300
   devices:
     - /dev/dri:/dev/dri
   environment: &emby-environment

@@ -12,6 +12,16 @@ its own users, settings, databases, media mount and published port.
 Both use `/dev/dri` and UID/GID 568. Nubile also has group 1000 for Movies
 permissions (1000:1000, mode 770). Both config directories are ignored by Git.
 The external Docker NFS volume `nubile_movies` is reused without copying media.
+
+Both services use `oom_score_adj: -300` to reduce their likelihood of being
+selected by the kernel during host-wide memory exhaustion. This is a preference,
+not a memory reservation or a guarantee: other workloads may be killed instead.
+OOM killing stays enabled so the host can recover. No hard memory cap is added;
+an undersized cap can itself cause container OOM kills. The host had 31 GiB RAM
+and no swap when checked on 2026-11-04. Preventing memory exhaustion also requires
+budgeting other host workloads and, where appropriate, adding host swap.
+Apply changes with `make restart` (recreates both containers).
+
 On a new host, create it before starting:
 
 ```sh
