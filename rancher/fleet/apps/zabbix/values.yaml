@@ -1,5 +1,4 @@
-# Match the restored Zabbix 7.4 database schema.
-zabbixImageTag: ubuntu-7.4.16
+zabbixImageTag: ubuntu-8.0.0
 
 # PostgreSQL data was migrated and recovery-tested on Longhorn (2026-10-25).
 # Keep this as an existing claim so Helm/Fleet does not create or delete it.

@@ -1,8 +1,8 @@
 # Fleet changes
 
-Before pushing changes under this directory, apply every changed bundle that
+Before committing or pushing changes under this directory, apply every changed bundle that
 can be applied to the configured cluster and validate the resulting deployment.
-Do this before `git push`, including when preparing changes for the user to push.
+Do this before `git commit` or `git push`, including when preparing changes for the user to commit or push.
 
 Use Fleet-native bundle generation and application, preserve existing GitRepo
 ownership labels and targeting, and apply only the bundles changed for the task.
