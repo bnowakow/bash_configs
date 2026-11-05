@@ -117,3 +117,37 @@ units that still run from the old path through the symlink:
 
 On proxmox3 only `traefik` applies. Restart it only if the user agrees, and check
 `systemctl status traefik` afterwards.
+
+## Verification result — 2026-11-05 19:59 CET
+
+Read `fleet-repo-rename-verification.txt`, collected by the user on proxmox3.
+The live GitRepo now uses `https://github.com/bnowakow/homelab.git`; branch,
+paths and clientSecretName retain their documented values. Both Fleet's
+`status.commit` and GitHub's `refs/heads/master` are
+`94e6eae620c97f3741596878bdcad73269c4d390`. Git job status is `Current`,
+observed generation is 11 (matching metadata generation). Repository rename
+and synchronization are confirmed.
+
+Overall Fleet readiness is **64/69**, so full cluster health is not confirmed:
+
+- `longhorn-backups`: existing `nas-daily-backup` RecurringJob lacks Helm
+  ownership metadata required by the bundle.
+- `traefik-resources`: existing `pve-proxy/pve-api` Service belongs to release
+  namespace `fleet-local`, while the attempted install expects `default`.
+- `calibre-storage`: tracked PVCs `calibre-library` and `calibre-web-config`
+  in `apps-calibre` are missing.
+- `cloudcasa`: deployment drift on `cloudcasa-kubeagent-manager`.
+- `cert-manager-resources`: solver configuration drift on `letsencrypt`.
+
+`zabbix` reports bundle readiness 1/1 and BundleDeployment deployed/monitored
+True. This report does not inspect running Zabbix container image tags.
+The captured gitjob log section has no output; clone-log validation is
+inconclusive. There is no before-patch baseline establishing whether all five
+bundle issues predate the URL change. No ownership, storage, credentials,
+kubeconfig or service restarts were changed during report review. Cleanup of
+old symlinks and any Traefik restart remain pending.
+
+Access diagnosis: default kubectl in the agent session has no context; the
+explicit k3s kubeconfig selects `https://127.0.0.1:6443`, but agent network
+sandboxing denies that socket. User-run commands with the explicit kubeconfig
+succeeded. The original NAS NotFound error's cause remains unconfirmed.
