@@ -1,0 +1,1057 @@
+2026-11-05T20:50:13+01:00
+
+### Bundle calibre-storage (resource contents omitted)
+{
+  "apiVersion": "fleet.cattle.io/v1alpha1",
+  "kind": "Bundle",
+  "metadata": {
+    "creationTimestamp": "2026-10-19T05:05:40Z",
+    "finalizers": [
+      "fleet.cattle.io/bundle-finalizer"
+    ],
+    "generation": 2,
+    "labels": {
+      "fleet.cattle.io/commit": "97a0f02db12fd5c710197079ec95f08e6db41f26",
+      "fleet.cattle.io/repo-name": "rancher-cluster"
+    },
+    "name": "calibre-storage",
+    "namespace": "fleet-local",
+    "resourceVersion": "39623544",
+    "uid": "cf1b7a28-8aca-42f4-bbc8-d14bf90b6958"
+  },
+  "spec": {
+    "defaultNamespace": "apps-calibre",
+    "forceSyncGeneration": 7,
+    "targetCustomizationMode": "FirstMatch",
+    "targetRestrictions": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ],
+    "targets": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ]
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastUpdateTime": "2026-10-26T17:12:56Z",
+        "message": "Modified(1) [Cluster fleet-local/local]; persistentvolumeclaim.v1 apps-calibre/calibre-library missing; persistentvolumeclaim.v1 apps-calibre/calibre-web-config missing",
+        "status": "False",
+        "type": "Ready"
+      }
+    ],
+    "display": {
+      "readyClusters": "0/1",
+      "state": "Modified"
+    },
+    "maxUnavailable": 1,
+    "observedGeneration": 2,
+    "partitions": [
+      {
+        "count": 1,
+        "maxUnavailable": 1,
+        "name": "All",
+        "summary": {
+          "desiredReady": 1,
+          "modified": 1,
+          "nonReadyResources": [
+            {
+              "bundleState": "Modified",
+              "modifiedStatus": [
+                {
+                  "apiVersion": "v1",
+                  "kind": "PersistentVolumeClaim",
+                  "missing": true,
+                  "name": "calibre-library",
+                  "namespace": "apps-calibre"
+                },
+                {
+                  "apiVersion": "v1",
+                  "kind": "PersistentVolumeClaim",
+                  "missing": true,
+                  "name": "calibre-web-config",
+                  "namespace": "apps-calibre"
+                }
+              ],
+              "name": "fleet-local/local"
+            }
+          ],
+          "ready": 0
+        }
+      }
+    ],
+    "resourcesSha256Sum": "195b26515c566c2c3260cd26362f3d05a58ac395da9a7ab39f661101eae879e3",
+    "summary": {
+      "desiredReady": 1,
+      "modified": 1,
+      "nonReadyResources": [
+        {
+          "bundleState": "Modified",
+          "modifiedStatus": [
+            {
+              "apiVersion": "v1",
+              "kind": "PersistentVolumeClaim",
+              "missing": true,
+              "name": "calibre-library",
+              "namespace": "apps-calibre"
+            },
+            {
+              "apiVersion": "v1",
+              "kind": "PersistentVolumeClaim",
+              "missing": true,
+              "name": "calibre-web-config",
+              "namespace": "apps-calibre"
+            }
+          ],
+          "name": "fleet-local/local"
+        }
+      ],
+      "ready": 0
+    },
+    "unavailable": 0
+  }
+}
+
+### Bundle longhorn-backups (resource contents omitted)
+{
+  "apiVersion": "fleet.cattle.io/v1alpha1",
+  "kind": "Bundle",
+  "metadata": {
+    "creationTimestamp": "2026-10-09T17:27:07Z",
+    "finalizers": [
+      "fleet.cattle.io/bundle-finalizer"
+    ],
+    "generation": 1,
+    "labels": {
+      "fleet.cattle.io/commit": "97a0f02db12fd5c710197079ec95f08e6db41f26",
+      "fleet.cattle.io/repo-name": "rancher-cluster"
+    },
+    "name": "longhorn-backups",
+    "namespace": "fleet-local",
+    "resourceVersion": "39623678",
+    "uid": "1da63367-8fe5-4a25-8f1d-06d46250266b"
+  },
+  "spec": {
+    "defaultNamespace": "longhorn-system",
+    "dependsOn": [
+      {
+        "name": "longhorn"
+      }
+    ],
+    "forceSyncGeneration": 7,
+    "targetCustomizationMode": "FirstMatch",
+    "targetRestrictions": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ],
+    "targets": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ]
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastUpdateTime": "2026-10-28T19:32:11Z",
+        "message": "NotReady(1) [Cluster fleet-local/local: not installed: unable to continue with install: RecurringJob \"nas-daily-backup\" in namespace \"longhorn-system\" exists and cannot be imported into the current release: invalid ownership metadata; label validation error: missing key \"app.kubernetes.io/managed-by\": must be set to \"Helm\"; annotation validation error: missing key \"meta.helm.sh/release-name\": must be set to \"longhorn-backups\"; annotation validation error: missing key \"meta.helm.sh/release-namespace\": must be set to \"longhorn-system\"]",
+        "status": "False",
+        "type": "Ready"
+      }
+    ],
+    "display": {
+      "readyClusters": "0/1",
+      "state": "NotReady"
+    },
+    "maxUnavailable": 1,
+    "observedGeneration": 1,
+    "partitions": [
+      {
+        "count": 1,
+        "maxUnavailable": 1,
+        "name": "All",
+        "summary": {
+          "desiredReady": 1,
+          "nonReadyResources": [
+            {
+              "bundleState": "NotReady",
+              "message": "not installed: unable to continue with install: RecurringJob \"nas-daily-backup\" in namespace \"longhorn-system\" exists and cannot be imported into the current release: invalid ownership metadata; label validation error: missing key \"app.kubernetes.io/managed-by\": must be set to \"Helm\"; annotation validation error: missing key \"meta.helm.sh/release-name\": must be set to \"longhorn-backups\"; annotation validation error: missing key \"meta.helm.sh/release-namespace\": must be set to \"longhorn-system\"",
+              "name": "fleet-local/local"
+            }
+          ],
+          "notReady": 1,
+          "ready": 0
+        },
+        "unavailable": 1
+      }
+    ],
+    "resourcesSha256Sum": "03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599dd95",
+    "summary": {
+      "desiredReady": 1,
+      "nonReadyResources": [
+        {
+          "bundleState": "NotReady",
+          "message": "not installed: unable to continue with install: RecurringJob \"nas-daily-backup\" in namespace \"longhorn-system\" exists and cannot be imported into the current release: invalid ownership metadata; label validation error: missing key \"app.kubernetes.io/managed-by\": must be set to \"Helm\"; annotation validation error: missing key \"meta.helm.sh/release-name\": must be set to \"longhorn-backups\"; annotation validation error: missing key \"meta.helm.sh/release-namespace\": must be set to \"longhorn-system\"",
+          "name": "fleet-local/local"
+        }
+      ],
+      "notReady": 1
+    },
+    "unavailable": 1
+  }
+}
+
+### Bundle traefik-resources (resource contents omitted)
+{
+  "apiVersion": "fleet.cattle.io/v1alpha1",
+  "kind": "Bundle",
+  "metadata": {
+    "creationTimestamp": "2026-09-21T18:42:40Z",
+    "finalizers": [
+      "fleet.cattle.io/bundle-finalizer"
+    ],
+    "generation": 7,
+    "labels": {
+      "fleet.cattle.io/commit": "97a0f02db12fd5c710197079ec95f08e6db41f26",
+      "fleet.cattle.io/repo-name": "rancher-cluster"
+    },
+    "name": "traefik-resources",
+    "namespace": "fleet-local",
+    "resourceVersion": "39623734",
+    "uid": "4eeac254-564d-4e26-9234-1ad6be9176c6"
+  },
+  "spec": {
+    "forceSyncGeneration": 7,
+    "targetCustomizationMode": "FirstMatch",
+    "targetRestrictions": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ],
+    "targets": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ]
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastUpdateTime": "2026-09-23T15:24:56Z",
+        "message": "NotReady(1) [Cluster fleet-local/local: not installed: unable to continue with install: Service \"pve-api\" in namespace \"pve-proxy\" exists and cannot be imported into the current release: invalid ownership metadata; annotation validation error: key \"meta.helm.sh/release-namespace\" must equal \"default\": current value is \"fleet-local\"]",
+        "status": "False",
+        "type": "Ready"
+      }
+    ],
+    "display": {
+      "readyClusters": "0/1",
+      "state": "NotReady"
+    },
+    "maxUnavailable": 1,
+    "observedGeneration": 7,
+    "partitions": [
+      {
+        "count": 1,
+        "maxUnavailable": 1,
+        "name": "All",
+        "summary": {
+          "desiredReady": 1,
+          "nonReadyResources": [
+            {
+              "bundleState": "NotReady",
+              "message": "not installed: unable to continue with install: Service \"pve-api\" in namespace \"pve-proxy\" exists and cannot be imported into the current release: invalid ownership metadata; annotation validation error: key \"meta.helm.sh/release-namespace\" must equal \"default\": current value is \"fleet-local\"",
+              "name": "fleet-local/local"
+            }
+          ],
+          "notReady": 1,
+          "ready": 0
+        },
+        "unavailable": 1
+      }
+    ],
+    "resourcesSha256Sum": "9e78c61b13cb588a517d1ddb50b776b96ef1b983b3ce514296bab71b4ecebb89",
+    "summary": {
+      "desiredReady": 1,
+      "nonReadyResources": [
+        {
+          "bundleState": "NotReady",
+          "message": "not installed: unable to continue with install: Service \"pve-api\" in namespace \"pve-proxy\" exists and cannot be imported into the current release: invalid ownership metadata; annotation validation error: key \"meta.helm.sh/release-namespace\" must equal \"default\": current value is \"fleet-local\"",
+          "name": "fleet-local/local"
+        }
+      ],
+      "notReady": 1
+    },
+    "unavailable": 1
+  }
+}
+
+### Bundle cert-manager-resources (resource contents omitted)
+{
+  "apiVersion": "fleet.cattle.io/v1alpha1",
+  "kind": "Bundle",
+  "metadata": {
+    "creationTimestamp": "2026-09-05T18:00:12Z",
+    "finalizers": [
+      "fleet.cattle.io/bundle-finalizer"
+    ],
+    "generation": 6,
+    "labels": {
+      "fleet.cattle.io/commit": "97a0f02db12fd5c710197079ec95f08e6db41f26",
+      "fleet.cattle.io/repo-name": "rancher-cluster"
+    },
+    "name": "cert-manager-resources",
+    "namespace": "fleet-local",
+    "resourceVersion": "39623669",
+    "uid": "063fa33b-3203-4b8d-9e85-102975f72148"
+  },
+  "spec": {
+    "dependsOn": [
+      {
+        "name": "cert-manager"
+      }
+    ],
+    "forceSyncGeneration": 7,
+    "targetCustomizationMode": "FirstMatch",
+    "targetRestrictions": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ],
+    "targets": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ]
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastUpdateTime": "2026-11-04T20:07:57Z",
+        "message": "Modified(1) [Cluster fleet-local/local]; clusterissuer.cert-manager.io letsencrypt modified {\"spec\":{\"acme\":{\"solvers\":[{\"dns01\":{\"cloudflare\":{\"apiTokenSecretRef\":{\"key\":\"api-token\",\"name\":\"cloudflare-api-token-secret\"},\"email\":\"dobrowolski.nowakowski@gmail.com\"}},\"selector\":{\"dnsZones\":[\"rancher.localdomain.bnowakowski.pl\",\"*.rancher.localdomain.bnowakowski.pl\",\"proxmox3.localdomain.bnowakowski.pl\",\"proxmox4.localdomain.bnowakowski.pl\",\"rancher.tailscale.bnowakowski.pl\",\"*.rancher.tailscale.bnowakowski.pl\",\"proxmox3.tailscale.bnowakowski.pl\",\"proxmox4.tailscale.bnowakowski.pl\"]}}]}}}",
+        "status": "False",
+        "type": "Ready"
+      }
+    ],
+    "display": {
+      "readyClusters": "0/1",
+      "state": "Modified"
+    },
+    "maxUnavailable": 1,
+    "observedGeneration": 6,
+    "partitions": [
+      {
+        "count": 1,
+        "maxUnavailable": 1,
+        "name": "All",
+        "summary": {
+          "desiredReady": 1,
+          "modified": 1,
+          "nonReadyResources": [
+            {
+              "bundleState": "Modified",
+              "modifiedStatus": [
+                {
+                  "apiVersion": "cert-manager.io/v1",
+                  "kind": "ClusterIssuer",
+                  "name": "letsencrypt",
+                  "patch": "{\"spec\":{\"acme\":{\"solvers\":[{\"dns01\":{\"cloudflare\":{\"apiTokenSecretRef\":{\"key\":\"api-token\",\"name\":\"cloudflare-api-token-secret\"},\"email\":\"dobrowolski.nowakowski@gmail.com\"}},\"selector\":{\"dnsZones\":[\"rancher.localdomain.bnowakowski.pl\",\"*.rancher.localdomain.bnowakowski.pl\",\"proxmox3.localdomain.bnowakowski.pl\",\"proxmox4.localdomain.bnowakowski.pl\",\"rancher.tailscale.bnowakowski.pl\",\"*.rancher.tailscale.bnowakowski.pl\",\"proxmox3.tailscale.bnowakowski.pl\",\"proxmox4.tailscale.bnowakowski.pl\"]}}]}}}"
+                }
+              ],
+              "name": "fleet-local/local"
+            }
+          ],
+          "ready": 0
+        }
+      }
+    ],
+    "resourcesSha256Sum": "cd16c4aace066537b1b0b8cafb8f02ffbe1ed0e6a283890e53abeea131335c15",
+    "summary": {
+      "desiredReady": 1,
+      "modified": 1,
+      "nonReadyResources": [
+        {
+          "bundleState": "Modified",
+          "modifiedStatus": [
+            {
+              "apiVersion": "cert-manager.io/v1",
+              "kind": "ClusterIssuer",
+              "name": "letsencrypt",
+              "patch": "{\"spec\":{\"acme\":{\"solvers\":[{\"dns01\":{\"cloudflare\":{\"apiTokenSecretRef\":{\"key\":\"api-token\",\"name\":\"cloudflare-api-token-secret\"},\"email\":\"dobrowolski.nowakowski@gmail.com\"}},\"selector\":{\"dnsZones\":[\"rancher.localdomain.bnowakowski.pl\",\"*.rancher.localdomain.bnowakowski.pl\",\"proxmox3.localdomain.bnowakowski.pl\",\"proxmox4.localdomain.bnowakowski.pl\",\"rancher.tailscale.bnowakowski.pl\",\"*.rancher.tailscale.bnowakowski.pl\",\"proxmox3.tailscale.bnowakowski.pl\",\"proxmox4.tailscale.bnowakowski.pl\"]}}]}}}"
+            }
+          ],
+          "name": "fleet-local/local"
+        }
+      ],
+      "ready": 0
+    },
+    "unavailable": 0
+  }
+}
+
+### Bundle cloudcasa (resource contents omitted)
+{
+  "apiVersion": "fleet.cattle.io/v1alpha1",
+  "kind": "Bundle",
+  "metadata": {
+    "creationTimestamp": "2026-09-05T18:00:12Z",
+    "finalizers": [
+      "fleet.cattle.io/bundle-finalizer"
+    ],
+    "generation": 20,
+    "labels": {
+      "fleet.cattle.io/commit": "97a0f02db12fd5c710197079ec95f08e6db41f26",
+      "fleet.cattle.io/repo-name": "rancher-cluster"
+    },
+    "name": "cloudcasa",
+    "namespace": "fleet-local",
+    "resourceVersion": "39623738",
+    "uid": "91769220-6e0f-4561-aafc-a01132b6ef99"
+  },
+  "spec": {
+    "defaultNamespace": "cloudcasa-io",
+    "forceSyncGeneration": 7,
+    "helm": {
+      "chart": "cloudcasa",
+      "releaseName": "cloudcasa",
+      "repo": "https://catalogicsoftware.github.io/cloudcasa-helmchart",
+      "valuesFrom": [
+        {
+          "secretKeyRef": {
+            "key": "values.yaml",
+            "name": "cloudcasa-values",
+            "namespace": "cloudcasa-io"
+          }
+        }
+      ],
+      "version": "3.4.7"
+    },
+    "targetCustomizationMode": "FirstMatch",
+    "targetRestrictions": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ],
+    "targets": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ]
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastUpdateTime": "2026-10-31T13:56:59Z",
+        "message": "Modified(1) [Cluster fleet-local/local]; deployment.apps cloudcasa-io/cloudcasa-kubeagent-manager modified {\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"args\":[\"/usr/local/bin/kubeagentmanager\",\"--server_addr\",\"agent.cloudcasa.io:443\",\"--tls\",\"true\",\"--skip_tls_verification\",\"false\"],\"env\":[{\"name\":\"MY_POD_NAME\",\"valueFrom\":{\"fieldRef\":{\"apiVersion\":\"v1\",\"fieldPath\":\"metadata.name\"}}},{\"name\":\"AMDS_CLUSTER_ID\",\"value\":\"6938435f0c7d143c28eb3a0f\"},{\"name\":\"KUBEMOVER_IMAGE\",\"value\":\"cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent:3.1.0-prod\"},{\"name\":\"DEPLOYMENT_PLATFORM\",\"value\":\"rancher\"},{\"name\":\"AGENT_INSTALLATION_METHOD\",\"value\":\"helm\"},{\"name\":\"GRPC_ENFORCE_ALPN_ENABLED\",\"value\":\"false\"}],\"image\":\"cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent:3.1.0-prod\",\"imagePullPolicy\":\"IfNotPresent\",\"name\":\"kubeagentmanager\",\"resources\":{\"limits\":{\"cpu\":\"500m\",\"memory\":\"128Mi\"},\"requests\":{\"cpu\":\"250m\",\"memory\":\"64Mi\"}},\"securityContext\":{\"allowPrivilegeEscalation\":false,\"capabilities\":{\"drop\":[\"ALL\"]}},\"terminationMessagePath\":\"/dev/termination-log\",\"terminationMessagePolicy\":\"File\",\"volumeMounts\":[{\"mountPath\":\"/scratch\",\"name\":\"scratch\"}]}]}}}}",
+        "status": "False",
+        "type": "Ready"
+      }
+    ],
+    "display": {
+      "readyClusters": "0/1",
+      "state": "Modified"
+    },
+    "maxUnavailable": 1,
+    "observedGeneration": 20,
+    "partitions": [
+      {
+        "count": 1,
+        "maxUnavailable": 1,
+        "name": "All",
+        "summary": {
+          "desiredReady": 1,
+          "modified": 1,
+          "nonReadyResources": [
+            {
+              "bundleState": "Modified",
+              "modifiedStatus": [
+                {
+                  "apiVersion": "apps/v1",
+                  "kind": "Deployment",
+                  "name": "cloudcasa-kubeagent-manager",
+                  "namespace": "cloudcasa-io",
+                  "patch": "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"args\":[\"/usr/local/bin/kubeagentmanager\",\"--server_addr\",\"agent.cloudcasa.io:443\",\"--tls\",\"true\",\"--skip_tls_verification\",\"false\"],\"env\":[{\"name\":\"MY_POD_NAME\",\"valueFrom\":{\"fieldRef\":{\"apiVersion\":\"v1\",\"fieldPath\":\"metadata.name\"}}},{\"name\":\"AMDS_CLUSTER_ID\",\"value\":\"6938435f0c7d143c28eb3a0f\"},{\"name\":\"KUBEMOVER_IMAGE\",\"value\":\"cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent:3.1.0-prod\"},{\"name\":\"DEPLOYMENT_PLATFORM\",\"value\":\"rancher\"},{\"name\":\"AGENT_INSTALLATION_METHOD\",\"value\":\"helm\"},{\"name\":\"GRPC_ENFORCE_ALPN_ENABLED\",\"value\":\"false\"}],\"image\":\"cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent:3.1.0-prod\",\"imagePullPolicy\":\"IfNotPresent\",\"name\":\"kubeagentmanager\",\"resources\":{\"limits\":{\"cpu\":\"500m\",\"memory\":\"128Mi\"},\"requests\":{\"cpu\":\"250m\",\"memory\":\"64Mi\"}},\"securityContext\":{\"allowPrivilegeEscalation\":false,\"capabilities\":{\"drop\":[\"ALL\"]}},\"terminationMessagePath\":\"/dev/termination-log\",\"terminationMessagePolicy\":\"File\",\"volumeMounts\":[{\"mountPath\":\"/scratch\",\"name\":\"scratch\"}]}]}}}}"
+                }
+              ],
+              "name": "fleet-local/local"
+            }
+          ],
+          "ready": 0
+        }
+      }
+    ],
+    "resourcesSha256Sum": "8ba05849c32b1c11314f106342ea0ce4d416373c29540eadc9a0919772f3709e",
+    "summary": {
+      "desiredReady": 1,
+      "modified": 1,
+      "nonReadyResources": [
+        {
+          "bundleState": "Modified",
+          "modifiedStatus": [
+            {
+              "apiVersion": "apps/v1",
+              "kind": "Deployment",
+              "name": "cloudcasa-kubeagent-manager",
+              "namespace": "cloudcasa-io",
+              "patch": "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"args\":[\"/usr/local/bin/kubeagentmanager\",\"--server_addr\",\"agent.cloudcasa.io:443\",\"--tls\",\"true\",\"--skip_tls_verification\",\"false\"],\"env\":[{\"name\":\"MY_POD_NAME\",\"valueFrom\":{\"fieldRef\":{\"apiVersion\":\"v1\",\"fieldPath\":\"metadata.name\"}}},{\"name\":\"AMDS_CLUSTER_ID\",\"value\":\"6938435f0c7d143c28eb3a0f\"},{\"name\":\"KUBEMOVER_IMAGE\",\"value\":\"cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent:3.1.0-prod\"},{\"name\":\"DEPLOYMENT_PLATFORM\",\"value\":\"rancher\"},{\"name\":\"AGENT_INSTALLATION_METHOD\",\"value\":\"helm\"},{\"name\":\"GRPC_ENFORCE_ALPN_ENABLED\",\"value\":\"false\"}],\"image\":\"cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent:3.1.0-prod\",\"imagePullPolicy\":\"IfNotPresent\",\"name\":\"kubeagentmanager\",\"resources\":{\"limits\":{\"cpu\":\"500m\",\"memory\":\"128Mi\"},\"requests\":{\"cpu\":\"250m\",\"memory\":\"64Mi\"}},\"securityContext\":{\"allowPrivilegeEscalation\":false,\"capabilities\":{\"drop\":[\"ALL\"]}},\"terminationMessagePath\":\"/dev/termination-log\",\"terminationMessagePolicy\":\"File\",\"volumeMounts\":[{\"mountPath\":\"/scratch\",\"name\":\"scratch\"}]}]}}}}"
+            }
+          ],
+          "name": "fleet-local/local"
+        }
+      ],
+      "ready": 0
+    },
+    "unavailable": 0
+  }
+}
+
+### helm list --all-namespaces --all -o json
+[{"name":"adguard-home","namespace":"apps-adguard-home","revision":"35","updated":"2026-11-04 04:56:32.376859015 +0000 UTC","status":"deployed","chart":"adguard-home-14.0.5","app_version":"0.107.80"},{"name":"audiobookshelf","namespace":"apps-audiobookshelf","revision":"49","updated":"2026-10-26 16:06:34.258353677 +0000 UTC","status":"deployed","chart":"audiobookshelf-14.0.5","app_version":"2.37.2"},{"name":"authelia","namespace":"apps-authelia","revision":"44","updated":"2026-11-01 07:55:07.759575307 +0000 UTC","status":"deployed","chart":"authelia-34.0.10","app_version":"4.39.28"},{"name":"bazarr","namespace":"apps-bazarr","revision":"1931","updated":"2026-10-29 16:05:33.694602141 +0000 UTC","status":"deployed","chart":"bazarr-25.0.7","app_version":"1.6.2"},{"name":"bindery","namespace":"apps-bindery","revision":"5","updated":"2026-10-24 18:56:19.697341052 +0000 UTC","status":"deployed","chart":"bindery-0.9.12","app_version":"1.36.1"},{"name":"bookstack","namespace":"apps-bookstack","revision":"183","updated":"2026-10-29 16:05:45.518813723 +0000 UTC","status":"deployed","chart":"bookstack-23.0.9","app_version":"26.09.20260929"},{"name":"calibre","namespace":"apps-calibre","revision":"43","updated":"2026-10-29 16:06:46.781196734 +0000 UTC","status":"deployed","chart":"calibre-21.1.2","app_version":"9.17.0"},{"name":"calibre-cover-maintenance","namespace":"apps-calibre","revision":"23","updated":"2026-10-24 19:52:25.290698343 +0000 UTC","status":"deployed","chart":"calibre-cover-maintenance-v0.0.0+git-f580cf89d165","app_version":""},{"name":"calibre-storage","namespace":"apps-calibre","revision":"2","updated":"2026-10-19 05:25:06.149445528 +0000 UTC","status":"deployed","chart":"calibre-storage-v0.0.0+git-999d2dddf84f","app_version":""},{"name":"calibre-web","namespace":"apps-calibre","revision":"29","updated":"2026-10-29 16:05:35.261535076 +0000 UTC","status":"deployed","chart":"calibre-web-23.0.7","app_version":"0.6.27"},{"name":"cert-manager","namespace":"cert-manager","revision":"35","updated":"2026-11-04 20:07:39.251316984 +0000 UTC","status":"deployed","chart":"cert-manager-v1.21.3","app_version":"v1.21.3"},{"name":"cert-manager-resources","namespace":"default","revision":"3","updated":"2026-09-05 18:56:09.995204814 +0000 UTC","status":"deployed","chart":"cert-manager-resources-v0.0.0+git-d66c32765209","app_version":""},{"name":"cleanuparr","namespace":"apps-cleanuparr","revision":"102","updated":"2026-10-24 18:56:21.009869805 +0000 UTC","status":"deployed","chart":"cleanuparr-0.20.4","app_version":"2.10.12"},{"name":"cleanuparr-localdomain-ingress","namespace":"apps-cleanuparr","revision":"2","updated":"2026-09-06 14:57:57.850003337 +0000 UTC","status":"deployed","chart":"cleanuparr-localdomain-ingress-v0.0.0+git-50c4af9aa063","app_version":""},{"name":"cloudcasa","namespace":"cloudcasa-io","revision":"234","updated":"2026-10-31 13:56:50.140176992 +0000 UTC","status":"deployed","chart":"cloudcasa-3.4.7","app_version":"3.1.0"},{"name":"ddclient","namespace":"apps-ddclient","revision":"85","updated":"2026-10-29 16:05:34.999043048 +0000 UTC","status":"deployed","chart":"ddclient-15.0.6","app_version":"4.0.0"},{"name":"docker-mailserver","namespace":"apps-docker-mailserver","revision":"26","updated":"2026-10-29 16:06:46.506559381 +0000 UTC","status":"deployed","chart":"docker-mailserver-6.0.0","app_version":"16.0.1"},{"name":"duckdns","namespace":"apps-duckdns","revision":"75","updated":"2026-11-04 16:13:41.389153718 +0000 UTC","status":"deployed","chart":"duckdns-14.0.8","app_version":"latest"},{"name":"emby-ingress","namespace":"apps-emby","revision":"2","updated":"2026-09-20 15:25:36.925288238 +0000 UTC","status":"deployed","chart":"emby-ingress-v0.0.0+git-93deaddbf316","app_version":""},{"name":"filebot","namespace":"apps-filebot","revision":"9","updated":"2026-10-24 17:53:00.945076528 +0000 UTC","status":"deployed","chart":"filebot-15.12.0","app_version":"26.08.2"},{"name":"flaresolverr","namespace":"apps-flaresolverr","revision":"29","updated":"2026-10-26 16:06:36.661865946 +0000 UTC","status":"deployed","chart":"flaresolverr-18.0.4","app_version":"3.5.2"},{"name":"fleet","namespace":"cattle-fleet-system","revision":"41","updated":"2026-11-03 07:49:02.437819144 +0000 UTC","status":"deployed","chart":"fleet-110.0.3+up0.16.3","app_version":"0.16.3"},{"name":"fleet-agent-local","namespace":"cattle-fleet-local-system","revision":"40","updated":"2026-09-28 22:24:48.09068405 +0000 UTC","status":"deployed","chart":"fleet-agent-local-v0.0.0+s-8485a5dc16708bb7c6c863f3d8b5710a8fba51dfddb8712ac22b4c69b6fca","app_version":""},{"name":"fleet-crd","namespace":"cattle-fleet-system","revision":"38","updated":"2026-11-03 07:49:17.705442472 +0000 UTC","status":"deployed","chart":"fleet-crd-110.0.3+up0.16.3","app_version":"0.16.3"},{"name":"homer","namespace":"apps-homer","revision":"31","updated":"2026-10-26 16:06:37.289262362 +0000 UTC","status":"deployed","chart":"homer-16.0.4","app_version":"26.08.3"},{"name":"homer-config-auth","namespace":"apps-homer","revision":"2","updated":"2026-10-04 01:22:45.096229988 +0000 UTC","status":"deployed","chart":"homer-config-auth-v0.0.0+git-89e78a371235","app_version":""},{"name":"homer-test","namespace":"apps-homer-test","revision":"20","updated":"2026-09-17 19:13:50.969944363 +0000 UTC","status":"deployed","chart":"homer-15.11.0","app_version":"26.08.3"},{"name":"homer-test-pvc-copy","namespace":"apps-homer-test","revision":"4","updated":"2026-10-09 17:27:06.221106748 +0000 UTC","status":"deployed","chart":"homer-test-pvc-copy-v0.0.0+git-a55ca36b785e","app_version":""},{"name":"homer-without-auth","namespace":"apps-homer","revision":"19","updated":"2026-10-28 16:53:30.935127317 +0000 UTC","status":"deployed","chart":"homer-16.0.4","app_version":"26.08.3"},{"name":"homer-without-auth-config-copy","namespace":"apps-homer","revision":"30","updated":"2026-10-28 18:21:35.551906607 +0000 UTC","status":"deployed","chart":"homer-without-auth-config-copy-v0.0.0+git-9182d50a5227","app_version":""},{"name":"jellyseerr","namespace":"apps-jellyseerr","revision":"28","updated":"2026-10-26 16:06:38.404013885 +0000 UTC","status":"deployed","chart":"jellyseerr-16.0.4","app_version":"2.7.3"},{"name":"jenkins","namespace":"apps-jenkins","revision":"8","updated":"2026-11-05 16:14:33.474629879 +0000 UTC","status":"deployed","chart":"jenkins-12.0.4","app_version":"2.544.0"},{"name":"jenkins-storage","namespace":"apps-jenkins","revision":"2","updated":"2026-11-01 09:43:59.37610587 +0000 UTC","status":"deployed","chart":"jenkins-storage-v0.0.0+git-d12f18461d09","app_version":""},{"name":"kavita","namespace":"apps-calibre","revision":"8","updated":"2026-10-29 16:06:49.603444992 +0000 UTC","status":"deployed","chart":"kavita-14.0.4","app_version":"0.8.8.3"},{"name":"longhorn","namespace":"longhorn-system","revision":"14","updated":"2026-10-01 16:54:50.737656752 +0000 UTC","status":"deployed","chart":"longhorn-1.13.0","app_version":"v1.13.0"},{"name":"longhorn-books-storage","namespace":"apps-openbooks","revision":"2","updated":"2026-10-24 17:53:01.872298259 +0000 UTC","status":"deployed","chart":"longhorn-books-storage-v0.0.0+git-3f6eaa06e65c","app_version":""},{"name":"longhorn-bookstack-storage","namespace":"apps-bookstack","revision":"5","updated":"2026-10-28 19:07:58.178395658 +0000 UTC","status":"deployed","chart":"longhorn-bookstack-storage-v0.0.0+git-8cad88a538a8","app_version":""},{"name":"longhorn-calibre-arr-storage","namespace":"apps-calibre","revision":"2","updated":"2026-10-24 19:52:30.963871592 +0000 UTC","status":"deployed","chart":"longhorn-calibre-arr-storage-v0.0.0+git-f580cf89d165","app_version":""},{"name":"longhorn-crypto-storage","namespace":"longhorn-system","revision":"1","updated":"2026-11-02 23:11:19.56546238 +0000 UTC","status":"deployed","chart":"longhorn-crypto-storage-v0.0.0+git-8abc5771c26c","app_version":""},{"name":"longhorn-dns-proxy-storage","namespace":"apps-ddclient","revision":"2","updated":"2026-10-24 17:53:02.19668616 +0000 UTC","status":"deployed","chart":"longhorn-dns-proxy-storage-v0.0.0+git-3f6eaa06e65c","app_version":""},{"name":"longhorn-docker-mailserver-storage","namespace":"apps-docker-mailserver","revision":"2","updated":"2026-10-26 16:06:42.095439572 +0000 UTC","status":"deployed","chart":"longhorn-docker-mailserver-storage-v0.0.0+git-d44d9c170118","app_version":""},{"name":"longhorn-filebot-storage","namespace":"apps-filebot","revision":"2","updated":"2026-10-24 17:53:02.206064076 +0000 UTC","status":"deployed","chart":"longhorn-filebot-storage-v0.0.0+git-3f6eaa06e65c","app_version":""},{"name":"longhorn-mailpile-storage","namespace":"apps-mailpile","revision":"6","updated":"2026-10-28 16:39:46.202408306 +0000 UTC","status":"deployed","chart":"longhorn-mailpile-storage-v0.0.0+git-9b1a7c654299","app_version":""},{"name":"longhorn-media-small-storage","namespace":"apps-audiobookshelf","revision":"1","updated":"2026-10-24 19:25:14.556982167 +0000 UTC","status":"deployed","chart":"longhorn-media-small-storage-v0.0.0+git-b1c0c7964e26","app_version":""},{"name":"longhorn-pilot-storage","namespace":"apps-homer","revision":"2","updated":"2026-10-24 09:58:36.174056075 +0000 UTC","status":"deployed","chart":"longhorn-pilot-storage-v0.0.0+git-b016acd889cf","app_version":""},{"name":"longhorn-sonarr-ytdl-adguard-storage","namespace":"apps-sonarr","revision":"2","updated":"2026-10-25 07:09:34.843272604 +0000 UTC","status":"deployed","chart":"longhorn-sonarr-ytdl-adguard-storage-v0.0.0+git-db864679817a","app_version":""},{"name":"longhorn-sqlite-next-storage","namespace":"apps-bindery","revision":"2","updated":"2026-10-24 18:56:24.544331709 +0000 UTC","status":"deployed","chart":"longhorn-sqlite-next-storage-v0.0.0+git-53c50ccab3f4","app_version":""},{"name":"longhorn-sqlite-small-storage","namespace":"apps-jellyseerr","revision":"2","updated":"2026-10-24 18:56:24.398070679 +0000 UTC","status":"deployed","chart":"longhorn-sqlite-small-storage-v0.0.0+git-53c50ccab3f4","app_version":""},{"name":"longhorn-zabbix-storage","namespace":"apps-zabbix","revision":"2","updated":"2026-10-25 12:01:41.555423815 +0000 UTC","status":"deployed","chart":"longhorn-zabbix-storage-v0.0.0+git-a07905f3bff5","app_version":""},{"name":"mailpile","namespace":"apps-mailpile","revision":"22","updated":"2026-10-28 16:39:53.590585439 +0000 UTC","status":"deployed","chart":"mailpile-10.0.4","app_version":"latest"},{"name":"nubile-ingress","namespace":"apps-nubile","revision":"2","updated":"2026-10-22 22:24:15.754386943 +0000 UTC","status":"deployed","chart":"nubile-ingress-v0.0.0+git-f573fe8b14ec","app_version":""},{"name":"openbooks","namespace":"apps-openbooks","revision":"18","updated":"2026-10-26 16:06:39.945175119 +0000 UTC","status":"deployed","chart":"openbooks-9.0.4","app_version":"4.5.0"},{"name":"piwigo","namespace":"apps-piwigo","revision":"3","updated":"2026-11-05 16:14:38.966054463 +0000 UTC","status":"deployed","chart":"piwigo-22.0.12","app_version":"16.4.0"},{"name":"piwigo-storage","namespace":"apps-piwigo","revision":"1","updated":"2026-11-02 23:11:24.513211376 +0000 UTC","status":"deployed","chart":"piwigo-storage-v0.0.0+git-8abc5771c26c","app_version":""},{"name":"profilarr","namespace":"apps-profilarr","revision":"270","updated":"2026-10-24 19:52:28.188263003 +0000 UTC","status":"deployed","chart":"profilarr-2.5.0","app_version":"2.3.1"},{"name":"profilarr-localdomain-ingress","namespace":"apps-profilarr","revision":"1","updated":"2026-09-06 15:03:48.949074757 +0000 UTC","status":"deployed","chart":"profilarr-localdomain-ingress-v0.0.0+git-012b399cdc71","app_version":""},{"name":"prowlarr","namespace":"apps-prowlarr","revision":"65","updated":"2026-11-04 04:56:36.186171834 +0000 UTC","status":"deployed","chart":"prowlarr-23.1.3","app_version":"2.7.0.5723"},{"name":"radarr","namespace":"apps-radarr","revision":"53","updated":"2026-11-03 07:46:19.730515813 +0000 UTC","status":"deployed","chart":"radarr-29.0.2","app_version":"7.0.1.10859"},{"name":"rancher","namespace":"cattle-system","revision":"30","updated":"2026-11-03 08:46:10.760627118 +0100 CET","status":"deployed","chart":"rancher-2.15.3","app_version":"v2.15.3"},{"name":"rancher-turtles","namespace":"cattle-turtles-system","revision":"5","updated":"2026-11-03 07:49:50.989181631 +0000 UTC","status":"deployed","chart":"rancher-turtles-110.0.4+up0.27.4","app_version":"0.27.4"},{"name":"rancher-webhook","namespace":"cattle-system","revision":"6","updated":"2026-11-03 07:49:31.862750957 +0000 UTC","status":"deployed","chart":"rancher-webhook-110.0.4+up0.11.4","app_version":"0.11.4"},{"name":"scrutiny","namespace":"apps-scrutiny","revision":"52","updated":"2026-11-01 07:55:10.964143659 +0000 UTC","status":"deployed","chart":"scrutiny-15.1.0","app_version":"0.10.0"},{"name":"scrutiny-cors","namespace":"default","revision":"2","updated":"2026-09-23 18:53:24.856059412 +0000 UTC","status":"deployed","chart":"scrutiny-cors-v0.0.0+git-424127ea3671","app_version":""},{"name":"smokeping","namespace":"apps-smokeping","revision":"54","updated":"2026-11-04 16:13:45.418370847 +0000 UTC","status":"deployed","chart":"smokeping-15.0.7","app_version":"2.9.0"},{"name":"sonarr","namespace":"apps-sonarr","revision":"565","updated":"2026-11-03 07:46:20.679814978 +0000 UTC","status":"deployed","chart":"sonarr-28.0.15","app_version":"5.0.0.2941"},{"name":"system-upgrade-controller","namespace":"cattle-system","revision":"2","updated":"2026-09-07 15:51:27.235272076 +0000 UTC","status":"deployed","chart":"system-upgrade-controller-110.0.0","app_version":"v0.20.1"},{"name":"traefik","namespace":"kube-system","revision":"138","updated":"2026-11-05 01:36:22.019848696 +0000 UTC","status":"deployed","chart":"traefik-40.1.7+up40.1.0","app_version":"v3.7.1"},{"name":"traefik-config","namespace":"default","revision":"64","updated":"2026-09-21 18:40:49.440003539 +0000 UTC","status":"failed","chart":"traefik-config-v0.0.0+git-5de33f7399b7","app_version":""},{"name":"traefik-crd","namespace":"kube-system","revision":"2338","updated":"2026-11-05 01:36:55.269012851 +0000 UTC","status":"deployed","chart":"traefik-crd-40.1.7+up40.1.0","app_version":"v3.7.1"},{"name":"ubooquity","namespace":"apps-ubooquity","revision":"47","updated":"2026-10-29 16:05:40.398269247 +0000 UTC","status":"deployed","chart":"ubooquity-16.0.7","app_version":"3.1.0"},{"name":"ubooquity-admin-redirect","namespace":"apps-ubooquity","revision":"2","updated":"2026-10-18 14:21:07.525463831 +0000 UTC","status":"deployed","chart":"ubooquity-admin-redirect-v0.0.0+git-82635e577f4f","app_version":""},{"name":"uptime-kuma","namespace":"apps-uptime-kuma","revision":"19","updated":"2026-10-26 16:06:41.777956101 +0000 UTC","status":"deployed","chart":"uptime-kuma-15.0.4","app_version":"1.23.17"},{"name":"whisparr","namespace":"apps-whisparr","revision":"5","updated":"2026-10-31 13:56:53.411449347 +0000 UTC","status":"deployed","chart":"whisparr-16.0.4","app_version":"3.1.0.2116"},{"name":"whisparr-storage","namespace":"apps-whisparr","revision":"1","updated":"2026-10-30 16:00:57.929916619 +0000 UTC","status":"deployed","chart":"whisparr-storage-v0.0.0+git-d4b54e457ec8","app_version":""},{"name":"youtubedl-material","namespace":"apps-youtubedl-material","revision":"2110","updated":"2026-10-31 13:56:56.672126698 +0000 UTC","status":"deployed","chart":"youtubedl-material-17.0.11","app_version":"2024.10.01"},{"name":"zabbix","namespace":"apps-zabbix","revision":"13","updated":"2026-11-05 18:37:17.436198483 +0000 UTC","status":"deployed","chart":"zabbix-7.1.0","app_version":"7.0.23"}]
+
+exit status: 0
+
+### kubectl -n longhorn-system get recurringjob nas-daily-backup -o yaml
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"longhorn.io/v1beta2","kind":"RecurringJob","metadata":{"annotations":{},"name":"nas-daily-backup","namespace":"longhorn-system"},"spec":{"concurrency":1,"cron":"0 1 * * *","groups":["nas-backup"],"name":"nas-daily-backup","parameters":{"full-backup-interval":"7"},"retain":14,"retentionPolicy":"count-based","task":"backup"}}
+  creationTimestamp: "2026-10-08T18:31:31Z"
+  generation: 1
+  name: nas-daily-backup
+  namespace: longhorn-system
+  resourceVersion: "38992780"
+  uid: c126b0c6-f090-4d78-a669-68ac92d5f585
+spec:
+  concurrency: 1
+  cron: 0 1 * * *
+  groups:
+  - nas-backup
+  labels: {}
+  name: nas-daily-backup
+  parameters:
+    full-backup-interval: "7"
+  retain: 14
+  retainAge: 0s
+  retentionPolicy: count-based
+  task: backup
+status:
+  executionCount: 44
+  ownerID: proxmox3
+
+exit status: 0
+
+### kubectl -n pve-proxy get service/pve-api endpointslice/pve-api-ipv4 serverstransport/pve-backend middleware/pve-api-cors certificate/pve-ui ingressroute/pve-ui -o yaml
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"name":"pve-api","namespace":"pve-proxy"},"spec":{"ports":[{"name":"https","port":8006,"protocol":"TCP"}]}}
+      meta.helm.sh/release-name: traefik-resources
+      meta.helm.sh/release-namespace: fleet-local
+      objectset.rio.cattle.io/id: default-traefik-config-cattle-fleet-local-system
+    creationTimestamp: "2026-09-18T17:40:41Z"
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      objectset.rio.cattle.io/hash: 972f3924eb7ed9fe2fee4da0b1bd60ba50743f71
+    name: pve-api
+    namespace: pve-proxy
+    resourceVersion: "9911362"
+    uid: 6595bd29-f55b-49a1-8ffc-fd33ac3ab94f
+  spec:
+    clusterIP: 10.43.74.91
+    clusterIPs:
+    - 10.43.74.91
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: https
+      port: 8006
+      protocol: TCP
+      targetPort: 8006
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- addressType: IPv4
+  apiVersion: discovery.k8s.io/v1
+  endpoints:
+  - addresses:
+    - 10.0.0.72
+    conditions: {}
+  kind: EndpointSlice
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"addressType":"IPv4","apiVersion":"discovery.k8s.io/v1","endpoints":[{"addresses":["10.0.0.72"]}],"kind":"EndpointSlice","metadata":{"annotations":{},"labels":{"kubernetes.io/service-name":"pve-api"},"name":"pve-api-ipv4","namespace":"pve-proxy"},"ports":[{"name":"https","port":8006,"protocol":"TCP"}]}
+    creationTimestamp: "2026-09-18T17:40:41Z"
+    generation: 1
+    labels:
+      kubernetes.io/service-name: pve-api
+    name: pve-api-ipv4
+    namespace: pve-proxy
+    resourceVersion: "8003475"
+    uid: 11e83896-22cb-4108-b1b6-9a4c37be88f5
+  ports:
+  - name: https
+    port: 8006
+    protocol: TCP
+- apiVersion: traefik.io/v1alpha1
+  kind: ServersTransport
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"traefik.io/v1alpha1","kind":"ServersTransport","metadata":{"annotations":{},"name":"pve-backend","namespace":"pve-proxy"},"spec":{"insecureSkipVerify":true}}
+      objectset.rio.cattle.io/id: default-traefik-config-cattle-fleet-local-system
+    creationTimestamp: "2026-09-18T17:40:41Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      objectset.rio.cattle.io/hash: 972f3924eb7ed9fe2fee4da0b1bd60ba50743f71
+    name: pve-backend
+    namespace: pve-proxy
+    resourceVersion: "9907665"
+    uid: 60627331-c64d-4430-8342-c62738f03094
+  spec:
+    insecureSkipVerify: true
+- apiVersion: traefik.io/v1alpha1
+  kind: Middleware
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"traefik.io/v1alpha1","kind":"Middleware","metadata":{"annotations":{},"name":"pve-api-cors","namespace":"pve-proxy"},"spec":{"headers":{"accessControlAllowHeaders":["Authorization","Content-Type"],"accessControlAllowMethods":["GET","OPTIONS"],"accessControlAllowOriginList":["https://homer.rancher.tailscale.bnowakowski.pl","https://homer.rancher.localdomain.bnowakowski.pl"],"accessControlMaxAge":600,"addVaryHeader":true}}}
+      objectset.rio.cattle.io/id: default-traefik-config-cattle-fleet-local-system
+    creationTimestamp: "2026-09-21T16:12:46Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      objectset.rio.cattle.io/hash: 972f3924eb7ed9fe2fee4da0b1bd60ba50743f71
+    name: pve-api-cors
+    namespace: pve-proxy
+    resourceVersion: "9907666"
+    uid: ef50e71e-e0f9-43cc-815c-0f4df55c53ad
+  spec:
+    headers:
+      accessControlAllowHeaders:
+      - Authorization
+      - Content-Type
+      accessControlAllowMethods:
+      - GET
+      - OPTIONS
+      accessControlAllowOriginList:
+      - https://homer.rancher.tailscale.bnowakowski.pl
+      - https://homer.rancher.localdomain.bnowakowski.pl
+      accessControlMaxAge: 600
+      addVaryHeader: true
+- apiVersion: cert-manager.io/v1
+  kind: Certificate
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"cert-manager.io/v1","kind":"Certificate","metadata":{"annotations":{},"name":"pve-ui","namespace":"pve-proxy"},"spec":{"dnsNames":["proxmox2-old.localdomain.bnowakowski.pl","proxmox2-old.tailscale.bnowakowski.pl"],"issuerRef":{"kind":"ClusterIssuer","name":"letsencrypt"},"secretName":"pve-ui-tls"}}
+      objectset.rio.cattle.io/id: default-traefik-config-cattle-fleet-local-system
+    creationTimestamp: "2026-09-18T17:40:41Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      objectset.rio.cattle.io/hash: 972f3924eb7ed9fe2fee4da0b1bd60ba50743f71
+    name: pve-ui
+    namespace: pve-proxy
+    resourceVersion: "9907668"
+    uid: 7ddb080a-0568-45ee-929a-90a9b1573ffa
+  spec:
+    dnsNames:
+    - proxmox2-old.localdomain.bnowakowski.pl
+    - proxmox2-old.tailscale.bnowakowski.pl
+    issuerRef:
+      kind: ClusterIssuer
+      name: letsencrypt
+    secretName: pve-ui-tls
+  status:
+    conditions:
+    - lastTransitionTime: "2026-09-18T17:42:26Z"
+      message: Certificate is up to date and has not expired
+      observedGeneration: 1
+      reason: Ready
+      status: "True"
+      type: Ready
+    notAfter: "2026-12-17T16:43:53Z"
+    notBefore: "2026-09-18T16:43:54Z"
+    renewalTime: "2026-11-17T16:43:53Z"
+    revision: 1
+- apiVersion: traefik.io/v1alpha1
+  kind: IngressRoute
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"traefik.io/v1alpha1","kind":"IngressRoute","metadata":{"annotations":{},"name":"pve-ui","namespace":"pve-proxy"},"spec":{"entryPoints":["websecure"],"routes":[{"kind":"Rule","match":"(Host(`proxmox2-old.localdomain.bnowakowski.pl`) || Host(`proxmox2-old.tailscale.bnowakowski.pl`)) \u0026\u0026 PathPrefix(`/api2/`)","middlewares":[{"name":"pve-api-cors"}],"priority":100,"services":[{"name":"pve-api","port":8006,"scheme":"https","serversTransport":"pve-backend"}]},{"kind":"Rule","match":"Host(`proxmox2-old.localdomain.bnowakowski.pl`) || Host(`proxmox2-old.tailscale.bnowakowski.pl`)","services":[{"name":"pve-api","port":8006,"scheme":"https","serversTransport":"pve-backend"}]}],"tls":{"secretName":"pve-ui-tls"}}}
+      objectset.rio.cattle.io/id: default-traefik-config-cattle-fleet-local-system
+    creationTimestamp: "2026-09-18T17:40:41Z"
+    generation: 2
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      objectset.rio.cattle.io/hash: 972f3924eb7ed9fe2fee4da0b1bd60ba50743f71
+    name: pve-ui
+    namespace: pve-proxy
+    resourceVersion: "9907669"
+    uid: ca8223af-ac9f-43a9-a8c8-6076095c7ac6
+  spec:
+    entryPoints:
+    - websecure
+    routes:
+    - kind: Rule
+      match: (Host(`proxmox2-old.localdomain.bnowakowski.pl`) || Host(`proxmox2-old.tailscale.bnowakowski.pl`))
+        && PathPrefix(`/api2/`)
+      middlewares:
+      - name: pve-api-cors
+      priority: 100
+      services:
+      - name: pve-api
+        port: 8006
+        scheme: https
+        serversTransport: pve-backend
+    - kind: Rule
+      match: Host(`proxmox2-old.localdomain.bnowakowski.pl`) || Host(`proxmox2-old.tailscale.bnowakowski.pl`)
+      services:
+      - name: pve-api
+        port: 8006
+        scheme: https
+        serversTransport: pve-backend
+    tls:
+      secretName: pve-ui-tls
+kind: List
+metadata:
+  resourceVersion: ""
+
+exit status: 0
+
+### kubectl get clusterissuer letsencrypt letsencrypt-stag -o yaml
+apiVersion: v1
+items:
+- apiVersion: cert-manager.io/v1
+  kind: ClusterIssuer
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cert-manager-resources
+      meta.helm.sh/release-namespace: default
+      objectset.rio.cattle.io/id: default-cert-manager-resources-cattle-fleet-local-system
+    creationTimestamp: "2026-09-05T18:30:38Z"
+    generation: 2
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      objectset.rio.cattle.io/hash: 5c5099861e6e33d169fdb03708578bba78fc0a67
+    name: letsencrypt
+    resourceVersion: "33584603"
+    uid: 521dd8cf-441a-48fd-b1a8-03a993f3f0b3
+  spec:
+    acme:
+      email: dobrowolski.nowakowski@gmail.com
+      privateKeySecretRef:
+        name: le-prod-issuer-acct-key
+      server: https://acme-v02.api.letsencrypt.org/directory
+      solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              key: api-token
+              name: cloudflare-api-token-secret
+            email: dobrowolski.nowakowski@gmail.com
+        selector:
+          dnsZones:
+          - rancher.localdomain.bnowakowski.pl
+          - '*.rancher.localdomain.bnowakowski.pl'
+          - proxmox3.localdomain.bnowakowski.pl
+          - proxmox4.localdomain.bnowakowski.pl
+          - rancher.tailscale.bnowakowski.pl
+          - '*.rancher.tailscale.bnowakowski.pl'
+          - proxmox3.tailscale.bnowakowski.pl
+          - proxmox4.tailscale.bnowakowski.pl
+          - proxmox2-old.localdomain.bnowakowski.pl
+          - proxmox2-old.tailscale.bnowakowski.pl
+  status:
+    acme:
+      lastPrivateKeyHash: CSxVgI3n4VeV9ynOsn40gPJ2ug23yGGQdo29dPGhL8o=
+      lastRegisteredEmail: dobrowolski.nowakowski@gmail.com
+    conditions:
+    - lastTransitionTime: "2026-10-29T02:09:20Z"
+      message: The ACME account was registered with the ACME server
+      observedGeneration: 2
+      reason: ACMEAccountRegistered
+      status: "True"
+      type: Ready
+- apiVersion: cert-manager.io/v1
+  kind: ClusterIssuer
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: cert-manager-resources
+      meta.helm.sh/release-namespace: default
+      objectset.rio.cattle.io/id: default-cert-manager-resources-cattle-fleet-local-system
+    creationTimestamp: "2026-09-05T18:30:38Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      objectset.rio.cattle.io/hash: 5c5099861e6e33d169fdb03708578bba78fc0a67
+    name: letsencrypt-stag
+    resourceVersion: "33305423"
+    uid: 73dc3af8-ef4a-4aff-9d96-431e799f9d78
+  spec:
+    acme:
+      email: dobrowolski.nowakowski@gmail.com
+      privateKeySecretRef:
+        name: le-issuer-acct-key
+      server: https://acme-staging-v02.api.letsencrypt.org/directory
+      solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              key: api-token
+              name: cloudflare-api-token-secret
+            email: dobrowolski.nowakowski@gmail.com
+        selector:
+          dnsZones:
+          - rancher.localdomain.bnowakowski.pl
+          - '*.rancher.localdomain.bnowakowski.pl'
+          - rancher.tailscale.bnowakowski.pl
+          - '*.rancher.tailscale.bnowakowski.pl'
+  status:
+    acme:
+      lastPrivateKeyHash: dpWWuvguZNEoxbeZ33ltimPLZRA4ygdXB/z6SkrERIM=
+      lastRegisteredEmail: dobrowolski.nowakowski@gmail.com
+    conditions:
+    - lastTransitionTime: "2026-10-28T17:53:51Z"
+      message: The ACME account was registered with the ACME server
+      observedGeneration: 1
+      reason: ACMEAccountRegistered
+      status: "True"
+      type: Ready
+kind: List
+metadata:
+  resourceVersion: ""
+
+exit status: 0
+
+### kubectl -n apps-calibre get pvc -o wide
+NAME                              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS             VOLUMEATTRIBUTESCLASS   AGE   VOLUMEMODE
+calibre-config-longhorn-rwo       Bound    pvc-a2d72b09-d038-421e-a242-2dfa89e197ee   256Mi      RWO            longhorn-rwo-2replicas   <unset>                 12d   Filesystem
+calibre-library-longhorn-rwo      Bound    pvc-20f47620-dd54-4c1a-a8e3-edde47ed12a0   1Gi        RWO            longhorn-rwo-2replicas   <unset>                 12d   Filesystem
+calibre-web-config-longhorn-rwo   Bound    pvc-d9801cb3-d88c-4313-af68-90eb51ed52fd   256Mi      RWO            longhorn-rwo-2replicas   <unset>                 12d   Filesystem
+kavita-config-longhorn-rwo        Bound    pvc-b35b40d7-2900-4e97-914e-ef4de27ac0f8   256Mi      RWO            longhorn-rwo-2replicas   <unset>                 12d   Filesystem
+
+exit status: 0
+
+### Calibre pod claims
+[
+  {
+    "name": "calibre-6cd57649b6-9mbtg",
+    "phase": "Running",
+    "claims": [
+      "calibre-config-longhorn-rwo",
+      "calibre-library-longhorn-rwo"
+    ]
+  },
+  {
+    "name": "calibre-cover-maintenance-29897400-cswjz",
+    "phase": "Succeeded",
+    "claims": [
+      "calibre-library-longhorn-rwo",
+      "calibre-web-config-longhorn-rwo"
+    ]
+  },
+  {
+    "name": "calibre-web-7dddb68d5d-fsmhj",
+    "phase": "Running",
+    "claims": [
+      "calibre-web-config-longhorn-rwo",
+      "calibre-library-longhorn-rwo"
+    ]
+  },
+  {
+    "name": "kavita-85bd5fd678-2rgws",
+    "phase": "Running",
+    "claims": [
+      "kavita-config-longhorn-rwo",
+      "calibre-library-longhorn-rwo"
+    ]
+  }
+]
+
+### CloudCasa deployment (environment values redacted except ALPN setting)
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "creationTimestamp": "2026-09-05T18:03:30Z",
+    "generation": 17,
+    "labels": {
+      "app.kubernetes.io/managed-by": "Helm",
+      "component": "cloudcasa-kubeagent-manager",
+      "objectset.rio.cattle.io/hash": "3267d9becc472067eba13fa6c5496c55ba82299c"
+    },
+    "name": "cloudcasa-kubeagent-manager",
+    "namespace": "cloudcasa-io",
+    "resourceVersion": "35476145",
+    "uid": "6fbdb240-f8e9-49dc-9127-b75cbb514fdc"
+  },
+  "spec": {
+    "progressDeadlineSeconds": 600,
+    "replicas": 1,
+    "revisionHistoryLimit": 10,
+    "selector": {
+      "matchLabels": {
+        "app": "cloudcasa-kubeagent-manager"
+      }
+    },
+    "strategy": {
+      "type": "Recreate"
+    },
+    "template": {
+      "metadata": {
+        "annotations": {
+          "kubectl.kubernetes.io/restartedAt": "2026-09-10T17:40:19+02:00"
+        },
+        "labels": {
+          "app": "cloudcasa-kubeagent-manager"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "/usr/local/bin/kubeagentmanager",
+              "--server_addr",
+              "agent.cloudcasa.io:443",
+              "--tls",
+              "true",
+              "--skip_tls_verification",
+              "false"
+            ],
+            "env": [
+              {
+                "name": "MY_POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "AMDS_CLUSTER_ID",
+                "value": "REDACTED"
+              },
+              {
+                "name": "KUBEMOVER_IMAGE",
+                "value": "REDACTED"
+              },
+              {
+                "name": "DEPLOYMENT_PLATFORM",
+                "value": "REDACTED"
+              },
+              {
+                "name": "AGENT_INSTALLATION_METHOD",
+                "value": "REDACTED"
+              },
+              {
+                "name": "GRPC_ENFORCE_ALPN_ENABLED",
+                "value": "false"
+              }
+            ],
+            "image": "cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent:3.1.0-production.48",
+            "imagePullPolicy": "IfNotPresent",
+            "name": "kubeagentmanager",
+            "resources": {
+              "limits": {
+                "cpu": "500m",
+                "memory": "128Mi"
+              },
+              "requests": {
+                "cpu": "250m",
+                "memory": "64Mi"
+              }
+            },
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/scratch",
+                "name": "scratch"
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {
+          "runAsNonRoot": true,
+          "runAsUser": 1000,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        },
+        "serviceAccount": "cloudcasa-io",
+        "serviceAccountName": "cloudcasa-io",
+        "terminationGracePeriodSeconds": 0,
+        "volumes": [
+          {
+            "emptyDir": {},
+            "name": "scratch"
+          }
+        ]
+      }
+    }
+  },
+  "status": {
+    "availableReplicas": 1,
+    "conditions": [
+      {
+        "lastTransitionTime": "2026-09-05T18:03:30Z",
+        "lastUpdateTime": "2026-10-30T07:43:14Z",
+        "message": "ReplicaSet \"cloudcasa-kubeagent-manager-6c77b7c9cc\" has successfully progressed.",
+        "reason": "NewReplicaSetAvailable",
+        "status": "True",
+        "type": "Progressing"
+      },
+      {
+        "lastTransitionTime": "2026-10-31T13:56:55Z",
+        "lastUpdateTime": "2026-10-31T13:56:55Z",
+        "message": "Deployment has minimum availability.",
+        "reason": "MinimumReplicasAvailable",
+        "status": "True",
+        "type": "Available"
+      }
+    ],
+    "observedGeneration": 17,
+    "readyReplicas": 1,
+    "replicas": 1,
+    "terminatingReplicas": 0,
+    "updatedReplicas": 1
+  }
+}

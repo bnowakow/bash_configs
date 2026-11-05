@@ -25,6 +25,8 @@ spec:
             - '*.rancher.tailscale.bnowakowski.pl'
             - proxmox3.tailscale.bnowakowski.pl
             - proxmox4.tailscale.bnowakowski.pl
+            - proxmox2-old.localdomain.bnowakowski.pl
+            - proxmox2-old.tailscale.bnowakowski.pl
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer

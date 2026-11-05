@@ -1,4 +1,6 @@
 name: longhorn-backups
 defaultNamespace: longhorn-system
+helm:
+  releaseName: longhorn-backups
 dependsOn:
   - name: longhorn

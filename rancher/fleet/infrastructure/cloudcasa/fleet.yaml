@@ -6,6 +6,10 @@ helm:
   chart: cloudcasa
   version: 3.4.7
   releaseName: cloudcasa
+  # Match the running agent recorded on 2026-11-05; avoid reverting to 3.1.0-prod.
+  values:
+    image:
+      tag: 3.1.0-production.48
   valuesFrom:
     - secretKeyRef:
         name: cloudcasa-values

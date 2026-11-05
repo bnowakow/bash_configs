@@ -1,1 +1,5 @@
 name: traefik-resources
+# Match the existing pve-api Helm ownership. Resource namespaces stay explicit.
+defaultNamespace: fleet-local
+helm:
+  releaseName: traefik-resources
