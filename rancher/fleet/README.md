@@ -34,8 +34,7 @@ DNS names, Longhorn backup ownership, the CloudCasa image/field ownership,
 and Traefik resource ownership/defaulting.
 
 See the [completed repair record](../fleet-health-repair-2026-11-05.md) for
-changes, validation and evidence, and the
-[repository rename handoff](../fleet-repo-rename-handoff.md) for rename status.
+changes, validation and evidence.
 The repair record also explains why the failed historical
 `traefik-config/default` Helm release must not be uninstalled blindly.
 
