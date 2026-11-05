@@ -1,201 +1,139 @@
 # Fleet health repair — 5 November 2026
 
-The user-collected `fleet-health-inspection.txt` confirms five outstanding
-bundles after the repository rename. The rename itself has synced successfully.
+Completed on proxmox3 at **22:12:43 CET (21:12:43 UTC)**. The
+`rancher-cluster` GitRepo in `fleet-local` reported **69/69 ready** after
+repairing five bundles. Its repository URL was
+`https://github.com/bnowakow/homelab.git`, branch `master`, path `rancher/fleet`,
+and synced commit `28375279fb74b542c92e4dd02502a7d8fbb1083a`.
+The final EndpointSlice normalization was applied from the working tree; the
+reported GitRepo commit alone does not include every local repair change.
 
-## Prepared changes
+The repository rename had already synced successfully before this repair.
+Initial Fleet readiness was 64/69. There was no complete before-rename health
+baseline establishing that all five issues predated the rename.
 
-- `calibre-storage`: replace obsolete local-path PVC manifests with a retirement
-  ConfigMap. The old claims were reclaimed in October; the inspection shows the
-  Longhorn replacements Bound and used by Calibre, Calibre Web and Kavita.
-  Keep the existing bundle as a record of retirement, without taking ownership
-  of replacement claims already managed by `longhorn-calibre-arr-storage`.
-- `cert-manager-resources`: add the two proxmox2-old DNS names already present
-  in the live production issuer. Preserve the working solver configuration.
-- `traefik-resources`: set the default/release namespace to `fleet-local`,
-  matching the existing `pve-api` Helm annotation. Every bundled resource has
-  its own explicit namespace, so resource placement does not change. The
-  inspection found no Helm release record for this bundle in any namespace.
-- `longhorn-backups`: make the release name explicit and adopt the existing
-  `nas-daily-backup` RecurringJob into it with metadata changes. Its desired
-  schedule, retention and concurrency match the live object.
-- `cloudcasa`: set the chart image tag to the running
-  `3.1.0-production.48`, rather than the chart default `3.1.0-prod`. The
-  repair checks both manager and mover images before changing anything.
+## Changes and causes
 
-Chart image values are documented in the [upstream 3.4.7 values file](https://github.com/catalogicsoftware/cloudcasa-helmchart/blob/main/charts/v3.4.7/values.yaml).
-Fleet namespace and release options are documented in the
-[Fleet reference](https://fleet.rancher.io/reference/ref-fleet-yaml).
-No drift-ignore rules or forced replacement are introduced.
+| Bundle | Observed problem | Completed repair |
+| --- | --- | --- |
+| `calibre-storage` | Fleet tracked the missing local-path `calibre-library` and `calibre-web-config` PVCs, reclaimed after their October migration. | Replaced the obsolete claim manifests with a retirement ConfigMap. Active Longhorn claims retain ownership under `longhorn-calibre-arr-storage`. |
+| `cert-manager-resources` | Production issuer drift: live DNS solvers already included the two proxmox2-old names absent from Git. | Added `proxmox2-old.localdomain.bnowakowski.pl` and `proxmox2-old.tailscale.bnowakowski.pl` to the production solver in Git. |
+| `longhorn-backups` | Existing `nas-daily-backup` RecurringJob lacked the Helm ownership metadata required for installation. | Adopted it under `longhorn-backups/longhorn-system` and made the release name explicit. Verified schedule, retention and concurrency matched Git before adoption. |
+| `cloudcasa` | The chart default image was `3.1.0-prod`, while the running manager and mover used `3.1.0-production.48`. A later server-side apply attempt conflicted with the updater's ownership of `MY_POD_NAME.valueFrom.fieldRef`. | Pinned the current running image in Fleet and relinquished only the updater's fieldRef ownership claim, allowing Fleet to reconcile. |
+| `traefik-resources` | Release namespace mismatch, six routes with legacy ownership, unowned PVE resources, then an EndpointSlice field-ownership conflict and API-defaulting diff. | Set release/default namespace to `fleet-local`, repaired ownership, relinquished the old client's endpoint field claim, and explicitly included `conditions: {}` in the endpoint manifest. |
 
-## Apply and validate before committing or pushing
+All Traefik resources retain their explicit namespaces. The endpoint remains
+`10.0.0.72:8006`. The six transferred legacy routes were the Middleware and
+localdomain/tailscale IngressRoutes for AdGuard Home and Jellyseerr. Their live
+specifications matched Git before transfer. The current `traefik-config`
+Bundle was confirmed Ready and declared only the `kube-system/traefik`
+HelmChartConfig, without those routes.
 
-Run outside the agent network sandbox on proxmox3:
+No PVC copying, migration or storage deletion occurred during this repair.
+Calibre's retired claims were already absent and their replacement claims were
+Bound and in use. No cluster-wide application shutdown was needed for this
+manifest retirement. No credentials were rotated and no k3s restart occurred.
 
-```bash
-cd /home/sup/code/homelab/rancher
-/usr/bin/python3 fix-fleet-health-2026-11-05.py
-```
+## Application and validation
 
-The script requires the existing `kubectl`, `fleet`, `helm`, `curl` and system
-Python PyYAML installation. It writes a timestamped `fleet-health-repair-*`
-directory containing `report.txt`, original objects and generated bundles.
-These runtime files are for local review, not Git commits.
+The user ran the scripts outside the agent's network sandbox, which denied
+connections to the local Kubernetes API. Explicit access used
+`/etc/rancher/k3s/k3s.yaml`; kubeconfig files were not modified.
 
-Before mutations, it checks Calibre claim non-use and replacement binding,
-backup schedule equality, CloudCasa images and Helm ownership. It generates
-all five bundles through Fleet and server-validates the generated resources,
-preserving the exact existing GitRepo ownership labels and targeting. For
-unready bundles it increments the saved sync generation to request a fresh
-deployment attempt after ownership repair. It adopts unowned resources, resources already belonging to the
-intended release, and the six individually verified legacy routes described
-below, using resourceVersion checks. It refuses other conflicting owners and
-does not enable permanent Helm ownership takeover.
+[The Fleet repair script](fix-fleet-health-2026-11-05.py) backs up objects,
+checks claim use, schedule equality and ownership, generates only the five
+bundles, and server-dry-runs the generated objects before mutations. Native
+`fleet apply` performs the actual application, including Fleet Helm-values
+Secret handling. Each apply uses a guarded single-bundle prune scope and
+preserves the live GitRepo ownership labels and targeting. Unready bundles
+receive a new sync generation to retry after ownership fixes.
 
-It then stages the verified options and source files for native `fleet apply`,
-which refreshes Fleet's Helm-values Secret as well as the Bundle. Each native
-apply has a single-bundle prune scope, with a guard against other bundles in
-that scope; GitRepo ownership labels and targeting are checked afterward.
-This is necessary because offline Bundle generation plus `kubectl apply`
-does not execute the values-Secret handling in Fleet's
-[native apply implementation](https://github.com/rancher/fleet/blob/v0.16.3/internal/cmd/cli/apply/apply.go).
-The script validates current Bundle generations,
-BundleDeployment applied IDs, Calibre and CloudCasa rollouts, storage claim
-references/binding, production issuer and PVE certificate readiness, and both
-PVE HTTPS ingress endpoints. A failure stops the script with its report path;
-changes already applied are retained for inspection. It does not commit or push.
+[The field-ownership repair](fix-fleet-field-ownership-2026-11-05.py) removed
+only these two claims from the named managers' `metadata.managedFields`:
 
-No PVC migration, copying, storage deletion, credential rotation or k3s restart
-is involved. The application shutdown procedure is not invoked for retiring
-manifests of claims already absent from the cluster.
+- `pve-proxy/pve-api-ipv4`: `endpoints`, owned by
+  `kubectl-client-side-apply`.
+- `cloudcasa-io/cloudcasa-kubeagent-manager`:
+  `MY_POD_NAME.valueFrom.fieldRef`, owned by `cloudcasa-kubeagent-manager`.
 
-## Validation status
+Both patches passed server dry runs, used resourceVersion and managedFields
+test preconditions, and preserved unrelated ownership. Actual patch responses
+confirmed unchanged resource UIDs and all non-metadata/status configuration.
+Neither resource was deleted or recreated. There are no permanent drift-ignore
+rules, broad field-ownership resets or forced resource replacements.
 
-### Completed — 22:12:43 CET
+Final validation confirmed:
 
-The final user-run report is
-`fleet-health-repair-20261105-221223/report.txt`. All five current Bundle
-generations are Ready, and their BundleDeployments have matching desired and
-applied IDs with Ready=True. The GitRepo reports **69/69 ready**, using
-`https://github.com/bnowakow/homelab.git` at commit
-`28375279fb74b542c92e4dd02502a7d8fbb1083a`.
-
+- Every repaired Bundle's observed generation matched its current generation
+  and had Ready=True. Each BundleDeployment had Ready=True and matching
+  desired/applied deployment IDs.
 - Calibre, Calibre Web, Kavita and CloudCasa rollouts succeeded.
-- Running Calibre-group pods reference the expected Longhorn claims; all four
-  Calibre-group claims are Bound.
-- Production ClusterIssuer and PVE certificate are Ready.
-- Both proxmox2-old localdomain and tailscale HTTPS ingress checks returned 200.
-- Traefik's explicit empty endpoint conditions removed the final defaulting
-  diff; endpoint address and port remain unchanged.
+- Running Calibre-group pods referenced the expected Longhorn claims. All four
+  claims (`calibre-config-longhorn-rwo`, `calibre-library-longhorn-rwo`,
+  `calibre-web-config-longhorn-rwo`, `kavita-config-longhorn-rwo`) were Bound.
+- Production `letsencrypt` ClusterIssuer and `pve-proxy/pve-ui` Certificate
+  were Ready.
+- Both `https://proxmox2-old.localdomain.bnowakowski.pl/` and
+  `https://proxmox2-old.tailscale.bnowakowski.pl/` returned HTTP 200 with TLS
+  verification enabled.
+- GitRepo readiness was 69/69, without a displayed status error.
 
-The final Fleet changes have been applied and validated before any further
-commit/push. The repair scripts did not commit or push. This confirms Fleet and
-the checked application endpoints, not a new backup run or restore test.
-The failed historical `traefik-config/default` Helm record remains untouched;
-the earlier caution about manually uninstalling that record still applies.
+| Bundle | Validated generation | Sync generation |
+| --- | ---: | ---: |
+| `calibre-storage` | 3 | 7 |
+| `longhorn-backups` | 3 | 8 |
+| `traefik-resources` | 12 | 11 |
+| `cert-manager-resources` | 7 | 7 |
+| `cloudcasa` | 25 | 10 |
 
-### Earlier attempts and diagnosis (historical)
+These checks confirm Fleet reconciliation and the listed workloads/endpoints.
+They do not constitute a new backup execution or restore test. The repair
+scripts did not commit or push changes.
 
-At **22:09:33 CET**, `fleet-field-ownership-20261105-220933/report.txt`
-confirmed both narrow field-ownership patches. Server dry runs and actual
-responses preserved resource UIDs and configurations. Targeted bundle sync
-generations advanced from 8 to 9.
+## Evidence and earlier attempts
 
-The following validation run (`fleet-health-repair-20261105-220934/`) confirmed
-CloudCasa Ready at 22:09:53, as well as the already-ready Calibre storage,
-cert-manager resources and Longhorn backups. Traefik resources installed but
-reported EndpointSlice drift: the desired endpoint omitted `conditions`, while
-the API stores `conditions: {}`. The repository manifest now explicitly includes
-that empty object. Fleet generation passed and its endpoint data, ports and
-addressType exactly match the captured live object. This normalization still
-needs applying with `fix-fleet-health-2026-11-05.py`; it does not change the
-endpoint IP or readiness semantics. The existing monitor can remain running
-while the new invocation applies this final change and validates all five
-bundles. Do not rerun the field-ownership repair, whose old ownership claims
-have already been removed.
+Times below are CET on 5 November 2026. Runtime report directories contain
+original objects, generated bundles and final snapshots; they are local
+incident evidence rather than application manifests.
 
-The third run (`fleet-health-repair-20261105-211151/`) used native Fleet apply
-at 21:11 CET. Calibre storage, cert-manager resources and Longhorn backups
-became Ready. The `fleet-pending-inspection.txt` agent logs identify two further
-server-side apply conflicts:
+| Attempt/report | Outcome |
+| --- | --- |
+| `fleet-health-repair-20261105-205453/report.txt` | Stopped in ownership preflight; no cluster mutations. Revealed legacy route ownership. |
+| `fleet-health-repair-20261105-205942/report.txt` | Applied ownership patches and offline-generated Bundle objects. Calibre storage and issuer became Ready; three bundles remained unready at timeout. |
+| `fleet-health-repair-20261105-211151/report.txt` | Corrected native Fleet apply and targeted retries made Longhorn backups Ready. Timed out at 21:22:07 on two server-side apply conflicts. |
+| `fleet-field-ownership-20261105-220933/report.txt` | Confirmed both narrow ownership repairs and sync generations 8→9. |
+| `fleet-health-repair-20261105-220934/report.txt` | CloudCasa became Ready. Traefik installed but showed the endpoint defaulting diff. |
+| `fleet-health-repair-20261105-221223/report.txt` | Final endpoint normalization applied; all checks passed at 22:12:43. |
 
-- `pve-proxy/pve-api-ipv4` EndpointSlice: the old
-  `kubectl-client-side-apply` manager owns `endpoints`.
-- `cloudcasa-io/cloudcasa-kubeagent-manager` Deployment: the CloudCasa updater
-  owns `MY_POD_NAME.valueFrom.fieldRef`.
+An early repair-script error applied offline-generated Bundle YAML with
+`kubectl`, skipping native Fleet's Helm-values Secret handling. The script was
+corrected to use native `fleet apply`. Matching an applied deployment ID alone
+also proved insufficient: the final checks require Ready=True in addition.
 
-The monitor ended at **21:22:07 CET**, timing out on CloudCasa and Traefik
-resources. The other three bundles were Ready. Final rollout, storage and
-ingress checks were not reached. Snapshots and the failure report remain in
-`fleet-health-repair-20261105-211151/`. A separate
-`fix-fleet-field-ownership-2026-11-05.py` script is prepared to relinquish
-only those two field claims in the named managers' `metadata.managedFields`,
-preserving all unrelated ownership records. It checks the current object
-values and Helm release owner, saves originals, server-dry-runs both patches,
-and uses resourceVersion plus managedFields test preconditions. It verifies
-that resource UIDs and all non-metadata/status payloads remain identical after
-each patch. It then increments only those two bundles' sync generations.
-No workload specification, endpoint address or pod-name reference is changed
-by the metadata repair itself. After this metadata repair, rerun
-`fix-fleet-health-2026-11-05.py` to confirm the subsequent Fleet deployments
-and execute rollout/ingress checks; the previous monitoring process has exited.
-No field-ownership repair report was present when this timeout was reviewed.
+The temporary `fleet-health-inspection.txt`, `traefik-ownership-inspection.txt`
+and `fleet-pending-inspection.txt` were diagnostic inputs. Their findings and
+final results are recorded here, so those text captures may be removed.
+Keep the timestamped report directories if detailed before/after evidence is
+wanted. No incident repair needs rerunning after successful completion;
+especially do not rerun the field-ownership script against already-removed
+claims.
 
-Kubernetes supports non-apply patches to managedFields but discourages manual
-updates in ordinary operation; see its [field management documentation](https://kubernetes.io/docs/reference/using-api/server-side-apply/#field-managers).
-This narrowly scoped, backed-up repair addresses the exact conflicts recorded
-by the Fleet agent, rather than clearing entire ownership records or enabling
-forced resource replacement. Syntax and ownership-pruning checks passed;
-actual application and results still require the user-run script's report.
+## Historical Helm record left intact
 
-The second user-run attempt (`fleet-health-repair-20261105-205942/`) applied
-the ownership patches and all five generated Bundle objects at 20:59 CET.
-Calibre storage and cert-manager resources were Ready. At 21:09:50 the run
-ended without readiness for CloudCasa, Longhorn backups and Traefik resources.
-CloudCasa's applied deployment ID differed from its desired ID; the other two
-still reported failed installs from before ownership repair. Matching an
-applied ID alone did not establish installation success. The later rollout,
-mount and ingress validations did not execute.
+The failed Helm release record `traefik-config` in `default` still contains
+obsolete route/PVE entries, including the `pve-proxy` Namespace. It was not
+uninstalled or rewritten. The active Fleet `traefik-config` Bundle is Ready
+and declares only HelmChartConfig; the repaired `traefik-resources` Bundle
+owns the routes and PVE resources.
 
-The script is now corrected to use native `fleet apply` (including values
-Secret handling) and request a new sync generation for unready bundles. It
-also saves snapshots during polling, logs condition messages when they change,
-and requires BundleDeployment Ready=True as well as matching deployment IDs.
-Native staged generation and preservation of targeting/sync generation passed
-offline checks for all four raw bundles. This corrected version still needs
-to be run on proxmox3; it has not yet been applied.
+**Do not run `helm uninstall` on that historical release:** its stored manifest
+could cause live resources to be deleted. A future manual recovery, upgrade or
+cleanup of that record must account for its obsolete entries before acting.
+NAS symlink cleanup and separately authorized host Traefik service restarts
+remain outside this repair.
 
-The first user-run attempt at 20:54 CET stopped during ownership preflight:
-`adguard-home-cors` has a different Helm release owner. All five bundles were
-generated and server dry-run validation passed, but **no ownership patches or
-bundle applies ran**. The failure message's generic reference to retained
-changes does not imply that this attempt mutated the cluster. Original
-snapshots and the report are in `fleet-health-repair-20261105-205453/`.
-Inspect the legacy `traefik-config` release and route ownership before retrying;
-do not force ownership takeover.
+## Implementation references
 
-The subsequent `traefik-ownership-inspection.txt` confirms that six AdGuard Home
-and Jellyseerr Middleware/IngressRoute resources still have
-`traefik-config/default` annotations. Every live spec exactly matches the
-desired `traefik-resources` manifest. The current `traefik-config` Bundle is
-Ready and contains only `kube-system/traefik` HelmChartConfig; it no longer
-declares the routes. The failed historical Helm manifest still lists them,
-PVE resources and the `pve-proxy` Namespace. Do not run `helm uninstall` against
-that historical release: it could delete live resources. Its release record is
-left intact by this repair. Any future manual recovery/upgrade of that legacy
-Helm record must account for those obsolete entries rather than replaying or
-pruning the stored manifest.
-
-The revised repair permits only those six exact identities to transfer from
-`traefik-config/default` to `traefik-resources/fleet-local`, after confirming
-their live specs still match Git, the historical release remains failed, and
-the current source Bundle is reconciled, Ready and contains only the
-HelmChartConfig. All other ownership conflicts still stop the repair before
-mutation. This is an ownership transfer of existing routes, not deletion or
-recreation of their resources.
-
-Local Python syntax and YAML parsing passed. All five bundles were generated
-and server dry-run validated in user-run preflight. The agent sandbox still
-blocks the Kubernetes socket. All final readiness, rollout and ingress checks
-remain required on proxmox3 with the corrected script. Do not mark these
-changes fully validated until that report confirms success.
+- [Fleet apply implementation](https://github.com/rancher/fleet/blob/v0.16.3/internal/cmd/cli/apply/apply.go): native apply refreshes Helm-values Secrets; offline output does not.
+- [CloudCasa chart 3.4.7 values](https://github.com/catalogicsoftware/cloudcasa-helmchart/blob/main/charts/v3.4.7/values.yaml): image repository/tag configuration.
+- [Kubernetes server-side apply](https://kubernetes.io/docs/reference/using-api/server-side-apply/): field conflicts and managedFields. Manual updates are discouraged in ordinary operation; this incident used exact, backed-up ownership changes after confirming agent errors.

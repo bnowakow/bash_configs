@@ -10,6 +10,13 @@ the generated CronJob has no explicit `timeZone`). It retains the newest
 full upload every seven incremental backups. Unchanged volumes do not produce
 a new backup on every run. Detached volumes are currently skipped.
 
+On 5 November 2026 the existing RecurringJob was adopted into Fleet's
+`longhorn-backups` Helm release in `longhorn-system`. Its schedule, retention
+and concurrency matched Git before ownership repair. The bundle and its
+current BundleDeployment were confirmed Ready at the end of the
+[Fleet health repair](../fleet-health-repair-2026-11-05.md). This ownership
+validation did not execute a new backup or restore test.
+
 Target:
 `nfs://nas.localdomain.bnowakowski.pl:/mnt/MargokPool/archive/Backups/rancher/longhorn`.
 Backup and recovery use your NAS and Longhorn without the CloudCasa service.

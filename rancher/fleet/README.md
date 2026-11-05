@@ -25,6 +25,25 @@ To add another TrueCharts application, follow [TRUECHARTS.md](TRUECHARTS.md).
 
 The chart versions are deliberately pinned. Upgrade them through a reviewed Git change.
 
+## Verified state on 5 November 2026
+
+The `rancher-cluster` GitRepo in `fleet-local` uses the renamed `homelab`
+repository and reported **69/69 ready** at 22:12 CET. Five bundle issues were
+repaired and validated: retired Calibre storage manifests, production issuer
+DNS names, Longhorn backup ownership, the CloudCasa image/field ownership,
+and Traefik resource ownership/defaulting.
+
+See the [completed repair record](../fleet-health-repair-2026-11-05.md) for
+changes, validation and evidence, and the
+[repository rename handoff](../fleet-repo-rename-handoff.md) for rename status.
+The repair record also explains why the failed historical
+`traefik-config/default` Helm release must not be uninstalled blindly.
+
+Before committing or pushing Fleet changes, follow [AGENTS.md](AGENTS.md):
+apply only changed bundles through native Fleet tooling and validate the
+resulting deployments. Offline Bundle output alone does not perform Fleet's
+Helm-values Secret handling.
+
 OCI is preferred where the chart publisher provides an official OCI distribution. The
 current Longhorn documentation publishes the chart through `https://charts.longhorn.io`,
 so that official repository is retained for Longhorn. cert-manager is configured to use
