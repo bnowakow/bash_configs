@@ -8,6 +8,16 @@ and synced commit `28375279fb74b542c92e4dd02502a7d8fbb1083a`.
 The final EndpointSlice normalization was applied from the working tree; the
 reported GitRepo commit alone does not include every local repair change.
 
+**Committed-state follow-up, 22:21:14 CET:** the user-run
+`fleet-latest-master-verification.txt` confirmed GitHub master, local HEAD and
+Fleet's synced commit all equal
+`8ef6c37ed51fe0706b7c952247b49b9490b1f4b9`. GitRepo Ready=True and 69/69
+readiness persisted. All 69 owned Bundles had their current generations
+observed and were Ready; all 69 BundleDeployments were Ready with matching
+desired/applied IDs. There were no unready bundles or deployments. This
+confirms reconciliation of the committed repairs, beyond the earlier
+working-tree validation.
+
 The repository rename had already synced successfully before this repair.
 Initial Fleet readiness was 64/69. There was no complete before-rename health
 baseline establishing that all five issues predated the rename.

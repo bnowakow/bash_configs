@@ -1,5 +1,21 @@
 # Handoff: point Fleet at the renamed repository (run on proxmox3)
 
+## Latest-master verification — 2026-11-05 22:21 CET
+
+**Passed.** The user-run `fleet-latest-master-verification.txt`, captured at
+22:21:14 CET, confirms GitHub master, local HEAD and Fleet's synced commit all
+equal `8ef6c37ed51fe0706b7c952247b49b9490b1f4b9`. Fleet uses
+`https://github.com/bnowakow/homelab.git`, branch `master`, path `rancher/fleet`.
+GitRepo generation and observed generation are both 11, Ready=True, with
+**69/69 ready**. All 69 owned Bundles have their current generations observed
+and Ready=True; all 69 BundleDeployments are Ready with matching desired and
+applied deployment IDs. No unready bundles or deployments were found.
+
+This closes the follow-up about the earlier working-tree repair: the committed
+latest master was synced and healthy. The NAS runbook's Fleet GitRepo URL
+item can be marked complete using this evidence. No NAS runbook, symlink
+cleanup or host service restart was changed during this verification.
+
 ## Completed verification — 2026-11-05 22:12 CET
 
 The repository URL change and subsequent five-bundle repair are confirmed.
