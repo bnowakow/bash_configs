@@ -1,7 +1,7 @@
 # Rancher Fleet configuration
 
 This directory is intended to be configured as a Fleet GitRepo path. The Git repository
-root is the parent `bash_configs` directory, so the GitRepo path is `rancher/fleet`.
+root is the parent `homelab` directory, so the GitRepo path is `rancher/fleet`.
 
 Each child directory containing a `fleet.yaml` is a separate Fleet bundle:
 

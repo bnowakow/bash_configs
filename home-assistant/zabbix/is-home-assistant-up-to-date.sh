@@ -3,7 +3,7 @@
 home_assistant_running_in_vagrant=false
 home_assistant_running_in_haos=true
 
-cd /etc/zabbix/zabbix_agent2.d/bash_configs/home-assistant/zabbix;
+cd /etc/zabbix/zabbix_agent2.d/homelab/home-assistant/zabbix;
 source lib/ha-running-in-vagrant-on-in-proxmox.sh
 
 if [ "$home_assistant_running_in_vagrant" = true ]; then

@@ -255,7 +255,7 @@ if [ "$transmission_http_code" != "200" ]; then
     if ssh -o BatchMode=yes -o ConnectTimeout=10 "root@$host" true; then
         print_status "" "Running Transmission config repair on $host"
         if ! ssh -o BatchMode=yes -o ConnectTimeout=10 "root@$host" \
-            /home/sup/code/bash_configs/transmission/fix-config.sh; then
+            /home/sup/code/homelab/transmission/fix-config.sh; then
             print_status "failure" "Transmission config repair command failed; checking whether Transmission recovers anyway"
         fi
 

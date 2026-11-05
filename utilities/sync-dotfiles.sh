@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copy this host's dotfiles from ~ into bash_configs, so that
+# Copy this host's dotfiles from ~ into homelab, so that
 # nas/ansible/sup-dotfiles_playbook.yml (run by provision.sh) can apply them
 # back to the hosts. The file list and the per-host .screenrc mapping live in
 # nas/ansible/vars/sup-dotfiles.yml.

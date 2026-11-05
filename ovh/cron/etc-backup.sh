@@ -1,7 +1,7 @@
 #!/bin/bash
 
 number_of_backpus_to_keep=10
-backup_path=/home/sup/code/bash_configs/ovh/cron/etc-backup
+backup_path=/home/sup/code/homelab/ovh/cron/etc-backup
 
 mkdir -p $backup_path
 

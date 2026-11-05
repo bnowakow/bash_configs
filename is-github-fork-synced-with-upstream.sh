@@ -40,10 +40,10 @@ if [ "$repo_name" = "docker-ubuntu-novnc-crashplan" ]; then
     dir="crashplan-docker"
 fi
 if [ "$repo_name" = "truecharts-charts" ]; then
-    dir="bash_configs/repos/truecharts"
+    dir="homelab/repos/truecharts"
 fi
 if [ "$repo_name" = "truenas-charts" ]; then
-    dir="bash_configs/repos/truenas"
+    dir="homelab/repos/truenas"
 fi
 
 sha_upstream=$(gh api -H "Accept: application/vnd.github+json" /repos/bnowakow/$repo_name/branches | jq "map(select(.name == \"$branch\"))" | jq .[0].commit.sha | sed 's/"//g')

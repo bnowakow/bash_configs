@@ -18,19 +18,19 @@
 
 - name: Check the existing Zabbix repository path
   ansible.builtin.stat:
-    path: /etc/zabbix/zabbix_agent2.d/bash_configs
+    path: /etc/zabbix/zabbix_agent2.d/homelab
     follow: false
   register: zabbix_repository_path
 
 - name: Check whether an existing directory is a Git checkout
   ansible.builtin.stat:
-    path: /etc/zabbix/zabbix_agent2.d/bash_configs/.git
+    path: /etc/zabbix/zabbix_agent2.d/homelab/.git
   register: zabbix_repository_git
   when: zabbix_repository_path.stat.isdir | default(false)
 
 - name: Check whether an existing directory is empty
   ansible.builtin.find:
-    paths: /etc/zabbix/zabbix_agent2.d/bash_configs
+    paths: /etc/zabbix/zabbix_agent2.d/homelab
     file_type: any
     hidden: true
     recurse: false
@@ -50,22 +50,22 @@
 
 - name: Remove the old symlink into sup's home
   ansible.builtin.file:
-    path: /etc/zabbix/zabbix_agent2.d/bash_configs
+    path: /etc/zabbix/zabbix_agent2.d/homelab
     state: absent
   when: zabbix_repository_path.stat.islnk | default(false)
 
 - name: Create the Zabbix-owned checkout directory
   ansible.builtin.file:
-    path: /etc/zabbix/zabbix_agent2.d/bash_configs
+    path: /etc/zabbix/zabbix_agent2.d/homelab
     state: directory
     owner: zabbix
     group: zabbix
     mode: '0755'
 
-- name: Clone or update bash_configs as zabbix
+- name: Clone or update homelab as zabbix
   ansible.builtin.git:
-    repo: https://github.com/bnowakow/bash_configs.git
-    dest: /etc/zabbix/zabbix_agent2.d/bash_configs
+    repo: https://github.com/bnowakow/homelab.git
+    dest: /etc/zabbix/zabbix_agent2.d/homelab
     version: master
     update: true
     force: false
@@ -78,7 +78,7 @@
 
 - name: Ensure Zabbix has a directory for checked chart repositories
   ansible.builtin.file:
-    path: /etc/zabbix/zabbix_agent2.d/bash_configs/repos
+    path: /etc/zabbix/zabbix_agent2.d/homelab/repos
     state: directory
     owner: zabbix
     group: zabbix

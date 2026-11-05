@@ -3,7 +3,7 @@
 # possible conflicts while pulling: crashplan, docker-mailserver (docker-compose, Makefile), homer (config), medihunter, zabbix-scripts (.gitignore)
 
 dirs=(
-    "/mnt/MargokPool/home/sup/code/bash_configs/repos/truecharts" \
+    "/mnt/MargokPool/home/sup/code/homelab/repos/truecharts" \
     "/mnt/MargokPool/home/sup/code/universal-trakt-scrobbler" \
     "/mnt/MargokPool/home/sup/code/jdupes" \
 )

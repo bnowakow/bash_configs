@@ -26,35 +26,35 @@
         name: user.email
         scope: global
         value: dobrowolski.nowakowski@gmail.com
-    - name: Check whether bash_configs is already cloned
+    - name: Check whether homelab is already cloned
       ansible.builtin.stat:
-        path: "{{ ansible_env.HOME }}/code/bash_configs/.git"
-      register: bash_configs_git_dir
+        path: "{{ ansible_env.HOME }}/code/homelab/.git"
+      register: homelab_git_dir
 
     - name: Check the existing checkout for local changes
       ansible.builtin.command:
         argv:
           - git
           - -C
-          - "{{ ansible_env.HOME }}/code/bash_configs"
+          - "{{ ansible_env.HOME }}/code/homelab"
           - status
           - --porcelain
-      register: bash_configs_status
+      register: homelab_status
       changed_when: false
       check_mode: false
-      when: bash_configs_git_dir.stat.exists
+      when: homelab_git_dir.stat.exists
 
     - name: Explain why the existing checkout will not be updated
       ansible.builtin.debug:
-        msg: "Skipping bash_configs update: this host has local Git changes."
+        msg: "Skipping homelab update: this host has local Git changes."
       when:
-        - bash_configs_git_dir.stat.exists
-        - (bash_configs_status.stdout | default('')) != ''
+        - homelab_git_dir.stat.exists
+        - (homelab_status.stdout | default('')) != ''
 
-    - name: clone bash_configs repository
+    - name: clone homelab repository
       git:
-        repo: git@github.com:bnowakow/bash_configs.git
-        dest: ~/code/bash_configs/
+        repo: git@github.com:bnowakow/homelab.git
+        dest: ~/code/homelab/
         clone: yes
         update: yes
-      when: not bash_configs_git_dir.stat.exists or (bash_configs_status.stdout | default('')) == ''
+      when: not homelab_git_dir.stat.exists or (homelab_status.stdout | default('')) == ''

@@ -3,7 +3,7 @@
 next_page_url="/raczka-kuby?last_payment_id=&last_payment_time=&tabs=";
 stop_page_url='":null}}'
 
-cd /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga;
+cd /mnt/MargokPool/home/sup/code/homelab/nas/zabbix/sie-pomaga;
 
 mv sie-pomaga-list-of-donations.txt sie-pomaga-list-of-donations.old.txt
 

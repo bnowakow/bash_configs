@@ -1,0 +1,175 @@
+# Moves one checkout from <parent>/<old name> to <parent>/<new name> and leaves
+# the old path as a temporary symlink. Imported (statically) by
+# repo-rename_playbook.yml, because the playbook's own checkout may be moved.
+#
+# Expected vars:
+#   rename_parent       directory holding the checkout
+#   rename_owner        account that owns the checkout (runs git)
+#   rename_remote_url   origin URL after the rename
+#   rename_parent_become  whether creating entries in rename_parent needs root
+
+- name: "Inspect the old path {{ rename_parent }}/{{ repo_old_name }}"
+  ansible.builtin.stat:
+    path: "{{ rename_parent }}/{{ repo_old_name }}"
+    follow: false
+  register: rename_old
+
+- name: "Inspect the new path {{ rename_parent }}/{{ repo_new_name }}"
+  ansible.builtin.stat:
+    path: "{{ rename_parent }}/{{ repo_new_name }}"
+    follow: false
+  register: rename_new
+
+- name: Work out what to move
+  ansible.builtin.set_fact:
+    rename_old_path: "{{ rename_parent }}/{{ repo_old_name }}"
+    rename_new_path: "{{ rename_parent }}/{{ repo_new_name }}"
+    # Directory that really holds the checkout today. On NAS the old path is
+    # itself a symlink (bash_configs -> bash_configs-clean).
+    rename_source: >-
+      {{ rename_old.stat.lnk_source
+         if (rename_old.stat.islnk | default(false))
+         else (rename_parent ~ '/' ~ repo_old_name) }}
+    rename_already_moved: "{{ rename_new.stat.isdir | default(false) and not (rename_new.stat.islnk | default(false)) }}"
+
+- name: Refuse a host where both names are real directories
+  ansible.builtin.assert:
+    that: >-
+      not rename_already_moved or
+      not (rename_old.stat.exists | default(false)) or
+      (rename_old.stat.islnk | default(false))
+    fail_msg: >-
+      Both {{ rename_old_path }} and {{ rename_new_path }} are directories.
+      Merge or remove one by hand before running the rename.
+
+- name: Note hosts without this checkout
+  ansible.builtin.debug:
+    msg: "Neither {{ rename_old_path }} nor {{ rename_new_path }} exists; nothing to move here."
+  when:
+    - not (rename_old.stat.exists | default(false))
+    - not (rename_new.stat.exists | default(false))
+
+- name: Move the checkout to its new name
+  ansible.builtin.command:
+    argv: [mv, -T, --, "{{ rename_source }}", "{{ rename_new_path }}"]
+    creates: "{{ rename_new_path }}"
+  become: "{{ rename_parent_become }}"
+  when:
+    - rename_old.stat.exists | default(false)
+    - not rename_already_moved
+  register: rename_moved
+
+- name: Keep the old path working as a temporary symlink
+  ansible.builtin.file:
+    src: "{{ rename_new_path }}"
+    dest: "{{ rename_old_path }}"
+    state: link
+    force: true
+  become: "{{ rename_parent_become }}"
+  when: >-
+    (rename_new.stat.exists | default(false) or rename_moved is changed) and
+    not repo_rename_cleanup | bool and
+    not ansible_check_mode
+
+# NAS only: bash_configs-clean was the real directory, keep it resolvable too.
+- name: Keep the previous real directory name working as a temporary symlink
+  ansible.builtin.file:
+    src: "{{ rename_new_path }}"
+    dest: "{{ rename_source }}"
+    state: link
+    force: true
+  become: "{{ rename_parent_become }}"
+  when:
+    - rename_moved is changed
+    - rename_source != rename_old_path
+    - rename_source | dirname == rename_parent
+    - not ansible_check_mode
+
+- name: Read the checkout's origin URL
+  ansible.builtin.command:
+    argv: [git, -C, "{{ rename_new_path }}", remote, get-url, origin]
+  become: "{{ rename_owner != ansible_user_id }}"
+  become_user: "{{ rename_owner }}"
+  vars:
+    ansible_pipelining: true
+    ansible_remote_tmp: /tmp
+  register: rename_origin
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  when: not ansible_check_mode or rename_already_moved
+
+- name: Point origin at the renamed GitHub repository
+  ansible.builtin.command:
+    argv: [git, -C, "{{ rename_new_path }}", remote, set-url, origin, "{{ rename_remote_url }}"]
+  become: "{{ rename_owner != ansible_user_id }}"
+  become_user: "{{ rename_owner }}"
+  vars:
+    ansible_pipelining: true
+    ansible_remote_tmp: /tmp
+  when:
+    - rename_origin.rc | default(1) == 0
+    - rename_origin.stdout != rename_remote_url
+    - ('/' ~ repo_old_name) in rename_origin.stdout
+
+# --- cleanup mode (-e repo_rename_cleanup=true) ---------------------------
+
+- name: Find leftover references to the old name in the checkout
+  ansible.builtin.command:
+    argv:
+      - git
+      - -C
+      - "{{ rename_new_path }}"
+      - grep
+      - -l
+      - -I
+      - -E
+      - "{{ repo_old_name }}|{{ repo_old_name | replace('_', '-') }}"
+      - --
+      - .
+      - ":(exclude)nas/ansible/repo-rename*"
+      - ":(exclude)utilities/rename-repo-references.sh"
+      - ":(exclude)proxmox/emby/NFS-incident-logs"
+      - ":(exclude)rancher/longhorn/migrations"
+  become: "{{ rename_owner != ansible_user_id }}"
+  become_user: "{{ rename_owner }}"
+  vars:
+    ansible_pipelining: true
+    ansible_remote_tmp: /tmp
+  register: rename_leftovers
+  changed_when: false
+  failed_when: rename_leftovers.rc not in [0, 1]
+  check_mode: false
+  when: repo_rename_cleanup | bool
+
+- name: Refuse to drop the symlink while the checkout still uses the old name
+  ansible.builtin.assert:
+    that: rename_leftovers.stdout == ''
+    fail_msg: >-
+      {{ rename_new_path }} still references {{ repo_old_name }} in:
+      {{ rename_leftovers.stdout_lines | join(', ') }}.
+      Push utilities/rename-repo-references.sh's changes and pull this checkout first.
+  when: repo_rename_cleanup | bool
+
+- name: Find temporary symlinks to the renamed checkout
+  ansible.builtin.shell: |
+    target=$(readlink -f -- "{{ rename_new_path }}")
+    for link in "{{ rename_parent }}"/*; do
+      if [ -L "$link" ] && [ "$(readlink -f -- "$link")" = "$target" ]; then
+        printf '%s\n' "$link"
+      fi
+    done
+  args:
+    executable: /bin/bash
+  register: rename_links
+  changed_when: false
+  check_mode: false
+  when: repo_rename_cleanup | bool
+
+- name: Remove the temporary symlinks
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  become: "{{ rename_parent_become }}"
+  loop: "{{ rename_links.stdout_lines | default([]) }}"
+  when: repo_rename_cleanup | bool

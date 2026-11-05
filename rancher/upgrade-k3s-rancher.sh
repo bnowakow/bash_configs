@@ -4,7 +4,7 @@ set -Eeuo pipefail
 
 kubeconfig_path="/etc/rancher/k3s/k3s.yaml"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-bash_configs_root="$(cd "$script_dir/.." && pwd)"
+homelab_root="$(cd "$script_dir/.." && pwd)"
 ansible_group_vars_file="$script_dir/ansible/group_vars/all.yml"
 cert_manager_fleet_file="$script_dir/fleet/infrastructure/cert-manager/fleet.yaml"
 log_dir="$script_dir/logs"
@@ -38,7 +38,7 @@ Upgrades Rancher first, then the current k3s server node, then cert-manager.
 After each component is upgraded and verified, the repository file that pins
 its version (ansible/group_vars/all.yml, or the cert-manager fleet.yaml) is
 staged with git add. Before exiting, the script asks whether to run
-make codex-commit in the bash_configs repository.
+make codex-commit in the homelab repository.
 
 The script discovers current compatible versions from SUSE/GitHub, prints the
 selected versions and source URLs, attempts a pre-upgrade k3s snapshot, and then
@@ -170,7 +170,7 @@ require_dependencies() {
 # home directory, credentials and git config.
 as_repo_owner() {
   local owner
-  owner="$(stat -c %U "$bash_configs_root")"
+  owner="$(stat -c %U "$homelab_root")"
   if [ "${EUID:-$(id -u)}" -eq 0 ] && [ "$owner" != "root" ]; then
     sudo -u "$owner" -H -- "$@"
   else
@@ -181,15 +181,15 @@ as_repo_owner() {
 # Stage a version file after its component was upgraded and verified.
 stage_repo_file() {
   local file="$1"
-  local relative_file="${file#"$bash_configs_root/"}"
+  local relative_file="${file#"$homelab_root/"}"
 
   if [ ! -f "$file" ]; then
     return 0
   fi
-  if as_repo_owner git -C "$bash_configs_root" diff --quiet -- "$relative_file" 2>>"$log_file"; then
+  if as_repo_owner git -C "$homelab_root" diff --quiet -- "$relative_file" 2>>"$log_file"; then
     return 0
   fi
-  if ! as_repo_owner git -C "$bash_configs_root" add -- "$relative_file" >>"$log_file" 2>&1; then
+  if ! as_repo_owner git -C "$homelab_root" add -- "$relative_file" >>"$log_file" 2>&1; then
     log_warning "Could not stage $relative_file with git add; stage it by hand."
     return 0
   fi
@@ -207,9 +207,9 @@ ask_run_codex_commit() {
     if [ "$exit_status" -ne 0 ]; then
       log_warning "The run did not finish (exit status $exit_status). Only files of components that were upgraded and verified are staged."
     fi
-    if confirm "Upgraded version files are staged. Run make -C $bash_configs_root codex-commit now?"; then
-      log "+ make -C $bash_configs_root codex-commit"
-      if as_repo_owner make -C "$bash_configs_root" codex-commit; then
+    if confirm "Upgraded version files are staged. Run make -C $homelab_root codex-commit now?"; then
+      log "+ make -C $homelab_root codex-commit"
+      if as_repo_owner make -C "$homelab_root" codex-commit; then
         log_success "make codex-commit completed successfully."
       else
         log_error "make codex-commit failed; the staged files were left in place."

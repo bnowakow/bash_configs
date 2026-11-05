@@ -1,4 +1,4 @@
-# Dotfiles that live in the root of bash_configs and are shared with sup's home.
+# Dotfiles that live in the root of homelab and are shared with sup's home.
 # Used by sup-dotfiles_playbook.yml (repo -> hosts) and by
 # utilities/sync-dotfiles.sh (`make sync-dotfiles`, host -> repo).
 # Keep this flat format: the shell script reads it without a YAML library.

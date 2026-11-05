@@ -99,7 +99,7 @@ Gotchas:
 ## Apply
 
 ```sh
-cd ~/code/bash_configs
+cd ~/code/homelab
 fleet apply --kubeconfig /etc/rancher/k3s/k3s.yaml --namespace fleet-local \
   --label fleet.cattle.io/repo-name=rancher-cluster \
   longhorn-crypto-storage rancher/fleet/infrastructure/longhorn-crypto-storage

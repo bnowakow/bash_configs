@@ -364,7 +364,7 @@ resolve_pull_conflict_with_agent() {
 	local conflicted_files=()
 	local file
 
-	conflict_output=$(mktemp "${TMPDIR:-/tmp}/bash-configs-${commit_agent}-conflict.XXXXXX")
+	conflict_output=$(mktemp "${TMPDIR:-/tmp}/homelab-${commit_agent}-conflict.XXXXXX")
 	tmp_files+=("$conflict_output")
 
 	while IFS= read -r file; do
@@ -474,7 +474,7 @@ if ! resolve_agent_command; then
 	exit 1
 fi
 
-agent_output=$(mktemp "${TMPDIR:-/tmp}/bash-configs-${commit_agent}-commit.XXXXXX")
+agent_output=$(mktemp "${TMPDIR:-/tmp}/homelab-${commit_agent}-commit.XXXXXX")
 tmp_files+=("$agent_output")
 find_commit_skill
 commit_prompt=$(build_commit_prompt)

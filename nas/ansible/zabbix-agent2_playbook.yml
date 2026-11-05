@@ -58,7 +58,7 @@
       ansible.builtin.include_tasks: zabbix-repository_tasks.yml
     - name: copy zabbix-agent2 config
       ansible.builtin.copy:
-        src: /etc/zabbix/zabbix_agent2.d/bash_configs/zabbix/zabbix_agent2.conf
+        src: /etc/zabbix/zabbix_agent2.d/homelab/zabbix/zabbix_agent2.conf
         dest: /etc/zabbix/zabbix_agent2.conf
         remote_src: true
         owner: root
@@ -85,7 +85,7 @@
         argv:
           - find
           - -L
-          - /etc/zabbix/zabbix_agent2.d/bash_configs
+          - /etc/zabbix/zabbix_agent2.d/homelab
           - -type
           - f
           - -name

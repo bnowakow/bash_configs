@@ -2,7 +2,7 @@
 
 # https://andreafortuna.org/2019/10/24/how-to-create-a-virtualbox-vm-from-command-line/
 MACHINENAME=home-assistant
-dir=/mnt/MargokPool/home/sup/code/bash_configs/home-assistant
+dir=/mnt/MargokPool/home/sup/code/homelab/home-assistant
 
 # https://github.com/home-assistant/operating-system/releases
 # TODO get latest vdi automatically, curling website doesn't work since there's a lot of assets and you need to ajax them

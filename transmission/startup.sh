@@ -10,7 +10,7 @@ if [ "$EUID" -ne 0 ]; then
 	exit
 fi
 
-cd /home/sup/code/bash_configs/transmission/
+cd /home/sup/code/homelab/transmission/
 
 ./nord-run.sh
 mount -vvv /mnt/PlexPool/plex

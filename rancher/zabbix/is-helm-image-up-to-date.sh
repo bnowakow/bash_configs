@@ -6,7 +6,7 @@ name="${1:-duckdns}"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 version_helper="$script_dir/zabbix/lib/helm-current-version-of-chart.sh"
 if [ ! -x "$version_helper" ]; then
-    version_helper="/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-current-version-of-chart.sh"
+    version_helper="/etc/zabbix/zabbix_agent2.d/homelab/rancher/zabbix/lib/helm-current-version-of-chart.sh"
 fi
 version_current="$($version_helper "$name" "$2")"
 # Release names can differ from chart names (for example homer-without-auth).

@@ -26,9 +26,9 @@ entryPoints:
 providers:
   file:
     # Proxmox VE default:
-    filename: /home/sup/code/bash_configs/proxmox/traefik/dynamic/proxmox.yml
+    filename: /home/sup/code/homelab/proxmox/traefik/dynamic/proxmox.yml
     # Proxmox Backup Server alternative:
-    # filename: /home/sup/code/bash_configs/proxmox/traefik/dynamic/pbs.yml
+    # filename: /home/sup/code/homelab/proxmox/traefik/dynamic/pbs.yml
     watch: true
 
 certificatesResolvers:

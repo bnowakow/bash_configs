@@ -6,7 +6,7 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
-cd /etc/zabbix/zabbix_agent2.d/bash_configs/zabbix
+cd /etc/zabbix/zabbix_agent2.d/homelab/zabbix
 
 install -m 0644 zabbix_agent2.conf /etc/zabbix/zabbix_agent2.conf
 rm /etc/zabbix/zabbix_agent2.d/zabbix*.conf

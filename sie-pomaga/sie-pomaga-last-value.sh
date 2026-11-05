@@ -2,7 +2,7 @@
 
 url="https://www.siepomaga.pl/api/v1/causes/eAtDlJ/stats?locale=pl"
 
-cd /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga;
+cd /mnt/MargokPool/home/sup/code/homelab/nas/zabbix/sie-pomaga;
 
 touch sie-pomaga-value-last.json
 rm sie-pomaga-value-current.json 2>/dev/null

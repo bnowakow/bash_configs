@@ -15,12 +15,12 @@ daemonset:
           key: password
           name: elasticsearch-master-credentials
   extraVolumeMounts:
-    - mountPath: /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga
+    - mountPath: /mnt/MargokPool/home/sup/code/homelab/nas/zabbix/sie-pomaga
       name: sie-pomaga
   extraVolumes:
     - name: sie-pomaga
       nfs:
-        path: /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga
+        path: /mnt/MargokPool/home/sup/code/homelab/nas/zabbix/sie-pomaga
         server: nas.localdomain.bnowakowski.pl
   filebeatConfig:
     filebeat.yml: |
@@ -33,7 +33,7 @@ daemonset:
         id: sie-pomaga-values.txt-filestream-id              
         enabled: true
         paths:
-          - /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga/sie-pomaga-values.txt
+          - /mnt/MargokPool/home/sup/code/homelab/nas/zabbix/sie-pomaga/sie-pomaga-values.txt
         include_lines: ['.*']
 
       output.elasticsearch:
