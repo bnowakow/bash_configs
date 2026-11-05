@@ -22,5 +22,6 @@ for log_file in `ls -1t /usr/local/crashplan/log | grep $log_file_name_prefix`; 
     fi
 done
 
-echo false
+# No matching history entry: return an empty value to Zabbix.
+exit 0
 
