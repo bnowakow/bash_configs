@@ -1,0 +1,39 @@
+{
+  "apiVersion": "traefik.io/v1alpha1",
+  "kind": "Middleware",
+  "metadata": {
+    "annotations": {
+      "meta.helm.sh/release-name": "traefik-config",
+      "meta.helm.sh/release-namespace": "default",
+      "objectset.rio.cattle.io/id": "default-traefik-config-cattle-fleet-local-system"
+    },
+    "creationTimestamp": "2026-09-21T18:05:31Z",
+    "generation": 1,
+    "labels": {
+      "app.kubernetes.io/managed-by": "Helm",
+      "objectset.rio.cattle.io/hash": "972f3924eb7ed9fe2fee4da0b1bd60ba50743f71"
+    },
+    "name": "jellyseerr-cors",
+    "namespace": "apps-jellyseerr",
+    "resourceVersion": "9888677",
+    "uid": "fa2475a6-3fd6-4c2b-b543-81946f8b81c6"
+  },
+  "spec": {
+    "headers": {
+      "accessControlAllowHeaders": [
+        "X-Api-Key",
+        "Content-Type"
+      ],
+      "accessControlAllowMethods": [
+        "GET",
+        "OPTIONS"
+      ],
+      "accessControlAllowOriginList": [
+        "https://homer.rancher.tailscale.bnowakowski.pl",
+        "https://homer.rancher.localdomain.bnowakowski.pl"
+      ],
+      "accessControlMaxAge": 600,
+      "addVaryHeader": true
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "fleet.cattle.io/v1alpha1",
+      "kind": "Bundle",
+      "metadata": {
+        "labels": {
+          "fleet.cattle.io/commit": "28375279fb74b542c92e4dd02502a7d8fbb1083a",
+          "fleet.cattle.io/repo-name": "rancher-cluster"
+        },
+        "name": "traefik-resources",
+        "namespace": "fleet-local"
+      },
+      "spec": {
+        "defaultNamespace": "fleet-local",
+        "helm": {
+          "releaseName": "traefik-resources"
+        },
+        "resources": [
+          {
+            "content": "apiVersion: traefik.io/v1alpha1\nkind: Middleware\nmetadata:\n  name: adguard-home-cors\n  namespace: apps-adguard-home\nspec:\n  headers:\n    accessControlAllowOriginList:\n      - https://homer.rancher.tailscale.bnowakowski.pl\n      - https://homer.rancher.localdomain.bnowakowski.pl\n    accessControlAllowMethods:\n      - GET\n      - OPTIONS\n    accessControlAllowHeaders:\n      - Authorization\n      - Content-Type\n    accessControlMaxAge: 600\n    addVaryHeader: true\n---\napiVersion: traefik.io/v1alpha1\nkind: IngressRoute\nmetadata:\n  name: adguard-home-tailscale-cors\n  namespace: apps-adguard-home\nspec:\n  entryPoints:\n    - websecure\n  routes:\n    - kind: Rule\n      match: Host(`adguard-home.rancher.tailscale.bnowakowski.pl`)\n      priority: 100\n      middlewares:\n        - name: adguard-home-cors\n      services:\n        - name: adguard-home\n          port: main\n  tls:\n    secretName: adguard-home-tls-0\n---\napiVersion: traefik.io/v1alpha1\nkind: IngressRoute\nmetadata:\n  name: adguard-home-localdomain-cors\n  namespace: apps-adguard-home\nspec:\n  entryPoints:\n    - websecure\n  routes:\n    - kind: Rule\n      match: Host(`adguard-home.rancher.localdomain.bnowakowski.pl`)\n      priority: 100\n      middlewares:\n        - name: adguard-home-cors\n      services:\n        - name: adguard-home\n          port: main\n  tls:\n    secretName: adguard-home-tls-1\n",
+            "name": "adguard-home-cors.yaml"
+          },
+          {
+            "content": "apiVersion: traefik.io/v1alpha1\nkind: Middleware\nmetadata:\n  name: jellyseerr-cors\n  namespace: apps-jellyseerr\nspec:\n  headers:\n    accessControlAllowOriginList:\n      - https://homer.rancher.tailscale.bnowakowski.pl\n      - https://homer.rancher.localdomain.bnowakowski.pl\n    accessControlAllowMethods:\n      - GET\n      - OPTIONS\n    accessControlAllowHeaders:\n      - X-Api-Key\n      - Content-Type\n    accessControlMaxAge: 600\n    addVaryHeader: true\n---\napiVersion: traefik.io/v1alpha1\nkind: IngressRoute\nmetadata:\n  name: jellyseerr-tailscale-cors\n  namespace: apps-jellyseerr\nspec:\n  entryPoints:\n    - websecure\n  routes:\n    - kind: Rule\n      match: Host(`jellyseerr.rancher.tailscale.bnowakowski.pl`)\n      priority: 100\n      middlewares:\n        - name: jellyseerr-cors\n      services:\n        - name: jellyseerr\n          port: main\n  tls:\n    secretName: jellyseerr-tls-0\n---\napiVersion: traefik.io/v1alpha1\nkind: IngressRoute\nmetadata:\n  name: jellyseerr-localdomain-cors\n  namespace: apps-jellyseerr\nspec:\n  entryPoints:\n    - websecure\n  routes:\n    - kind: Rule\n      match: Host(`jellyseerr.rancher.localdomain.bnowakowski.pl`)\n      priority: 100\n      middlewares:\n        - name: jellyseerr-cors\n      services:\n        - name: jellyseerr\n          port: main\n  tls:\n    secretName: jellyseerr-tls-1\n",
+            "name": "jellyseerr-cors.yaml"
+          },
+          {
+            "content": "apiVersion: traefik.io/v1alpha1\nkind: Middleware\nmetadata:\n  name: prowlarr-cors\n  namespace: apps-prowlarr\nspec:\n  headers:\n    accessControlAllowOriginList:\n      - https://homer.rancher.tailscale.bnowakowski.pl\n      - https://homer.rancher.localdomain.bnowakowski.pl\n    accessControlAllowMethods:\n      - GET\n      - OPTIONS\n    accessControlAllowHeaders:\n      - X-Api-Key\n      - Authorization\n      - Content-Type\n    accessControlMaxAge: 600\n    addVaryHeader: true\n---\napiVersion: traefik.io/v1alpha1\nkind: IngressRoute\nmetadata:\n  name: prowlarr-tailscale-cors\n  namespace: apps-prowlarr\nspec:\n  entryPoints:\n    - websecure\n  routes:\n    - kind: Rule\n      match: Host(`prowlarr.rancher.tailscale.bnowakowski.pl`)\n      priority: 100\n      middlewares:\n        - name: prowlarr-cors\n      services:\n        - name: prowlarr\n          port: main\n  tls:\n    secretName: prowlarr-tls-0\n---\napiVersion: traefik.io/v1alpha1\nkind: IngressRoute\nmetadata:\n  name: prowlarr-localdomain-cors\n  namespace: apps-prowlarr\nspec:\n  entryPoints:\n    - websecure\n  routes:\n    - kind: Rule\n      match: Host(`prowlarr.rancher.localdomain.bnowakowski.pl`)\n      priority: 100\n      middlewares:\n        - name: prowlarr-cors\n      services:\n        - name: prowlarr\n          port: main\n  tls:\n    secretName: prowlarr-tls-1\n",
+            "name": "prowlarr-cors.yaml"
+          },
+          {
+            "content": "apiVersion: v1\nkind: Service\nmetadata:\n  name: pve-api\n  namespace: pve-proxy\nspec:\n  ports:\n    - name: https\n      port: 8006\n      protocol: TCP\n---\napiVersion: discovery.k8s.io/v1\nkind: EndpointSlice\nmetadata:\n  name: pve-api-ipv4\n  namespace: pve-proxy\n  labels:\n    kubernetes.io/service-name: pve-api\naddressType: IPv4\nports:\n  - name: https\n    protocol: TCP\n    port: 8006\nendpoints:\n  - addresses:\n      - 10.0.0.72\n---\n# PVE serves its own certificate on 8006.  Traefik terminates the public TLS\n# connection and deliberately does not validate that private backend cert.\napiVersion: traefik.io/v1alpha1\nkind: ServersTransport\nmetadata:\n  name: pve-backend\n  namespace: pve-proxy\nspec:\n  insecureSkipVerify: true\n---\napiVersion: traefik.io/v1alpha1\nkind: Middleware\nmetadata:\n  name: pve-api-cors\n  namespace: pve-proxy\nspec:\n  headers:\n    accessControlAllowOriginList:\n      - https://homer.rancher.tailscale.bnowakowski.pl\n      - https://homer.rancher.localdomain.bnowakowski.pl\n    accessControlAllowMethods:\n      - GET\n      - OPTIONS\n    accessControlAllowHeaders:\n      - Authorization\n      - Content-Type\n    accessControlMaxAge: 600\n    addVaryHeader: true\n---\napiVersion: cert-manager.io/v1\nkind: Certificate\nmetadata:\n  name: pve-ui\n  namespace: pve-proxy\nspec:\n  secretName: pve-ui-tls\n  issuerRef:\n    kind: ClusterIssuer\n    name: letsencrypt\n  dnsNames:\n    - proxmox2-old.localdomain.bnowakowski.pl\n    - proxmox2-old.tailscale.bnowakowski.pl\n---\napiVersion: traefik.io/v1alpha1\nkind: IngressRoute\nmetadata:\n  name: pve-ui\n  namespace: pve-proxy\nspec:\n  entryPoints:\n    - websecure\n  routes:\n    - kind: Rule\n      match: (Host(`proxmox2-old.localdomain.bnowakowski.pl`) || Host(`proxmox2-old.tailscale.bnowakowski.pl`)) && PathPrefix(`/api2/`)\n      priority: 100\n      middlewares:\n        - name: pve-api-cors\n      services:\n        - name: pve-api\n          port: 8006\n          scheme: https\n          serversTransport: pve-backend\n    - kind: Rule\n      match: Host(`proxmox2-old.localdomain.bnowakowski.pl`) || Host(`proxmox2-old.tailscale.bnowakowski.pl`)\n      services:\n        - name: pve-api\n          port: 8006\n          scheme: https\n          serversTransport: pve-backend\n  tls:\n    secretName: pve-ui-tls\n",
+            "name": "pve-proxy.yaml"
+          },
+          {
+            "content": "apiVersion: traefik.io/v1alpha1\nkind: Middleware\nmetadata:\n  name: radarr-cors\n  namespace: apps-radarr\nspec:\n  headers:\n    accessControlAllowOriginList:\n      - https://homer.rancher.tailscale.bnowakowski.pl\n      - https://homer.rancher.localdomain.bnowakowski.pl\n    accessControlAllowMethods:\n      - GET\n      - OPTIONS\n    accessControlAllowHeaders:\n      - X-Api-Key\n      - Authorization\n      - Content-Type\n    accessControlMaxAge: 600\n    addVaryHeader: true\n---\napiVersion: traefik.io/v1alpha1\nkind: IngressRoute\nmetadata:\n  name: radarr-tailscale-cors\n  namespace: apps-radarr\nspec:\n  entryPoints:\n    - websecure\n  routes:\n    - kind: Rule\n      match: Host(`radarr.rancher.tailscale.bnowakowski.pl`)\n      priority: 100\n      middlewares:\n        - name: radarr-cors\n      services:\n        - name: radarr\n          port: main\n  tls:\n    secretName: radarr-tls-0\n---\napiVersion: traefik.io/v1alpha1\nkind: IngressRoute\nmetadata:\n  name: radarr-localdomain-cors\n  namespace: apps-radarr\nspec:\n  entryPoints:\n    - websecure\n  routes:\n    - kind: Rule\n      match: Host(`radarr.rancher.localdomain.bnowakowski.pl`)\n      priority: 100\n      middlewares:\n        - name: radarr-cors\n      services:\n        - name: radarr\n          port: main\n  tls:\n    secretName: radarr-tls-1\n",
+            "name": "radarr-cors.yaml"
+          },
+          {
+            "content": "apiVersion: traefik.io/v1alpha1\nkind: Middleware\nmetadata:\n  name: sonarr-cors\n  namespace: apps-sonarr\nspec:\n  headers:\n    accessControlAllowOriginList:\n      - https://homer.rancher.tailscale.bnowakowski.pl\n      - https://homer.rancher.localdomain.bnowakowski.pl\n    accessControlAllowMethods:\n      - GET\n      - OPTIONS\n    accessControlAllowHeaders:\n      - X-Api-Key\n      - Authorization\n      - Content-Type\n    accessControlMaxAge: 600\n    addVaryHeader: true\n---\napiVersion: traefik.io/v1alpha1\nkind: IngressRoute\nmetadata:\n  name: sonarr-tailscale-cors\n  namespace: apps-sonarr\nspec:\n  entryPoints:\n    - websecure\n  routes:\n    - kind: Rule\n      match: Host(`sonarr.rancher.tailscale.bnowakowski.pl`)\n      priority: 100\n      middlewares:\n        - name: sonarr-cors\n      services:\n        - name: sonarr\n          port: main\n  tls:\n    secretName: sonarr-tls-0\n---\napiVersion: traefik.io/v1alpha1\nkind: IngressRoute\nmetadata:\n  name: sonarr-localdomain-cors\n  namespace: apps-sonarr\nspec:\n  entryPoints:\n    - websecure\n  routes:\n    - kind: Rule\n      match: Host(`sonarr.rancher.localdomain.bnowakowski.pl`)\n      priority: 100\n      middlewares:\n        - name: sonarr-cors\n      services:\n        - name: sonarr\n          port: main\n  tls:\n    secretName: sonarr-tls-1\n",
+            "name": "sonarr-cors.yaml"
+          }
+        ],
+        "targets": [
+          {
+            "clusterGroup": "default",
+            "name": "default"
+          }
+        ],
+        "targetRestrictions": [
+          {
+            "clusterGroup": "default",
+            "name": "default"
+          }
+        ],
+        "targetCustomizationMode": "FirstMatch",
+        "forceSyncGeneration": 10
+      }
+    }
+  ]
+}

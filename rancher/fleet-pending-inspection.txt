@@ -1,0 +1,386 @@
+2026-11-05T21:14:02+01:00
+
+### Pending BundleDeployments
+{
+  "items": [
+    {
+      "apiVersion": "fleet.cattle.io/v1alpha1",
+      "kind": "BundleDeployment",
+      "metadata": {
+        "creationTimestamp": "2026-09-05T18:00:12Z",
+        "finalizers": [
+          "fleet.cattle.io/bundle-deployment-finalizer"
+        ],
+        "generation": 22,
+        "labels": {
+          "fleet.cattle.io/bundle-name": "cloudcasa",
+          "fleet.cattle.io/bundle-namespace": "fleet-local",
+          "fleet.cattle.io/cluster": "local",
+          "fleet.cattle.io/cluster-namespace": "fleet-local",
+          "fleet.cattle.io/commit": "28375279fb74b542c92e4dd02502a7d8fbb1083a",
+          "fleet.cattle.io/content-name": "s-8ba05849c32b1c11314f106342ea0ce4d416373c29540eadc9a0919772f37",
+          "fleet.cattle.io/managed": "true",
+          "fleet.cattle.io/repo-name": "rancher-cluster"
+        },
+        "name": "cloudcasa",
+        "namespace": "cluster-fleet-local-local-1a3d67d0a899",
+        "resourceVersion": "39660580",
+        "uid": "7eebd622-3d6e-499f-b0f0-a5e3ce24cb87"
+      },
+      "spec": {
+        "deploymentID": "s-8ba05849c32b1c11314f106342ea0ce4d416373c29540eadc9a0919772f37:fa30c9551e74b518f1329d6e90c7b7be1a06e521d13f9da31a9174f76800f1d1",
+        "options": {
+          "defaultNamespace": "cloudcasa-io",
+          "forceSyncGeneration": 8,
+          "helm": {
+            "chart": "cloudcasa",
+            "releaseName": "cloudcasa",
+            "repo": "https://catalogicsoftware.github.io/cloudcasa-helmchart",
+            "valuesFrom": [
+              {
+                "secretKeyRef": {
+                  "key": "values.yaml",
+                  "name": "cloudcasa-values",
+                  "namespace": "cloudcasa-io"
+                }
+              }
+            ],
+            "version": "3.4.7"
+          }
+        },
+        "stagedDeploymentID": "s-8ba05849c32b1c11314f106342ea0ce4d416373c29540eadc9a0919772f37:fa30c9551e74b518f1329d6e90c7b7be1a06e521d13f9da31a9174f76800f1d1",
+        "stagedOptions": {
+          "defaultNamespace": "cloudcasa-io",
+          "forceSyncGeneration": 8,
+          "helm": {
+            "chart": "cloudcasa",
+            "releaseName": "cloudcasa",
+            "repo": "https://catalogicsoftware.github.io/cloudcasa-helmchart",
+            "valuesFrom": [
+              {
+                "secretKeyRef": {
+                  "key": "values.yaml",
+                  "name": "cloudcasa-values",
+                  "namespace": "cloudcasa-io"
+                }
+              }
+            ],
+            "version": "3.4.7"
+          }
+        },
+        "valuesHash": "049897069cde476e180b5ebbbd5a353bd1c067826196c0ed059cc6dabe2ed137"
+      },
+      "status": {
+        "appliedDeploymentID": "s-8ba05849c32b1c11314f106342ea0ce4d416373c29540eadc9a0919772f37:dc590c440f9842e43472860e283f1834884e4219626d7026b59005bed2094873",
+        "conditions": [
+          {
+            "lastUpdateTime": "2026-09-05T18:03:30Z",
+            "status": "True",
+            "type": "Deployed"
+          },
+          {
+            "lastUpdateTime": "2026-09-05T18:03:30Z",
+            "status": "True",
+            "type": "Installed"
+          },
+          {
+            "lastUpdateTime": "2026-10-31T13:57:02Z",
+            "message": "deployment.apps cloudcasa-io/cloudcasa-kubeagent-manager modified {\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"args\":[\"/usr/local/bin/kubeagentmanager\",\"--server_addr\",\"agent.cloudcasa.io:443\",\"--tls\",\"true\",\"--skip_tls_verification\",\"false\"],\"env\":[{\"name\":\"MY_POD_NAME\",\"valueFrom\":{\"fieldRef\":{\"apiVersion\":\"v1\",\"fieldPath\":\"metadata.name\"}}},{\"name\":\"AMDS_CLUSTER_ID\",\"value\":\"6938435f0c7d143c28eb3a0f\"},{\"name\":\"KUBEMOVER_IMAGE\",\"value\":\"cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent:3.1.0-prod\"},{\"name\":\"DEPLOYMENT_PLATFORM\",\"value\":\"rancher\"},{\"name\":\"AGENT_INSTALLATION_METHOD\",\"value\":\"helm\"},{\"name\":\"GRPC_ENFORCE_ALPN_ENABLED\",\"value\":\"false\"}],\"image\":\"cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent:3.1.0-prod\",\"imagePullPolicy\":\"IfNotPresent\",\"name\":\"kubeagentmanager\",\"resources\":{\"limits\":{\"cpu\":\"500m\",\"memory\":\"128Mi\"},\"requests\":{\"cpu\":\"250m\",\"memory\":\"64Mi\"}},\"securityContext\":{\"allowPrivilegeEscalation\":false,\"capabilities\":{\"drop\":[\"ALL\"]}},\"terminationMessagePath\":\"/dev/termination-log\",\"terminationMessagePolicy\":\"File\",\"volumeMounts\":[{\"mountPath\":\"/scratch\",\"name\":\"scratch\"}]}]}}}}",
+            "reason": "Error",
+            "status": "False",
+            "type": "Ready"
+          },
+          {
+            "lastUpdateTime": "2026-09-05T18:03:30Z",
+            "status": "True",
+            "type": "Monitored"
+          }
+        ],
+        "display": {
+          "deployed": "True",
+          "monitored": "True",
+          "state": "Modified"
+        },
+        "modifiedStatus": [
+          {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "name": "cloudcasa-kubeagent-manager",
+            "namespace": "cloudcasa-io",
+            "patch": "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"args\":[\"/usr/local/bin/kubeagentmanager\",\"--server_addr\",\"agent.cloudcasa.io:443\",\"--tls\",\"true\",\"--skip_tls_verification\",\"false\"],\"env\":[{\"name\":\"MY_POD_NAME\",\"valueFrom\":{\"fieldRef\":{\"apiVersion\":\"v1\",\"fieldPath\":\"metadata.name\"}}},{\"name\":\"AMDS_CLUSTER_ID\",\"value\":\"6938435f0c7d143c28eb3a0f\"},{\"name\":\"KUBEMOVER_IMAGE\",\"value\":\"cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent:3.1.0-prod\"},{\"name\":\"DEPLOYMENT_PLATFORM\",\"value\":\"rancher\"},{\"name\":\"AGENT_INSTALLATION_METHOD\",\"value\":\"helm\"},{\"name\":\"GRPC_ENFORCE_ALPN_ENABLED\",\"value\":\"false\"}],\"image\":\"cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent:3.1.0-prod\",\"imagePullPolicy\":\"IfNotPresent\",\"name\":\"kubeagentmanager\",\"resources\":{\"limits\":{\"cpu\":\"500m\",\"memory\":\"128Mi\"},\"requests\":{\"cpu\":\"250m\",\"memory\":\"64Mi\"}},\"securityContext\":{\"allowPrivilegeEscalation\":false,\"capabilities\":{\"drop\":[\"ALL\"]}},\"terminationMessagePath\":\"/dev/termination-log\",\"terminationMessagePolicy\":\"File\",\"volumeMounts\":[{\"mountPath\":\"/scratch\",\"name\":\"scratch\"}]}]}}}}"
+          }
+        ],
+        "ready": true,
+        "release": "cloudcasa-io/cloudcasa:234",
+        "resourceCounts": {
+          "desiredReady": 3,
+          "missing": 0,
+          "modified": 1,
+          "notReady": 0,
+          "ready": 2
+        },
+        "resources": [
+          {
+            "apiVersion": "v1",
+            "createdAt": "2026-09-05T18:03:30Z",
+            "kind": "ServiceAccount",
+            "name": "cloudcasa-io",
+            "namespace": "cloudcasa-io"
+          },
+          {
+            "apiVersion": "rbac.authorization.k8s.io/v1",
+            "createdAt": "2026-09-05T18:03:30Z",
+            "kind": "ClusterRoleBinding",
+            "name": "cloudcasa-io"
+          },
+          {
+            "apiVersion": "apps/v1",
+            "createdAt": "2026-09-05T18:03:30Z",
+            "kind": "Deployment",
+            "name": "cloudcasa-kubeagent-manager",
+            "namespace": "cloudcasa-io"
+          }
+        ],
+        "syncGeneration": 7
+      }
+    },
+    {
+      "apiVersion": "fleet.cattle.io/v1alpha1",
+      "kind": "BundleDeployment",
+      "metadata": {
+        "creationTimestamp": "2026-10-09T17:27:07Z",
+        "finalizers": [
+          "fleet.cattle.io/bundle-deployment-finalizer"
+        ],
+        "generation": 3,
+        "labels": {
+          "fleet.cattle.io/bundle-name": "longhorn-backups",
+          "fleet.cattle.io/bundle-namespace": "fleet-local",
+          "fleet.cattle.io/cluster": "local",
+          "fleet.cattle.io/cluster-namespace": "fleet-local",
+          "fleet.cattle.io/commit": "28375279fb74b542c92e4dd02502a7d8fbb1083a",
+          "fleet.cattle.io/content-name": "s-03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599d",
+          "fleet.cattle.io/managed": "true",
+          "fleet.cattle.io/repo-name": "rancher-cluster"
+        },
+        "name": "longhorn-backups",
+        "namespace": "cluster-fleet-local-local-1a3d67d0a899",
+        "resourceVersion": "39660527",
+        "uid": "256b337b-203d-4a94-92ba-b999d2d79d5f"
+      },
+      "spec": {
+        "dependsOn": [
+          {
+            "name": "longhorn"
+          }
+        ],
+        "deploymentID": "s-03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599d:c7fc05113bada0cc3f6e382d12d94c32e95f2c4a40028c1f4beaef99448a00f9",
+        "options": {
+          "defaultNamespace": "longhorn-system",
+          "forceSyncGeneration": 8,
+          "helm": {
+            "releaseName": "longhorn-backups"
+          }
+        },
+        "stagedDeploymentID": "s-03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599d:c7fc05113bada0cc3f6e382d12d94c32e95f2c4a40028c1f4beaef99448a00f9",
+        "stagedOptions": {
+          "defaultNamespace": "longhorn-system",
+          "forceSyncGeneration": 8,
+          "helm": {
+            "releaseName": "longhorn-backups"
+          }
+        }
+      },
+      "status": {
+        "appliedDeploymentID": "s-03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599d:c7fc05113bada0cc3f6e382d12d94c32e95f2c4a40028c1f4beaef99448a00f9",
+        "conditions": [
+          {
+            "lastUpdateTime": "2026-11-05T20:11:58Z",
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastUpdateTime": "2026-11-05T20:11:58Z",
+            "status": "True",
+            "type": "Installed"
+          },
+          {
+            "lastUpdateTime": "2026-10-28T19:32:10Z",
+            "status": "True",
+            "type": "Deployed"
+          },
+          {
+            "lastUpdateTime": "2026-11-05T20:11:58Z",
+            "status": "True",
+            "type": "Monitored"
+          }
+        ],
+        "display": {
+          "deployed": "True",
+          "monitored": "True",
+          "state": "Ready"
+        },
+        "nonModified": true,
+        "ready": true,
+        "release": "longhorn-system/longhorn-backups:1",
+        "resourceCounts": {
+          "desiredReady": 1,
+          "ready": 1
+        },
+        "resources": [
+          {
+            "apiVersion": "longhorn.io/v1beta2",
+            "createdAt": "2026-10-08T18:31:31Z",
+            "kind": "RecurringJob",
+            "name": "nas-daily-backup",
+            "namespace": "longhorn-system"
+          }
+        ],
+        "syncGeneration": 8
+      }
+    },
+    {
+      "apiVersion": "fleet.cattle.io/v1alpha1",
+      "kind": "BundleDeployment",
+      "metadata": {
+        "creationTimestamp": "2026-09-21T18:42:41Z",
+        "finalizers": [
+          "fleet.cattle.io/bundle-deployment-finalizer"
+        ],
+        "generation": 9,
+        "labels": {
+          "fleet.cattle.io/bundle-name": "traefik-resources",
+          "fleet.cattle.io/bundle-namespace": "fleet-local",
+          "fleet.cattle.io/cluster": "local",
+          "fleet.cattle.io/cluster-namespace": "fleet-local",
+          "fleet.cattle.io/commit": "28375279fb74b542c92e4dd02502a7d8fbb1083a",
+          "fleet.cattle.io/content-name": "s-9e78c61b13cb588a517d1ddb50b776b96ef1b983b3ce514296bab71b4eceb",
+          "fleet.cattle.io/managed": "true",
+          "fleet.cattle.io/repo-name": "rancher-cluster"
+        },
+        "name": "traefik-resources",
+        "namespace": "cluster-fleet-local-local-1a3d67d0a899",
+        "resourceVersion": "39660517",
+        "uid": "ddce4e94-d5be-4a2a-8bd6-b259f7281287"
+      },
+      "spec": {
+        "deploymentID": "s-9e78c61b13cb588a517d1ddb50b776b96ef1b983b3ce514296bab71b4eceb:da3b62f9a96f2e1edecc6ee75713c8ae110223f9951ce14eac497d8622bfc79e",
+        "options": {
+          "defaultNamespace": "fleet-local",
+          "forceSyncGeneration": 8,
+          "helm": {
+            "releaseName": "traefik-resources"
+          }
+        },
+        "stagedDeploymentID": "s-9e78c61b13cb588a517d1ddb50b776b96ef1b983b3ce514296bab71b4eceb:da3b62f9a96f2e1edecc6ee75713c8ae110223f9951ce14eac497d8622bfc79e",
+        "stagedOptions": {
+          "defaultNamespace": "fleet-local",
+          "forceSyncGeneration": 8,
+          "helm": {
+            "releaseName": "traefik-resources"
+          }
+        }
+      },
+      "status": {
+        "appliedDeploymentID": "s-9e78c61b13cb588a517d1ddb50b776b96ef1b983b3ce514296bab71b4eceb:63a06d5b2f909b8322eee6e51af9c94e197ba97a319dd185cdacb7758f2c1fe4",
+        "conditions": [
+          {
+            "lastUpdateTime": "2026-11-05T19:55:14Z",
+            "message": "not ready: unable to continue with install: Certificate \"pve-ui\" in namespace \"pve-proxy\" exists and cannot be imported into the current release: invalid ownership metadata; annotation validation error: missing key \"meta.helm.sh/release-name\": must be set to \"traefik-resources\"; annotation validation error: missing key \"meta.helm.sh/release-namespace\": must be set to \"fleet-local\"",
+            "reason": "Error",
+            "status": "False",
+            "type": "Ready"
+          },
+          {
+            "lastUpdateTime": "2026-11-05T19:55:14Z",
+            "message": "not installed: unable to continue with install: Certificate \"pve-ui\" in namespace \"pve-proxy\" exists and cannot be imported into the current release: invalid ownership metadata; annotation validation error: missing key \"meta.helm.sh/release-name\": must be set to \"traefik-resources\"; annotation validation error: missing key \"meta.helm.sh/release-namespace\": must be set to \"fleet-local\"",
+            "reason": "Error",
+            "status": "False",
+            "type": "Installed"
+          },
+          {
+            "lastUpdateTime": "2026-09-21T18:42:41Z",
+            "status": "True",
+            "type": "Deployed"
+          }
+        ],
+        "display": {
+          "deployed": "True",
+          "state": "NotReady"
+        },
+        "nonModified": true
+      }
+    }
+  ]
+}
+
+### Fleet pods
+NAME                           READY   STATUS    RESTARTS      AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+fleet-agent-5cfd885d96-mvgw6   1/1     Running   3 (29h ago)   2d12h   10.42.0.178   proxmox3   <none>           <none>
+NAME                                READY   STATUS    RESTARTS        AGE   IP            NODE           NOMINATED NODE   READINESS GATES
+fleet-controller-57d646d5d8-zh2wt   3/3     Running   161 (19h ago)   8d    10.42.0.159   proxmox3       <none>           <none>
+gitjob-76d88fdb77-mscgf             1/1     Running   36 (19h ago)    8d    10.42.2.200   proxmox2-old   <none>           <none>
+helmops-559c8b976c-9zkxp            1/1     Running   38 (29h ago)    8d    10.42.2.198   proxmox2-old   <none>           <none>
+
+### Local Fleet agent logs
+{"level":"info","ts":"2026-11-05T20:01:04Z","logger":"bundledeployment","msg":"Upgrading helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"cloudcasa","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"cloudcasa","reconcileID":"3e5aad87-4fdc-4c17-8826-25e06a110814"}
+{"level":"error","ts":"2026-11-05T20:01:04Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"cloudcasa","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"cloudcasa","reconcileID":"3e5aad87-4fdc-4c17-8826-25e06a110814","error":"failed deploying bundle: conflict occurred while applying object cloudcasa-io/cloudcasa-kubeagent-manager apps/v1, Kind=Deployment: Apply failed with 1 conflict: conflict with \"cloudcasa-kubeagent-manager\": .spec.template.spec.containers[name=\"kubeagentmanager\"].env[name=\"MY_POD_NAME\"].valueFrom.fieldRef","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object cloudcasa-io/cloudcasa-kubeagent-manager apps/v1, Kind=Deployment: Apply failed with 1 conflict: conflict with \"cloudcasa-kubeagent-manager\": .spec.template.spec.containers[name=\"kubeagentmanager\"].env[name=\"MY_POD_NAME\"].valueFrom.fieldRef"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+{"level":"info","ts":"2026-11-05T20:06:32Z","logger":"bundledeployment","msg":"Upgrading helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"cloudcasa","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"cloudcasa","reconcileID":"21d425ad-4fff-42b5-90c6-51c5450aaa11"}
+{"level":"error","ts":"2026-11-05T20:06:32Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"cloudcasa","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"cloudcasa","reconcileID":"21d425ad-4fff-42b5-90c6-51c5450aaa11","error":"failed deploying bundle: conflict occurred while applying object cloudcasa-io/cloudcasa-kubeagent-manager apps/v1, Kind=Deployment: Apply failed with 1 conflict: conflict with \"cloudcasa-kubeagent-manager\": .spec.template.spec.containers[name=\"kubeagentmanager\"].env[name=\"MY_POD_NAME\"].valueFrom.fieldRef","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object cloudcasa-io/cloudcasa-kubeagent-manager apps/v1, Kind=Deployment: Apply failed with 1 conflict: conflict with \"cloudcasa-kubeagent-manager\": .spec.template.spec.containers[name=\"kubeagentmanager\"].env[name=\"MY_POD_NAME\"].valueFrom.fieldRef"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+{"level":"info","ts":"2026-11-05T20:11:58Z","logger":"bundledeployment","msg":"Installing helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"longhorn-backups","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"longhorn-backups","reconcileID":"0c92b67f-a3bf-4075-b565-1f6c64fa576f"}
+{"level":"info","ts":"2026-11-05T20:11:58Z","logger":"bundledeployment.deploy-bundle","msg":"Deployed bundle","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"longhorn-backups","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"longhorn-backups","reconcileID":"0c92b67f-a3bf-4075-b565-1f6c64fa576f","deploymentID":"s-03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599d:c7fc05113bada0cc3f6e382d12d94c32e95f2c4a40028c1f4beaef99448a00f9","appliedDeploymentID":"s-03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599d:caead0e7519998e6a0055eea8437ac9a674544a85a744e90c32deccd1b2939fb","release":"longhorn-system/longhorn-backups:1","DeploymentID":"s-03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599d:c7fc05113bada0cc3f6e382d12d94c32e95f2c4a40028c1f4beaef99448a00f9"}
+{"level":"info","ts":"2026-11-05T20:11:58Z","logger":"bundledeployment","msg":"Installing helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"d5390c0b-586f-40a0-b371-299d16b403e2"}
+{"level":"error","ts":"2026-11-05T20:11:59Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"d5390c0b-586f-40a0-b371-299d16b403e2","error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+{"level":"info","ts":"2026-11-05T20:11:59Z","logger":"bundledeployment","msg":"Upgrading helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"f7757732-5266-4c9f-a662-59a5ee3a0f7a"}
+{"level":"info","ts":"2026-11-05T20:11:59Z","logger":"bundledeployment","msg":"Upgrading helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"cloudcasa","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"cloudcasa","reconcileID":"6e5424fb-2a9c-46c8-82f1-33e1aa0f0027"}
+{"level":"error","ts":"2026-11-05T20:12:00Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"cloudcasa","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"cloudcasa","reconcileID":"6e5424fb-2a9c-46c8-82f1-33e1aa0f0027","error":"failed deploying bundle: conflict occurred while applying object cloudcasa-io/cloudcasa-kubeagent-manager apps/v1, Kind=Deployment: Apply failed with 1 conflict: conflict with \"cloudcasa-kubeagent-manager\": .spec.template.spec.containers[name=\"kubeagentmanager\"].env[name=\"MY_POD_NAME\"].valueFrom.fieldRef","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object cloudcasa-io/cloudcasa-kubeagent-manager apps/v1, Kind=Deployment: Apply failed with 1 conflict: conflict with \"cloudcasa-kubeagent-manager\": .spec.template.spec.containers[name=\"kubeagentmanager\"].env[name=\"MY_POD_NAME\"].valueFrom.fieldRef"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+{"level":"error","ts":"2026-11-05T20:12:00Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"f7757732-5266-4c9f-a662-59a5ee3a0f7a","error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+{"level":"info","ts":"2026-11-05T20:12:01Z","logger":"bundledeployment","msg":"Upgrading helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"55556729-0abe-4b54-b212-765f525ec0b0"}
+{"level":"error","ts":"2026-11-05T20:12:01Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"55556729-0abe-4b54-b212-765f525ec0b0","error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+{"level":"info","ts":"2026-11-05T20:12:02Z","logger":"bundledeployment","msg":"Upgrading helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"17d7eba0-0129-41b1-910f-32026170d5b7"}
+{"level":"error","ts":"2026-11-05T20:12:02Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"17d7eba0-0129-41b1-910f-32026170d5b7","error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+{"level":"info","ts":"2026-11-05T20:12:03Z","logger":"bundledeployment","msg":"Upgrading helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"cfae3701-4d55-4770-8a09-ed0a768b8f04"}
+{"level":"error","ts":"2026-11-05T20:12:03Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"cfae3701-4d55-4770-8a09-ed0a768b8f04","error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+{"level":"info","ts":"2026-11-05T20:12:04Z","logger":"bundledeployment","msg":"Upgrading helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"25c03907-a552-4be8-aa87-e5582ab685d3"}
+{"level":"error","ts":"2026-11-05T20:12:04Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"25c03907-a552-4be8-aa87-e5582ab685d3","error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+{"level":"info","ts":"2026-11-05T20:12:05Z","logger":"bundledeployment","msg":"Upgrading helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"c81c606b-d4b2-4799-8e47-ade411e3739c"}
+{"level":"error","ts":"2026-11-05T20:12:05Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"c81c606b-d4b2-4799-8e47-ade411e3739c","error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+{"level":"info","ts":"2026-11-05T20:12:06Z","logger":"bundledeployment","msg":"Upgrading helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"b166af07-5ec2-4066-a19d-64fa6fb710a1"}
+{"level":"error","ts":"2026-11-05T20:12:06Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"b166af07-5ec2-4066-a19d-64fa6fb710a1","error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+{"level":"info","ts":"2026-11-05T20:12:07Z","logger":"bundledeployment","msg":"Upgrading helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"1a282d77-ea4c-4fe3-b795-1912a819b1e8"}
+{"level":"error","ts":"2026-11-05T20:12:08Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"1a282d77-ea4c-4fe3-b795-1912a819b1e8","error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+{"level":"info","ts":"2026-11-05T20:12:10Z","logger":"bundledeployment","msg":"Upgrading helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"a8068e7d-75ca-48b9-b5c0-9d9f82d9b020"}
+{"level":"error","ts":"2026-11-05T20:12:10Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"a8068e7d-75ca-48b9-b5c0-9d9f82d9b020","error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+{"level":"info","ts":"2026-11-05T20:12:13Z","logger":"bundledeployment","msg":"Upgrading helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"fc912ae3-2258-49f5-a8a3-61bab658c4d1"}
+{"level":"error","ts":"2026-11-05T20:12:14Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"fc912ae3-2258-49f5-a8a3-61bab658c4d1","error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+{"level":"info","ts":"2026-11-05T20:12:19Z","logger":"bundledeployment","msg":"Upgrading helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"812e4894-d619-4fdc-8631-41a80a668bbb"}
+{"level":"error","ts":"2026-11-05T20:12:20Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"812e4894-d619-4fdc-8631-41a80a668bbb","error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+{"level":"info","ts":"2026-11-05T20:12:30Z","logger":"bundledeployment","msg":"Upgrading helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"b5de1847-439f-4e2c-b8ef-86fe1f6af19f"}
+{"level":"error","ts":"2026-11-05T20:12:31Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"b5de1847-439f-4e2c-b8ef-86fe1f6af19f","error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+{"level":"info","ts":"2026-11-05T20:12:52Z","logger":"bundledeployment","msg":"Upgrading helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"e1aafe5f-9e0a-4294-b076-54a22d78fca6"}
+{"level":"error","ts":"2026-11-05T20:12:52Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"e1aafe5f-9e0a-4294-b076-54a22d78fca6","error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+{"level":"info","ts":"2026-11-05T20:13:34Z","logger":"bundledeployment","msg":"Upgrading helm release","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"fddd1396-6c9c-466a-87d9-f2ee84620094"}
+{"level":"error","ts":"2026-11-05T20:13:34Z","msg":"Reconciler error","controller":"bundledeployment","controllerGroup":"fleet.cattle.io","controllerKind":"BundleDeployment","BundleDeployment":{"name":"traefik-resources","namespace":"cluster-fleet-local-local-1a3d67d0a899"},"namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","reconcileID":"fddd1396-6c9c-466a-87d9-f2ee84620094","error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints","errorCauses":[{"error":"failed deploying bundle: conflict occurred while applying object pve-proxy/pve-api-ipv4 discovery.k8s.io/v1, Kind=EndpointSlice: Apply failed with 1 conflict: conflict with \"kubectl-client-side-apply\" using discovery.k8s.io/v1: .endpoints"}],"stacktrace":"sigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).reconcileHandler\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:494\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).processNextWorkItem\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:437\nsigs.k8s.io/controller-runtime/pkg/internal/controller.(*Controller[...]).Start.func1.1\n\t/home/runner/go/pkg/mod/sigs.k8s.io/controller-runtime@v0.24.1/pkg/internal/controller/controller.go:312"}
+
+### Fleet controller logs
+Defaulted container "fleet-controller" out of: fleet-controller, fleet-cleanup, fleet-agentmanagement
+{"level":"info","ts":"2026-11-05T19:59:48Z","logger":"bundle","msg":"Unchanged bundledeployment","controller":"bundle","controllerGroup":"fleet.cattle.io","controllerKind":"Bundle","Bundle":{"name":"calibre-storage","namespace":"fleet-local"},"namespace":"fleet-local","name":"calibre-storage","reconcileID":"04a6d4a2-df8a-4757-a0f1-5f5e4cf62cf5","gitrepo":"rancher-cluster","commit":"28375279fb74b542c92e4dd02502a7d8fbb1083a","manifestID":"s-a21470a79d06a8646646eebdeeb4fa94b193aad92e1c5abc8e099d1697e3b","bundledeployment":"calibre-storage","deploymentID":"s-a21470a79d06a8646646eebdeeb4fa94b193aad92e1c5abc8e099d1697e3b:819db71ec25e4d0c1514f4f1fdd2ace95c113f70104f087e62624a98a5609e51","namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"calibre-storage","operation":"unchanged"}
+{"level":"info","ts":"2026-11-05T19:59:48Z","logger":"bundle","msg":"Unchanged bundledeployment","controller":"bundle","controllerGroup":"fleet.cattle.io","controllerKind":"Bundle","Bundle":{"name":"longhorn-backups","namespace":"fleet-local"},"namespace":"fleet-local","name":"longhorn-backups","reconcileID":"20732b6e-a6aa-4165-a0f9-d6c8cec84092","gitrepo":"rancher-cluster","commit":"28375279fb74b542c92e4dd02502a7d8fbb1083a","manifestID":"s-03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599d","bundledeployment":"longhorn-backups","deploymentID":"s-03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599d:caead0e7519998e6a0055eea8437ac9a674544a85a744e90c32deccd1b2939fb","namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"longhorn-backups","operation":"unchanged"}
+{"level":"info","ts":"2026-11-05T19:59:48Z","logger":"bundle","msg":"Unchanged bundledeployment","controller":"bundle","controllerGroup":"fleet.cattle.io","controllerKind":"Bundle","Bundle":{"name":"traefik-resources","namespace":"fleet-local"},"namespace":"fleet-local","name":"traefik-resources","reconcileID":"17f7640e-c714-4b0f-801c-f042c9ec2e66","gitrepo":"rancher-cluster","commit":"28375279fb74b542c92e4dd02502a7d8fbb1083a","manifestID":"s-9e78c61b13cb588a517d1ddb50b776b96ef1b983b3ce514296bab71b4eceb","bundledeployment":"traefik-resources","deploymentID":"s-9e78c61b13cb588a517d1ddb50b776b96ef1b983b3ce514296bab71b4eceb:63a06d5b2f909b8322eee6e51af9c94e197ba97a319dd185cdacb7758f2c1fe4","namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","operation":"unchanged"}
+{"level":"info","ts":"2026-11-05T19:59:49Z","logger":"bundle","msg":"Unchanged bundledeployment","controller":"bundle","controllerGroup":"fleet.cattle.io","controllerKind":"Bundle","Bundle":{"name":"cert-manager-resources","namespace":"fleet-local"},"namespace":"fleet-local","name":"cert-manager-resources","reconcileID":"eb147874-f502-41cc-921a-f7c71c5ef90b","gitrepo":"rancher-cluster","commit":"28375279fb74b542c92e4dd02502a7d8fbb1083a","manifestID":"s-e9b0643745b8d22641d0fc90aecb752e055adaca14e2f96e2ed3d85ef0997","bundledeployment":"cert-manager-resources","deploymentID":"s-e9b0643745b8d22641d0fc90aecb752e055adaca14e2f96e2ed3d85ef0997:3d6a4f231da4108fd3ef0d5043265c35e8340639f8da2539afaaef5747fd7277","namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"cert-manager-resources","operation":"unchanged"}
+{"level":"info","ts":"2026-11-05T19:59:49Z","logger":"bundle","msg":"Unchanged bundledeployment","controller":"bundle","controllerGroup":"fleet.cattle.io","controllerKind":"Bundle","Bundle":{"name":"cloudcasa","namespace":"fleet-local"},"namespace":"fleet-local","name":"cloudcasa","reconcileID":"f86c3bc4-1691-4cd4-84be-65af9581868b","gitrepo":"rancher-cluster","commit":"28375279fb74b542c92e4dd02502a7d8fbb1083a","manifestID":"s-8ba05849c32b1c11314f106342ea0ce4d416373c29540eadc9a0919772f37","bundledeployment":"cloudcasa","deploymentID":"s-8ba05849c32b1c11314f106342ea0ce4d416373c29540eadc9a0919772f37:7fca238d8214060455ca9cafd9cb00d0124be4cf6199a86da27e7b88e2d4f499","namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"cloudcasa","operation":"unchanged"}
+{"level":"info","ts":"2026-11-05T20:11:58Z","logger":"bundle","msg":"Unchanged bundledeployment","controller":"bundle","controllerGroup":"fleet.cattle.io","controllerKind":"Bundle","Bundle":{"name":"calibre-storage","namespace":"fleet-local"},"namespace":"fleet-local","name":"calibre-storage","reconcileID":"e65b42c1-a9bd-4267-bf79-423422744e3b","gitrepo":"rancher-cluster","commit":"28375279fb74b542c92e4dd02502a7d8fbb1083a","manifestID":"s-a21470a79d06a8646646eebdeeb4fa94b193aad92e1c5abc8e099d1697e3b","bundledeployment":"calibre-storage","deploymentID":"s-a21470a79d06a8646646eebdeeb4fa94b193aad92e1c5abc8e099d1697e3b:819db71ec25e4d0c1514f4f1fdd2ace95c113f70104f087e62624a98a5609e51","namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"calibre-storage","operation":"unchanged"}
+{"level":"info","ts":"2026-11-05T20:11:58Z","logger":"bundle","msg":"Updated bundledeployment","controller":"bundle","controllerGroup":"fleet.cattle.io","controllerKind":"Bundle","Bundle":{"name":"longhorn-backups","namespace":"fleet-local"},"namespace":"fleet-local","name":"longhorn-backups","reconcileID":"f214f31a-21b8-4176-a8a6-541f8d519b1e","gitrepo":"rancher-cluster","commit":"28375279fb74b542c92e4dd02502a7d8fbb1083a","manifestID":"s-03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599d","bundledeployment":"longhorn-backups","deploymentID":"s-03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599d:c7fc05113bada0cc3f6e382d12d94c32e95f2c4a40028c1f4beaef99448a00f9","namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"longhorn-backups","operation":"updated"}
+{"level":"info","ts":"2026-11-05T20:11:58Z","logger":"clustergroup-cluster-handler","msg":"Cluster changed, enqueue matching cluster groups","namespace":"fleet-local","name":"local"}
+{"level":"info","ts":"2026-11-05T20:11:58Z","logger":"clustergroup-cluster-handler","msg":"Cluster changed, enqueue matching cluster groups","namespace":"fleet-local","name":"local"}
+{"level":"info","ts":"2026-11-05T20:11:58Z","logger":"bundle","msg":"Updated bundledeployment","controller":"bundle","controllerGroup":"fleet.cattle.io","controllerKind":"Bundle","Bundle":{"name":"traefik-resources","namespace":"fleet-local"},"namespace":"fleet-local","name":"traefik-resources","reconcileID":"f33dd3a8-b2f3-44fd-b1e4-bc7daac562e0","gitrepo":"rancher-cluster","commit":"28375279fb74b542c92e4dd02502a7d8fbb1083a","manifestID":"s-9e78c61b13cb588a517d1ddb50b776b96ef1b983b3ce514296bab71b4eceb","bundledeployment":"traefik-resources","deploymentID":"s-9e78c61b13cb588a517d1ddb50b776b96ef1b983b3ce514296bab71b4eceb:da3b62f9a96f2e1edecc6ee75713c8ae110223f9951ce14eac497d8622bfc79e","namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"traefik-resources","operation":"updated"}
+{"level":"info","ts":"2026-11-05T20:11:58Z","logger":"clustergroup-cluster-handler","msg":"Cluster changed, enqueue matching cluster groups","namespace":"fleet-local","name":"local"}
+{"level":"info","ts":"2026-11-05T20:11:58Z","logger":"clustergroup-cluster-handler","msg":"Cluster changed, enqueue matching cluster groups","namespace":"fleet-local","name":"local"}
+{"level":"info","ts":"2026-11-05T20:11:58Z","logger":"bundle","msg":"Unchanged bundledeployment","controller":"bundle","controllerGroup":"fleet.cattle.io","controllerKind":"Bundle","Bundle":{"name":"longhorn-backups","namespace":"fleet-local"},"namespace":"fleet-local","name":"longhorn-backups","reconcileID":"513693bb-1b69-4afe-a6cf-3d27aaf6f2c7","gitrepo":"rancher-cluster","commit":"28375279fb74b542c92e4dd02502a7d8fbb1083a","manifestID":"s-03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599d","bundledeployment":"longhorn-backups","deploymentID":"s-03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599d:c7fc05113bada0cc3f6e382d12d94c32e95f2c4a40028c1f4beaef99448a00f9","namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"longhorn-backups","operation":"unchanged"}
+{"level":"info","ts":"2026-11-05T20:11:58Z","logger":"clustergroup-cluster-handler","msg":"Cluster changed, enqueue matching cluster groups","namespace":"fleet-local","name":"local"}
+{"level":"info","ts":"2026-11-05T20:11:58Z","logger":"clustergroup-cluster-handler","msg":"Cluster changed, enqueue matching cluster groups","namespace":"fleet-local","name":"local"}
+{"level":"info","ts":"2026-11-05T20:11:58Z","logger":"bundle","msg":"Unchanged bundledeployment","controller":"bundle","controllerGroup":"fleet.cattle.io","controllerKind":"Bundle","Bundle":{"name":"longhorn-backups","namespace":"fleet-local"},"namespace":"fleet-local","name":"longhorn-backups","reconcileID":"2726b351-ba71-46ad-a14f-c87b021d9972","gitrepo":"rancher-cluster","commit":"28375279fb74b542c92e4dd02502a7d8fbb1083a","manifestID":"s-03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599d","bundledeployment":"longhorn-backups","deploymentID":"s-03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599d:c7fc05113bada0cc3f6e382d12d94c32e95f2c4a40028c1f4beaef99448a00f9","namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"longhorn-backups","operation":"unchanged"}
+{"level":"info","ts":"2026-11-05T20:11:58Z","logger":"bundle","msg":"Unchanged bundledeployment","controller":"bundle","controllerGroup":"fleet.cattle.io","controllerKind":"Bundle","Bundle":{"name":"cert-manager-resources","namespace":"fleet-local"},"namespace":"fleet-local","name":"cert-manager-resources","reconcileID":"b5332157-1b44-4720-85af-3aa56f4b9bae","gitrepo":"rancher-cluster","commit":"28375279fb74b542c92e4dd02502a7d8fbb1083a","manifestID":"s-e9b0643745b8d22641d0fc90aecb752e055adaca14e2f96e2ed3d85ef0997","bundledeployment":"cert-manager-resources","deploymentID":"s-e9b0643745b8d22641d0fc90aecb752e055adaca14e2f96e2ed3d85ef0997:3d6a4f231da4108fd3ef0d5043265c35e8340639f8da2539afaaef5747fd7277","namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"cert-manager-resources","operation":"unchanged"}
+{"level":"info","ts":"2026-11-05T20:11:59Z","logger":"bundle","msg":"Updated bundledeployment","controller":"bundle","controllerGroup":"fleet.cattle.io","controllerKind":"Bundle","Bundle":{"name":"cloudcasa","namespace":"fleet-local"},"namespace":"fleet-local","name":"cloudcasa","reconcileID":"e6dbd3a3-fa08-436e-9221-b4e07f8f6e2b","gitrepo":"rancher-cluster","commit":"28375279fb74b542c92e4dd02502a7d8fbb1083a","manifestID":"s-8ba05849c32b1c11314f106342ea0ce4d416373c29540eadc9a0919772f37","bundledeployment":"cloudcasa","deploymentID":"s-8ba05849c32b1c11314f106342ea0ce4d416373c29540eadc9a0919772f37:fa30c9551e74b518f1329d6e90c7b7be1a06e521d13f9da31a9174f76800f1d1","namespace":"cluster-fleet-local-local-1a3d67d0a899","name":"cloudcasa","operation":"updated"}
+{"level":"info","ts":"2026-11-05T20:12:17Z","logger":"clustergroup-cluster-handler","msg":"Cluster changed, enqueue matching cluster groups","namespace":"fleet-local","name":"local"}
+{"level":"info","ts":"2026-11-05T20:12:17Z","logger":"clustergroup-cluster-handler","msg":"Cluster changed, enqueue matching cluster groups","namespace":"fleet-local","name":"local"}

@@ -24,6 +24,8 @@ ports:
 endpoints:
   - addresses:
       - 10.0.0.72
+    # Match Kubernetes' stored default so Fleet does not report endpoint drift.
+    conditions: {}
 ---
 # PVE serves its own certificate on 8006.  Traefik terminates the public TLS
 # connection and deliberately does not validate that private backend cert.

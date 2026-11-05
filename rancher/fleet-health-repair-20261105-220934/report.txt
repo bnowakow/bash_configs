@@ -1,0 +1,92 @@
+2026-11-05T22:09:34.288424+01:00 Preflight; no storage copies or workload scaling are performed.
+2026-11-05T22:09:35.741180+01:00 Confirmed current traefik-config only manages HelmChartConfig; failed historical release is left untouched.
+2026-11-05T22:09:35.789226+01:00 CloudCasa manager and mover already use the pinned image; preserving it in Fleet.
+2026-11-05T22:09:36.092862+01:00 Generated calibre-storage; preserved live ownership labels and targeting.
+2026-11-05T22:09:36.387487+01:00 Generated longhorn-backups; preserved live ownership labels and targeting.
+2026-11-05T22:09:36.431587+01:00 Requested targeted Fleet retry for traefik-resources: sync generation 9 -> 10
+2026-11-05T22:09:36.706510+01:00 Generated traefik-resources; preserved live ownership labels and targeting.
+2026-11-05T22:09:37.015302+01:00 Generated cert-manager-resources; preserved live ownership labels and targeting.
+2026-11-05T22:09:38.021512+01:00 Requested targeted Fleet retry for cloudcasa: sync generation 9 -> 10
+2026-11-05T22:09:38.288947+01:00 Generated cloudcasa; preserved live ownership labels and targeting.
+2026-11-05T22:09:39.826602+01:00 All preflight checks passed. Applying metadata ownership and Fleet-generated bundles.
+2026-11-05T22:09:39.914108+01:00 Confirmed Helm ownership metadata on -n longhorn-system RecurringJob.longhorn.io nas-daily-backup
+2026-11-05T22:09:39.984675+01:00 Confirmed Helm ownership metadata on -n apps-adguard-home Middleware.traefik.io adguard-home-cors
+2026-11-05T22:09:40.058963+01:00 Confirmed Helm ownership metadata on -n apps-adguard-home IngressRoute.traefik.io adguard-home-tailscale-cors
+2026-11-05T22:09:40.122123+01:00 Confirmed Helm ownership metadata on -n apps-adguard-home IngressRoute.traefik.io adguard-home-localdomain-cors
+2026-11-05T22:09:40.185020+01:00 Confirmed Helm ownership metadata on -n apps-jellyseerr Middleware.traefik.io jellyseerr-cors
+2026-11-05T22:09:40.247285+01:00 Confirmed Helm ownership metadata on -n apps-jellyseerr IngressRoute.traefik.io jellyseerr-tailscale-cors
+2026-11-05T22:09:40.313386+01:00 Confirmed Helm ownership metadata on -n apps-jellyseerr IngressRoute.traefik.io jellyseerr-localdomain-cors
+2026-11-05T22:09:40.386183+01:00 Confirmed Helm ownership metadata on -n apps-prowlarr Middleware.traefik.io prowlarr-cors
+2026-11-05T22:09:40.478103+01:00 Confirmed Helm ownership metadata on -n apps-prowlarr IngressRoute.traefik.io prowlarr-tailscale-cors
+2026-11-05T22:09:40.547083+01:00 Confirmed Helm ownership metadata on -n apps-prowlarr IngressRoute.traefik.io prowlarr-localdomain-cors
+2026-11-05T22:09:40.599537+01:00 Confirmed Helm ownership metadata on -n pve-proxy Service pve-api
+2026-11-05T22:09:40.675414+01:00 Confirmed Helm ownership metadata on -n pve-proxy EndpointSlice.discovery.k8s.io pve-api-ipv4
+2026-11-05T22:09:40.750095+01:00 Confirmed Helm ownership metadata on -n pve-proxy ServersTransport.traefik.io pve-backend
+2026-11-05T22:09:40.818128+01:00 Confirmed Helm ownership metadata on -n pve-proxy Middleware.traefik.io pve-api-cors
+2026-11-05T22:09:40.904349+01:00 Confirmed Helm ownership metadata on -n pve-proxy Certificate.cert-manager.io pve-ui
+2026-11-05T22:09:40.967758+01:00 Confirmed Helm ownership metadata on -n pve-proxy IngressRoute.traefik.io pve-ui
+2026-11-05T22:09:41.039924+01:00 Confirmed Helm ownership metadata on -n apps-radarr Middleware.traefik.io radarr-cors
+2026-11-05T22:09:41.106401+01:00 Confirmed Helm ownership metadata on -n apps-radarr IngressRoute.traefik.io radarr-tailscale-cors
+2026-11-05T22:09:41.167761+01:00 Confirmed Helm ownership metadata on -n apps-radarr IngressRoute.traefik.io radarr-localdomain-cors
+2026-11-05T22:09:41.232495+01:00 Confirmed Helm ownership metadata on -n apps-sonarr Middleware.traefik.io sonarr-cors
+2026-11-05T22:09:41.299025+01:00 Confirmed Helm ownership metadata on -n apps-sonarr IngressRoute.traefik.io sonarr-tailscale-cors
+2026-11-05T22:09:41.370584+01:00 Confirmed Helm ownership metadata on -n apps-sonarr IngressRoute.traefik.io sonarr-localdomain-cors
+2026-11-05T22:09:41.542377+01:00 Native Fleet apply completed: calibre-storage
+2026-11-05T22:09:41.592158+01:00 Confirmed native Fleet apply targeting, owner and sync generation for calibre-storage
+2026-11-05T22:09:41.704023+01:00 Native Fleet apply completed: longhorn-backups
+2026-11-05T22:09:41.747549+01:00 Confirmed native Fleet apply targeting, owner and sync generation for longhorn-backups
+2026-11-05T22:09:41.870667+01:00 Native Fleet apply completed: traefik-resources
+2026-11-05T22:09:41.924054+01:00 Confirmed native Fleet apply targeting, owner and sync generation for traefik-resources
+2026-11-05T22:09:42.060298+01:00 Native Fleet apply completed: cert-manager-resources
+2026-11-05T22:09:42.118797+01:00 Confirmed native Fleet apply targeting, owner and sync generation for cert-manager-resources
+2026-11-05T22:09:42.683258+01:00 Native Fleet apply completed: cloudcasa
+2026-11-05T22:09:42.737288+01:00 Confirmed native Fleet apply targeting, owner and sync generation for cloudcasa
+2026-11-05T22:09:42.787571+01:00 Confirmed current Bundle generation Ready: calibre-storage
+2026-11-05T22:09:42.835637+01:00 Bundle status traefik-resources: WaitApplied(1) [Cluster fleet-local/local]; endpointslice.discovery.k8s.io pve-proxy/pve-api-ipv4 modified {"endpoints":[{"addresses":["10.0.0.72"]}]}
+2026-11-05T22:09:42.885723+01:00 Bundle status cloudcasa: WaitApplied(1) [Cluster fleet-local/local]
+2026-11-05T22:09:42.935101+01:00 Confirmed current Bundle generation Ready: cert-manager-resources
+2026-11-05T22:09:42.992364+01:00 Confirmed current Bundle generation Ready: longhorn-backups
+2026-11-05T22:09:42.992434+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T22:09:53.045236+01:00 Bundle status traefik-resources: Modified(1) [Cluster fleet-local/local]; endpointslice.discovery.k8s.io pve-proxy/pve-api-ipv4 modified {"endpoints":[{"addresses":["10.0.0.72"]}]}
+2026-11-05T22:09:53.097789+01:00 Confirmed current Bundle generation Ready: cloudcasa
+2026-11-05T22:09:53.097849+01:00 Waiting: traefik-resources
+2026-11-05T22:10:03.151571+01:00 Waiting: traefik-resources
+2026-11-05T22:10:13.203621+01:00 Waiting: traefik-resources
+2026-11-05T22:10:23.253824+01:00 Waiting: traefik-resources
+2026-11-05T22:10:33.303714+01:00 Waiting: traefik-resources
+2026-11-05T22:10:43.348366+01:00 Waiting: traefik-resources
+2026-11-05T22:10:53.394306+01:00 Waiting: traefik-resources
+2026-11-05T22:11:03.442510+01:00 Waiting: traefik-resources
+2026-11-05T22:11:13.487421+01:00 Waiting: traefik-resources
+2026-11-05T22:11:23.545492+01:00 Waiting: traefik-resources
+2026-11-05T22:11:33.600613+01:00 Waiting: traefik-resources
+2026-11-05T22:11:43.650798+01:00 Waiting: traefik-resources
+2026-11-05T22:11:53.703200+01:00 Waiting: traefik-resources
+2026-11-05T22:12:03.787649+01:00 Waiting: traefik-resources
+2026-11-05T22:12:13.831069+01:00 Waiting: traefik-resources
+2026-11-05T22:12:23.879147+01:00 Waiting: traefik-resources
+2026-11-05T22:12:33.923014+01:00 Confirmed current Bundle generation Ready: traefik-resources
+2026-11-05T22:12:34.276333+01:00 Confirmed BundleDeployment applied current deployment ID: calibre-storage
+2026-11-05T22:12:34.276411+01:00 Confirmed BundleDeployment applied current deployment ID: longhorn-backups
+2026-11-05T22:12:34.276488+01:00 Confirmed BundleDeployment applied current deployment ID: traefik-resources
+2026-11-05T22:12:34.276525+01:00 Confirmed BundleDeployment applied current deployment ID: cert-manager-resources
+2026-11-05T22:12:34.276559+01:00 Confirmed BundleDeployment applied current deployment ID: cloudcasa
+2026-11-05T22:12:34.327778+01:00 deployment "calibre" successfully rolled out
+2026-11-05T22:12:34.377479+01:00 deployment "calibre-web" successfully rolled out
+2026-11-05T22:12:34.427470+01:00 deployment "kavita" successfully rolled out
+2026-11-05T22:12:34.480308+01:00 deployment "cloudcasa-kubeagent-manager" successfully rolled out
+2026-11-05T22:12:34.532253+01:00 Running pod calibre-6cd57649b6-9mbtg mounts claims: calibre-config-longhorn-rwo, calibre-library-longhorn-rwo
+2026-11-05T22:12:34.532305+01:00 Running pod calibre-web-7dddb68d5d-fsmhj mounts claims: calibre-web-config-longhorn-rwo, calibre-library-longhorn-rwo
+2026-11-05T22:12:34.532345+01:00 Running pod kavita-85bd5fd678-2rgws mounts claims: kavita-config-longhorn-rwo, calibre-library-longhorn-rwo
+2026-11-05T22:12:34.765444+01:00 clusterissuer.cert-manager.io/letsencrypt condition met
+2026-11-05T22:12:34.908100+01:00 certificate.cert-manager.io/pve-ui condition met
+2026-11-05T22:12:34.995412+01:00 Confirmed HTTPS ingress proxmox2-old.localdomain.bnowakowski.pl: HTTP 200
+2026-11-05T22:12:35.101409+01:00 Confirmed HTTPS ingress proxmox2-old.tailscale.bnowakowski.pl: HTTP 200
+2026-11-05T22:12:35.145267+01:00 NAME                              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS             VOLUMEATTRIBUTESCLASS   AGE
+calibre-config-longhorn-rwo       Bound    pvc-a2d72b09-d038-421e-a242-2dfa89e197ee   256Mi      RWO            longhorn-rwo-2replicas   <unset>                 12d
+calibre-library-longhorn-rwo      Bound    pvc-20f47620-dd54-4c1a-a8e3-edde47ed12a0   1Gi        RWO            longhorn-rwo-2replicas   <unset>                 12d
+calibre-web-config-longhorn-rwo   Bound    pvc-d9801cb3-d88c-4313-af68-90eb51ed52fd   256Mi      RWO            longhorn-rwo-2replicas   <unset>                 12d
+kavita-config-longhorn-rwo        Bound    pvc-b35b40d7-2900-4e97-914e-ef4de27ac0f8   256Mi      RWO            longhorn-rwo-2replicas   <unset>                 12d
+2026-11-05T22:12:35.191884+01:00 NAME              REPO                                      COMMIT                                     BUNDLEDEPLOYMENTS-READY   STATUS
+rancher-cluster   https://github.com/bnowakow/homelab.git   28375279fb74b542c92e4dd02502a7d8fbb1083a   69/69
+2026-11-05T22:12:35.191983+01:00 Repair and validation finished. No commit or push performed.

@@ -1,0 +1,81 @@
+{
+  "apiVersion": "fleet.cattle.io/v1alpha1",
+  "kind": "Bundle",
+  "metadata": {
+    "creationTimestamp": "2026-10-09T17:27:07Z",
+    "finalizers": [
+      "fleet.cattle.io/bundle-finalizer"
+    ],
+    "generation": 3,
+    "labels": {
+      "fleet.cattle.io/commit": "28375279fb74b542c92e4dd02502a7d8fbb1083a",
+      "fleet.cattle.io/repo-name": "rancher-cluster"
+    },
+    "name": "longhorn-backups",
+    "namespace": "fleet-local",
+    "resourceVersion": "39660529",
+    "uid": "1da63367-8fe5-4a25-8f1d-06d46250266b"
+  },
+  "spec": {
+    "defaultNamespace": "longhorn-system",
+    "dependsOn": [
+      {
+        "name": "longhorn"
+      }
+    ],
+    "forceSyncGeneration": 8,
+    "helm": {
+      "releaseName": "longhorn-backups"
+    },
+    "resources": [
+      {
+        "content": "apiVersion: longhorn.io/v1beta2\nkind: RecurringJob\nmetadata:\n  name: nas-daily-backup\n  namespace: longhorn-system\nspec:\n  name: nas-daily-backup\n  cron: \"0 1 * * *\"\n  task: backup\n  groups:\n    - nas-backup\n  retentionPolicy: count-based\n  retain: 14\n  concurrency: 1\n  parameters:\n    full-backup-interval: \"7\"\n",
+        "name": "recurring-job.yaml"
+      }
+    ],
+    "targetCustomizationMode": "FirstMatch",
+    "targetRestrictions": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ],
+    "targets": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ]
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastUpdateTime": "2026-11-05T20:11:58Z",
+        "status": "True",
+        "type": "Ready"
+      }
+    ],
+    "display": {
+      "readyClusters": "1/1"
+    },
+    "maxUnavailable": 1,
+    "observedGeneration": 3,
+    "partitions": [
+      {
+        "count": 1,
+        "maxUnavailable": 1,
+        "name": "All",
+        "summary": {
+          "desiredReady": 1,
+          "ready": 1
+        }
+      }
+    ],
+    "resourcesSha256Sum": "03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599dd95",
+    "summary": {
+      "desiredReady": 1,
+      "ready": 1
+    },
+    "unavailable": 0
+  }
+}

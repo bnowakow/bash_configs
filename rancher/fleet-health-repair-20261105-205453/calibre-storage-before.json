@@ -1,0 +1,121 @@
+{
+  "apiVersion": "fleet.cattle.io/v1alpha1",
+  "kind": "Bundle",
+  "metadata": {
+    "creationTimestamp": "2026-10-19T05:05:40Z",
+    "finalizers": [
+      "fleet.cattle.io/bundle-finalizer"
+    ],
+    "generation": 2,
+    "labels": {
+      "fleet.cattle.io/commit": "588867a6987ecc238c515887b1d876c700d8a7fb",
+      "fleet.cattle.io/repo-name": "rancher-cluster"
+    },
+    "name": "calibre-storage",
+    "namespace": "fleet-local",
+    "resourceVersion": "39649341",
+    "uid": "cf1b7a28-8aca-42f4-bbc8-d14bf90b6958"
+  },
+  "spec": {
+    "defaultNamespace": "apps-calibre",
+    "forceSyncGeneration": 7,
+    "resources": [
+      {
+        "content": "apiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: calibre-library\nspec:\n  accessModes:\n    - ReadWriteOnce\n  storageClassName: local-path\n  resources:\n    requests:\n      storage: 10Gi\n---\napiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: calibre-web-config\nspec:\n  accessModes:\n    - ReadWriteOnce\n  storageClassName: local-path\n  resources:\n    requests:\n      storage: 1Gi\n",
+        "name": "pvc.yaml"
+      }
+    ],
+    "targetCustomizationMode": "FirstMatch",
+    "targetRestrictions": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ],
+    "targets": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ]
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastUpdateTime": "2026-10-26T17:12:56Z",
+        "message": "Modified(1) [Cluster fleet-local/local]; persistentvolumeclaim.v1 apps-calibre/calibre-library missing; persistentvolumeclaim.v1 apps-calibre/calibre-web-config missing",
+        "status": "False",
+        "type": "Ready"
+      }
+    ],
+    "display": {
+      "readyClusters": "0/1",
+      "state": "Modified"
+    },
+    "maxUnavailable": 1,
+    "observedGeneration": 2,
+    "partitions": [
+      {
+        "count": 1,
+        "maxUnavailable": 1,
+        "name": "All",
+        "summary": {
+          "desiredReady": 1,
+          "modified": 1,
+          "nonReadyResources": [
+            {
+              "bundleState": "Modified",
+              "modifiedStatus": [
+                {
+                  "apiVersion": "v1",
+                  "kind": "PersistentVolumeClaim",
+                  "missing": true,
+                  "name": "calibre-library",
+                  "namespace": "apps-calibre"
+                },
+                {
+                  "apiVersion": "v1",
+                  "kind": "PersistentVolumeClaim",
+                  "missing": true,
+                  "name": "calibre-web-config",
+                  "namespace": "apps-calibre"
+                }
+              ],
+              "name": "fleet-local/local"
+            }
+          ],
+          "ready": 0
+        }
+      }
+    ],
+    "resourcesSha256Sum": "195b26515c566c2c3260cd26362f3d05a58ac395da9a7ab39f661101eae879e3",
+    "summary": {
+      "desiredReady": 1,
+      "modified": 1,
+      "nonReadyResources": [
+        {
+          "bundleState": "Modified",
+          "modifiedStatus": [
+            {
+              "apiVersion": "v1",
+              "kind": "PersistentVolumeClaim",
+              "missing": true,
+              "name": "calibre-library",
+              "namespace": "apps-calibre"
+            },
+            {
+              "apiVersion": "v1",
+              "kind": "PersistentVolumeClaim",
+              "missing": true,
+              "name": "calibre-web-config",
+              "namespace": "apps-calibre"
+            }
+          ],
+          "name": "fleet-local/local"
+        }
+      ],
+      "ready": 0
+    },
+    "unavailable": 0
+  }
+}

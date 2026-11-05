@@ -1,0 +1,58 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: adguard-home-cors
+  namespace: apps-adguard-home
+spec:
+  headers:
+    accessControlAllowOriginList:
+      - https://homer.rancher.tailscale.bnowakowski.pl
+      - https://homer.rancher.localdomain.bnowakowski.pl
+    accessControlAllowMethods:
+      - GET
+      - OPTIONS
+    accessControlAllowHeaders:
+      - Authorization
+      - Content-Type
+    accessControlMaxAge: 600
+    addVaryHeader: true
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: adguard-home-tailscale-cors
+  namespace: apps-adguard-home
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`adguard-home.rancher.tailscale.bnowakowski.pl`)
+      priority: 100
+      middlewares:
+        - name: adguard-home-cors
+      services:
+        - name: adguard-home
+          port: main
+  tls:
+    secretName: adguard-home-tls-0
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: adguard-home-localdomain-cors
+  namespace: apps-adguard-home
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`adguard-home.rancher.localdomain.bnowakowski.pl`)
+      priority: 100
+      middlewares:
+        - name: adguard-home-cors
+      services:
+        - name: adguard-home
+          port: main
+  tls:
+    secretName: adguard-home-tls-1

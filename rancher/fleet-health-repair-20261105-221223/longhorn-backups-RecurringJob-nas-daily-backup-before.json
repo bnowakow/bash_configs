@@ -1,0 +1,42 @@
+{
+  "apiVersion": "longhorn.io/v1beta2",
+  "kind": "RecurringJob",
+  "metadata": {
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"longhorn.io/v1beta2\",\"kind\":\"RecurringJob\",\"metadata\":{\"annotations\":{},\"name\":\"nas-daily-backup\",\"namespace\":\"longhorn-system\"},\"spec\":{\"concurrency\":1,\"cron\":\"0 1 * * *\",\"groups\":[\"nas-backup\"],\"name\":\"nas-daily-backup\",\"parameters\":{\"full-backup-interval\":\"7\"},\"retain\":14,\"retentionPolicy\":\"count-based\",\"task\":\"backup\"}}\n",
+      "meta.helm.sh/release-name": "longhorn-backups",
+      "meta.helm.sh/release-namespace": "longhorn-system",
+      "objectset.rio.cattle.io/id": "default-longhorn-backups-cattle-fleet-local-system"
+    },
+    "creationTimestamp": "2026-10-08T18:31:31Z",
+    "generation": 1,
+    "labels": {
+      "app.kubernetes.io/managed-by": "Helm",
+      "objectset.rio.cattle.io/hash": "24a64efd411ea998eb66447053291a2158dea24e"
+    },
+    "name": "nas-daily-backup",
+    "namespace": "longhorn-system",
+    "resourceVersion": "39660509",
+    "uid": "c126b0c6-f090-4d78-a669-68ac92d5f585"
+  },
+  "spec": {
+    "concurrency": 1,
+    "cron": "0 1 * * *",
+    "groups": [
+      "nas-backup"
+    ],
+    "labels": {},
+    "name": "nas-daily-backup",
+    "parameters": {
+      "full-backup-interval": "7"
+    },
+    "retain": 14,
+    "retainAge": "0s",
+    "retentionPolicy": "count-based",
+    "task": "backup"
+  },
+  "status": {
+    "executionCount": 44,
+    "ownerID": "proxmox3"
+  }
+}

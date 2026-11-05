@@ -1,0 +1,47 @@
+{
+  "apiVersion": "cert-manager.io/v1",
+  "kind": "Certificate",
+  "metadata": {
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"cert-manager.io/v1\",\"kind\":\"Certificate\",\"metadata\":{\"annotations\":{},\"name\":\"pve-ui\",\"namespace\":\"pve-proxy\"},\"spec\":{\"dnsNames\":[\"proxmox2-old.localdomain.bnowakowski.pl\",\"proxmox2-old.tailscale.bnowakowski.pl\"],\"issuerRef\":{\"kind\":\"ClusterIssuer\",\"name\":\"letsencrypt\"},\"secretName\":\"pve-ui-tls\"}}\n",
+      "objectset.rio.cattle.io/id": "default-traefik-config-cattle-fleet-local-system"
+    },
+    "creationTimestamp": "2026-09-18T17:40:41Z",
+    "generation": 1,
+    "labels": {
+      "app.kubernetes.io/managed-by": "Helm",
+      "objectset.rio.cattle.io/hash": "972f3924eb7ed9fe2fee4da0b1bd60ba50743f71"
+    },
+    "name": "pve-ui",
+    "namespace": "pve-proxy",
+    "resourceVersion": "9907668",
+    "uid": "7ddb080a-0568-45ee-929a-90a9b1573ffa"
+  },
+  "spec": {
+    "dnsNames": [
+      "proxmox2-old.localdomain.bnowakowski.pl",
+      "proxmox2-old.tailscale.bnowakowski.pl"
+    ],
+    "issuerRef": {
+      "kind": "ClusterIssuer",
+      "name": "letsencrypt"
+    },
+    "secretName": "pve-ui-tls"
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastTransitionTime": "2026-09-18T17:42:26Z",
+        "message": "Certificate is up to date and has not expired",
+        "observedGeneration": 1,
+        "reason": "Ready",
+        "status": "True",
+        "type": "Ready"
+      }
+    ],
+    "notAfter": "2026-12-17T16:43:53Z",
+    "notBefore": "2026-09-18T16:43:54Z",
+    "renewalTime": "2026-11-17T16:43:53Z",
+    "revision": 1
+  }
+}

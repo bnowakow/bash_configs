@@ -1,0 +1,7 @@
+2026-11-05T22:09:33.775741+01:00 Server dry run passed for traefik-resources; only kubectl-client-side-apply's f:endpoints claim will be relinquished
+2026-11-05T22:09:33.878748+01:00 Server dry run passed for cloudcasa; only cloudcasa-kubeagent-manager's f:spec/f:template/f:spec/f:containers/k:{"name":"kubeagentmanager"}/f:env/k:{"name":"MY_POD_NAME"}/f:valueFrom/f:fieldRef claim will be relinquished
+2026-11-05T22:09:33.936906+01:00 Confirmed traefik-resources metadata repair; resource UID and configuration are unchanged
+2026-11-05T22:09:33.990717+01:00 Confirmed cloudcasa metadata repair; resource UID and configuration are unchanged
+2026-11-05T22:09:34.102880+01:00 Confirmed targeted Fleet retry for traefik-resources: sync generation 8 -> 9; readiness remains pending
+2026-11-05T22:09:34.236107+01:00 Confirmed targeted Fleet retry for cloudcasa: sync generation 8 -> 9; readiness remains pending
+2026-11-05T22:09:34.236204+01:00 Metadata repairs complete; keep monitoring the existing repair script for readiness and rollout validation.

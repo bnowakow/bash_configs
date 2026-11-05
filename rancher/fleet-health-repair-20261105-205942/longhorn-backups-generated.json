@@ -1,0 +1,49 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "fleet.cattle.io/v1alpha1",
+      "kind": "Bundle",
+      "metadata": {
+        "labels": {
+          "fleet.cattle.io/commit": "28375279fb74b542c92e4dd02502a7d8fbb1083a",
+          "fleet.cattle.io/repo-name": "rancher-cluster"
+        },
+        "name": "longhorn-backups",
+        "namespace": "fleet-local"
+      },
+      "spec": {
+        "defaultNamespace": "longhorn-system",
+        "dependsOn": [
+          {
+            "name": "longhorn"
+          }
+        ],
+        "helm": {
+          "releaseName": "longhorn-backups"
+        },
+        "resources": [
+          {
+            "content": "apiVersion: longhorn.io/v1beta2\nkind: RecurringJob\nmetadata:\n  name: nas-daily-backup\n  namespace: longhorn-system\nspec:\n  name: nas-daily-backup\n  cron: \"0 1 * * *\"\n  task: backup\n  groups:\n    - nas-backup\n  retentionPolicy: count-based\n  retain: 14\n  concurrency: 1\n  parameters:\n    full-backup-interval: \"7\"\n",
+            "name": "recurring-job.yaml"
+          }
+        ],
+        "targets": [
+          {
+            "clusterGroup": "default",
+            "name": "default"
+          }
+        ],
+        "targetRestrictions": [
+          {
+            "clusterGroup": "default",
+            "name": "default"
+          }
+        ],
+        "targetCustomizationMode": "FirstMatch",
+        "forceSyncGeneration": 7
+      }
+    }
+  ]
+}

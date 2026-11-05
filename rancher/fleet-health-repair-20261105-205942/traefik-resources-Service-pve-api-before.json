@@ -1,0 +1,45 @@
+{
+  "apiVersion": "v1",
+  "kind": "Service",
+  "metadata": {
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"name\":\"pve-api\",\"namespace\":\"pve-proxy\"},\"spec\":{\"ports\":[{\"name\":\"https\",\"port\":8006,\"protocol\":\"TCP\"}]}}\n",
+      "meta.helm.sh/release-name": "traefik-resources",
+      "meta.helm.sh/release-namespace": "fleet-local",
+      "objectset.rio.cattle.io/id": "default-traefik-config-cattle-fleet-local-system"
+    },
+    "creationTimestamp": "2026-09-18T17:40:41Z",
+    "labels": {
+      "app.kubernetes.io/managed-by": "Helm",
+      "objectset.rio.cattle.io/hash": "972f3924eb7ed9fe2fee4da0b1bd60ba50743f71"
+    },
+    "name": "pve-api",
+    "namespace": "pve-proxy",
+    "resourceVersion": "9911362",
+    "uid": "6595bd29-f55b-49a1-8ffc-fd33ac3ab94f"
+  },
+  "spec": {
+    "clusterIP": "10.43.74.91",
+    "clusterIPs": [
+      "10.43.74.91"
+    ],
+    "internalTrafficPolicy": "Cluster",
+    "ipFamilies": [
+      "IPv4"
+    ],
+    "ipFamilyPolicy": "SingleStack",
+    "ports": [
+      {
+        "name": "https",
+        "port": 8006,
+        "protocol": "TCP",
+        "targetPort": 8006
+      }
+    ],
+    "sessionAffinity": "None",
+    "type": "ClusterIP"
+  },
+  "status": {
+    "loadBalancer": {}
+  }
+}

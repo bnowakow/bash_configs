@@ -1,0 +1,102 @@
+{
+  "apiVersion": "fleet.cattle.io/v1alpha1",
+  "kind": "Bundle",
+  "metadata": {
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"fleet.cattle.io/v1alpha1\",\"kind\":\"Bundle\",\"metadata\":{\"annotations\":{},\"labels\":{\"fleet.cattle.io/commit\":\"28375279fb74b542c92e4dd02502a7d8fbb1083a\",\"fleet.cattle.io/repo-name\":\"rancher-cluster\"},\"name\":\"longhorn-backups\",\"namespace\":\"fleet-local\"},\"spec\":{\"defaultNamespace\":\"longhorn-system\",\"dependsOn\":[{\"name\":\"longhorn\"}],\"forceSyncGeneration\":7,\"helm\":{\"releaseName\":\"longhorn-backups\"},\"resources\":[{\"content\":\"apiVersion: longhorn.io/v1beta2\\nkind: RecurringJob\\nmetadata:\\n  name: nas-daily-backup\\n  namespace: longhorn-system\\nspec:\\n  name: nas-daily-backup\\n  cron: \\\"0 1 * * *\\\"\\n  task: backup\\n  groups:\\n    - nas-backup\\n  retentionPolicy: count-based\\n  retain: 14\\n  concurrency: 1\\n  parameters:\\n    full-backup-interval: \\\"7\\\"\\n\",\"name\":\"recurring-job.yaml\"}],\"targetCustomizationMode\":\"FirstMatch\",\"targetRestrictions\":[{\"clusterGroup\":\"default\",\"name\":\"default\"}],\"targets\":[{\"clusterGroup\":\"default\",\"name\":\"default\"}]}}\n"
+    },
+    "creationTimestamp": "2026-10-09T17:27:07Z",
+    "finalizers": [
+      "fleet.cattle.io/bundle-finalizer"
+    ],
+    "generation": 2,
+    "labels": {
+      "fleet.cattle.io/commit": "28375279fb74b542c92e4dd02502a7d8fbb1083a",
+      "fleet.cattle.io/repo-name": "rancher-cluster"
+    },
+    "name": "longhorn-backups",
+    "namespace": "fleet-local",
+    "resourceVersion": "39654292",
+    "uid": "1da63367-8fe5-4a25-8f1d-06d46250266b"
+  },
+  "spec": {
+    "defaultNamespace": "longhorn-system",
+    "dependsOn": [
+      {
+        "name": "longhorn"
+      }
+    ],
+    "forceSyncGeneration": 7,
+    "helm": {
+      "releaseName": "longhorn-backups"
+    },
+    "resources": [
+      {
+        "content": "apiVersion: longhorn.io/v1beta2\nkind: RecurringJob\nmetadata:\n  name: nas-daily-backup\n  namespace: longhorn-system\nspec:\n  name: nas-daily-backup\n  cron: \"0 1 * * *\"\n  task: backup\n  groups:\n    - nas-backup\n  retentionPolicy: count-based\n  retain: 14\n  concurrency: 1\n  parameters:\n    full-backup-interval: \"7\"\n",
+        "name": "recurring-job.yaml"
+      }
+    ],
+    "targetCustomizationMode": "FirstMatch",
+    "targetRestrictions": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ],
+    "targets": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ]
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastUpdateTime": "2026-11-05T19:55:16Z",
+        "message": "NotReady(1) [Cluster fleet-local/local: not installed: unable to continue with install: RecurringJob \"nas-daily-backup\" in namespace \"longhorn-system\" exists and cannot be imported into the current release: invalid ownership metadata; label validation error: missing key \"app.kubernetes.io/managed-by\": must be set to \"Helm\"; annotation validation error: missing key \"meta.helm.sh/release-name\": must be set to \"longhorn-backups\"; annotation validation error: missing key \"meta.helm.sh/release-namespace\": must be set to \"longhorn-system\"]",
+        "status": "False",
+        "type": "Ready"
+      }
+    ],
+    "display": {
+      "readyClusters": "0/1",
+      "state": "NotReady"
+    },
+    "maxUnavailable": 1,
+    "observedGeneration": 2,
+    "partitions": [
+      {
+        "count": 1,
+        "maxUnavailable": 1,
+        "name": "All",
+        "summary": {
+          "desiredReady": 1,
+          "nonReadyResources": [
+            {
+              "bundleState": "NotReady",
+              "message": "not installed: unable to continue with install: RecurringJob \"nas-daily-backup\" in namespace \"longhorn-system\" exists and cannot be imported into the current release: invalid ownership metadata; label validation error: missing key \"app.kubernetes.io/managed-by\": must be set to \"Helm\"; annotation validation error: missing key \"meta.helm.sh/release-name\": must be set to \"longhorn-backups\"; annotation validation error: missing key \"meta.helm.sh/release-namespace\": must be set to \"longhorn-system\"",
+              "name": "fleet-local/local"
+            }
+          ],
+          "notReady": 1,
+          "ready": 0
+        },
+        "unavailable": 1
+      }
+    ],
+    "resourcesSha256Sum": "03d3fac7123127f2f834b43ddea2e88731be4d40d485146c4438f1ae7599dd95",
+    "summary": {
+      "desiredReady": 1,
+      "nonReadyResources": [
+        {
+          "bundleState": "NotReady",
+          "message": "not installed: unable to continue with install: RecurringJob \"nas-daily-backup\" in namespace \"longhorn-system\" exists and cannot be imported into the current release: invalid ownership metadata; label validation error: missing key \"app.kubernetes.io/managed-by\": must be set to \"Helm\"; annotation validation error: missing key \"meta.helm.sh/release-name\": must be set to \"longhorn-backups\"; annotation validation error: missing key \"meta.helm.sh/release-namespace\": must be set to \"longhorn-system\"",
+          "name": "fleet-local/local"
+        }
+      ],
+      "notReady": 1
+    },
+    "unavailable": 1
+  }
+}

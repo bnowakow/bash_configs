@@ -1,0 +1,10 @@
+defaultNamespace: apps-calibre
+targets:
+- clusterGroup: default
+  name: default
+targetRestrictions:
+- clusterGroup: default
+  name: default
+targetCustomizationMode: FirstMatch
+forceSyncGeneration: 7
+name: calibre-storage

@@ -1,0 +1,47 @@
+{
+  "apiVersion": "traefik.io/v1alpha1",
+  "kind": "IngressRoute",
+  "metadata": {
+    "annotations": {
+      "meta.helm.sh/release-name": "traefik-resources",
+      "meta.helm.sh/release-namespace": "fleet-local",
+      "objectset.rio.cattle.io/id": "default-traefik-resources-cattle-fleet-local-system"
+    },
+    "creationTimestamp": "2026-11-05T20:11:59Z",
+    "generation": 1,
+    "labels": {
+      "app.kubernetes.io/managed-by": "Helm",
+      "objectset.rio.cattle.io/hash": "c2b4bb11b05a6109361e1a1d4e82fabe1644ef0a"
+    },
+    "name": "radarr-tailscale-cors",
+    "namespace": "apps-radarr",
+    "resourceVersion": "39660543",
+    "uid": "19e80dfb-a5d7-4af5-8da9-d6469527ed44"
+  },
+  "spec": {
+    "entryPoints": [
+      "websecure"
+    ],
+    "routes": [
+      {
+        "kind": "Rule",
+        "match": "Host(`radarr.rancher.tailscale.bnowakowski.pl`)",
+        "middlewares": [
+          {
+            "name": "radarr-cors"
+          }
+        ],
+        "priority": 100,
+        "services": [
+          {
+            "name": "radarr",
+            "port": "main"
+          }
+        ]
+      }
+    ],
+    "tls": {
+      "secretName": "radarr-tls-0"
+    }
+  }
+}

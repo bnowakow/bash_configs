@@ -1,0 +1,102 @@
+2026-11-05T21:11:51.766872+01:00 Preflight; no storage copies or workload scaling are performed.
+2026-11-05T21:11:53.088018+01:00 Confirmed current traefik-config only manages HelmChartConfig; failed historical release is left untouched.
+2026-11-05T21:11:53.131593+01:00 CloudCasa manager and mover already use the pinned image; preserving it in Fleet.
+2026-11-05T21:11:53.384194+01:00 Generated calibre-storage; preserved live ownership labels and targeting.
+2026-11-05T21:11:53.421636+01:00 Requested targeted Fleet retry for longhorn-backups: sync generation 7 -> 8
+2026-11-05T21:11:53.662569+01:00 Generated longhorn-backups; preserved live ownership labels and targeting.
+2026-11-05T21:11:53.705607+01:00 Requested targeted Fleet retry for traefik-resources: sync generation 7 -> 8
+2026-11-05T21:11:53.945009+01:00 Generated traefik-resources; preserved live ownership labels and targeting.
+2026-11-05T21:11:54.221050+01:00 Generated cert-manager-resources; preserved live ownership labels and targeting.
+2026-11-05T21:11:55.064071+01:00 Requested targeted Fleet retry for cloudcasa: sync generation 7 -> 8
+2026-11-05T21:11:55.437812+01:00 Generated cloudcasa; preserved live ownership labels and targeting.
+2026-11-05T21:11:56.952255+01:00 All preflight checks passed. Applying metadata ownership and Fleet-generated bundles.
+2026-11-05T21:11:57.054568+01:00 Confirmed Helm ownership metadata on -n longhorn-system RecurringJob.longhorn.io nas-daily-backup
+2026-11-05T21:11:57.129413+01:00 Confirmed Helm ownership metadata on -n apps-adguard-home Middleware.traefik.io adguard-home-cors
+2026-11-05T21:11:57.197474+01:00 Confirmed Helm ownership metadata on -n apps-adguard-home IngressRoute.traefik.io adguard-home-tailscale-cors
+2026-11-05T21:11:57.278303+01:00 Confirmed Helm ownership metadata on -n apps-adguard-home IngressRoute.traefik.io adguard-home-localdomain-cors
+2026-11-05T21:11:57.345390+01:00 Confirmed Helm ownership metadata on -n apps-jellyseerr Middleware.traefik.io jellyseerr-cors
+2026-11-05T21:11:57.420504+01:00 Confirmed Helm ownership metadata on -n apps-jellyseerr IngressRoute.traefik.io jellyseerr-tailscale-cors
+2026-11-05T21:11:57.498429+01:00 Confirmed Helm ownership metadata on -n apps-jellyseerr IngressRoute.traefik.io jellyseerr-localdomain-cors
+2026-11-05T21:11:57.556038+01:00 Confirmed Helm ownership metadata on -n pve-proxy Service pve-api
+2026-11-05T21:11:57.622265+01:00 Confirmed Helm ownership metadata on -n pve-proxy EndpointSlice.discovery.k8s.io pve-api-ipv4
+2026-11-05T21:11:57.697781+01:00 Confirmed Helm ownership metadata on -n pve-proxy ServersTransport.traefik.io pve-backend
+2026-11-05T21:11:57.766012+01:00 Confirmed Helm ownership metadata on -n pve-proxy Middleware.traefik.io pve-api-cors
+2026-11-05T21:11:57.882451+01:00 Confirmed Helm ownership metadata on -n pve-proxy Certificate.cert-manager.io pve-ui
+2026-11-05T21:11:57.947344+01:00 Confirmed Helm ownership metadata on -n pve-proxy IngressRoute.traefik.io pve-ui
+2026-11-05T21:11:58.094169+01:00 Native Fleet apply completed: calibre-storage
+2026-11-05T21:11:58.160263+01:00 Confirmed native Fleet apply targeting, owner and sync generation for calibre-storage
+2026-11-05T21:11:58.341012+01:00 Native Fleet apply completed: longhorn-backups
+2026-11-05T21:11:58.454163+01:00 Confirmed native Fleet apply targeting, owner and sync generation for longhorn-backups
+2026-11-05T21:11:58.668420+01:00 Native Fleet apply completed: traefik-resources
+2026-11-05T21:11:58.727794+01:00 Confirmed native Fleet apply targeting, owner and sync generation for traefik-resources
+2026-11-05T21:11:58.970068+01:00 Native Fleet apply completed: cert-manager-resources
+2026-11-05T21:11:59.037460+01:00 Confirmed native Fleet apply targeting, owner and sync generation for cert-manager-resources
+2026-11-05T21:11:59.728154+01:00 Native Fleet apply completed: cloudcasa
+2026-11-05T21:11:59.804160+01:00 Confirmed native Fleet apply targeting, owner and sync generation for cloudcasa
+2026-11-05T21:11:59.870883+01:00 Bundle status cloudcasa: WaitApplied(1) [Cluster fleet-local/local]; deployment.apps cloudcasa-io/cloudcasa-kubeagent-manager modified {"spec":{"template":{"spec":{"containers":[{"args":["/usr/local/bin/kubeagentmanager","--server_addr","agent.cloudcasa.io:443","--tls","true","--skip_tls_verification","false"],"env":[{"name":"MY_POD_NAME","valueFrom":{"fieldRef":{"apiVersion":"v1","fieldPath":"metadata.name"}}},{"name":"AMDS_CLUSTER_ID","value":"6938435f0c7d143c28eb3a0f"},{"name":"KUBEMOVER_IMAGE","value":"cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent:3.1.0-prod"},{"name":"DEPLOYMENT_PLATFORM","value":"rancher"},{"name":"AGENT_INSTALLATION_METHOD","value":"helm"},{"name":"GRPC_ENFORCE_ALPN_ENABLED","value":"false"}],"image":"cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent:3.1.0-prod","imagePullPolicy":"IfNotPresent","name":"kubeagentmanager","resources":{"limits":{"cpu":"500m","memory":"128Mi"},"requests":{"cpu":"250m","memory":"64Mi"}},"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]}},"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","volumeMounts":[{"mountPath":"/scratch","name":"scratch"}]}]}}}}
+2026-11-05T21:11:59.935436+01:00 Bundle status traefik-resources: WaitApplied(1) [Cluster fleet-local/local]
+2026-11-05T21:12:00.028379+01:00 Confirmed current Bundle generation Ready: cert-manager-resources
+2026-11-05T21:12:00.133928+01:00 Confirmed current Bundle generation Ready: longhorn-backups
+2026-11-05T21:12:00.287319+01:00 Confirmed current Bundle generation Ready: calibre-storage
+2026-11-05T21:12:00.287393+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:12:10.423401+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:12:20.528397+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:12:30.638245+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:12:40.738854+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:12:50.897930+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:13:01.131642+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:13:11.291540+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:13:21.408484+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:13:31.556812+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:13:41.681650+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:13:51.836923+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:14:01.934284+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:14:12.030704+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:14:22.125925+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:14:32.225566+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:14:42.336360+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:14:52.441768+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:15:02.577344+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:15:12.672269+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:15:22.763244+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:15:32.852500+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:15:42.949179+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:15:53.059546+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:16:03.175501+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:16:13.279346+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:16:23.385340+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:16:33.489157+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:16:43.584594+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:16:53.686383+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:17:03.806452+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:17:13.897060+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:17:24.002412+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:17:34.121371+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:17:44.223527+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:17:54.339197+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:18:04.461720+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:18:14.556378+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:18:24.660988+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:18:34.753145+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:18:44.841939+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:18:54.940287+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:19:05.063566+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:19:15.162363+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:19:25.270202+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:19:35.374250+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:19:45.473614+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:19:55.571796+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:20:05.673088+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:20:15.770942+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:20:25.860191+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:20:35.969217+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:20:46.073350+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:20:56.177215+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:21:06.287996+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:21:16.390471+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:21:26.480276+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:21:36.575510+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:21:46.671118+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:21:56.763916+01:00 Waiting: cloudcasa, traefik-resources
+2026-11-05T21:22:07.183806+01:00 FAILED: Timed out waiting for Bundle readiness: cloudcasa, traefik-resources
+2026-11-05T21:22:07.183975+01:00 Changes already applied are retained. Inspect the report and before/after snapshots.

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: calibre-retired-local-path-storage
+data:
+  status: retired
+  explanation: >-
+    The local-path calibre-library and calibre-web-config claims were migrated
+    and reclaimed in October 2026. Active Longhorn claims are owned by the
+    longhorn-calibre-arr-storage bundle. Do not recreate the old claims.

@@ -1,0 +1,76 @@
+{
+  "apiVersion": "fleet.cattle.io/v1alpha1",
+  "kind": "Bundle",
+  "metadata": {
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"fleet.cattle.io/v1alpha1\",\"kind\":\"Bundle\",\"metadata\":{\"annotations\":{},\"labels\":{\"fleet.cattle.io/commit\":\"28375279fb74b542c92e4dd02502a7d8fbb1083a\",\"fleet.cattle.io/repo-name\":\"rancher-cluster\"},\"name\":\"calibre-storage\",\"namespace\":\"fleet-local\"},\"spec\":{\"defaultNamespace\":\"apps-calibre\",\"forceSyncGeneration\":7,\"resources\":[{\"content\":\"apiVersion: v1\\nkind: ConfigMap\\nmetadata:\\n  name: calibre-retired-local-path-storage\\ndata:\\n  status: retired\\n  explanation: \\u003e-\\n    The local-path calibre-library and calibre-web-config claims were migrated\\n    and reclaimed in October 2026. Active Longhorn claims are owned by the\\n    longhorn-calibre-arr-storage bundle. Do not recreate the old claims.\\n\",\"name\":\"retired-storage.yaml\"}],\"targetCustomizationMode\":\"FirstMatch\",\"targetRestrictions\":[{\"clusterGroup\":\"default\",\"name\":\"default\"}],\"targets\":[{\"clusterGroup\":\"default\",\"name\":\"default\"}]}}\n"
+    },
+    "creationTimestamp": "2026-10-19T05:05:40Z",
+    "finalizers": [
+      "fleet.cattle.io/bundle-finalizer"
+    ],
+    "generation": 3,
+    "labels": {
+      "fleet.cattle.io/commit": "28375279fb74b542c92e4dd02502a7d8fbb1083a",
+      "fleet.cattle.io/repo-name": "rancher-cluster"
+    },
+    "name": "calibre-storage",
+    "namespace": "fleet-local",
+    "resourceVersion": "39654291",
+    "uid": "cf1b7a28-8aca-42f4-bbc8-d14bf90b6958"
+  },
+  "spec": {
+    "defaultNamespace": "apps-calibre",
+    "forceSyncGeneration": 7,
+    "resources": [
+      {
+        "content": "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: calibre-retired-local-path-storage\ndata:\n  status: retired\n  explanation: >-\n    The local-path calibre-library and calibre-web-config claims were migrated\n    and reclaimed in October 2026. Active Longhorn claims are owned by the\n    longhorn-calibre-arr-storage bundle. Do not recreate the old claims.\n",
+        "name": "retired-storage.yaml"
+      }
+    ],
+    "targetCustomizationMode": "FirstMatch",
+    "targetRestrictions": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ],
+    "targets": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ]
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastUpdateTime": "2026-11-05T19:55:11Z",
+        "status": "True",
+        "type": "Ready"
+      }
+    ],
+    "display": {
+      "readyClusters": "1/1"
+    },
+    "maxUnavailable": 1,
+    "observedGeneration": 3,
+    "partitions": [
+      {
+        "count": 1,
+        "maxUnavailable": 1,
+        "name": "All",
+        "summary": {
+          "desiredReady": 1,
+          "ready": 1
+        }
+      }
+    ],
+    "resourcesSha256Sum": "a21470a79d06a8646646eebdeeb4fa94b193aad92e1c5abc8e099d1697e3b13d",
+    "summary": {
+      "desiredReady": 1,
+      "ready": 1
+    },
+    "unavailable": 0
+  }
+}

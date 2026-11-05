@@ -1,0 +1,12 @@
+defaultNamespace: fleet-local
+helm:
+  releaseName: traefik-resources
+targets:
+- clusterGroup: default
+  name: default
+targetRestrictions:
+- clusterGroup: default
+  name: default
+targetCustomizationMode: FirstMatch
+forceSyncGeneration: 8
+name: traefik-resources

@@ -1,0 +1,47 @@
+{
+  "apiVersion": "traefik.io/v1alpha1",
+  "kind": "IngressRoute",
+  "metadata": {
+    "annotations": {
+      "meta.helm.sh/release-name": "traefik-resources",
+      "meta.helm.sh/release-namespace": "fleet-local",
+      "objectset.rio.cattle.io/id": "default-traefik-resources-cattle-fleet-local-system"
+    },
+    "creationTimestamp": "2026-09-21T18:40:50Z",
+    "generation": 1,
+    "labels": {
+      "app.kubernetes.io/managed-by": "Helm",
+      "objectset.rio.cattle.io/hash": "c2b4bb11b05a6109361e1a1d4e82fabe1644ef0a"
+    },
+    "name": "adguard-home-tailscale-cors",
+    "namespace": "apps-adguard-home",
+    "resourceVersion": "39660541",
+    "uid": "6945eee0-6d33-4c75-b700-d23e423fda4d"
+  },
+  "spec": {
+    "entryPoints": [
+      "websecure"
+    ],
+    "routes": [
+      {
+        "kind": "Rule",
+        "match": "Host(`adguard-home.rancher.tailscale.bnowakowski.pl`)",
+        "middlewares": [
+          {
+            "name": "adguard-home-cors"
+          }
+        ],
+        "priority": 100,
+        "services": [
+          {
+            "name": "adguard-home",
+            "port": "main"
+          }
+        ]
+      }
+    ],
+    "tls": {
+      "secretName": "adguard-home-tls-0"
+    }
+  }
+}

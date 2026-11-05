@@ -1,0 +1,23 @@
+defaultNamespace: cloudcasa-io
+helm:
+  chart: cloudcasa
+  releaseName: cloudcasa
+  repo: https://catalogicsoftware.github.io/cloudcasa-helmchart
+  values:
+    image:
+      tag: 3.1.0-production.48
+  valuesFrom:
+  - secretKeyRef:
+      key: values.yaml
+      name: cloudcasa-values
+      namespace: cloudcasa-io
+  version: 3.4.7
+targets:
+- clusterGroup: default
+  name: default
+targetRestrictions:
+- clusterGroup: default
+  name: default
+targetCustomizationMode: FirstMatch
+forceSyncGeneration: 10
+name: cloudcasa

@@ -1,0 +1,1851 @@
+{
+  "apiVersion": "v1",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "checksum/cnpg": "fc940fff4269c53072f7039f0811133e9b83400670af014010bf50d3f13740f4",
+          "checksum/configmaps": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "checksum/mariadb": "09c85576cb45b1eecd1467732b11ea8fa3363b0105c465f02a6ad64991521d52",
+          "checksum/mongodb": "09c85576cb45b1eecd1467732b11ea8fa3363b0105c465f02a6ad64991521d52",
+          "checksum/persistence": "c4f7ceac51b4a989279c692738a08fca3ce2cbbc607eb5853e9bae90985c0fd9",
+          "checksum/redis": "013343a028cbb3f7e08f4ba7522702dd98e52632c688641074b0b1db3df29894",
+          "checksum/secrets": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "checksum/services": "1898e8851f8439fa6b987690bd2edd61a6447c881bfc58e4dfa1e0d2fbcdbf21",
+          "checksum/solr": "29c14feeaddbf7762052db593898d274941f539cee681ddc613957587686f347"
+        },
+        "creationTimestamp": "2026-11-04T14:53:32Z",
+        "generateName": "calibre-6cd57649b6-",
+        "generation": 1,
+        "labels": {
+          "app": "calibre-21.1.2",
+          "app.kubernetes.io/instance": "calibre",
+          "app.kubernetes.io/managed-by": "Helm",
+          "app.kubernetes.io/name": "calibre",
+          "app.kubernetes.io/version": "9.17.0",
+          "helm-revision": "43",
+          "helm.sh/chart": "calibre-21.1.2",
+          "pod-template-hash": "6cd57649b6",
+          "pod.lifecycle": "permanent",
+          "pod.name": "main",
+          "release": "calibre",
+          "truecharts.org/pvc": "config_library"
+        },
+        "name": "calibre-6cd57649b6-9mbtg",
+        "namespace": "apps-calibre",
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "ReplicaSet",
+            "name": "calibre-6cd57649b6",
+            "uid": "f0b64f77-02a8-4fb0-b804-cd217d096600"
+          }
+        ],
+        "resourceVersion": "38667382",
+        "uid": "819a9cb3-abdd-48e5-9906-08ba29a624b3"
+      },
+      "spec": {
+        "affinity": {
+          "podAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": [
+              {
+                "labelSelector": {
+                  "matchExpressions": [
+                    {
+                      "key": "truecharts.org/pvc",
+                      "operator": "In",
+                      "values": [
+                        "config_library"
+                      ]
+                    }
+                  ]
+                },
+                "topologyKey": "kubernetes.io/hostname"
+              }
+            ]
+          }
+        },
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "env": [
+              {
+                "name": "TZ",
+                "value": "Europe/Warsaw"
+              },
+              {
+                "name": "UMASK",
+                "value": "0022"
+              },
+              {
+                "name": "UMASK_SET",
+                "value": "0022"
+              },
+              {
+                "name": "NVIDIA_VISIBLE_DEVICES",
+                "value": "void"
+              },
+              {
+                "name": "PUID",
+                "value": "568"
+              },
+              {
+                "name": "USER_ID",
+                "value": "568"
+              },
+              {
+                "name": "UID",
+                "value": "568"
+              },
+              {
+                "name": "PGID",
+                "value": "568"
+              },
+              {
+                "name": "GROUP_ID",
+                "value": "568"
+              },
+              {
+                "name": "GID",
+                "value": "568"
+              },
+              {
+                "name": "PASSWORD"
+              }
+            ],
+            "image": "ghcr.io/linuxserver/calibre:9.17.0@sha256:b198fc03a6abc6be7e251a9958e50e74634b00e447c7b25e92c191c8077ba378",
+            "imagePullPolicy": "IfNotPresent",
+            "livenessProbe": {
+              "failureThreshold": 5,
+              "initialDelaySeconds": 12,
+              "periodSeconds": 15,
+              "successThreshold": 1,
+              "tcpSocket": {
+                "port": 8080
+              },
+              "timeoutSeconds": 5
+            },
+            "name": "calibre",
+            "ports": [
+              {
+                "containerPort": 8080,
+                "name": "main",
+                "protocol": "TCP"
+              },
+              {
+                "containerPort": 8081,
+                "name": "webserver",
+                "protocol": "TCP"
+              }
+            ],
+            "readinessProbe": {
+              "failureThreshold": 4,
+              "initialDelaySeconds": 10,
+              "periodSeconds": 12,
+              "successThreshold": 2,
+              "tcpSocket": {
+                "port": 8080
+              },
+              "timeoutSeconds": 5
+            },
+            "resources": {
+              "limits": {
+                "cpu": "1500m",
+                "memory": "2400Mi"
+              },
+              "requests": {
+                "cpu": "75m",
+                "memory": "200Mi"
+              }
+            },
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "capabilities": {
+                "add": [
+                  "CHOWN",
+                  "SETUID",
+                  "SETGID",
+                  "FOWNER",
+                  "DAC_OVERRIDE"
+                ],
+                "drop": [
+                  "ALL"
+                ]
+              },
+              "privileged": false,
+              "readOnlyRootFilesystem": false,
+              "runAsGroup": 0,
+              "runAsNonRoot": false,
+              "runAsUser": 0,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "startupProbe": {
+              "failureThreshold": 60,
+              "initialDelaySeconds": 10,
+              "periodSeconds": 5,
+              "successThreshold": 1,
+              "tcpSocket": {
+                "port": 8080
+              },
+              "timeoutSeconds": 3
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/books",
+                "name": "books"
+              },
+              {
+                "mountPath": "/config",
+                "name": "config"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "devshm"
+              },
+              {
+                "mountPath": "/library",
+                "name": "library"
+              },
+              {
+                "mountPath": "/shared",
+                "name": "shared"
+              },
+              {
+                "mountPath": "/tmp",
+                "name": "tmp"
+              },
+              {
+                "mountPath": "/var/logs",
+                "name": "varlogs"
+              },
+              {
+                "mountPath": "/var/run",
+                "name": "varrun"
+              }
+            ]
+          }
+        ],
+        "dnsConfig": {
+          "options": [
+            {
+              "name": "ndots",
+              "value": "1"
+            }
+          ]
+        },
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": false,
+        "hostUsers": true,
+        "nodeName": "proxmox2-old",
+        "nodeSelector": {
+          "kubernetes.io/hostname": "proxmox2-old"
+        },
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {
+          "fsGroup": 568,
+          "fsGroupChangePolicy": "OnRootMismatch",
+          "supplementalGroups": [
+            568
+          ]
+        },
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "shareProcessNamespace": false,
+        "terminationGracePeriodSeconds": 60,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "topologySpreadConstraints": [
+          {
+            "labelSelector": {
+              "matchLabels": {
+                "app.kubernetes.io/instance": "calibre",
+                "app.kubernetes.io/name": "calibre",
+                "pod.name": "main"
+              }
+            },
+            "maxSkew": 1,
+            "nodeAffinityPolicy": "Honor",
+            "nodeTaintsPolicy": "Honor",
+            "topologyKey": "kubernetes.io/hostname",
+            "whenUnsatisfiable": "ScheduleAnyway"
+          }
+        ],
+        "volumes": [
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "2400Mi"
+            },
+            "name": "devshm"
+          },
+          {
+            "emptyDir": {},
+            "name": "shared"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "2400Mi"
+            },
+            "name": "tmp"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "2400Mi"
+            },
+            "name": "varlogs"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "2400Mi"
+            },
+            "name": "varrun"
+          },
+          {
+            "name": "books",
+            "nfs": {
+              "path": "/mnt/PlexPool/plex/Books",
+              "server": "nas.localdomain.bnowakowski.pl"
+            }
+          },
+          {
+            "name": "config",
+            "persistentVolumeClaim": {
+              "claimName": "calibre-config-longhorn-rwo"
+            }
+          },
+          {
+            "name": "library",
+            "persistentVolumeClaim": {
+              "claimName": "calibre-library-longhorn-rwo"
+            }
+          }
+        ]
+      },
+      "status": {
+        "allocatedResources": {
+          "cpu": "75m",
+          "memory": "200Mi"
+        },
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-04T14:53:43Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-04T14:53:33Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-04T14:54:09Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-04T14:54:09Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-04T14:53:33Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "75m",
+              "memory": "200Mi"
+            },
+            "containerID": "containerd://75fed0e786c681dfe3d1a25441aeac1b97efa2bf152d4fe8700806a1ec74c0e9",
+            "image": "sha256:e4a7d1af7739d4d00943fa1886ef363c4c63eb35ad7c32765d47de60c3524b9f",
+            "imageID": "ghcr.io/linuxserver/calibre@sha256:b198fc03a6abc6be7e251a9958e50e74634b00e447c7b25e92c191c8077ba378",
+            "lastState": {},
+            "name": "calibre",
+            "ready": true,
+            "resources": {
+              "limits": {
+                "cpu": "1500m",
+                "memory": "2400Mi"
+              },
+              "requests": {
+                "cpu": "75m",
+                "memory": "200Mi"
+              }
+            },
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-11-04T14:53:46Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0,
+                  568
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/books",
+                "name": "books"
+              },
+              {
+                "mountPath": "/config",
+                "name": "config"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "devshm"
+              },
+              {
+                "mountPath": "/library",
+                "name": "library"
+              },
+              {
+                "mountPath": "/shared",
+                "name": "shared"
+              },
+              {
+                "mountPath": "/tmp",
+                "name": "tmp"
+              },
+              {
+                "mountPath": "/var/logs",
+                "name": "varlogs"
+              },
+              {
+                "mountPath": "/var/run",
+                "name": "varrun"
+              }
+            ]
+          }
+        ],
+        "hostIP": "10.0.0.72",
+        "hostIPs": [
+          {
+            "ip": "10.0.0.72"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.42.2.3",
+        "podIPs": [
+          {
+            "ip": "10.42.2.3"
+          }
+        ],
+        "qosClass": "Burstable",
+        "resources": {
+          "limits": {
+            "cpu": "1500m",
+            "memory": "2400Mi"
+          },
+          "requests": {
+            "cpu": "53m",
+            "memory": "200Mi"
+          }
+        },
+        "startTime": "2026-11-04T14:53:33Z"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "creationTimestamp": "2026-11-05T02:00:00Z",
+        "generateName": "calibre-cover-maintenance-29897400-",
+        "generation": 1,
+        "labels": {
+          "batch.kubernetes.io/controller-uid": "aa793f78-1c1c-4c62-b5c0-c93ad06ebea0",
+          "batch.kubernetes.io/job-name": "calibre-cover-maintenance-29897400",
+          "controller-uid": "aa793f78-1c1c-4c62-b5c0-c93ad06ebea0",
+          "job-name": "calibre-cover-maintenance-29897400"
+        },
+        "name": "calibre-cover-maintenance-29897400-cswjz",
+        "namespace": "apps-calibre",
+        "ownerReferences": [
+          {
+            "apiVersion": "batch/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "Job",
+            "name": "calibre-cover-maintenance-29897400",
+            "uid": "aa793f78-1c1c-4c62-b5c0-c93ad06ebea0"
+          }
+        ],
+        "resourceVersion": "39076081",
+        "uid": "c90bd10b-9417-4f4e-be9b-c273fbad2533"
+      },
+      "spec": {
+        "containers": [
+          {
+            "command": [
+              "python3",
+              "/scripts/thumbnails.py"
+            ],
+            "env": [
+              {
+                "name": "CACHE_DIRECTORY",
+                "value": "/config/thumbnail-cache"
+              }
+            ],
+            "image": "oci.trueforge.org/containerforge/calibre-web:0.6.27@sha256:de470a91dd0bbef215fdc43ddf746d671a259e245944347fc62672ce41f8e023",
+            "imagePullPolicy": "IfNotPresent",
+            "name": "refresh-thumbnails",
+            "resources": {},
+            "securityContext": {
+              "runAsGroup": 0,
+              "runAsUser": 0
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/library",
+                "name": "library",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/config",
+                "name": "web-config"
+              },
+              {
+                "mountPath": "/scripts",
+                "name": "scripts",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-2th9x",
+                "readOnly": true
+              }
+            ],
+            "workingDir": "/app/calibre-web"
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": false,
+        "initContainers": [
+          {
+            "command": [
+              "calibre-debug",
+              "-c",
+              "scope={\"__name__\":\"__main__\"}; exec(compile(open(\"/scripts/extract.py\").read(), \"/scripts/extract.py\", \"exec\"), scope)"
+            ],
+            "env": [
+              {
+                "name": "HOME",
+                "value": "/tmp"
+              },
+              {
+                "name": "CALIBRE_CONFIG_DIRECTORY",
+                "value": "/tmp/calibre-maintenance"
+              },
+              {
+                "name": "QT_QPA_PLATFORM",
+                "value": "offscreen"
+              }
+            ],
+            "image": "ghcr.io/linuxserver/calibre:9.16.0@sha256:48c8a5ba2a20c303012b1d4b2815a2b99b362a634a571fbec101b85bfa203ba3",
+            "imagePullPolicy": "IfNotPresent",
+            "name": "extract-missing-covers",
+            "resources": {},
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "runAsGroup": 568,
+              "runAsUser": 568
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/library",
+                "name": "library"
+              },
+              {
+                "mountPath": "/scripts",
+                "name": "scripts",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-2th9x",
+                "readOnly": true
+              }
+            ]
+          }
+        ],
+        "nodeName": "proxmox2-old",
+        "nodeSelector": {
+          "kubernetes.io/hostname": "proxmox2-old"
+        },
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Never",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "calibre-cover-maintenance",
+        "serviceAccountName": "calibre-cover-maintenance",
+        "terminationGracePeriodSeconds": 60,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "volumes": [
+          {
+            "name": "library",
+            "persistentVolumeClaim": {
+              "claimName": "calibre-library-longhorn-rwo"
+            }
+          },
+          {
+            "name": "web-config",
+            "persistentVolumeClaim": {
+              "claimName": "calibre-web-config-longhorn-rwo"
+            }
+          },
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "name": "calibre-cover-maintenance"
+            },
+            "name": "scripts"
+          },
+          {
+            "name": "kube-api-access-2th9x",
+            "projected": {
+              "defaultMode": 420,
+              "sources": [
+                {
+                  "serviceAccountToken": {
+                    "expirationSeconds": 3607,
+                    "path": "token"
+                  }
+                },
+                {
+                  "configMap": {
+                    "items": [
+                      {
+                        "key": "ca.crt",
+                        "path": "ca.crt"
+                      }
+                    ],
+                    "name": "kube-root-ca.crt"
+                  }
+                },
+                {
+                  "downwardAPI": {
+                    "items": [
+                      {
+                        "fieldRef": {
+                          "apiVersion": "v1",
+                          "fieldPath": "metadata.namespace"
+                        },
+                        "path": "namespace"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-05T02:00:09Z",
+            "observedGeneration": 1,
+            "status": "False",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-05T02:00:02Z",
+            "observedGeneration": 1,
+            "reason": "PodCompleted",
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-05T02:00:08Z",
+            "observedGeneration": 1,
+            "reason": "PodCompleted",
+            "status": "False",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-05T02:00:08Z",
+            "observedGeneration": 1,
+            "reason": "PodCompleted",
+            "status": "False",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-05T02:00:00Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "containerID": "containerd://2258f6f0e5f314874a4d1758af619fc09804891f768d37504b177c257051a421",
+            "image": "sha256:7bcbeace4a771a728d033a38ab2d15a7d995dc6f7dff2d20cbf2d9fbe635f570",
+            "imageID": "oci.trueforge.org/containerforge/calibre-web@sha256:de470a91dd0bbef215fdc43ddf746d671a259e245944347fc62672ce41f8e023",
+            "lastState": {},
+            "name": "refresh-thumbnails",
+            "ready": false,
+            "resources": {},
+            "restartCount": 0,
+            "started": false,
+            "state": {
+              "terminated": {
+                "containerID": "containerd://2258f6f0e5f314874a4d1758af619fc09804891f768d37504b177c257051a421",
+                "exitCode": 0,
+                "finishedAt": "2026-11-05T02:00:07Z",
+                "reason": "Completed",
+                "startedAt": "2026-11-05T02:00:02Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/library",
+                "name": "library",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/config",
+                "name": "web-config"
+              },
+              {
+                "mountPath": "/scripts",
+                "name": "scripts",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-2th9x",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "hostIP": "10.0.0.72",
+        "hostIPs": [
+          {
+            "ip": "10.0.0.72"
+          }
+        ],
+        "initContainerStatuses": [
+          {
+            "containerID": "containerd://144e4b26eea27669f594cbbaaa3253bb92ec9fca242ddf67b797966e84bf5f3b",
+            "image": "sha256:0dd1740f676cb1909c4abd87a78bc34f0bce010881147965fff4dfc3c893618a",
+            "imageID": "ghcr.io/linuxserver/calibre@sha256:48c8a5ba2a20c303012b1d4b2815a2b99b362a634a571fbec101b85bfa203ba3",
+            "lastState": {},
+            "name": "extract-missing-covers",
+            "ready": true,
+            "resources": {},
+            "restartCount": 0,
+            "started": false,
+            "state": {
+              "terminated": {
+                "containerID": "containerd://144e4b26eea27669f594cbbaaa3253bb92ec9fca242ddf67b797966e84bf5f3b",
+                "exitCode": 0,
+                "finishedAt": "2026-11-05T02:00:01Z",
+                "reason": "Completed",
+                "startedAt": "2026-11-05T02:00:01Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 568,
+                "supplementalGroups": [
+                  568
+                ],
+                "uid": 568
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/library",
+                "name": "library"
+              },
+              {
+                "mountPath": "/scripts",
+                "name": "scripts",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "kube-api-access-2th9x",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              }
+            ]
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Succeeded",
+        "podIP": "10.42.2.32",
+        "podIPs": [
+          {
+            "ip": "10.42.2.32"
+          }
+        ],
+        "qosClass": "BestEffort",
+        "resources": {},
+        "startTime": "2026-11-05T02:00:00Z"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "checksum/cnpg": "fc940fff4269c53072f7039f0811133e9b83400670af014010bf50d3f13740f4",
+          "checksum/configmaps": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "checksum/mariadb": "09c85576cb45b1eecd1467732b11ea8fa3363b0105c465f02a6ad64991521d52",
+          "checksum/mongodb": "09c85576cb45b1eecd1467732b11ea8fa3363b0105c465f02a6ad64991521d52",
+          "checksum/persistence": "c3aa173c4c50391c7b3238337511cc578e7d29485839ad53439ee425af4a4687",
+          "checksum/redis": "013343a028cbb3f7e08f4ba7522702dd98e52632c688641074b0b1db3df29894",
+          "checksum/secrets": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "checksum/services": "98792ba93877bb6ea58a636ca27dc360f1237cf114962efd446e1f3319445676",
+          "checksum/solr": "29c14feeaddbf7762052db593898d274941f539cee681ddc613957587686f347",
+          "kubectl.kubernetes.io/restartedAt": "2026-10-19T10:17:46+02:00"
+        },
+        "creationTimestamp": "2026-11-04T14:53:06Z",
+        "generateName": "calibre-web-7dddb68d5d-",
+        "generation": 1,
+        "labels": {
+          "app": "calibre-web-23.0.7",
+          "app.kubernetes.io/instance": "calibre-web",
+          "app.kubernetes.io/managed-by": "Helm",
+          "app.kubernetes.io/name": "calibre-web",
+          "app.kubernetes.io/version": "0.6.27",
+          "helm-revision": "29",
+          "helm.sh/chart": "calibre-web-23.0.7",
+          "pod-template-hash": "7dddb68d5d",
+          "pod.lifecycle": "permanent",
+          "pod.name": "main",
+          "release": "calibre-web",
+          "truecharts.org/pvc": "config_library"
+        },
+        "name": "calibre-web-7dddb68d5d-fsmhj",
+        "namespace": "apps-calibre",
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "ReplicaSet",
+            "name": "calibre-web-7dddb68d5d",
+            "uid": "4c8705da-1806-46ee-ac46-a3ddef3793e0"
+          }
+        ],
+        "resourceVersion": "38666976",
+        "uid": "85a24429-5e0f-4b46-8ae4-85b614a666f4"
+      },
+      "spec": {
+        "affinity": {
+          "podAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": [
+              {
+                "labelSelector": {
+                  "matchExpressions": [
+                    {
+                      "key": "truecharts.org/pvc",
+                      "operator": "In",
+                      "values": [
+                        "config_library"
+                      ]
+                    }
+                  ]
+                },
+                "topologyKey": "kubernetes.io/hostname"
+              }
+            ]
+          }
+        },
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "env": [
+              {
+                "name": "TZ",
+                "value": "Europe/Warsaw"
+              },
+              {
+                "name": "UMASK",
+                "value": "0022"
+              },
+              {
+                "name": "UMASK_SET",
+                "value": "0022"
+              },
+              {
+                "name": "NVIDIA_VISIBLE_DEVICES",
+                "value": "void"
+              },
+              {
+                "name": "PUID",
+                "value": "568"
+              },
+              {
+                "name": "USER_ID",
+                "value": "568"
+              },
+              {
+                "name": "UID",
+                "value": "568"
+              },
+              {
+                "name": "PGID",
+                "value": "568"
+              },
+              {
+                "name": "GROUP_ID",
+                "value": "568"
+              },
+              {
+                "name": "GID",
+                "value": "568"
+              },
+              {
+                "name": "CACHE_DIRECTORY",
+                "value": "/config/thumbnail-cache"
+              }
+            ],
+            "image": "oci.trueforge.org/containerforge/calibre-web:0.6.27@sha256:437bc48806b5ed3e372317b42aba843c07dfad0a353707a9490a250fb46ef386",
+            "imagePullPolicy": "IfNotPresent",
+            "livenessProbe": {
+              "failureThreshold": 5,
+              "httpGet": {
+                "path": "/",
+                "port": 8083,
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 12,
+              "periodSeconds": 15,
+              "successThreshold": 1,
+              "timeoutSeconds": 5
+            },
+            "name": "calibre-web",
+            "ports": [
+              {
+                "containerPort": 8083,
+                "name": "main",
+                "protocol": "TCP"
+              }
+            ],
+            "readinessProbe": {
+              "failureThreshold": 4,
+              "httpGet": {
+                "path": "/",
+                "port": 8083,
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 10,
+              "periodSeconds": 12,
+              "successThreshold": 2,
+              "timeoutSeconds": 5
+            },
+            "resources": {
+              "limits": {
+                "cpu": "1500m",
+                "memory": "2400Mi"
+              },
+              "requests": {
+                "cpu": "75m",
+                "memory": "200Mi"
+              }
+            },
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "capabilities": {
+                "add": [
+                  "CHOWN",
+                  "SETUID",
+                  "SETGID",
+                  "FOWNER",
+                  "DAC_OVERRIDE"
+                ],
+                "drop": [
+                  "ALL"
+                ]
+              },
+              "privileged": false,
+              "readOnlyRootFilesystem": false,
+              "runAsGroup": 0,
+              "runAsNonRoot": false,
+              "runAsUser": 0,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "startupProbe": {
+              "failureThreshold": 60,
+              "httpGet": {
+                "path": "/",
+                "port": 8083,
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 10,
+              "periodSeconds": 5,
+              "successThreshold": 1,
+              "timeoutSeconds": 3
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/books",
+                "name": "books"
+              },
+              {
+                "mountPath": "/config",
+                "name": "config"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "devshm"
+              },
+              {
+                "mountPath": "/library",
+                "name": "library",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/shared",
+                "name": "shared"
+              },
+              {
+                "mountPath": "/tmp",
+                "name": "tmp"
+              },
+              {
+                "mountPath": "/var/logs",
+                "name": "varlogs"
+              },
+              {
+                "mountPath": "/var/run",
+                "name": "varrun"
+              }
+            ]
+          }
+        ],
+        "dnsConfig": {
+          "options": [
+            {
+              "name": "ndots",
+              "value": "1"
+            }
+          ]
+        },
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": false,
+        "hostUsers": true,
+        "nodeName": "proxmox2-old",
+        "nodeSelector": {
+          "kubernetes.io/hostname": "proxmox2-old"
+        },
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {
+          "fsGroup": 568,
+          "fsGroupChangePolicy": "OnRootMismatch",
+          "supplementalGroups": [
+            568
+          ]
+        },
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "shareProcessNamespace": false,
+        "terminationGracePeriodSeconds": 60,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "topologySpreadConstraints": [
+          {
+            "labelSelector": {
+              "matchLabels": {
+                "app.kubernetes.io/instance": "calibre-web",
+                "app.kubernetes.io/name": "calibre-web",
+                "pod.name": "main"
+              }
+            },
+            "maxSkew": 1,
+            "nodeAffinityPolicy": "Honor",
+            "nodeTaintsPolicy": "Honor",
+            "topologyKey": "kubernetes.io/hostname",
+            "whenUnsatisfiable": "ScheduleAnyway"
+          }
+        ],
+        "volumes": [
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "2400Mi"
+            },
+            "name": "devshm"
+          },
+          {
+            "emptyDir": {},
+            "name": "shared"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "2400Mi"
+            },
+            "name": "tmp"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "2400Mi"
+            },
+            "name": "varlogs"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "2400Mi"
+            },
+            "name": "varrun"
+          },
+          {
+            "name": "books",
+            "nfs": {
+              "path": "/mnt/PlexPool/plex/Books",
+              "server": "nas.localdomain.bnowakowski.pl"
+            }
+          },
+          {
+            "name": "config",
+            "persistentVolumeClaim": {
+              "claimName": "calibre-web-config-longhorn-rwo"
+            }
+          },
+          {
+            "name": "library",
+            "persistentVolumeClaim": {
+              "claimName": "calibre-library-longhorn-rwo"
+            }
+          }
+        ]
+      },
+      "status": {
+        "allocatedResources": {
+          "cpu": "75m",
+          "memory": "200Mi"
+        },
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-04T14:53:09Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-04T14:53:06Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-04T14:53:55Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-04T14:53:55Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-04T14:53:06Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "75m",
+              "memory": "200Mi"
+            },
+            "containerID": "containerd://b2b0433f622974f380eef1a62b1737246d6525ac69ff5d03f9d58fe1c5d80f9c",
+            "image": "sha256:46f0305f9066ceed4d8a4e56658015182d42dc3589dcc300407a2f018d7c7037",
+            "imageID": "oci.trueforge.org/containerforge/calibre-web@sha256:437bc48806b5ed3e372317b42aba843c07dfad0a353707a9490a250fb46ef386",
+            "lastState": {},
+            "name": "calibre-web",
+            "ready": true,
+            "resources": {
+              "limits": {
+                "cpu": "1500m",
+                "memory": "2400Mi"
+              },
+              "requests": {
+                "cpu": "75m",
+                "memory": "200Mi"
+              }
+            },
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-11-04T14:53:10Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0,
+                  568
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/books",
+                "name": "books"
+              },
+              {
+                "mountPath": "/config",
+                "name": "config"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "devshm"
+              },
+              {
+                "mountPath": "/library",
+                "name": "library",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/shared",
+                "name": "shared"
+              },
+              {
+                "mountPath": "/tmp",
+                "name": "tmp"
+              },
+              {
+                "mountPath": "/var/logs",
+                "name": "varlogs"
+              },
+              {
+                "mountPath": "/var/run",
+                "name": "varrun"
+              }
+            ]
+          }
+        ],
+        "hostIP": "10.0.0.72",
+        "hostIPs": [
+          {
+            "ip": "10.0.0.72"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.42.2.227",
+        "podIPs": [
+          {
+            "ip": "10.42.2.227"
+          }
+        ],
+        "qosClass": "Burstable",
+        "resources": {
+          "limits": {
+            "cpu": "1500m",
+            "memory": "2400Mi"
+          },
+          "requests": {
+            "cpu": "53m",
+            "memory": "200Mi"
+          }
+        },
+        "startTime": "2026-11-04T14:53:06Z"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "annotations": {
+          "checksum/cnpg": "fc940fff4269c53072f7039f0811133e9b83400670af014010bf50d3f13740f4",
+          "checksum/configmaps": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "checksum/mariadb": "09c85576cb45b1eecd1467732b11ea8fa3363b0105c465f02a6ad64991521d52",
+          "checksum/mongodb": "09c85576cb45b1eecd1467732b11ea8fa3363b0105c465f02a6ad64991521d52",
+          "checksum/persistence": "e561cc3dbcb6d7f1d6d6fae4a63eb60f2495ece397ed8fc19d18565226c26de8",
+          "checksum/redis": "013343a028cbb3f7e08f4ba7522702dd98e52632c688641074b0b1db3df29894",
+          "checksum/secrets": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "checksum/services": "e3d8650c3deb0ccb9590e5ea929dc40c46032f7d113033035d16827258f6b9bf",
+          "checksum/solr": "29c14feeaddbf7762052db593898d274941f539cee681ddc613957587686f347"
+        },
+        "creationTimestamp": "2026-11-04T14:53:28Z",
+        "generateName": "kavita-85bd5fd678-",
+        "generation": 1,
+        "labels": {
+          "app": "kavita-14.0.4",
+          "app.kubernetes.io/instance": "kavita",
+          "app.kubernetes.io/managed-by": "Helm",
+          "app.kubernetes.io/name": "kavita",
+          "app.kubernetes.io/version": "0.8.8.3",
+          "helm-revision": "8",
+          "helm.sh/chart": "kavita-14.0.4",
+          "pod-template-hash": "85bd5fd678",
+          "pod.lifecycle": "permanent",
+          "pod.name": "main",
+          "release": "kavita",
+          "truecharts.org/pvc": "config_library"
+        },
+        "name": "kavita-85bd5fd678-2rgws",
+        "namespace": "apps-calibre",
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "blockOwnerDeletion": true,
+            "controller": true,
+            "kind": "ReplicaSet",
+            "name": "kavita-85bd5fd678",
+            "uid": "bed8ebfb-803f-4869-9e48-5d49919ac495"
+          }
+        ],
+        "resourceVersion": "38667569",
+        "uid": "0f81ad34-fec1-46d3-af1c-55592775d58b"
+      },
+      "spec": {
+        "affinity": {
+          "podAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": [
+              {
+                "labelSelector": {
+                  "matchExpressions": [
+                    {
+                      "key": "truecharts.org/pvc",
+                      "operator": "In",
+                      "values": [
+                        "config_library"
+                      ]
+                    }
+                  ]
+                },
+                "topologyKey": "kubernetes.io/hostname"
+              }
+            ]
+          }
+        },
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "env": [
+              {
+                "name": "TZ",
+                "value": "Europe/Warsaw"
+              },
+              {
+                "name": "UMASK",
+                "value": "0022"
+              },
+              {
+                "name": "UMASK_SET",
+                "value": "0022"
+              },
+              {
+                "name": "NVIDIA_VISIBLE_DEVICES",
+                "value": "void"
+              },
+              {
+                "name": "PUID",
+                "value": "568"
+              },
+              {
+                "name": "USER_ID",
+                "value": "568"
+              },
+              {
+                "name": "UID",
+                "value": "568"
+              },
+              {
+                "name": "PGID",
+                "value": "568"
+              },
+              {
+                "name": "GROUP_ID",
+                "value": "568"
+              },
+              {
+                "name": "GID",
+                "value": "568"
+              }
+            ],
+            "image": "oci.trueforge.org/containerforge/kavita:0.8.8.3@sha256:1e643b36c8bfc16e42fbc8f1a7c893449493da509e777dbbfcbbbb05afae1566",
+            "imagePullPolicy": "IfNotPresent",
+            "livenessProbe": {
+              "failureThreshold": 5,
+              "httpGet": {
+                "path": "/",
+                "port": 5000,
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 12,
+              "periodSeconds": 15,
+              "successThreshold": 1,
+              "timeoutSeconds": 5
+            },
+            "name": "kavita",
+            "ports": [
+              {
+                "containerPort": 5000,
+                "name": "main",
+                "protocol": "TCP"
+              }
+            ],
+            "readinessProbe": {
+              "failureThreshold": 4,
+              "httpGet": {
+                "path": "/",
+                "port": 5000,
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 10,
+              "periodSeconds": 12,
+              "successThreshold": 2,
+              "timeoutSeconds": 5
+            },
+            "resources": {
+              "limits": {
+                "cpu": "1500m",
+                "memory": "2400Mi"
+              },
+              "requests": {
+                "cpu": "75m",
+                "memory": "200Mi"
+              }
+            },
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "capabilities": {
+                "add": [
+                  "CHOWN",
+                  "SETUID",
+                  "SETGID",
+                  "FOWNER",
+                  "DAC_OVERRIDE"
+                ],
+                "drop": [
+                  "ALL"
+                ]
+              },
+              "privileged": false,
+              "readOnlyRootFilesystem": false,
+              "runAsGroup": 0,
+              "runAsNonRoot": false,
+              "runAsUser": 0,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "startupProbe": {
+              "failureThreshold": 60,
+              "httpGet": {
+                "path": "/",
+                "port": 5000,
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 10,
+              "periodSeconds": 5,
+              "successThreshold": 1,
+              "timeoutSeconds": 3
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/books",
+                "name": "books"
+              },
+              {
+                "mountPath": "/config",
+                "name": "config"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "devshm"
+              },
+              {
+                "mountPath": "/library",
+                "name": "library",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/shared",
+                "name": "shared"
+              },
+              {
+                "mountPath": "/var/logs",
+                "name": "varlogs"
+              },
+              {
+                "mountPath": "/var/run",
+                "name": "varrun"
+              }
+            ]
+          }
+        ],
+        "dnsConfig": {
+          "options": [
+            {
+              "name": "ndots",
+              "value": "1"
+            }
+          ]
+        },
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": false,
+        "hostUsers": true,
+        "nodeName": "proxmox2-old",
+        "nodeSelector": {
+          "kubernetes.io/hostname": "proxmox2-old"
+        },
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {
+          "fsGroup": 568,
+          "fsGroupChangePolicy": "OnRootMismatch",
+          "supplementalGroups": [
+            568
+          ]
+        },
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "shareProcessNamespace": false,
+        "terminationGracePeriodSeconds": 60,
+        "tolerations": [
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/not-ready",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          },
+          {
+            "effect": "NoExecute",
+            "key": "node.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "tolerationSeconds": 300
+          }
+        ],
+        "topologySpreadConstraints": [
+          {
+            "labelSelector": {
+              "matchLabels": {
+                "app.kubernetes.io/instance": "kavita",
+                "app.kubernetes.io/name": "kavita",
+                "pod.name": "main"
+              }
+            },
+            "maxSkew": 1,
+            "nodeAffinityPolicy": "Honor",
+            "nodeTaintsPolicy": "Honor",
+            "topologyKey": "kubernetes.io/hostname",
+            "whenUnsatisfiable": "ScheduleAnyway"
+          }
+        ],
+        "volumes": [
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "2400Mi"
+            },
+            "name": "devshm"
+          },
+          {
+            "emptyDir": {},
+            "name": "shared"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "2400Mi"
+            },
+            "name": "varlogs"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "2400Mi"
+            },
+            "name": "varrun"
+          },
+          {
+            "name": "books",
+            "nfs": {
+              "path": "/mnt/PlexPool/plex/Books",
+              "server": "nas.localdomain.bnowakowski.pl"
+            }
+          },
+          {
+            "name": "config",
+            "persistentVolumeClaim": {
+              "claimName": "kavita-config-longhorn-rwo"
+            }
+          },
+          {
+            "name": "library",
+            "persistentVolumeClaim": {
+              "claimName": "calibre-library-longhorn-rwo"
+            }
+          }
+        ]
+      },
+      "status": {
+        "allocatedResources": {
+          "cpu": "75m",
+          "memory": "200Mi"
+        },
+        "conditions": [
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-04T14:53:37Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodReadyToStartContainers"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-04T14:53:29Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Initialized"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-04T14:54:16Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "Ready"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-04T14:54:16Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "ContainersReady"
+          },
+          {
+            "lastProbeTime": null,
+            "lastTransitionTime": "2026-11-04T14:53:29Z",
+            "observedGeneration": 1,
+            "status": "True",
+            "type": "PodScheduled"
+          }
+        ],
+        "containerStatuses": [
+          {
+            "allocatedResources": {
+              "cpu": "75m",
+              "memory": "200Mi"
+            },
+            "containerID": "containerd://424d2f744f5600ddaa8a997d5b3ded0ce43a80c94a8b070dc5b52e6d1d3f35e3",
+            "image": "sha256:3d2c7afedf3141f37d933b79dc2453a369bb3fab7b568af6ad42e79db79f2a62",
+            "imageID": "oci.trueforge.org/containerforge/kavita@sha256:1e643b36c8bfc16e42fbc8f1a7c893449493da509e777dbbfcbbbb05afae1566",
+            "lastState": {},
+            "name": "kavita",
+            "ready": true,
+            "resources": {
+              "limits": {
+                "cpu": "1500m",
+                "memory": "2400Mi"
+              },
+              "requests": {
+                "cpu": "75m",
+                "memory": "200Mi"
+              }
+            },
+            "restartCount": 0,
+            "started": true,
+            "state": {
+              "running": {
+                "startedAt": "2026-11-04T14:53:40Z"
+              }
+            },
+            "user": {
+              "linux": {
+                "gid": 0,
+                "supplementalGroups": [
+                  0,
+                  568
+                ],
+                "uid": 0
+              }
+            },
+            "volumeMounts": [
+              {
+                "mountPath": "/books",
+                "name": "books"
+              },
+              {
+                "mountPath": "/config",
+                "name": "config"
+              },
+              {
+                "mountPath": "/dev/shm",
+                "name": "devshm"
+              },
+              {
+                "mountPath": "/library",
+                "name": "library",
+                "readOnly": true,
+                "recursiveReadOnly": "Disabled"
+              },
+              {
+                "mountPath": "/shared",
+                "name": "shared"
+              },
+              {
+                "mountPath": "/var/logs",
+                "name": "varlogs"
+              },
+              {
+                "mountPath": "/var/run",
+                "name": "varrun"
+              }
+            ]
+          }
+        ],
+        "hostIP": "10.0.0.72",
+        "hostIPs": [
+          {
+            "ip": "10.0.0.72"
+          }
+        ],
+        "observedGeneration": 1,
+        "phase": "Running",
+        "podIP": "10.42.2.254",
+        "podIPs": [
+          {
+            "ip": "10.42.2.254"
+          }
+        ],
+        "qosClass": "Burstable",
+        "resources": {
+          "limits": {
+            "cpu": "1500m",
+            "memory": "2400Mi"
+          },
+          "requests": {
+            "cpu": "53m",
+            "memory": "200Mi"
+          }
+        },
+        "startTime": "2026-11-04T14:53:29Z"
+      }
+    }
+  ],
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": ""
+  }
+}

@@ -1,0 +1,582 @@
+[
+  {
+    "op": "test",
+    "path": "/metadata/resourceVersion",
+    "value": "35476145"
+  },
+  {
+    "op": "test",
+    "path": "/metadata/managedFields",
+    "value": [
+      {
+        "apiVersion": "apps/v1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:metadata": {
+            "f:annotations": {
+              "f:meta.helm.sh/release-name": {},
+              "f:meta.helm.sh/release-namespace": {},
+              "f:objectset.rio.cattle.io/id": {}
+            },
+            "f:labels": {
+              "f:app.kubernetes.io/managed-by": {},
+              "f:component": {},
+              "f:objectset.rio.cattle.io/hash": {}
+            }
+          },
+          "f:spec": {
+            "f:replicas": {},
+            "f:selector": {},
+            "f:strategy": {
+              "f:type": {}
+            },
+            "f:template": {
+              "f:metadata": {
+                "f:labels": {
+                  "f:app": {}
+                }
+              },
+              "f:spec": {
+                "f:containers": {
+                  "k:{\"name\":\"kubeagentmanager\"}": {
+                    ".": {},
+                    "f:args": {},
+                    "f:env": {
+                      "k:{\"name\":\"AGENT_INSTALLATION_METHOD\"}": {
+                        ".": {},
+                        "f:name": {},
+                        "f:value": {}
+                      },
+                      "k:{\"name\":\"AMDS_CLUSTER_ID\"}": {
+                        ".": {},
+                        "f:name": {},
+                        "f:value": {}
+                      },
+                      "k:{\"name\":\"DEPLOYMENT_PLATFORM\"}": {
+                        ".": {},
+                        "f:name": {},
+                        "f:value": {}
+                      },
+                      "k:{\"name\":\"GRPC_ENFORCE_ALPN_ENABLED\"}": {
+                        ".": {},
+                        "f:name": {},
+                        "f:value": {}
+                      },
+                      "k:{\"name\":\"KUBEMOVER_IMAGE\"}": {
+                        ".": {},
+                        "f:name": {}
+                      },
+                      "k:{\"name\":\"MY_POD_NAME\"}": {
+                        ".": {},
+                        "f:name": {}
+                      }
+                    },
+                    "f:name": {},
+                    "f:resources": {
+                      "f:limits": {
+                        "f:cpu": {},
+                        "f:memory": {}
+                      },
+                      "f:requests": {
+                        "f:cpu": {},
+                        "f:memory": {}
+                      }
+                    },
+                    "f:volumeMounts": {
+                      "k:{\"mountPath\":\"/scratch\"}": {
+                        ".": {},
+                        "f:mountPath": {},
+                        "f:name": {}
+                      }
+                    }
+                  }
+                },
+                "f:restartPolicy": {},
+                "f:serviceAccountName": {},
+                "f:terminationGracePeriodSeconds": {},
+                "f:volumes": {
+                  "k:{\"name\":\"scratch\"}": {
+                    ".": {},
+                    "f:emptyDir": {},
+                    "f:name": {}
+                  }
+                }
+              }
+            }
+          }
+        },
+        "manager": "fleetagent",
+        "operation": "Apply",
+        "time": "2026-10-31T13:56:50Z"
+      },
+      {
+        "apiVersion": "apps/v1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:metadata": {
+            "f:labels": {
+              "f:component": {}
+            }
+          },
+          "f:spec": {
+            "f:replicas": {},
+            "f:selector": {},
+            "f:strategy": {
+              "f:type": {}
+            },
+            "f:template": {
+              "f:metadata": {
+                "f:labels": {
+                  "f:app": {}
+                }
+              },
+              "f:spec": {
+                "f:containers": {
+                  "k:{\"name\":\"kubeagentmanager\"}": {
+                    ".": {},
+                    "f:args": {},
+                    "f:env": {
+                      "k:{\"name\":\"AMDS_CLUSTER_ID\"}": {
+                        ".": {},
+                        "f:name": {},
+                        "f:value": {}
+                      },
+                      "k:{\"name\":\"DEPLOYMENT_PLATFORM\"}": {
+                        ".": {},
+                        "f:name": {},
+                        "f:value": {}
+                      },
+                      "k:{\"name\":\"GRPC_ENFORCE_ALPN_ENABLED\"}": {
+                        ".": {},
+                        "f:name": {},
+                        "f:value": {}
+                      },
+                      "k:{\"name\":\"KUBEMOVER_IMAGE\"}": {
+                        ".": {},
+                        "f:name": {},
+                        "f:value": {}
+                      },
+                      "k:{\"name\":\"MY_POD_NAME\"}": {
+                        ".": {},
+                        "f:name": {},
+                        "f:valueFrom": {
+                          "f:fieldRef": {}
+                        }
+                      }
+                    },
+                    "f:image": {},
+                    "f:name": {},
+                    "f:resources": {
+                      "f:limits": {
+                        "f:cpu": {},
+                        "f:memory": {}
+                      },
+                      "f:requests": {
+                        "f:cpu": {},
+                        "f:memory": {}
+                      }
+                    },
+                    "f:securityContext": {
+                      "f:allowPrivilegeEscalation": {},
+                      "f:capabilities": {
+                        "f:drop": {}
+                      }
+                    },
+                    "f:volumeMounts": {
+                      "k:{\"mountPath\":\"/scratch\"}": {
+                        ".": {},
+                        "f:mountPath": {},
+                        "f:name": {}
+                      }
+                    }
+                  }
+                },
+                "f:restartPolicy": {},
+                "f:securityContext": {
+                  "f:runAsNonRoot": {},
+                  "f:runAsUser": {},
+                  "f:seccompProfile": {
+                    "f:type": {}
+                  }
+                },
+                "f:serviceAccountName": {},
+                "f:terminationGracePeriodSeconds": {},
+                "f:volumes": {
+                  "k:{\"name\":\"scratch\"}": {
+                    ".": {},
+                    "f:emptyDir": {},
+                    "f:name": {}
+                  }
+                }
+              }
+            }
+          }
+        },
+        "manager": "cloudcasa-kubeagent-manager",
+        "operation": "Apply",
+        "time": "2026-10-31T13:56:54Z"
+      },
+      {
+        "apiVersion": "apps/v1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:spec": {
+            "f:template": {
+              "f:metadata": {
+                "f:annotations": {
+                  ".": {},
+                  "f:kubectl.kubernetes.io/restartedAt": {}
+                }
+              }
+            }
+          }
+        },
+        "manager": "kubectl-rollout",
+        "operation": "Update",
+        "time": "2026-09-10T15:40:19Z"
+      },
+      {
+        "apiVersion": "apps/v1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:spec": {
+            "f:replicas": {}
+          }
+        },
+        "manager": "kubectl-patch",
+        "operation": "Update",
+        "time": "2026-10-28T16:37:31Z"
+      },
+      {
+        "apiVersion": "apps/v1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:metadata": {
+            "f:annotations": {
+              "f:deployment.kubernetes.io/revision": {}
+            }
+          },
+          "f:status": {
+            "f:availableReplicas": {},
+            "f:conditions": {
+              ".": {},
+              "k:{\"type\":\"Available\"}": {
+                ".": {},
+                "f:lastTransitionTime": {},
+                "f:lastUpdateTime": {},
+                "f:message": {},
+                "f:reason": {},
+                "f:status": {},
+                "f:type": {}
+              },
+              "k:{\"type\":\"Progressing\"}": {
+                ".": {},
+                "f:lastTransitionTime": {},
+                "f:lastUpdateTime": {},
+                "f:message": {},
+                "f:reason": {},
+                "f:status": {},
+                "f:type": {}
+              }
+            },
+            "f:observedGeneration": {},
+            "f:readyReplicas": {},
+            "f:replicas": {},
+            "f:terminatingReplicas": {},
+            "f:updatedReplicas": {}
+          }
+        },
+        "manager": "k3s",
+        "operation": "Update",
+        "subresource": "status",
+        "time": "2026-10-31T13:56:55Z"
+      }
+    ]
+  },
+  {
+    "op": "replace",
+    "path": "/metadata/managedFields",
+    "value": [
+      {
+        "apiVersion": "apps/v1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:metadata": {
+            "f:annotations": {
+              "f:meta.helm.sh/release-name": {},
+              "f:meta.helm.sh/release-namespace": {},
+              "f:objectset.rio.cattle.io/id": {}
+            },
+            "f:labels": {
+              "f:app.kubernetes.io/managed-by": {},
+              "f:component": {},
+              "f:objectset.rio.cattle.io/hash": {}
+            }
+          },
+          "f:spec": {
+            "f:replicas": {},
+            "f:selector": {},
+            "f:strategy": {
+              "f:type": {}
+            },
+            "f:template": {
+              "f:metadata": {
+                "f:labels": {
+                  "f:app": {}
+                }
+              },
+              "f:spec": {
+                "f:containers": {
+                  "k:{\"name\":\"kubeagentmanager\"}": {
+                    ".": {},
+                    "f:args": {},
+                    "f:env": {
+                      "k:{\"name\":\"AGENT_INSTALLATION_METHOD\"}": {
+                        ".": {},
+                        "f:name": {},
+                        "f:value": {}
+                      },
+                      "k:{\"name\":\"AMDS_CLUSTER_ID\"}": {
+                        ".": {},
+                        "f:name": {},
+                        "f:value": {}
+                      },
+                      "k:{\"name\":\"DEPLOYMENT_PLATFORM\"}": {
+                        ".": {},
+                        "f:name": {},
+                        "f:value": {}
+                      },
+                      "k:{\"name\":\"GRPC_ENFORCE_ALPN_ENABLED\"}": {
+                        ".": {},
+                        "f:name": {},
+                        "f:value": {}
+                      },
+                      "k:{\"name\":\"KUBEMOVER_IMAGE\"}": {
+                        ".": {},
+                        "f:name": {}
+                      },
+                      "k:{\"name\":\"MY_POD_NAME\"}": {
+                        ".": {},
+                        "f:name": {}
+                      }
+                    },
+                    "f:name": {},
+                    "f:resources": {
+                      "f:limits": {
+                        "f:cpu": {},
+                        "f:memory": {}
+                      },
+                      "f:requests": {
+                        "f:cpu": {},
+                        "f:memory": {}
+                      }
+                    },
+                    "f:volumeMounts": {
+                      "k:{\"mountPath\":\"/scratch\"}": {
+                        ".": {},
+                        "f:mountPath": {},
+                        "f:name": {}
+                      }
+                    }
+                  }
+                },
+                "f:restartPolicy": {},
+                "f:serviceAccountName": {},
+                "f:terminationGracePeriodSeconds": {},
+                "f:volumes": {
+                  "k:{\"name\":\"scratch\"}": {
+                    ".": {},
+                    "f:emptyDir": {},
+                    "f:name": {}
+                  }
+                }
+              }
+            }
+          }
+        },
+        "manager": "fleetagent",
+        "operation": "Apply",
+        "time": "2026-10-31T13:56:50Z"
+      },
+      {
+        "apiVersion": "apps/v1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:metadata": {
+            "f:labels": {
+              "f:component": {}
+            }
+          },
+          "f:spec": {
+            "f:replicas": {},
+            "f:selector": {},
+            "f:strategy": {
+              "f:type": {}
+            },
+            "f:template": {
+              "f:metadata": {
+                "f:labels": {
+                  "f:app": {}
+                }
+              },
+              "f:spec": {
+                "f:containers": {
+                  "k:{\"name\":\"kubeagentmanager\"}": {
+                    ".": {},
+                    "f:args": {},
+                    "f:env": {
+                      "k:{\"name\":\"AMDS_CLUSTER_ID\"}": {
+                        ".": {},
+                        "f:name": {},
+                        "f:value": {}
+                      },
+                      "k:{\"name\":\"DEPLOYMENT_PLATFORM\"}": {
+                        ".": {},
+                        "f:name": {},
+                        "f:value": {}
+                      },
+                      "k:{\"name\":\"GRPC_ENFORCE_ALPN_ENABLED\"}": {
+                        ".": {},
+                        "f:name": {},
+                        "f:value": {}
+                      },
+                      "k:{\"name\":\"KUBEMOVER_IMAGE\"}": {
+                        ".": {},
+                        "f:name": {},
+                        "f:value": {}
+                      },
+                      "k:{\"name\":\"MY_POD_NAME\"}": {
+                        ".": {},
+                        "f:name": {}
+                      }
+                    },
+                    "f:image": {},
+                    "f:name": {},
+                    "f:resources": {
+                      "f:limits": {
+                        "f:cpu": {},
+                        "f:memory": {}
+                      },
+                      "f:requests": {
+                        "f:cpu": {},
+                        "f:memory": {}
+                      }
+                    },
+                    "f:securityContext": {
+                      "f:allowPrivilegeEscalation": {},
+                      "f:capabilities": {
+                        "f:drop": {}
+                      }
+                    },
+                    "f:volumeMounts": {
+                      "k:{\"mountPath\":\"/scratch\"}": {
+                        ".": {},
+                        "f:mountPath": {},
+                        "f:name": {}
+                      }
+                    }
+                  }
+                },
+                "f:restartPolicy": {},
+                "f:securityContext": {
+                  "f:runAsNonRoot": {},
+                  "f:runAsUser": {},
+                  "f:seccompProfile": {
+                    "f:type": {}
+                  }
+                },
+                "f:serviceAccountName": {},
+                "f:terminationGracePeriodSeconds": {},
+                "f:volumes": {
+                  "k:{\"name\":\"scratch\"}": {
+                    ".": {},
+                    "f:emptyDir": {},
+                    "f:name": {}
+                  }
+                }
+              }
+            }
+          }
+        },
+        "manager": "cloudcasa-kubeagent-manager",
+        "operation": "Apply",
+        "time": "2026-10-31T13:56:54Z"
+      },
+      {
+        "apiVersion": "apps/v1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:spec": {
+            "f:template": {
+              "f:metadata": {
+                "f:annotations": {
+                  ".": {},
+                  "f:kubectl.kubernetes.io/restartedAt": {}
+                }
+              }
+            }
+          }
+        },
+        "manager": "kubectl-rollout",
+        "operation": "Update",
+        "time": "2026-09-10T15:40:19Z"
+      },
+      {
+        "apiVersion": "apps/v1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:spec": {
+            "f:replicas": {}
+          }
+        },
+        "manager": "kubectl-patch",
+        "operation": "Update",
+        "time": "2026-10-28T16:37:31Z"
+      },
+      {
+        "apiVersion": "apps/v1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:metadata": {
+            "f:annotations": {
+              "f:deployment.kubernetes.io/revision": {}
+            }
+          },
+          "f:status": {
+            "f:availableReplicas": {},
+            "f:conditions": {
+              ".": {},
+              "k:{\"type\":\"Available\"}": {
+                ".": {},
+                "f:lastTransitionTime": {},
+                "f:lastUpdateTime": {},
+                "f:message": {},
+                "f:reason": {},
+                "f:status": {},
+                "f:type": {}
+              },
+              "k:{\"type\":\"Progressing\"}": {
+                ".": {},
+                "f:lastTransitionTime": {},
+                "f:lastUpdateTime": {},
+                "f:message": {},
+                "f:reason": {},
+                "f:status": {},
+                "f:type": {}
+              }
+            },
+            "f:observedGeneration": {},
+            "f:readyReplicas": {},
+            "f:replicas": {},
+            "f:terminatingReplicas": {},
+            "f:updatedReplicas": {}
+          }
+        },
+        "manager": "k3s",
+        "operation": "Update",
+        "subresource": "status",
+        "time": "2026-10-31T13:56:55Z"
+      }
+    ]
+  }
+]

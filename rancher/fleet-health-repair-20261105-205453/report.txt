@@ -1,0 +1,9 @@
+2026-11-05T20:54:53.359571+01:00 Preflight; no storage copies or workload scaling are performed.
+2026-11-05T20:54:54.783889+01:00 CloudCasa manager and mover already use the pinned image; preserving it in Fleet.
+2026-11-05T20:54:56.371565+01:00 Generated calibre-storage; preserved live ownership labels and targeting.
+2026-11-05T20:54:56.662896+01:00 Generated longhorn-backups; preserved live ownership labels and targeting.
+2026-11-05T20:54:56.995367+01:00 Generated traefik-resources; preserved live ownership labels and targeting.
+2026-11-05T20:54:57.283889+01:00 Generated cert-manager-resources; preserved live ownership labels and targeting.
+2026-11-05T20:54:58.245008+01:00 Generated cloudcasa; preserved live ownership labels and targeting.
+2026-11-05T20:54:58.384616+01:00 FAILED: Conflicting Helm owner for adguard-home-cors
+2026-11-05T20:54:58.384710+01:00 Changes already applied are retained. Inspect the report and before/after snapshots.

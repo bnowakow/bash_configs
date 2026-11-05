@@ -1,5 +1,19 @@
 # Handoff: point Fleet at the renamed repository (run on proxmox3)
 
+## Completed verification — 2026-11-05 22:12 CET
+
+The repository URL change and subsequent five-bundle repair are confirmed.
+The user-run report `fleet-health-repair-20261105-221223/report.txt` shows
+`rancher-cluster` using `https://github.com/bnowakow/homelab.git`, synced commit
+`28375279fb74b542c92e4dd02502a7d8fbb1083a`, and **69/69 ready** with no
+GitRepo status error. All five repaired bundles and their current
+BundleDeployment IDs are Ready. Calibre and CloudCasa rollouts, Longhorn claim
+references/binding, production issuer/PVE certificate readiness, and both PVE
+HTTPS endpoints passed validation. See `fleet-health-repair-2026-11-05.md`
+for the fixes and historical attempts. This supersedes the earlier 64/69
+readiness result below. NAS symlink cleanup and any separately authorized
+Traefik service restart are outside this repair and have not been performed.
+
 Written 2026-11-05 on the NAS. Workspace: `/home/sup/code/homelab/rancher` on
 **proxmox3**.
 

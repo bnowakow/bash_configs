@@ -1,0 +1,100 @@
+2026-11-05T20:59:42.303688+01:00 Preflight; no storage copies or workload scaling are performed.
+2026-11-05T20:59:43.579156+01:00 Confirmed current traefik-config only manages HelmChartConfig; failed historical release is left untouched.
+2026-11-05T20:59:43.622443+01:00 CloudCasa manager and mover already use the pinned image; preserving it in Fleet.
+2026-11-05T20:59:43.878583+01:00 Generated calibre-storage; preserved live ownership labels and targeting.
+2026-11-05T20:59:44.137475+01:00 Generated longhorn-backups; preserved live ownership labels and targeting.
+2026-11-05T20:59:44.398555+01:00 Generated traefik-resources; preserved live ownership labels and targeting.
+2026-11-05T20:59:44.681908+01:00 Generated cert-manager-resources; preserved live ownership labels and targeting.
+2026-11-05T20:59:45.674522+01:00 Generated cloudcasa; preserved live ownership labels and targeting.
+2026-11-05T20:59:45.807585+01:00 Planned verified legacy ownership transfer for ('Middleware', 'apps-adguard-home', 'adguard-home-cors'); spec unchanged
+2026-11-05T20:59:45.871609+01:00 Planned verified legacy ownership transfer for ('IngressRoute', 'apps-adguard-home', 'adguard-home-tailscale-cors'); spec unchanged
+2026-11-05T20:59:45.942629+01:00 Planned verified legacy ownership transfer for ('IngressRoute', 'apps-adguard-home', 'adguard-home-localdomain-cors'); spec unchanged
+2026-11-05T20:59:46.016147+01:00 Planned verified legacy ownership transfer for ('Middleware', 'apps-jellyseerr', 'jellyseerr-cors'); spec unchanged
+2026-11-05T20:59:46.081664+01:00 Planned verified legacy ownership transfer for ('IngressRoute', 'apps-jellyseerr', 'jellyseerr-tailscale-cors'); spec unchanged
+2026-11-05T20:59:46.148406+01:00 Planned verified legacy ownership transfer for ('IngressRoute', 'apps-jellyseerr', 'jellyseerr-localdomain-cors'); spec unchanged
+2026-11-05T20:59:47.163333+01:00 All preflight checks passed. Applying metadata ownership and Fleet-generated bundles.
+2026-11-05T20:59:47.261128+01:00 Confirmed Helm ownership metadata on -n longhorn-system RecurringJob.longhorn.io nas-daily-backup
+2026-11-05T20:59:47.332333+01:00 Confirmed Helm ownership metadata on -n apps-adguard-home Middleware.traefik.io adguard-home-cors
+2026-11-05T20:59:47.407757+01:00 Confirmed Helm ownership metadata on -n apps-adguard-home IngressRoute.traefik.io adguard-home-tailscale-cors
+2026-11-05T20:59:47.489493+01:00 Confirmed Helm ownership metadata on -n apps-adguard-home IngressRoute.traefik.io adguard-home-localdomain-cors
+2026-11-05T20:59:47.575085+01:00 Confirmed Helm ownership metadata on -n apps-jellyseerr Middleware.traefik.io jellyseerr-cors
+2026-11-05T20:59:47.659071+01:00 Confirmed Helm ownership metadata on -n apps-jellyseerr IngressRoute.traefik.io jellyseerr-tailscale-cors
+2026-11-05T20:59:47.733966+01:00 Confirmed Helm ownership metadata on -n apps-jellyseerr IngressRoute.traefik.io jellyseerr-localdomain-cors
+2026-11-05T20:59:47.785719+01:00 Confirmed Helm ownership metadata on -n pve-proxy Service pve-api
+2026-11-05T20:59:47.858193+01:00 Confirmed Helm ownership metadata on -n pve-proxy EndpointSlice.discovery.k8s.io pve-api-ipv4
+2026-11-05T20:59:47.934667+01:00 Confirmed Helm ownership metadata on -n pve-proxy ServersTransport.traefik.io pve-backend
+2026-11-05T20:59:48.006076+01:00 Confirmed Helm ownership metadata on -n pve-proxy Middleware.traefik.io pve-api-cors
+2026-11-05T20:59:48.086512+01:00 Confirmed Helm ownership metadata on -n pve-proxy Certificate.cert-manager.io pve-ui
+2026-11-05T20:59:48.165622+01:00 Confirmed Helm ownership metadata on -n pve-proxy IngressRoute.traefik.io pve-ui
+2026-11-05T20:59:48.418573+01:00 bundle.fleet.cattle.io/calibre-storage configured
+2026-11-05T20:59:48.657054+01:00 bundle.fleet.cattle.io/longhorn-backups configured
+2026-11-05T20:59:48.908394+01:00 bundle.fleet.cattle.io/traefik-resources configured
+2026-11-05T20:59:49.160829+01:00 bundle.fleet.cattle.io/cert-manager-resources configured
+2026-11-05T20:59:49.431104+01:00 bundle.fleet.cattle.io/cloudcasa configured
+2026-11-05T20:59:49.538018+01:00 Confirmed current Bundle generation Ready: cert-manager-resources
+2026-11-05T20:59:49.635939+01:00 Confirmed current Bundle generation Ready: calibre-storage
+2026-11-05T20:59:49.690567+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T20:59:59.852089+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:00:10.004978+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:00:20.171142+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:00:30.323201+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:00:40.465107+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:00:50.602668+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:01:00.743525+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:01:10.886275+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:01:21.024937+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:01:31.182937+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:01:41.330658+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:01:51.486939+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:02:01.647142+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:02:11.806916+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:02:21.965723+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:02:32.118249+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:02:42.253458+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:02:52.390875+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:03:02.529292+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:03:12.669254+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:03:22.816296+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:03:32.971754+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:03:43.126624+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:03:53.274203+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:04:03.432935+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:04:13.585378+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:04:23.728284+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:04:33.887051+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:04:44.037113+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:04:54.226226+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:05:04.381604+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:05:14.548229+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:05:24.839550+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:05:35.027260+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:05:45.182395+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:05:55.337206+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:06:05.635399+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:06:15.942994+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:06:26.159139+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:06:36.341302+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:06:46.563097+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:06:56.752473+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:07:06.965646+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:07:17.242272+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:07:27.393933+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:07:37.603852+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:07:47.832924+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:07:57.999492+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:08:08.186826+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:08:18.401298+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:08:28.588531+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:08:38.784795+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:08:48.922920+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:08:59.059610+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:09:09.204466+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:09:19.365726+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:09:29.538945+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:09:39.707209+01:00 Waiting: cloudcasa, longhorn-backups, traefik-resources
+2026-11-05T21:09:50.162523+01:00 Confirmed BundleDeployment applied current deployment ID: calibre-storage
+2026-11-05T21:09:50.162611+01:00 Confirmed BundleDeployment applied current deployment ID: longhorn-backups
+2026-11-05T21:09:50.162651+01:00 Confirmed BundleDeployment applied current deployment ID: traefik-resources
+2026-11-05T21:09:50.162734+01:00 Confirmed BundleDeployment applied current deployment ID: cert-manager-resources
+2026-11-05T21:09:50.162792+01:00 FAILED: BundleDeployment has not applied its current deployment ID: cloudcasa
+2026-11-05T21:09:50.162823+01:00 Changes already applied are retained. Inspect the report and before/after snapshots.

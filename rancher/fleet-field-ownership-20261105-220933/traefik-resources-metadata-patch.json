@@ -1,0 +1,98 @@
+[
+  {
+    "op": "test",
+    "path": "/metadata/resourceVersion",
+    "value": "39654282"
+  },
+  {
+    "op": "test",
+    "path": "/metadata/managedFields",
+    "value": [
+      {
+        "apiVersion": "discovery.k8s.io/v1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:addressType": {},
+          "f:endpoints": {},
+          "f:metadata": {
+            "f:annotations": {
+              ".": {},
+              "f:kubectl.kubernetes.io/last-applied-configuration": {}
+            },
+            "f:labels": {
+              ".": {},
+              "f:kubernetes.io/service-name": {}
+            }
+          },
+          "f:ports": {}
+        },
+        "manager": "kubectl-client-side-apply",
+        "operation": "Update",
+        "time": "2026-09-18T17:40:41Z"
+      },
+      {
+        "apiVersion": "discovery.k8s.io/v1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:metadata": {
+            "f:annotations": {
+              "f:meta.helm.sh/release-name": {},
+              "f:meta.helm.sh/release-namespace": {}
+            },
+            "f:labels": {
+              "f:app.kubernetes.io/managed-by": {}
+            }
+          }
+        },
+        "manager": "kubectl-patch",
+        "operation": "Update",
+        "time": "2026-11-05T19:59:47Z"
+      }
+    ]
+  },
+  {
+    "op": "replace",
+    "path": "/metadata/managedFields",
+    "value": [
+      {
+        "apiVersion": "discovery.k8s.io/v1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:addressType": {},
+          "f:metadata": {
+            "f:annotations": {
+              ".": {},
+              "f:kubectl.kubernetes.io/last-applied-configuration": {}
+            },
+            "f:labels": {
+              ".": {},
+              "f:kubernetes.io/service-name": {}
+            }
+          },
+          "f:ports": {}
+        },
+        "manager": "kubectl-client-side-apply",
+        "operation": "Update",
+        "time": "2026-09-18T17:40:41Z"
+      },
+      {
+        "apiVersion": "discovery.k8s.io/v1",
+        "fieldsType": "FieldsV1",
+        "fieldsV1": {
+          "f:metadata": {
+            "f:annotations": {
+              "f:meta.helm.sh/release-name": {},
+              "f:meta.helm.sh/release-namespace": {}
+            },
+            "f:labels": {
+              "f:app.kubernetes.io/managed-by": {}
+            }
+          }
+        },
+        "manager": "kubectl-patch",
+        "operation": "Update",
+        "time": "2026-11-05T19:59:47Z"
+      }
+    ]
+  }
+]

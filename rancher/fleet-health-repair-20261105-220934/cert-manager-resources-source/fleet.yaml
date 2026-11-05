@@ -1,0 +1,11 @@
+dependsOn:
+- name: cert-manager
+targets:
+- clusterGroup: default
+  name: default
+targetRestrictions:
+- clusterGroup: default
+  name: default
+targetCustomizationMode: FirstMatch
+forceSyncGeneration: 7
+name: cert-manager-resources

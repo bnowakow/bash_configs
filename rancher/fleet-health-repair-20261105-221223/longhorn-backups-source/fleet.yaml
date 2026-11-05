@@ -1,0 +1,14 @@
+defaultNamespace: longhorn-system
+dependsOn:
+- name: longhorn
+helm:
+  releaseName: longhorn-backups
+targets:
+- clusterGroup: default
+  name: default
+targetRestrictions:
+- clusterGroup: default
+  name: default
+targetCustomizationMode: FirstMatch
+forceSyncGeneration: 8
+name: longhorn-backups

@@ -1,0 +1,41 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "fleet.cattle.io/v1alpha1",
+      "kind": "Bundle",
+      "metadata": {
+        "labels": {
+          "fleet.cattle.io/commit": "28375279fb74b542c92e4dd02502a7d8fbb1083a",
+          "fleet.cattle.io/repo-name": "rancher-cluster"
+        },
+        "name": "calibre-storage",
+        "namespace": "fleet-local"
+      },
+      "spec": {
+        "defaultNamespace": "apps-calibre",
+        "resources": [
+          {
+            "content": "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: calibre-retired-local-path-storage\ndata:\n  status: retired\n  explanation: >-\n    The local-path calibre-library and calibre-web-config claims were migrated\n    and reclaimed in October 2026. Active Longhorn claims are owned by the\n    longhorn-calibre-arr-storage bundle. Do not recreate the old claims.\n",
+            "name": "retired-storage.yaml"
+          }
+        ],
+        "targets": [
+          {
+            "clusterGroup": "default",
+            "name": "default"
+          }
+        ],
+        "targetRestrictions": [
+          {
+            "clusterGroup": "default",
+            "name": "default"
+          }
+        ],
+        "targetCustomizationMode": "FirstMatch",
+        "forceSyncGeneration": 7
+      }
+    }
+  ]
+}

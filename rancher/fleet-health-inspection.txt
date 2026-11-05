@@ -1,22 +1,25 @@
-2026-11-05T20:50:13+01:00
+2026-11-05T21:06:03+01:00
 
 ### Bundle calibre-storage (resource contents omitted)
 {
   "apiVersion": "fleet.cattle.io/v1alpha1",
   "kind": "Bundle",
   "metadata": {
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"fleet.cattle.io/v1alpha1\",\"kind\":\"Bundle\",\"metadata\":{\"annotations\":{},\"labels\":{\"fleet.cattle.io/commit\":\"28375279fb74b542c92e4dd02502a7d8fbb1083a\",\"fleet.cattle.io/repo-name\":\"rancher-cluster\"},\"name\":\"calibre-storage\",\"namespace\":\"fleet-local\"},\"spec\":{\"defaultNamespace\":\"apps-calibre\",\"forceSyncGeneration\":7,\"resources\":[{\"content\":\"apiVersion: v1\\nkind: ConfigMap\\nmetadata:\\n  name: calibre-retired-local-path-storage\\ndata:\\n  status: retired\\n  explanation: \\u003e-\\n    The local-path calibre-library and calibre-web-config claims were migrated\\n    and reclaimed in October 2026. Active Longhorn claims are owned by the\\n    longhorn-calibre-arr-storage bundle. Do not recreate the old claims.\\n\",\"name\":\"retired-storage.yaml\"}],\"targetCustomizationMode\":\"FirstMatch\",\"targetRestrictions\":[{\"clusterGroup\":\"default\",\"name\":\"default\"}],\"targets\":[{\"clusterGroup\":\"default\",\"name\":\"default\"}]}}\n"
+    },
     "creationTimestamp": "2026-10-19T05:05:40Z",
     "finalizers": [
       "fleet.cattle.io/bundle-finalizer"
     ],
-    "generation": 2,
+    "generation": 3,
     "labels": {
-      "fleet.cattle.io/commit": "97a0f02db12fd5c710197079ec95f08e6db41f26",
+      "fleet.cattle.io/commit": "28375279fb74b542c92e4dd02502a7d8fbb1083a",
       "fleet.cattle.io/repo-name": "rancher-cluster"
     },
     "name": "calibre-storage",
     "namespace": "fleet-local",
-    "resourceVersion": "39623544",
+    "resourceVersion": "39654291",
     "uid": "cf1b7a28-8aca-42f4-bbc8-d14bf90b6958"
   },
   "spec": {
@@ -39,18 +42,16 @@
   "status": {
     "conditions": [
       {
-        "lastUpdateTime": "2026-10-26T17:12:56Z",
-        "message": "Modified(1) [Cluster fleet-local/local]; persistentvolumeclaim.v1 apps-calibre/calibre-library missing; persistentvolumeclaim.v1 apps-calibre/calibre-web-config missing",
-        "status": "False",
+        "lastUpdateTime": "2026-11-05T19:55:11Z",
+        "status": "True",
         "type": "Ready"
       }
     ],
     "display": {
-      "readyClusters": "0/1",
-      "state": "Modified"
+      "readyClusters": "1/1"
     },
     "maxUnavailable": 1,
-    "observedGeneration": 2,
+    "observedGeneration": 3,
     "partitions": [
       {
         "count": 1,
@@ -58,60 +59,14 @@
         "name": "All",
         "summary": {
           "desiredReady": 1,
-          "modified": 1,
-          "nonReadyResources": [
-            {
-              "bundleState": "Modified",
-              "modifiedStatus": [
-                {
-                  "apiVersion": "v1",
-                  "kind": "PersistentVolumeClaim",
-                  "missing": true,
-                  "name": "calibre-library",
-                  "namespace": "apps-calibre"
-                },
-                {
-                  "apiVersion": "v1",
-                  "kind": "PersistentVolumeClaim",
-                  "missing": true,
-                  "name": "calibre-web-config",
-                  "namespace": "apps-calibre"
-                }
-              ],
-              "name": "fleet-local/local"
-            }
-          ],
-          "ready": 0
+          "ready": 1
         }
       }
     ],
-    "resourcesSha256Sum": "195b26515c566c2c3260cd26362f3d05a58ac395da9a7ab39f661101eae879e3",
+    "resourcesSha256Sum": "a21470a79d06a8646646eebdeeb4fa94b193aad92e1c5abc8e099d1697e3b13d",
     "summary": {
       "desiredReady": 1,
-      "modified": 1,
-      "nonReadyResources": [
-        {
-          "bundleState": "Modified",
-          "modifiedStatus": [
-            {
-              "apiVersion": "v1",
-              "kind": "PersistentVolumeClaim",
-              "missing": true,
-              "name": "calibre-library",
-              "namespace": "apps-calibre"
-            },
-            {
-              "apiVersion": "v1",
-              "kind": "PersistentVolumeClaim",
-              "missing": true,
-              "name": "calibre-web-config",
-              "namespace": "apps-calibre"
-            }
-          ],
-          "name": "fleet-local/local"
-        }
-      ],
-      "ready": 0
+      "ready": 1
     },
     "unavailable": 0
   }
@@ -122,18 +77,21 @@
   "apiVersion": "fleet.cattle.io/v1alpha1",
   "kind": "Bundle",
   "metadata": {
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"fleet.cattle.io/v1alpha1\",\"kind\":\"Bundle\",\"metadata\":{\"annotations\":{},\"labels\":{\"fleet.cattle.io/commit\":\"28375279fb74b542c92e4dd02502a7d8fbb1083a\",\"fleet.cattle.io/repo-name\":\"rancher-cluster\"},\"name\":\"longhorn-backups\",\"namespace\":\"fleet-local\"},\"spec\":{\"defaultNamespace\":\"longhorn-system\",\"dependsOn\":[{\"name\":\"longhorn\"}],\"forceSyncGeneration\":7,\"helm\":{\"releaseName\":\"longhorn-backups\"},\"resources\":[{\"content\":\"apiVersion: longhorn.io/v1beta2\\nkind: RecurringJob\\nmetadata:\\n  name: nas-daily-backup\\n  namespace: longhorn-system\\nspec:\\n  name: nas-daily-backup\\n  cron: \\\"0 1 * * *\\\"\\n  task: backup\\n  groups:\\n    - nas-backup\\n  retentionPolicy: count-based\\n  retain: 14\\n  concurrency: 1\\n  parameters:\\n    full-backup-interval: \\\"7\\\"\\n\",\"name\":\"recurring-job.yaml\"}],\"targetCustomizationMode\":\"FirstMatch\",\"targetRestrictions\":[{\"clusterGroup\":\"default\",\"name\":\"default\"}],\"targets\":[{\"clusterGroup\":\"default\",\"name\":\"default\"}]}}\n"
+    },
     "creationTimestamp": "2026-10-09T17:27:07Z",
     "finalizers": [
       "fleet.cattle.io/bundle-finalizer"
     ],
-    "generation": 1,
+    "generation": 2,
     "labels": {
-      "fleet.cattle.io/commit": "97a0f02db12fd5c710197079ec95f08e6db41f26",
+      "fleet.cattle.io/commit": "28375279fb74b542c92e4dd02502a7d8fbb1083a",
       "fleet.cattle.io/repo-name": "rancher-cluster"
     },
     "name": "longhorn-backups",
     "namespace": "fleet-local",
-    "resourceVersion": "39623678",
+    "resourceVersion": "39654292",
     "uid": "1da63367-8fe5-4a25-8f1d-06d46250266b"
   },
   "spec": {
@@ -144,6 +102,9 @@
       }
     ],
     "forceSyncGeneration": 7,
+    "helm": {
+      "releaseName": "longhorn-backups"
+    },
     "targetCustomizationMode": "FirstMatch",
     "targetRestrictions": [
       {
@@ -161,7 +122,7 @@
   "status": {
     "conditions": [
       {
-        "lastUpdateTime": "2026-10-28T19:32:11Z",
+        "lastUpdateTime": "2026-11-05T19:55:16Z",
         "message": "NotReady(1) [Cluster fleet-local/local: not installed: unable to continue with install: RecurringJob \"nas-daily-backup\" in namespace \"longhorn-system\" exists and cannot be imported into the current release: invalid ownership metadata; label validation error: missing key \"app.kubernetes.io/managed-by\": must be set to \"Helm\"; annotation validation error: missing key \"meta.helm.sh/release-name\": must be set to \"longhorn-backups\"; annotation validation error: missing key \"meta.helm.sh/release-namespace\": must be set to \"longhorn-system\"]",
         "status": "False",
         "type": "Ready"
@@ -172,7 +133,7 @@
       "state": "NotReady"
     },
     "maxUnavailable": 1,
-    "observedGeneration": 1,
+    "observedGeneration": 2,
     "partitions": [
       {
         "count": 1,
@@ -214,22 +175,29 @@
   "apiVersion": "fleet.cattle.io/v1alpha1",
   "kind": "Bundle",
   "metadata": {
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"fleet.cattle.io/v1alpha1\",\"kind\":\"Bundle\",\"metadata\":{\"annotations\":{},\"labels\":{\"fleet.cattle.io/commit\":\"28375279fb74b542c92e4dd02502a7d8fbb1083a\",\"fleet.cattle.io/repo-name\":\"rancher-cluster\"},\"name\":\"traefik-resources\",\"namespace\":\"fleet-local\"},\"spec\":{\"defaultNamespace\":\"fleet-local\",\"forceSyncGeneration\":7,\"helm\":{\"releaseName\":\"traefik-resources\"},\"resources\":[{\"content\":\"apiVersion: traefik.io/v1alpha1\\nkind: Middleware\\nmetadata:\\n  name: adguard-home-cors\\n  namespace: apps-adguard-home\\nspec:\\n  headers:\\n    accessControlAllowOriginList:\\n      - https://homer.rancher.tailscale.bnowakowski.pl\\n      - https://homer.rancher.localdomain.bnowakowski.pl\\n    accessControlAllowMethods:\\n      - GET\\n      - OPTIONS\\n    accessControlAllowHeaders:\\n      - Authorization\\n      - Content-Type\\n    accessControlMaxAge: 600\\n    addVaryHeader: true\\n---\\napiVersion: traefik.io/v1alpha1\\nkind: IngressRoute\\nmetadata:\\n  name: adguard-home-tailscale-cors\\n  namespace: apps-adguard-home\\nspec:\\n  entryPoints:\\n    - websecure\\n  routes:\\n    - kind: Rule\\n      match: Host(`adguard-home.rancher.tailscale.bnowakowski.pl`)\\n      priority: 100\\n      middlewares:\\n        - name: adguard-home-cors\\n      services:\\n        - name: adguard-home\\n          port: main\\n  tls:\\n    secretName: adguard-home-tls-0\\n---\\napiVersion: traefik.io/v1alpha1\\nkind: IngressRoute\\nmetadata:\\n  name: adguard-home-localdomain-cors\\n  namespace: apps-adguard-home\\nspec:\\n  entryPoints:\\n    - websecure\\n  routes:\\n    - kind: Rule\\n      match: Host(`adguard-home.rancher.localdomain.bnowakowski.pl`)\\n      priority: 100\\n      middlewares:\\n        - name: adguard-home-cors\\n      services:\\n        - name: adguard-home\\n          port: main\\n  tls:\\n    secretName: adguard-home-tls-1\\n\",\"name\":\"adguard-home-cors.yaml\"},{\"content\":\"apiVersion: traefik.io/v1alpha1\\nkind: Middleware\\nmetadata:\\n  name: jellyseerr-cors\\n  namespace: apps-jellyseerr\\nspec:\\n  headers:\\n    accessControlAllowOriginList:\\n      - https://homer.rancher.tailscale.bnowakowski.pl\\n      - https://homer.rancher.localdomain.bnowakowski.pl\\n    accessControlAllowMethods:\\n      - GET\\n      - OPTIONS\\n    accessControlAllowHeaders:\\n      - X-Api-Key\\n      - Content-Type\\n    accessControlMaxAge: 600\\n    addVaryHeader: true\\n---\\napiVersion: traefik.io/v1alpha1\\nkind: IngressRoute\\nmetadata:\\n  name: jellyseerr-tailscale-cors\\n  namespace: apps-jellyseerr\\nspec:\\n  entryPoints:\\n    - websecure\\n  routes:\\n    - kind: Rule\\n      match: Host(`jellyseerr.rancher.tailscale.bnowakowski.pl`)\\n      priority: 100\\n      middlewares:\\n        - name: jellyseerr-cors\\n      services:\\n        - name: jellyseerr\\n          port: main\\n  tls:\\n    secretName: jellyseerr-tls-0\\n---\\napiVersion: traefik.io/v1alpha1\\nkind: IngressRoute\\nmetadata:\\n  name: jellyseerr-localdomain-cors\\n  namespace: apps-jellyseerr\\nspec:\\n  entryPoints:\\n    - websecure\\n  routes:\\n    - kind: Rule\\n      match: Host(`jellyseerr.rancher.localdomain.bnowakowski.pl`)\\n      priority: 100\\n      middlewares:\\n        - name: jellyseerr-cors\\n      services:\\n        - name: jellyseerr\\n          port: main\\n  tls:\\n    secretName: jellyseerr-tls-1\\n\",\"name\":\"jellyseerr-cors.yaml\"},{\"content\":\"apiVersion: traefik.io/v1alpha1\\nkind: Middleware\\nmetadata:\\n  name: prowlarr-cors\\n  namespace: apps-prowlarr\\nspec:\\n  headers:\\n    accessControlAllowOriginList:\\n      - https://homer.rancher.tailscale.bnowakowski.pl\\n      - https://homer.rancher.localdomain.bnowakowski.pl\\n    accessControlAllowMethods:\\n      - GET\\n      - OPTIONS\\n    accessControlAllowHeaders:\\n      - X-Api-Key\\n      - Authorization\\n      - Content-Type\\n    accessControlMaxAge: 600\\n    addVaryHeader: true\\n---\\napiVersion: traefik.io/v1alpha1\\nkind: IngressRoute\\nmetadata:\\n  name: prowlarr-tailscale-cors\\n  namespace: apps-prowlarr\\nspec:\\n  entryPoints:\\n    - websecure\\n  routes:\\n    - kind: Rule\\n      match: Host(`prowlarr.rancher.tailscale.bnowakowski.pl`)\\n      priority: 100\\n      middlewares:\\n        - name: prowlarr-cors\\n      services:\\n        - name: prowlarr\\n          port: main\\n  tls:\\n    secretName: prowlarr-tls-0\\n---\\napiVersion: traefik.io/v1alpha1\\nkind: IngressRoute\\nmetadata:\\n  name: prowlarr-localdomain-cors\\n  namespace: apps-prowlarr\\nspec:\\n  entryPoints:\\n    - websecure\\n  routes:\\n    - kind: Rule\\n      match: Host(`prowlarr.rancher.localdomain.bnowakowski.pl`)\\n      priority: 100\\n      middlewares:\\n        - name: prowlarr-cors\\n      services:\\n        - name: prowlarr\\n          port: main\\n  tls:\\n    secretName: prowlarr-tls-1\\n\",\"name\":\"prowlarr-cors.yaml\"},{\"content\":\"apiVersion: v1\\nkind: Service\\nmetadata:\\n  name: pve-api\\n  namespace: pve-proxy\\nspec:\\n  ports:\\n    - name: https\\n      port: 8006\\n      protocol: TCP\\n---\\napiVersion: discovery.k8s.io/v1\\nkind: EndpointSlice\\nmetadata:\\n  name: pve-api-ipv4\\n  namespace: pve-proxy\\n  labels:\\n    kubernetes.io/service-name: pve-api\\naddressType: IPv4\\nports:\\n  - name: https\\n    protocol: TCP\\n    port: 8006\\nendpoints:\\n  - addresses:\\n      - 10.0.0.72\\n---\\n# PVE serves its own certificate on 8006.  Traefik terminates the public TLS\\n# connection and deliberately does not validate that private backend cert.\\napiVersion: traefik.io/v1alpha1\\nkind: ServersTransport\\nmetadata:\\n  name: pve-backend\\n  namespace: pve-proxy\\nspec:\\n  insecureSkipVerify: true\\n---\\napiVersion: traefik.io/v1alpha1\\nkind: Middleware\\nmetadata:\\n  name: pve-api-cors\\n  namespace: pve-proxy\\nspec:\\n  headers:\\n    accessControlAllowOriginList:\\n      - https://homer.rancher.tailscale.bnowakowski.pl\\n      - https://homer.rancher.localdomain.bnowakowski.pl\\n    accessControlAllowMethods:\\n      - GET\\n      - OPTIONS\\n    accessControlAllowHeaders:\\n      - Authorization\\n      - Content-Type\\n    accessControlMaxAge: 600\\n    addVaryHeader: true\\n---\\napiVersion: cert-manager.io/v1\\nkind: Certificate\\nmetadata:\\n  name: pve-ui\\n  namespace: pve-proxy\\nspec:\\n  secretName: pve-ui-tls\\n  issuerRef:\\n    kind: ClusterIssuer\\n    name: letsencrypt\\n  dnsNames:\\n    - proxmox2-old.localdomain.bnowakowski.pl\\n    - proxmox2-old.tailscale.bnowakowski.pl\\n---\\napiVersion: traefik.io/v1alpha1\\nkind: IngressRoute\\nmetadata:\\n  name: pve-ui\\n  namespace: pve-proxy\\nspec:\\n  entryPoints:\\n    - websecure\\n  routes:\\n    - kind: Rule\\n      match: (Host(`proxmox2-old.localdomain.bnowakowski.pl`) || Host(`proxmox2-old.tailscale.bnowakowski.pl`)) \\u0026\\u0026 PathPrefix(`/api2/`)\\n      priority: 100\\n      middlewares:\\n        - name: pve-api-cors\\n      services:\\n        - name: pve-api\\n          port: 8006\\n          scheme: https\\n          serversTransport: pve-backend\\n    - kind: Rule\\n      match: Host(`proxmox2-old.localdomain.bnowakowski.pl`) || Host(`proxmox2-old.tailscale.bnowakowski.pl`)\\n      services:\\n        - name: pve-api\\n          port: 8006\\n          scheme: https\\n          serversTransport: pve-backend\\n  tls:\\n    secretName: pve-ui-tls\\n\",\"name\":\"pve-proxy.yaml\"},{\"content\":\"apiVersion: traefik.io/v1alpha1\\nkind: Middleware\\nmetadata:\\n  name: radarr-cors\\n  namespace: apps-radarr\\nspec:\\n  headers:\\n    accessControlAllowOriginList:\\n      - https://homer.rancher.tailscale.bnowakowski.pl\\n      - https://homer.rancher.localdomain.bnowakowski.pl\\n    accessControlAllowMethods:\\n      - GET\\n      - OPTIONS\\n    accessControlAllowHeaders:\\n      - X-Api-Key\\n      - Authorization\\n      - Content-Type\\n    accessControlMaxAge: 600\\n    addVaryHeader: true\\n---\\napiVersion: traefik.io/v1alpha1\\nkind: IngressRoute\\nmetadata:\\n  name: radarr-tailscale-cors\\n  namespace: apps-radarr\\nspec:\\n  entryPoints:\\n    - websecure\\n  routes:\\n    - kind: Rule\\n      match: Host(`radarr.rancher.tailscale.bnowakowski.pl`)\\n      priority: 100\\n      middlewares:\\n        - name: radarr-cors\\n      services:\\n        - name: radarr\\n          port: main\\n  tls:\\n    secretName: radarr-tls-0\\n---\\napiVersion: traefik.io/v1alpha1\\nkind: IngressRoute\\nmetadata:\\n  name: radarr-localdomain-cors\\n  namespace: apps-radarr\\nspec:\\n  entryPoints:\\n    - websecure\\n  routes:\\n    - kind: Rule\\n      match: Host(`radarr.rancher.localdomain.bnowakowski.pl`)\\n      priority: 100\\n      middlewares:\\n        - name: radarr-cors\\n      services:\\n        - name: radarr\\n          port: main\\n  tls:\\n    secretName: radarr-tls-1\\n\",\"name\":\"radarr-cors.yaml\"},{\"content\":\"apiVersion: traefik.io/v1alpha1\\nkind: Middleware\\nmetadata:\\n  name: sonarr-cors\\n  namespace: apps-sonarr\\nspec:\\n  headers:\\n    accessControlAllowOriginList:\\n      - https://homer.rancher.tailscale.bnowakowski.pl\\n      - https://homer.rancher.localdomain.bnowakowski.pl\\n    accessControlAllowMethods:\\n      - GET\\n      - OPTIONS\\n    accessControlAllowHeaders:\\n      - X-Api-Key\\n      - Authorization\\n      - Content-Type\\n    accessControlMaxAge: 600\\n    addVaryHeader: true\\n---\\napiVersion: traefik.io/v1alpha1\\nkind: IngressRoute\\nmetadata:\\n  name: sonarr-tailscale-cors\\n  namespace: apps-sonarr\\nspec:\\n  entryPoints:\\n    - websecure\\n  routes:\\n    - kind: Rule\\n      match: Host(`sonarr.rancher.tailscale.bnowakowski.pl`)\\n      priority: 100\\n      middlewares:\\n        - name: sonarr-cors\\n      services:\\n        - name: sonarr\\n          port: main\\n  tls:\\n    secretName: sonarr-tls-0\\n---\\napiVersion: traefik.io/v1alpha1\\nkind: IngressRoute\\nmetadata:\\n  name: sonarr-localdomain-cors\\n  namespace: apps-sonarr\\nspec:\\n  entryPoints:\\n    - websecure\\n  routes:\\n    - kind: Rule\\n      match: Host(`sonarr.rancher.localdomain.bnowakowski.pl`)\\n      priority: 100\\n      middlewares:\\n        - name: sonarr-cors\\n      services:\\n        - name: sonarr\\n          port: main\\n  tls:\\n    secretName: sonarr-tls-1\\n\",\"name\":\"sonarr-cors.yaml\"}],\"targetCustomizationMode\":\"FirstMatch\",\"targetRestrictions\":[{\"clusterGroup\":\"default\",\"name\":\"default\"}],\"targets\":[{\"clusterGroup\":\"default\",\"name\":\"default\"}]}}\n"
+    },
     "creationTimestamp": "2026-09-21T18:42:40Z",
     "finalizers": [
       "fleet.cattle.io/bundle-finalizer"
     ],
-    "generation": 7,
+    "generation": 8,
     "labels": {
-      "fleet.cattle.io/commit": "97a0f02db12fd5c710197079ec95f08e6db41f26",
+      "fleet.cattle.io/commit": "28375279fb74b542c92e4dd02502a7d8fbb1083a",
       "fleet.cattle.io/repo-name": "rancher-cluster"
     },
     "name": "traefik-resources",
     "namespace": "fleet-local",
-    "resourceVersion": "39623734",
+    "resourceVersion": "39654293",
     "uid": "4eeac254-564d-4e26-9234-1ad6be9176c6"
   },
   "spec": {
+    "defaultNamespace": "fleet-local",
     "forceSyncGeneration": 7,
+    "helm": {
+      "releaseName": "traefik-resources"
+    },
     "targetCustomizationMode": "FirstMatch",
     "targetRestrictions": [
       {
@@ -247,8 +215,8 @@
   "status": {
     "conditions": [
       {
-        "lastUpdateTime": "2026-09-23T15:24:56Z",
-        "message": "NotReady(1) [Cluster fleet-local/local: not installed: unable to continue with install: Service \"pve-api\" in namespace \"pve-proxy\" exists and cannot be imported into the current release: invalid ownership metadata; annotation validation error: key \"meta.helm.sh/release-namespace\" must equal \"default\": current value is \"fleet-local\"]",
+        "lastUpdateTime": "2026-11-05T19:55:14Z",
+        "message": "NotReady(1) [Cluster fleet-local/local: not installed: unable to continue with install: Certificate \"pve-ui\" in namespace \"pve-proxy\" exists and cannot be imported into the current release: invalid ownership metadata; annotation validation error: missing key \"meta.helm.sh/release-name\": must be set to \"traefik-resources\"; annotation validation error: missing key \"meta.helm.sh/release-namespace\": must be set to \"fleet-local\"]",
         "status": "False",
         "type": "Ready"
       }
@@ -258,7 +226,7 @@
       "state": "NotReady"
     },
     "maxUnavailable": 1,
-    "observedGeneration": 7,
+    "observedGeneration": 8,
     "partitions": [
       {
         "count": 1,
@@ -269,7 +237,7 @@
           "nonReadyResources": [
             {
               "bundleState": "NotReady",
-              "message": "not installed: unable to continue with install: Service \"pve-api\" in namespace \"pve-proxy\" exists and cannot be imported into the current release: invalid ownership metadata; annotation validation error: key \"meta.helm.sh/release-namespace\" must equal \"default\": current value is \"fleet-local\"",
+              "message": "not installed: unable to continue with install: Certificate \"pve-ui\" in namespace \"pve-proxy\" exists and cannot be imported into the current release: invalid ownership metadata; annotation validation error: missing key \"meta.helm.sh/release-name\": must be set to \"traefik-resources\"; annotation validation error: missing key \"meta.helm.sh/release-namespace\": must be set to \"fleet-local\"",
               "name": "fleet-local/local"
             }
           ],
@@ -285,7 +253,7 @@
       "nonReadyResources": [
         {
           "bundleState": "NotReady",
-          "message": "not installed: unable to continue with install: Service \"pve-api\" in namespace \"pve-proxy\" exists and cannot be imported into the current release: invalid ownership metadata; annotation validation error: key \"meta.helm.sh/release-namespace\" must equal \"default\": current value is \"fleet-local\"",
+          "message": "not installed: unable to continue with install: Certificate \"pve-ui\" in namespace \"pve-proxy\" exists and cannot be imported into the current release: invalid ownership metadata; annotation validation error: missing key \"meta.helm.sh/release-name\": must be set to \"traefik-resources\"; annotation validation error: missing key \"meta.helm.sh/release-namespace\": must be set to \"fleet-local\"",
           "name": "fleet-local/local"
         }
       ],
@@ -300,18 +268,21 @@
   "apiVersion": "fleet.cattle.io/v1alpha1",
   "kind": "Bundle",
   "metadata": {
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"fleet.cattle.io/v1alpha1\",\"kind\":\"Bundle\",\"metadata\":{\"annotations\":{},\"labels\":{\"fleet.cattle.io/commit\":\"28375279fb74b542c92e4dd02502a7d8fbb1083a\",\"fleet.cattle.io/repo-name\":\"rancher-cluster\"},\"name\":\"cert-manager-resources\",\"namespace\":\"fleet-local\"},\"spec\":{\"dependsOn\":[{\"name\":\"cert-manager\"}],\"forceSyncGeneration\":7,\"resources\":[{\"content\":\"# cert-manager resources\\n\\nPlace the non-secret cert-manager resources managed by Fleet in this directory, for\\nexample ClusterIssuers and test Certificates.\\n\\nThe Cloudflare API token must be supplied as a secret through a secret-management process\\nor applied separately. Do not commit the token to this directory.\\n\\nThe existing files in `../../../../cert-manager/` are retained as migration references for\\nnow. They are not automatically included in this Fleet bundle.\\n\",\"name\":\"README.md\"},{\"content\":\"apiVersion: cert-manager.io/v1\\nkind: ClusterIssuer\\nmetadata:\\n  name: letsencrypt\\nspec:\\n  acme:\\n    email: dobrowolski.nowakowski@gmail.com\\n    server: https://acme-v02.api.letsencrypt.org/directory\\n    privateKeySecretRef:\\n      name: le-prod-issuer-acct-key\\n    solvers:\\n      - dns01:\\n          cloudflare:\\n            email: dobrowolski.nowakowski@gmail.com\\n            apiTokenSecretRef:\\n              name: cloudflare-api-token-secret\\n              key: api-token\\n        selector:\\n          dnsZones:\\n            - rancher.localdomain.bnowakowski.pl\\n            - '*.rancher.localdomain.bnowakowski.pl'\\n            - proxmox3.localdomain.bnowakowski.pl\\n            - proxmox4.localdomain.bnowakowski.pl\\n            - rancher.tailscale.bnowakowski.pl\\n            - '*.rancher.tailscale.bnowakowski.pl'\\n            - proxmox3.tailscale.bnowakowski.pl\\n            - proxmox4.tailscale.bnowakowski.pl\\n            - proxmox2-old.localdomain.bnowakowski.pl\\n            - proxmox2-old.tailscale.bnowakowski.pl\\n---\\napiVersion: cert-manager.io/v1\\nkind: ClusterIssuer\\nmetadata:\\n  name: letsencrypt-stag\\nspec:\\n  acme:\\n    email: dobrowolski.nowakowski@gmail.com\\n    server: https://acme-staging-v02.api.letsencrypt.org/directory\\n    privateKeySecretRef:\\n      name: le-issuer-acct-key\\n    solvers:\\n      - dns01:\\n          cloudflare:\\n            email: dobrowolski.nowakowski@gmail.com\\n            apiTokenSecretRef:\\n              name: cloudflare-api-token-secret\\n              key: api-token\\n        selector:\\n          dnsZones:\\n            - rancher.localdomain.bnowakowski.pl\\n            - '*.rancher.localdomain.bnowakowski.pl'\\n            - rancher.tailscale.bnowakowski.pl\\n            - '*.rancher.tailscale.bnowakowski.pl'\\n\",\"name\":\"clusterissuers.yaml\"}],\"targetCustomizationMode\":\"FirstMatch\",\"targetRestrictions\":[{\"clusterGroup\":\"default\",\"name\":\"default\"}],\"targets\":[{\"clusterGroup\":\"default\",\"name\":\"default\"}]}}\n"
+    },
     "creationTimestamp": "2026-09-05T18:00:12Z",
     "finalizers": [
       "fleet.cattle.io/bundle-finalizer"
     ],
-    "generation": 6,
+    "generation": 7,
     "labels": {
-      "fleet.cattle.io/commit": "97a0f02db12fd5c710197079ec95f08e6db41f26",
+      "fleet.cattle.io/commit": "28375279fb74b542c92e4dd02502a7d8fbb1083a",
       "fleet.cattle.io/repo-name": "rancher-cluster"
     },
     "name": "cert-manager-resources",
     "namespace": "fleet-local",
-    "resourceVersion": "39623669",
+    "resourceVersion": "39654294",
     "uid": "063fa33b-3203-4b8d-9e85-102975f72148"
   },
   "spec": {
@@ -338,18 +309,16 @@
   "status": {
     "conditions": [
       {
-        "lastUpdateTime": "2026-11-04T20:07:57Z",
-        "message": "Modified(1) [Cluster fleet-local/local]; clusterissuer.cert-manager.io letsencrypt modified {\"spec\":{\"acme\":{\"solvers\":[{\"dns01\":{\"cloudflare\":{\"apiTokenSecretRef\":{\"key\":\"api-token\",\"name\":\"cloudflare-api-token-secret\"},\"email\":\"dobrowolski.nowakowski@gmail.com\"}},\"selector\":{\"dnsZones\":[\"rancher.localdomain.bnowakowski.pl\",\"*.rancher.localdomain.bnowakowski.pl\",\"proxmox3.localdomain.bnowakowski.pl\",\"proxmox4.localdomain.bnowakowski.pl\",\"rancher.tailscale.bnowakowski.pl\",\"*.rancher.tailscale.bnowakowski.pl\",\"proxmox3.tailscale.bnowakowski.pl\",\"proxmox4.tailscale.bnowakowski.pl\"]}}]}}}",
-        "status": "False",
+        "lastUpdateTime": "2026-11-05T19:55:16Z",
+        "status": "True",
         "type": "Ready"
       }
     ],
     "display": {
-      "readyClusters": "0/1",
-      "state": "Modified"
+      "readyClusters": "1/1"
     },
     "maxUnavailable": 1,
-    "observedGeneration": 6,
+    "observedGeneration": 7,
     "partitions": [
       {
         "count": 1,
@@ -357,44 +326,14 @@
         "name": "All",
         "summary": {
           "desiredReady": 1,
-          "modified": 1,
-          "nonReadyResources": [
-            {
-              "bundleState": "Modified",
-              "modifiedStatus": [
-                {
-                  "apiVersion": "cert-manager.io/v1",
-                  "kind": "ClusterIssuer",
-                  "name": "letsencrypt",
-                  "patch": "{\"spec\":{\"acme\":{\"solvers\":[{\"dns01\":{\"cloudflare\":{\"apiTokenSecretRef\":{\"key\":\"api-token\",\"name\":\"cloudflare-api-token-secret\"},\"email\":\"dobrowolski.nowakowski@gmail.com\"}},\"selector\":{\"dnsZones\":[\"rancher.localdomain.bnowakowski.pl\",\"*.rancher.localdomain.bnowakowski.pl\",\"proxmox3.localdomain.bnowakowski.pl\",\"proxmox4.localdomain.bnowakowski.pl\",\"rancher.tailscale.bnowakowski.pl\",\"*.rancher.tailscale.bnowakowski.pl\",\"proxmox3.tailscale.bnowakowski.pl\",\"proxmox4.tailscale.bnowakowski.pl\"]}}]}}}"
-                }
-              ],
-              "name": "fleet-local/local"
-            }
-          ],
-          "ready": 0
+          "ready": 1
         }
       }
     ],
-    "resourcesSha256Sum": "cd16c4aace066537b1b0b8cafb8f02ffbe1ed0e6a283890e53abeea131335c15",
+    "resourcesSha256Sum": "e9b0643745b8d22641d0fc90aecb752e055adaca14e2f96e2ed3d85ef09976ca",
     "summary": {
       "desiredReady": 1,
-      "modified": 1,
-      "nonReadyResources": [
-        {
-          "bundleState": "Modified",
-          "modifiedStatus": [
-            {
-              "apiVersion": "cert-manager.io/v1",
-              "kind": "ClusterIssuer",
-              "name": "letsencrypt",
-              "patch": "{\"spec\":{\"acme\":{\"solvers\":[{\"dns01\":{\"cloudflare\":{\"apiTokenSecretRef\":{\"key\":\"api-token\",\"name\":\"cloudflare-api-token-secret\"},\"email\":\"dobrowolski.nowakowski@gmail.com\"}},\"selector\":{\"dnsZones\":[\"rancher.localdomain.bnowakowski.pl\",\"*.rancher.localdomain.bnowakowski.pl\",\"proxmox3.localdomain.bnowakowski.pl\",\"proxmox4.localdomain.bnowakowski.pl\",\"rancher.tailscale.bnowakowski.pl\",\"*.rancher.tailscale.bnowakowski.pl\",\"proxmox3.tailscale.bnowakowski.pl\",\"proxmox4.tailscale.bnowakowski.pl\"]}}]}}}"
-            }
-          ],
-          "name": "fleet-local/local"
-        }
-      ],
-      "ready": 0
+      "ready": 1
     },
     "unavailable": 0
   }
@@ -405,18 +344,21 @@
   "apiVersion": "fleet.cattle.io/v1alpha1",
   "kind": "Bundle",
   "metadata": {
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"fleet.cattle.io/v1alpha1\",\"kind\":\"Bundle\",\"metadata\":{\"annotations\":{},\"labels\":{\"fleet.cattle.io/commit\":\"28375279fb74b542c92e4dd02502a7d8fbb1083a\",\"fleet.cattle.io/repo-name\":\"rancher-cluster\"},\"name\":\"cloudcasa\",\"namespace\":\"fleet-local\"},\"spec\":{\"defaultNamespace\":\"cloudcasa-io\",\"forceSyncGeneration\":7,\"helm\":{\"chart\":\"cloudcasa\",\"releaseName\":\"cloudcasa\",\"repo\":\"https://catalogicsoftware.github.io/cloudcasa-helmchart\",\"values\":{\"image\":{\"tag\":\"3.1.0-production.48\"}},\"valuesFrom\":[{\"secretKeyRef\":{\"key\":\"values.yaml\",\"name\":\"cloudcasa-values\",\"namespace\":\"cloudcasa-io\"}}],\"version\":\"3.4.7\"},\"resources\":[{\"content\":\"annotations:\\n  charts.openshift.io/name: CloudCasa Agent\\n  cloudcasa.io/installation-method: helm\\napiVersion: v2\\nappVersion: 3.1.0\\ndescription: CloudCasa backup, DR, and migration service agent for Kubernetes\\nhome: https://cloudcasa.io\\nicon: https://raw.githubusercontent.com/catalogicsoftware/cloudcasa-helmchart/gh-pages/logo.png\\nkeywords:\\n- backup\\n- restore\\n- migration\\n- catalogic\\n- cloudcasa\\n- velero\\nkubeVersion: '\\u003e=1.20.0-0'\\nmaintainers:\\n- email: support@cloudcasa.io\\n  name: CloudCasa Support\\nname: cloudcasa\\nversion: 3.4.7\\n\",\"name\":\".chart/72ec1b71d5b92c88b72119fae980f28522e47930869c06a4b6649847a15e68c0/cloudcasa/Chart.yaml\"},{\"content\":\"# CloudCasa Kubernetes Agent\\n\\n[CloudCasa](https://cloudcasa.io) - Leader in Kubernetes Data Protection and Application Resilience\\n\\n# Introduction\\n\\nCloudCasa is a data protection, disaster recovery, migration, and replication solution for Kubernetes and cloud-native applications. Configuration is quick and easy, and trial service is free.\\n\\nCloudCasa provides centralized backup, DR, and migration services for large, complex, multi-cluster, multi-cloud, and hybrid cloud environments. It includes multi-cloud account integration, managed backup storage, and advanced cross-cloud recovery.\\n\\nWith CloudCasa you don't need to be a storage or data protection expert to back up and restore your Kubernetes clusters.\\n\\nThis Helm chart installs and configures the CloudCasa agent on a Kubernetes cluster.\\nSee the CloudCasa [Getting Started Guide](https://cloudcasa.io/get-started) for more information.\\n\\n## Prerequisites\\n\\n1. Kubernetes 1.20+\\n2. Helm 3.0+\\n\\n## CloudCasa Deployment Options\\n\\nCloudCasa supports both SaaS and self-hosted deployment models:\\n\\n- **SaaS**: Use the default CloudCasa cloud-hosted service at https://home.cloudcasa.io\\n- **Self-Hosted**: Deploy CloudCasa in your own environment and configure the agent to connect to your self-hosted instance\\n\\n## Installation\\n \\n### Installing the CloudCasa Agent with SaaS\\n\\n1. Log in to https://home.cloudcasa.io and add your Kubernetes cluster under Clusters/Overview. Note the returned cluster ID.\\n2. Add the CloudCasa Helm repo to your Helm configuration, if it hasn't been added already.\\n   ```\\n   $ helm repo add cloudcasa-repo https://catalogicsoftware.github.io/cloudcasa-helmchart\\n   ```\\n3. To install the agent, execute the following helm commands, replacing ```\\u003cCluster ID\\u003e``` with the Cluster ID obtained above:\\n    ```\\n    $ helm repo update\\n    $ helm install cloudcasa cloudcasa-repo/cloudcasa --set clusterID=\\u003cCluster ID\\u003e\\n    ```\\nThis will install the CloudCasa agent and complete registration of the cluster with the CloudCasa service.\\n\\n### Installing the CloudCasa Agent with Self-Hosted\\n\\nFor self-hosted CloudCasa deployments, configure the server address and TLS settings:\\n\\n1. Obtain your cluster ID from your self-hosted CloudCasa instance.\\n2. Add the CloudCasa Helm repo to your Helm configuration, if it hasn't been added already.\\n   ```\\n   $ helm repo add cloudcasa-repo https://catalogicsoftware.github.io/cloudcasa-helmchart\\n   ```\\n3. To install the agent, execute the following helm commands, replacing the parameters with your self-hosted instance details:\\n    ```\\n    $ helm repo update\\n    $ helm install cloudcasa cloudcasa-repo/cloudcasa \\\\\\n      --set clusterID=\\u003cCluster ID\\u003e \\\\\\n      --set server.address=\\u003cYour Self-Hosted Server Address\\u003e:\\u003cPort\\u003e \\\\\\n      --set server.skipTLSVerification=\\u003ctrue|false\\u003e \\\\\\n      --set image.repository=\\u003cYour Container Registry\\u003e/\\u003cImage Name\\u003e \\\\\\n      --set image.tag=\\u003cImage Tag\\u003e\\n    ```\\n\\n**Server Configuration Parameters:**\\n- `server.address`: The address and port of your self-hosted CloudCasa server (default: agent.cloudcasa.io:443)\\n- `server.skipTLSVerification`: Skip TLS certificate verification (default: false) - useful for self-signed certificates in testing\\n\\n**Container Image Parameters:**\\n- `image.repository`: The container registry and image name for your self-hosted environment (default: cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent)\\n- `image.tag`: The image tag to use (default: 3.1.0-prod)\\n\\n**Note:** For self-hosted deployments, ensure that the container image is available in your specified container registry and that the Kubernetes cluster has the necessary permissions to pull the image. If your registry requires authentication, you can use the `imagePullSecret` parameter to reference a Kubernetes secret with registry credentials.\\n\\n### Updating the CloudCasa Agent\\n1. Log in to https://home.cloudcasa.io (for SaaS) or your self-hosted instance and obtain the cluster ID for your cluster. You can also obtain the current setting with the command ```helm get values cloudcasa```.\\n2. Execute the following commands to update the agent, replacing ```\\u003cCluster ID\\u003e``` with the Cluster ID obtained above:\\n    ```\\n    $ helm repo update\\n    $ helm upgrade cloudcasa cloudcasa-repo/cloudcasa --set clusterID=\\u003cCluster ID\\u003e\\n    ```\\n   For self-hosted deployments, also include the `--set server.address=...` parameters as shown in the self-hosted installation section above.\\n\\n### Uninstalling the CloudCasa Agent\\n1. Execute the following commands to uninstall CloudCasa.\\n    ```    \\n    $ helm uninstall cloudcasa\\n    ```\\n\\n2. If you manually created the cloudcasa-io namespace in order to supply a container registry authentication secret (see below),\\nyou may need to manually delete the namespace after uninstall with the command `kubectl delete namespace cloudcasa-io`.\\n\\n3. CloudCasa creates some custom resource definitions on installation, which you can remove manually with the command `kubectl delete crd -l component=kubeagent-backup-helper`.\\n\\n### Using an alternate image repository\\n\\nThe agent manager container can be installed from an alternate repository by setting values for image.repository and image.tag.\\nAdd the options --set image.repository=\\u003crepository\\u003e and/or --set image.tag=\\u003ctag\\u003e to the helm install command.\\n\\nNote that the alternate repository will also need to be set for the cluster in CloudCasa so that all agent containers will be loaded from it.\\nSee the [CloudCasa User Guide](https://docs.cloudcasa.io/help/cluster-add.html) for more information.\\n\\nIf the registry you are using requires authentication, you can define a Kubernetes secret with the authentication information\\nand reference it by setting a value for imagePullSecret. Example: \\\"--set imagePullSecret=registrySecret\\\".\\nSee the [Kubernetes Docs](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) for more information.\\nNote that the secret must be created in the cloudcasa-io namespace, so you may need to create the namespace first.\\nAlso note that when uninstalling the agent, you may need to delete the cloudcasa-io namespace manually after running helm uninstall with \\\"kubectl delete namespace cloudcasa-io\\\".\\n\\nFinally, the secret name will also need to be set in CloudCasa for the cluster, so that it will be used for all agent containers.\\nSee the [CloudCasa User Guide](https://docs.cloudcasa.io/help/cluster-add.html) for more information.\\n\\n*CloudCasa is a trademark of Catalogic Software, Inc.*\\n\",\"name\":\".chart/72ec1b71d5b92c88b72119fae980f28522e47930869c06a4b6649847a15e68c0/cloudcasa/README.md\"},{\"content\":\"Please be patient while the CloudCasa agent is being deployed. It may take several minutes.\\n\\nThe agent is configured with cluster ID: {{ .Values.clusterID }}\\n\\nOnce the agent completes startup, the state shown for the cluster in the CloudCasa Clusters/Overview\\npage will change to \\\"Active\\\". If the cluster stays in the \\\"Registered\\\" or \\\"Pending\\\" state, you may have provided the wrong ClusterID.\\n\\n{{- if eq .Values.server.address \\\"agent.cloudcasa.io:443\\\" }}\\nFor SaaS deployments, visit: https://home.cloudcasa.io/clusters/overview\\n{{- else }}\\nFor self-hosted deployments, check your CloudCasa instance's UI at the appropriate URL for your self-hosted environment.\\n{{- end }}\\n\\nYou can check the agent deployment status using the command: kubectl get pods -n cloudcasa-io\\n\\n\",\"name\":\".chart/72ec1b71d5b92c88b72119fae980f28522e47930869c06a4b6649847a15e68c0/cloudcasa/templates/NOTES.txt\"},{\"content\":\"---\\n# This list contains the CloudCasa Agent Manager and RBAC resources \\n# required to deploy the Cloudcasa agent.\\napiVersion: v1\\nkind: List\\nmetadata:\\n  name: cloudcasa-agent\\nitems:\\n{{- if not (lookup \\\"v1\\\" \\\"Namespace\\\" \\\"cloudcasa-io\\\" \\\"cloudcasa-io\\\") }}\\n- apiVersion: v1\\n  kind: Namespace\\n  metadata:\\n    creationTimestamp: null\\n    labels:\\n      component: kubeagent-backup-helper\\n    name: cloudcasa-io\\n  spec: {}\\n{{- end }}\\n- apiVersion: v1\\n  kind: ServiceAccount\\n  metadata:\\n    creationTimestamp: null\\n    labels:\\n      component: kubeagent-backup-helper\\n    name: cloudcasa-io\\n    namespace: cloudcasa-io\\n- apiVersion: rbac.authorization.k8s.io/v1\\n  kind: ClusterRoleBinding\\n  metadata:\\n    creationTimestamp: null\\n    labels:\\n      component: kubeagent-backup-helper\\n    name: cloudcasa-io\\n  roleRef:\\n    apiGroup: rbac.authorization.k8s.io\\n    kind: ClusterRole\\n    name: cluster-admin\\n  subjects:\\n  - kind: ServiceAccount\\n    name: cloudcasa-io\\n    namespace: cloudcasa-io\\n- apiVersion: apps/v1\\n  kind: Deployment\\n  metadata:\\n    name: cloudcasa-kubeagent-manager\\n    namespace: cloudcasa-io\\n    labels:\\n      component: cloudcasa-kubeagent-manager\\n  spec:\\n    selector:\\n      matchLabels:\\n        app: cloudcasa-kubeagent-manager\\n    strategy:\\n      type: Recreate\\n    replicas: 1\\n    template:\\n      metadata:\\n        labels:\\n          app: cloudcasa-kubeagent-manager\\n      spec:\\n        {{- if .Values.imagePullSecret }}\\n        imagePullSecrets:\\n          - name: {{ .Values.imagePullSecret | quote }}\\n        {{- end }}\\n        containers:\\n        - image: \\\"{{ .Values.image.repository }}:{{ .Values.image.tag }}\\\"\\n          args: [\\\"/usr/local/bin/kubeagentmanager\\\", \\\"--server_addr\\\", \\\"{{ .Values.server.address }}\\\", \\\"--tls\\\", \\\"true\\\", \\\"--skip_tls_verification\\\", \\\"{{ .Values.server.skipTLSVerification }}\\\"]\\n          name: kubeagentmanager\\n          resources:\\n            requests:\\n              memory: \\\"64Mi\\\"\\n              cpu: \\\"250m\\\"\\n            limits:\\n              memory: \\\"128Mi\\\"\\n              cpu: \\\"500m\\\"\\n          volumeMounts:          \\n          - mountPath: /scratch\\n            name: scratch          \\n          env:\\n          - name: MY_POD_NAME\\n            valueFrom:\\n              fieldRef:\\n                fieldPath: metadata.name\\n          - name: AMDS_CLUSTER_ID\\n            value: {{ .Values.clusterID }}\\n          - name: KUBEMOVER_IMAGE\\n            value: {{ .Values.image.repository }}:{{ .Values.image.tag }}\\n          - name: DEPLOYMENT_PLATFORM\\n            {{- if (lookup \\\"v1\\\" \\\"Namespace\\\" \\\"\\\" \\\"cattle-system\\\") }}\\n            value: \\\"rancher\\\"\\n            {{- else if (lookup \\\"v1\\\" \\\"Namespace\\\" \\\"\\\" \\\"openshift\\\") }}\\n            value: \\\"openshift\\\"\\n            {{- else }}\\n            value: \\\"other\\\"\\n            {{- end }}\\n          - name: AGENT_INSTALLATION_METHOD\\n            value: {{ (index .Chart.Annotations \\\"cloudcasa.io/installation-method\\\" | default \\\"helm\\\") | quote }}\\n          - name: GRPC_ENFORCE_ALPN_ENABLED\\n            value: \\\"false\\\"\\n        restartPolicy: Always\\n        terminationGracePeriodSeconds: 0\\n        serviceAccountName: cloudcasa-io\\n        volumes:        \\n        - emptyDir: {}\\n          name: scratch\\n\",\"name\":\".chart/72ec1b71d5b92c88b72119fae980f28522e47930869c06a4b6649847a15e68c0/cloudcasa/templates/cluster-register.yaml\"},{\"content\":\"apiVersion: v1\\nkind: Pod\\nmetadata:\\n  name: \\\"cloudcasa-test-agent\\\"\\n  namespace: cloudcasa-io\\n  annotations:\\n    \\\"helm.sh/hook\\\": test\\nspec:\\n  {{ if .Values.imagePullSecret }}\\n  imagePullSecrets:\\n    - name: {{ .Values.imagePullSecret | quote }}\\n  {{ end }}\\n  containers:\\n    - name: kubeagentmanager-test\\n      image: {{ .Values.image.repository }}:{{ .Values.image.tag }}\\n      command: [\\\"bin/bash\\\", \\\"-c\\\"]\\n      args:\\n        - kubectl get deployment cloudcasa-kubeagent-manager\\n        - -o=jsonpath='{.status.conditions[?(@.type==\\\"Available\\\")].status}' |\\n        - grep -q \\\"True\\\"\\n  serviceAccountName: cloudcasa-io\\n  restartPolicy: Never\\n\",\"name\":\".chart/72ec1b71d5b92c88b72119fae980f28522e47930869c06a4b6649847a15e68c0/cloudcasa/templates/tests/test-agent.yaml\"},{\"content\":\"{\\n  \\\"$schema\\\": \\\"https://json-schema.org/draft-07/schema#\\\",\\n  \\\"title\\\": \\\"Values\\\",\\n  \\\"type\\\": \\\"object\\\",\\n  \\\"properties\\\": {\\n    \\\"clusterID\\\": {\\n      \\\"description\\\": \\\"Cluster ID\\\",\\n      \\\"type\\\": \\\"string\\\"\\n    },\\n    \\\"image\\\": {\\n      \\\"description\\\": \\\"Container Image\\\",\\n      \\\"type\\\": \\\"object\\\",\\n      \\\"properties\\\": {\\n        \\\"repository\\\": {\\n          \\\"type\\\": \\\"string\\\"\\n        },\\n        \\\"tag\\\": {\\n          \\\"type\\\": \\\"string\\\"\\n        }\\n      },\\n      \\\"required\\\": [\\n        \\\"repository\\\",\\n        \\\"tag\\\"\\n      ]\\n    },\\n    \\\"imagePullSecret\\\": {\\n      \\\"description\\\": \\\"Name of secret to use for image registry credentials\\\",\\n      \\\"type\\\": [\\n        \\\"string\\\",\\n        \\\"null\\\"\\n      ]\\n    },\\n    \\\"server\\\": {\\n      \\\"description\\\": \\\"CloudCasa server configuration\\\",\\n      \\\"type\\\": \\\"object\\\",\\n      \\\"properties\\\": {\\n        \\\"address\\\": {\\n          \\\"description\\\": \\\"Server address and port\\\",\\n          \\\"type\\\": \\\"string\\\"\\n        },\\n        \\\"skipTLSVerification\\\": {\\n          \\\"description\\\": \\\"Skip TLS certificate verification (useful for self-signed certificates)\\\",\\n          \\\"type\\\": \\\"boolean\\\"\\n        }\\n      },\\n      \\\"required\\\": [\\n        \\\"address\\\",\\n        \\\"skipTLSVerification\\\"\\n      ]\\n    }\\n  },\\n  \\\"required\\\": [\\n    \\\"image\\\"\\n  ]\\n}\",\"name\":\".chart/72ec1b71d5b92c88b72119fae980f28522e47930869c06a4b6649847a15e68c0/cloudcasa/values.schema.json\"},{\"content\":\"# clusterID is the CloudCasa Cluster ID. To be provided by the user.\\nclusterID: \\\"\\\"\\n\\n# image is the container repository and tag for the agent manager\\nimage:\\n  repository: \\\"cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent\\\"\\n  tag: \\\"3.1.0-prod\\\"\\n\\n# imagePullSecret is the name of the secret to use for image registry credentials (optional)\\nimagePullSecret:\\n\\n# server is the configuration for the CloudCasa server.\\nserver:\\n  address: \\\"agent.cloudcasa.io:443\\\"\\n  skipTLSVerification: false\\n\",\"name\":\".chart/72ec1b71d5b92c88b72119fae980f28522e47930869c06a4b6649847a15e68c0/cloudcasa/values.yaml\"},{\"content\":\"# CloudCasa backup change and proxmox3 handoff\\n\\n## Change recorded 29 October 2026\\n\\nAfter migrating application PVCs from local-path to Longhorn, the user changed\\nthe CloudCasa backup definition to read Longhorn PVCs directly. Screenshots\\ntaken at approximately 16:47 Europe/Warsaw show the configuration below.\\nThese screenshots document the selected settings. The subsequent proxmox3\\nreport below confirms that the new run uses `LIVE_FROM_PVC`.\\n\\nThis is a CloudCasa UI configuration change, not a Fleet manifest change.\\nNo cluster changes, new backup run, or restore verification were performed\\nas part of documenting this handoff.\\n\\n| Setting | Previous | New |\\n| --- | --- | --- |\\n| Protection mode | Copy to backup storage | Unchanged |\\n| Configure backup method by storage class | Enabled | Unchanged |\\n| `longhorn` | Read data from snapshot | Read data from PVC |\\n| `longhorn-rwo-2replicas` | Read data from snapshot | Read data from PVC |\\n| `longhorn-static` | Read data from snapshot | Read data from PVC |\\n| `local-path` | Read data from PVC | Unchanged |\\n| `homer-native-restore-20261008` | Skip | Unchanged |\\n\\nThe migrated application claims in Fleet use `longhorn-rwo-2replicas`;\\nsee `../longhorn-pilot-storage/storageclass.yaml` and the other Longhorn\\nstorage bundles under `infrastructure/`.\\n\\nOther settings shown in the new screenshots remain:\\n\\n- Preserve snapshots after backup: off.\\n- Compression: inherit from cluster preferences.\\n- Concurrent PVCs: 2 (default).\\n- Concurrent files per PVC: 12 (default).\\n- Max transfer rate per PV: unlimited.\\n- Data mover pod timeout: 15 minutes.\\n- Data mover memory limit: not set in the UI (effective default unverified).\\n- Configure data mover user: off.\\n- Exclude unattached PVCs: off.\\n- Storage class mapping for PV snapshots mounted during backup: off.\\n- Configure data mover node affinity: off.\\n- VM changed block tracking: off.\\n- CSI snapshot timeout: 10 minutes.\\n\\n## Previous run and evidence\\n\\nJob ID: `6ae2ee307ccf37a380eee3c4`.\\n\\nSource archive on the user's Mac:\\n`/Users/sup/Downloads/cloudcasa-k8s_copy-6ae2ee307ccf37a380eee3c4.zip`.\\nThis archive is not included in the repository and may need transferring\\nseparately to proxmox3 if the old logs are required.\\n\\nThe archive contains gzipped copy-agent, snapshot-agent and snapshot-helper\\nlogs. The snapshot helper recorded the three Longhorn classes as `SNAPSHOT`\\nand local-path as `LIVE_FROM_PVC`. It repeatedly waited 10 minutes for a\\nVolumeSnapshot to bind to VolumeSnapshotContent, then failed with:\\n\\n```text\\nPhase1 watch failed for VolumeSnapshot apps-adguard-home/cc-adguard-home-config-longhorn-rwo-pnqww\\ntimed out or failed watching VolumeSnapshot ... for VSC binding: timed out waiting for the condition\\n```\\n\\nThe first shown AdGuard Home wait ran from 06:56:58 to 07:06:58 UTC.\\nSimilar failures followed for Audiobookshelf, Authelia and other volumes.\\nThe agent reported `PartiallyFailed`, with 287 errors and 11 warnings.\\nThose totals include follow-on errors; they do not establish 287 independent\\nstorage failures.\\n\\nThe observed failure is snapshot binding, before data mover mounting/copying.\\nIts root cause was not established. Raising the data mover pod timeout does\\nnot target this observed phase. Reading directly from PVC bypasses this\\nsnapshot path; it does not demonstrate that CSI snapshots are repaired.\\n\\nCloudCasa documents this selection as the replacement for its former\\n\\\"Copy from live Longhorn PVs\\\" option:\\nhttps://docs.cloudcasa.io/help/relnotes-07-2024.html\\n\\nLonghorn-specific guidance and application consistency considerations:\\nhttps://docs.cloudcasa.io/help/reference-pv-types.html\\n\\n## Follow-up run: progress reported 29 October 2026\\n\\nJob ID: `6ae36a161aeff6e71701c6df`.\\n\\nEvidence source: the user pasted a Codex report from proxmox3 analyzing saved\\nlogs. The new run's underlying logs were not independently inspected in this\\nchat. At 15:55 UTC / 16:55 Europe/Warsaw, that report recorded:\\n\\n- The job uses `LIVE_FROM_PVC`, confirming the configuration change took effect.\\n- Eight PVCs completed successfully, including volumes for Zabbix PostgreSQL,\\n  Sonarr, DuckDNS, YouTubeDL, Bindery and Jellyseerr. The report did not list\\n  all eight PVC names.\\n- Mailpile data was actively copying: approximately 7.37 GB read out of\\n  11.31 GB estimated (65%), with 2.39 GB transferred.\\n- Mailpile's second PVC was active, without byte counters yet.\\n- Setup logged `repository already initialized` errors, but successful copies\\n  followed. These messages did not stop the observed copying; their effect on\\n  the final job status remains unverified.\\n- The capture ended while Mailpile was active. Overall completion, final\\n  error/warning totals and restore usability were not confirmed.\\n\\nThis is clear progress compared with job `6ae2ee307ccf37a380eee3c4`, which\\nrepeatedly timed out binding snapshots and ended `PartiallyFailed`. Successful\\nPVC copies show that direct reads bypassed the previous blocker for those\\nvolumes. They do not establish complete backup coverage, application\\nconsistency, or a repair of the CSI snapshot mechanism.\\n\\nNext evidence needed: final job status and per-PVC results, accounting for\\nevery selected claim, followed by a representative isolated restore test.\\n\\n## Completed run verified from the supplied ZIP\\n\\nThe archive `cloudcasa-k8s_copy-6ae36a161aeff6e71701c6df.zip` was subsequently\\nsupplied from `/Users/sup/Downloads/` and inspected directly. This supersedes\\nthe earlier progress-only assessment above.\\n\\n- Resource backup: `BackupDone()` reported `Phase: Completed` and\\n  `Backup Successful.` at 15:50:45 UTC / 16:50:45 Warsaw.\\n- Data copy: at 16:01:59 UTC / 17:01:59 Warsaw, the agent reported\\n  `Offload completed successfully`, followed by `Phase: Completed` and\\n  `Copy completed`. `OffloadDone()` was sent at 16:02:01 UTC.\\n- Deduplicating the main copy-agent's PVC progress records by namespace/name\\n  yields **46 PVCs, all with final state `COMPLETED`**, all using\\n  `LIVE_FROM_PVC`. The agent independently reports `PVC totalNum 46` and\\n  32 movers. Both Mailpile PVCs completed.\\n- Summing the final per-PVC counters gives **50,564,243,755 bytes read**\\n  (50.56 GB decimal) and **11,431,819,513 bytes transferred** (11.43 GB\\n  decimal). These are logged copy counters, not a measurement of restore\\n  completeness or total repository size.\\n- The snapshot helper contains a startup warning that the Velero node agent\\n  was not found. CloudCasa's own movers nevertheless completed this copy.\\n  Setup `repository already initialized` messages likewise did not prevent\\n  successful completion. Do not equate raw log error/warning lines with the\\n  previous job's final reported error/warning totals.\\n\\nThe configuration change successfully bypassed the previous snapshot-binding\\nfailure for this run. CSI snapshot functionality itself remains unverified.\\nA live database copy is not proof of application consistency, and no restore\\nwas tested here. Reconciliation against the intended cluster-wide PVC\\ninventory remains a separate check: 46 completed claims confirms coverage of\\nthis run's reported copy inventory, not every claim in the cluster.\\n\\n### Completed PVC inventory\\n\\nThe following unique claims all ended `COMPLETED` with `LIVE_FROM_PVC` in\\n`agent/copy.kubeagent-5bb6cd65c4-zxwx4.kubeagent.log`:\\n\\n- `apps-adguard-home/adguard-home-config-longhorn-rwo`\\n- `apps-adguard-home/adguard-home-data-longhorn-rwo`\\n- `apps-audiobookshelf/audiobookshelf-config-longhorn-rwo`\\n- `apps-audiobookshelf/audiobookshelf-metadata-longhorn-rwo`\\n- `apps-authelia/authelia-config-longhorn-rwo`\\n- `apps-bazarr/bazarr-config-longhorn-rwo`\\n- `apps-bindery/bindery-config-longhorn-rwo`\\n- `apps-bookstack/bookstack-config-longhorn-rwo`\\n- `apps-bookstack/bookstack-mariadb-data-longhorn-rwo`\\n- `apps-calibre/calibre-config-longhorn-rwo`\\n- `apps-calibre/calibre-library-longhorn-rwo`\\n- `apps-calibre/calibre-web-config-longhorn-rwo`\\n- `apps-calibre/kavita-config-longhorn-rwo`\\n- `apps-cleanuparr/cleanuparr-config-longhorn-rwo`\\n- `apps-ddclient/ddclient-config-longhorn-rwo`\\n- `apps-docker-mailserver/docker-mailserver-mail-config-longhorn-rwo`\\n- `apps-docker-mailserver/docker-mailserver-mail-data-longhorn-rwo`\\n- `apps-docker-mailserver/docker-mailserver-mail-log-longhorn-rwo`\\n- `apps-docker-mailserver/docker-mailserver-mail-state-longhorn-rwo`\\n- `apps-duckdns/duckdns-config-longhorn-rwo`\\n- `apps-filebot/filebot-config-longhorn-rwo`\\n- `apps-filebot/filebot-output-longhorn-rwo`\\n- `apps-filebot/filebot-watch-longhorn-rwo`\\n- `apps-flaresolverr/flaresolverr-config-longhorn-rwo`\\n- `apps-homer-test/homer-test-config-longhorn-rwx`\\n- `apps-homer/homer-config-longhorn-rwo`\\n- `apps-homer/homer-without-auth-config-longhorn-rwo`\\n- `apps-jellyseerr/jellyseerr-config-longhorn-rwo`\\n- `apps-mailpile/mailpile-path1-longhorn-rwo`\\n- `apps-mailpile/mailpile-path2-longhorn-rwo`\\n- `apps-openbooks/openbooks-books-longhorn-rwo`\\n- `apps-openbooks/openbooks-logs-longhorn-rwo`\\n- `apps-profilarr/profilarr-config-longhorn-rwo`\\n- `apps-prowlarr/prowlarr-config-longhorn-rwo`\\n- `apps-radarr/radarr-config-longhorn-rwo`\\n- `apps-scrutiny/scrutiny-config-longhorn-rwo`\\n- `apps-scrutiny/scrutiny-influxdb-longhorn-rwo`\\n- `apps-smokeping/smokeping-config-longhorn`\\n- `apps-smokeping/smokeping-data-longhorn`\\n- `apps-sonarr/sonarr-config-longhorn-rwo`\\n- `apps-ubooquity/ubooquity-config-longhorn-rwo`\\n- `apps-uptime-kuma/uptime-kuma-config-longhorn-rwo`\\n- `apps-youtubedl-material/youtubedl-material-appdata-longhorn-rwo`\\n- `apps-youtubedl-material/youtubedl-material-mongodb-data-longhorn-rwo`\\n- `apps-youtubedl-material/youtubedl-material-users-longhorn-rwo`\\n- `apps-zabbix/zabbix-postgresql-data-longhorn-rwo`\\n\\n## Continue analyzing the run on proxmox3\\n\\n1. Record the new job ID, start/end times, final state, warnings and errors.\\n   Verify the saved job definition actually uses live PVC reads for all three\\n   Longhorn classes. If logged, expect `LIVE_FROM_PVC` instead of `SNAPSHOT`.\\n2. Compare the selected PVC inventory with the backed-up PVC inventory,\\n   including migrated `*-longhorn-rwo` claims. Check per-volume bytes and\\n   completion status; a successful resource backup alone is insufficient.\\n   Account explicitly for the intentionally skipped restore storage class.\\n3. Confirm the previous snapshot-binding timeouts are absent for the selected\\n   Longhorn classes. If they remain, first check the effective definition and\\n   whether the run used another job or an older saved configuration.\\n4. For any new failures, collect CloudCasa agent/helper/data mover logs,\\n   relevant pod status and events, PVC/PV details, node placement and Longhorn\\n   volume health. Distinguish scheduling, attachment/mount, permissions,\\n   file-read, memory and backup-target/network failures from snapshot errors.\\n5. Observe node I/O pressure, k3s/API health and Longhorn health during copying.\\n   This cluster has a documented history of severe I/O pressure during PVC\\n   migrations. Current backup settings still allow unlimited transfer speed;\\n   do not assume that their safety or performance has been validated.\\n6. Assess application consistency: live reads can capture changing database\\n   files. Check existing hooks/native database backups before claiming a\\n   consistent application backup. Validate a representative restore into an\\n   isolated destination before relying on the new backups.\\n\\nStart with read-only diagnosis. Any PVC migration must follow the standing\\ncluster-wide application shutdown procedure in `rancher/AGENTS.md` and\\n`rancher/longhorn/README-5-pvc-migration-maintenance.md`.\\n\\n## Screenshot evidence\\n\\nOriginal settings: `Screenshot 2026-10-29 at 16.43.21.png` and\\n`Screenshot 2026-10-29 at 16.43.40.png`.\\n\\nUpdated selections: `Screenshot 2026-10-29 at 16.47.18.png` and\\n`Screenshot 2026-10-29 at 16.47.27.png`.\\n\\nAll four were supplied by the user from their Mac Dropbox screenshot folder;\\nthe images are not included in this repository.\\n\",\"name\":\"README.md\"}],\"targetCustomizationMode\":\"FirstMatch\",\"targetRestrictions\":[{\"clusterGroup\":\"default\",\"name\":\"default\"}],\"targets\":[{\"clusterGroup\":\"default\",\"name\":\"default\"}]}}\n"
+    },
     "creationTimestamp": "2026-09-05T18:00:12Z",
     "finalizers": [
       "fleet.cattle.io/bundle-finalizer"
     ],
-    "generation": 20,
+    "generation": 22,
     "labels": {
-      "fleet.cattle.io/commit": "97a0f02db12fd5c710197079ec95f08e6db41f26",
+      "fleet.cattle.io/commit": "28375279fb74b542c92e4dd02502a7d8fbb1083a",
       "fleet.cattle.io/repo-name": "rancher-cluster"
     },
     "name": "cloudcasa",
     "namespace": "fleet-local",
-    "resourceVersion": "39623738",
+    "resourceVersion": "39654304",
     "uid": "91769220-6e0f-4561-aafc-a01132b6ef99"
   },
   "spec": {
@@ -426,6 +368,11 @@
       "chart": "cloudcasa",
       "releaseName": "cloudcasa",
       "repo": "https://catalogicsoftware.github.io/cloudcasa-helmchart",
+      "values": {
+        "image": {
+          "tag": "3.1.0-production.48"
+        }
+      },
       "valuesFrom": [
         {
           "secretKeyRef": {
@@ -449,23 +396,24 @@
         "clusterGroup": "default",
         "name": "default"
       }
-    ]
+    ],
+    "valuesHash": "cf1f4e9d4a1da869120cbcc40fedffbfc887a767da8db7e1ed08a51eafced553"
   },
   "status": {
     "conditions": [
       {
-        "lastUpdateTime": "2026-10-31T13:56:59Z",
-        "message": "Modified(1) [Cluster fleet-local/local]; deployment.apps cloudcasa-io/cloudcasa-kubeagent-manager modified {\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"args\":[\"/usr/local/bin/kubeagentmanager\",\"--server_addr\",\"agent.cloudcasa.io:443\",\"--tls\",\"true\",\"--skip_tls_verification\",\"false\"],\"env\":[{\"name\":\"MY_POD_NAME\",\"valueFrom\":{\"fieldRef\":{\"apiVersion\":\"v1\",\"fieldPath\":\"metadata.name\"}}},{\"name\":\"AMDS_CLUSTER_ID\",\"value\":\"6938435f0c7d143c28eb3a0f\"},{\"name\":\"KUBEMOVER_IMAGE\",\"value\":\"cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent:3.1.0-prod\"},{\"name\":\"DEPLOYMENT_PLATFORM\",\"value\":\"rancher\"},{\"name\":\"AGENT_INSTALLATION_METHOD\",\"value\":\"helm\"},{\"name\":\"GRPC_ENFORCE_ALPN_ENABLED\",\"value\":\"false\"}],\"image\":\"cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent:3.1.0-prod\",\"imagePullPolicy\":\"IfNotPresent\",\"name\":\"kubeagentmanager\",\"resources\":{\"limits\":{\"cpu\":\"500m\",\"memory\":\"128Mi\"},\"requests\":{\"cpu\":\"250m\",\"memory\":\"64Mi\"}},\"securityContext\":{\"allowPrivilegeEscalation\":false,\"capabilities\":{\"drop\":[\"ALL\"]}},\"terminationMessagePath\":\"/dev/termination-log\",\"terminationMessagePolicy\":\"File\",\"volumeMounts\":[{\"mountPath\":\"/scratch\",\"name\":\"scratch\"}]}]}}}}",
+        "lastUpdateTime": "2026-11-05T19:55:18Z",
+        "message": "WaitApplied(1) [Cluster fleet-local/local]; deployment.apps cloudcasa-io/cloudcasa-kubeagent-manager modified {\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"args\":[\"/usr/local/bin/kubeagentmanager\",\"--server_addr\",\"agent.cloudcasa.io:443\",\"--tls\",\"true\",\"--skip_tls_verification\",\"false\"],\"env\":[{\"name\":\"MY_POD_NAME\",\"valueFrom\":{\"fieldRef\":{\"apiVersion\":\"v1\",\"fieldPath\":\"metadata.name\"}}},{\"name\":\"AMDS_CLUSTER_ID\",\"value\":\"6938435f0c7d143c28eb3a0f\"},{\"name\":\"KUBEMOVER_IMAGE\",\"value\":\"cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent:3.1.0-prod\"},{\"name\":\"DEPLOYMENT_PLATFORM\",\"value\":\"rancher\"},{\"name\":\"AGENT_INSTALLATION_METHOD\",\"value\":\"helm\"},{\"name\":\"GRPC_ENFORCE_ALPN_ENABLED\",\"value\":\"false\"}],\"image\":\"cloudcasaAgent.azurecr.io/catalogicsoftware/amds-kagent:3.1.0-prod\",\"imagePullPolicy\":\"IfNotPresent\",\"name\":\"kubeagentmanager\",\"resources\":{\"limits\":{\"cpu\":\"500m\",\"memory\":\"128Mi\"},\"requests\":{\"cpu\":\"250m\",\"memory\":\"64Mi\"}},\"securityContext\":{\"allowPrivilegeEscalation\":false,\"capabilities\":{\"drop\":[\"ALL\"]}},\"terminationMessagePath\":\"/dev/termination-log\",\"terminationMessagePolicy\":\"File\",\"volumeMounts\":[{\"mountPath\":\"/scratch\",\"name\":\"scratch\"}]}]}}}}",
         "status": "False",
         "type": "Ready"
       }
     ],
     "display": {
       "readyClusters": "0/1",
-      "state": "Modified"
+      "state": "WaitApplied"
     },
     "maxUnavailable": 1,
-    "observedGeneration": 20,
+    "observedGeneration": 22,
     "partitions": [
       {
         "count": 1,
@@ -473,10 +421,9 @@
         "name": "All",
         "summary": {
           "desiredReady": 1,
-          "modified": 1,
           "nonReadyResources": [
             {
-              "bundleState": "Modified",
+              "bundleState": "WaitApplied",
               "modifiedStatus": [
                 {
                   "apiVersion": "apps/v1",
@@ -489,17 +436,18 @@
               "name": "fleet-local/local"
             }
           ],
-          "ready": 0
-        }
+          "ready": 0,
+          "waitApplied": 1
+        },
+        "unavailable": 1
       }
     ],
     "resourcesSha256Sum": "8ba05849c32b1c11314f106342ea0ce4d416373c29540eadc9a0919772f3709e",
     "summary": {
       "desiredReady": 1,
-      "modified": 1,
       "nonReadyResources": [
         {
-          "bundleState": "Modified",
+          "bundleState": "WaitApplied",
           "modifiedStatus": [
             {
               "apiVersion": "apps/v1",
@@ -512,14 +460,15 @@
           "name": "fleet-local/local"
         }
       ],
-      "ready": 0
+      "ready": 0,
+      "waitApplied": 1
     },
-    "unavailable": 0
+    "unavailable": 1
   }
 }
 
 ### helm list --all-namespaces --all -o json
-[{"name":"adguard-home","namespace":"apps-adguard-home","revision":"35","updated":"2026-11-04 04:56:32.376859015 +0000 UTC","status":"deployed","chart":"adguard-home-14.0.5","app_version":"0.107.80"},{"name":"audiobookshelf","namespace":"apps-audiobookshelf","revision":"49","updated":"2026-10-26 16:06:34.258353677 +0000 UTC","status":"deployed","chart":"audiobookshelf-14.0.5","app_version":"2.37.2"},{"name":"authelia","namespace":"apps-authelia","revision":"44","updated":"2026-11-01 07:55:07.759575307 +0000 UTC","status":"deployed","chart":"authelia-34.0.10","app_version":"4.39.28"},{"name":"bazarr","namespace":"apps-bazarr","revision":"1931","updated":"2026-10-29 16:05:33.694602141 +0000 UTC","status":"deployed","chart":"bazarr-25.0.7","app_version":"1.6.2"},{"name":"bindery","namespace":"apps-bindery","revision":"5","updated":"2026-10-24 18:56:19.697341052 +0000 UTC","status":"deployed","chart":"bindery-0.9.12","app_version":"1.36.1"},{"name":"bookstack","namespace":"apps-bookstack","revision":"183","updated":"2026-10-29 16:05:45.518813723 +0000 UTC","status":"deployed","chart":"bookstack-23.0.9","app_version":"26.09.20260929"},{"name":"calibre","namespace":"apps-calibre","revision":"43","updated":"2026-10-29 16:06:46.781196734 +0000 UTC","status":"deployed","chart":"calibre-21.1.2","app_version":"9.17.0"},{"name":"calibre-cover-maintenance","namespace":"apps-calibre","revision":"23","updated":"2026-10-24 19:52:25.290698343 +0000 UTC","status":"deployed","chart":"calibre-cover-maintenance-v0.0.0+git-f580cf89d165","app_version":""},{"name":"calibre-storage","namespace":"apps-calibre","revision":"2","updated":"2026-10-19 05:25:06.149445528 +0000 UTC","status":"deployed","chart":"calibre-storage-v0.0.0+git-999d2dddf84f","app_version":""},{"name":"calibre-web","namespace":"apps-calibre","revision":"29","updated":"2026-10-29 16:05:35.261535076 +0000 UTC","status":"deployed","chart":"calibre-web-23.0.7","app_version":"0.6.27"},{"name":"cert-manager","namespace":"cert-manager","revision":"35","updated":"2026-11-04 20:07:39.251316984 +0000 UTC","status":"deployed","chart":"cert-manager-v1.21.3","app_version":"v1.21.3"},{"name":"cert-manager-resources","namespace":"default","revision":"3","updated":"2026-09-05 18:56:09.995204814 +0000 UTC","status":"deployed","chart":"cert-manager-resources-v0.0.0+git-d66c32765209","app_version":""},{"name":"cleanuparr","namespace":"apps-cleanuparr","revision":"102","updated":"2026-10-24 18:56:21.009869805 +0000 UTC","status":"deployed","chart":"cleanuparr-0.20.4","app_version":"2.10.12"},{"name":"cleanuparr-localdomain-ingress","namespace":"apps-cleanuparr","revision":"2","updated":"2026-09-06 14:57:57.850003337 +0000 UTC","status":"deployed","chart":"cleanuparr-localdomain-ingress-v0.0.0+git-50c4af9aa063","app_version":""},{"name":"cloudcasa","namespace":"cloudcasa-io","revision":"234","updated":"2026-10-31 13:56:50.140176992 +0000 UTC","status":"deployed","chart":"cloudcasa-3.4.7","app_version":"3.1.0"},{"name":"ddclient","namespace":"apps-ddclient","revision":"85","updated":"2026-10-29 16:05:34.999043048 +0000 UTC","status":"deployed","chart":"ddclient-15.0.6","app_version":"4.0.0"},{"name":"docker-mailserver","namespace":"apps-docker-mailserver","revision":"26","updated":"2026-10-29 16:06:46.506559381 +0000 UTC","status":"deployed","chart":"docker-mailserver-6.0.0","app_version":"16.0.1"},{"name":"duckdns","namespace":"apps-duckdns","revision":"75","updated":"2026-11-04 16:13:41.389153718 +0000 UTC","status":"deployed","chart":"duckdns-14.0.8","app_version":"latest"},{"name":"emby-ingress","namespace":"apps-emby","revision":"2","updated":"2026-09-20 15:25:36.925288238 +0000 UTC","status":"deployed","chart":"emby-ingress-v0.0.0+git-93deaddbf316","app_version":""},{"name":"filebot","namespace":"apps-filebot","revision":"9","updated":"2026-10-24 17:53:00.945076528 +0000 UTC","status":"deployed","chart":"filebot-15.12.0","app_version":"26.08.2"},{"name":"flaresolverr","namespace":"apps-flaresolverr","revision":"29","updated":"2026-10-26 16:06:36.661865946 +0000 UTC","status":"deployed","chart":"flaresolverr-18.0.4","app_version":"3.5.2"},{"name":"fleet","namespace":"cattle-fleet-system","revision":"41","updated":"2026-11-03 07:49:02.437819144 +0000 UTC","status":"deployed","chart":"fleet-110.0.3+up0.16.3","app_version":"0.16.3"},{"name":"fleet-agent-local","namespace":"cattle-fleet-local-system","revision":"40","updated":"2026-09-28 22:24:48.09068405 +0000 UTC","status":"deployed","chart":"fleet-agent-local-v0.0.0+s-8485a5dc16708bb7c6c863f3d8b5710a8fba51dfddb8712ac22b4c69b6fca","app_version":""},{"name":"fleet-crd","namespace":"cattle-fleet-system","revision":"38","updated":"2026-11-03 07:49:17.705442472 +0000 UTC","status":"deployed","chart":"fleet-crd-110.0.3+up0.16.3","app_version":"0.16.3"},{"name":"homer","namespace":"apps-homer","revision":"31","updated":"2026-10-26 16:06:37.289262362 +0000 UTC","status":"deployed","chart":"homer-16.0.4","app_version":"26.08.3"},{"name":"homer-config-auth","namespace":"apps-homer","revision":"2","updated":"2026-10-04 01:22:45.096229988 +0000 UTC","status":"deployed","chart":"homer-config-auth-v0.0.0+git-89e78a371235","app_version":""},{"name":"homer-test","namespace":"apps-homer-test","revision":"20","updated":"2026-09-17 19:13:50.969944363 +0000 UTC","status":"deployed","chart":"homer-15.11.0","app_version":"26.08.3"},{"name":"homer-test-pvc-copy","namespace":"apps-homer-test","revision":"4","updated":"2026-10-09 17:27:06.221106748 +0000 UTC","status":"deployed","chart":"homer-test-pvc-copy-v0.0.0+git-a55ca36b785e","app_version":""},{"name":"homer-without-auth","namespace":"apps-homer","revision":"19","updated":"2026-10-28 16:53:30.935127317 +0000 UTC","status":"deployed","chart":"homer-16.0.4","app_version":"26.08.3"},{"name":"homer-without-auth-config-copy","namespace":"apps-homer","revision":"30","updated":"2026-10-28 18:21:35.551906607 +0000 UTC","status":"deployed","chart":"homer-without-auth-config-copy-v0.0.0+git-9182d50a5227","app_version":""},{"name":"jellyseerr","namespace":"apps-jellyseerr","revision":"28","updated":"2026-10-26 16:06:38.404013885 +0000 UTC","status":"deployed","chart":"jellyseerr-16.0.4","app_version":"2.7.3"},{"name":"jenkins","namespace":"apps-jenkins","revision":"8","updated":"2026-11-05 16:14:33.474629879 +0000 UTC","status":"deployed","chart":"jenkins-12.0.4","app_version":"2.544.0"},{"name":"jenkins-storage","namespace":"apps-jenkins","revision":"2","updated":"2026-11-01 09:43:59.37610587 +0000 UTC","status":"deployed","chart":"jenkins-storage-v0.0.0+git-d12f18461d09","app_version":""},{"name":"kavita","namespace":"apps-calibre","revision":"8","updated":"2026-10-29 16:06:49.603444992 +0000 UTC","status":"deployed","chart":"kavita-14.0.4","app_version":"0.8.8.3"},{"name":"longhorn","namespace":"longhorn-system","revision":"14","updated":"2026-10-01 16:54:50.737656752 +0000 UTC","status":"deployed","chart":"longhorn-1.13.0","app_version":"v1.13.0"},{"name":"longhorn-books-storage","namespace":"apps-openbooks","revision":"2","updated":"2026-10-24 17:53:01.872298259 +0000 UTC","status":"deployed","chart":"longhorn-books-storage-v0.0.0+git-3f6eaa06e65c","app_version":""},{"name":"longhorn-bookstack-storage","namespace":"apps-bookstack","revision":"5","updated":"2026-10-28 19:07:58.178395658 +0000 UTC","status":"deployed","chart":"longhorn-bookstack-storage-v0.0.0+git-8cad88a538a8","app_version":""},{"name":"longhorn-calibre-arr-storage","namespace":"apps-calibre","revision":"2","updated":"2026-10-24 19:52:30.963871592 +0000 UTC","status":"deployed","chart":"longhorn-calibre-arr-storage-v0.0.0+git-f580cf89d165","app_version":""},{"name":"longhorn-crypto-storage","namespace":"longhorn-system","revision":"1","updated":"2026-11-02 23:11:19.56546238 +0000 UTC","status":"deployed","chart":"longhorn-crypto-storage-v0.0.0+git-8abc5771c26c","app_version":""},{"name":"longhorn-dns-proxy-storage","namespace":"apps-ddclient","revision":"2","updated":"2026-10-24 17:53:02.19668616 +0000 UTC","status":"deployed","chart":"longhorn-dns-proxy-storage-v0.0.0+git-3f6eaa06e65c","app_version":""},{"name":"longhorn-docker-mailserver-storage","namespace":"apps-docker-mailserver","revision":"2","updated":"2026-10-26 16:06:42.095439572 +0000 UTC","status":"deployed","chart":"longhorn-docker-mailserver-storage-v0.0.0+git-d44d9c170118","app_version":""},{"name":"longhorn-filebot-storage","namespace":"apps-filebot","revision":"2","updated":"2026-10-24 17:53:02.206064076 +0000 UTC","status":"deployed","chart":"longhorn-filebot-storage-v0.0.0+git-3f6eaa06e65c","app_version":""},{"name":"longhorn-mailpile-storage","namespace":"apps-mailpile","revision":"6","updated":"2026-10-28 16:39:46.202408306 +0000 UTC","status":"deployed","chart":"longhorn-mailpile-storage-v0.0.0+git-9b1a7c654299","app_version":""},{"name":"longhorn-media-small-storage","namespace":"apps-audiobookshelf","revision":"1","updated":"2026-10-24 19:25:14.556982167 +0000 UTC","status":"deployed","chart":"longhorn-media-small-storage-v0.0.0+git-b1c0c7964e26","app_version":""},{"name":"longhorn-pilot-storage","namespace":"apps-homer","revision":"2","updated":"2026-10-24 09:58:36.174056075 +0000 UTC","status":"deployed","chart":"longhorn-pilot-storage-v0.0.0+git-b016acd889cf","app_version":""},{"name":"longhorn-sonarr-ytdl-adguard-storage","namespace":"apps-sonarr","revision":"2","updated":"2026-10-25 07:09:34.843272604 +0000 UTC","status":"deployed","chart":"longhorn-sonarr-ytdl-adguard-storage-v0.0.0+git-db864679817a","app_version":""},{"name":"longhorn-sqlite-next-storage","namespace":"apps-bindery","revision":"2","updated":"2026-10-24 18:56:24.544331709 +0000 UTC","status":"deployed","chart":"longhorn-sqlite-next-storage-v0.0.0+git-53c50ccab3f4","app_version":""},{"name":"longhorn-sqlite-small-storage","namespace":"apps-jellyseerr","revision":"2","updated":"2026-10-24 18:56:24.398070679 +0000 UTC","status":"deployed","chart":"longhorn-sqlite-small-storage-v0.0.0+git-53c50ccab3f4","app_version":""},{"name":"longhorn-zabbix-storage","namespace":"apps-zabbix","revision":"2","updated":"2026-10-25 12:01:41.555423815 +0000 UTC","status":"deployed","chart":"longhorn-zabbix-storage-v0.0.0+git-a07905f3bff5","app_version":""},{"name":"mailpile","namespace":"apps-mailpile","revision":"22","updated":"2026-10-28 16:39:53.590585439 +0000 UTC","status":"deployed","chart":"mailpile-10.0.4","app_version":"latest"},{"name":"nubile-ingress","namespace":"apps-nubile","revision":"2","updated":"2026-10-22 22:24:15.754386943 +0000 UTC","status":"deployed","chart":"nubile-ingress-v0.0.0+git-f573fe8b14ec","app_version":""},{"name":"openbooks","namespace":"apps-openbooks","revision":"18","updated":"2026-10-26 16:06:39.945175119 +0000 UTC","status":"deployed","chart":"openbooks-9.0.4","app_version":"4.5.0"},{"name":"piwigo","namespace":"apps-piwigo","revision":"3","updated":"2026-11-05 16:14:38.966054463 +0000 UTC","status":"deployed","chart":"piwigo-22.0.12","app_version":"16.4.0"},{"name":"piwigo-storage","namespace":"apps-piwigo","revision":"1","updated":"2026-11-02 23:11:24.513211376 +0000 UTC","status":"deployed","chart":"piwigo-storage-v0.0.0+git-8abc5771c26c","app_version":""},{"name":"profilarr","namespace":"apps-profilarr","revision":"270","updated":"2026-10-24 19:52:28.188263003 +0000 UTC","status":"deployed","chart":"profilarr-2.5.0","app_version":"2.3.1"},{"name":"profilarr-localdomain-ingress","namespace":"apps-profilarr","revision":"1","updated":"2026-09-06 15:03:48.949074757 +0000 UTC","status":"deployed","chart":"profilarr-localdomain-ingress-v0.0.0+git-012b399cdc71","app_version":""},{"name":"prowlarr","namespace":"apps-prowlarr","revision":"65","updated":"2026-11-04 04:56:36.186171834 +0000 UTC","status":"deployed","chart":"prowlarr-23.1.3","app_version":"2.7.0.5723"},{"name":"radarr","namespace":"apps-radarr","revision":"53","updated":"2026-11-03 07:46:19.730515813 +0000 UTC","status":"deployed","chart":"radarr-29.0.2","app_version":"7.0.1.10859"},{"name":"rancher","namespace":"cattle-system","revision":"30","updated":"2026-11-03 08:46:10.760627118 +0100 CET","status":"deployed","chart":"rancher-2.15.3","app_version":"v2.15.3"},{"name":"rancher-turtles","namespace":"cattle-turtles-system","revision":"5","updated":"2026-11-03 07:49:50.989181631 +0000 UTC","status":"deployed","chart":"rancher-turtles-110.0.4+up0.27.4","app_version":"0.27.4"},{"name":"rancher-webhook","namespace":"cattle-system","revision":"6","updated":"2026-11-03 07:49:31.862750957 +0000 UTC","status":"deployed","chart":"rancher-webhook-110.0.4+up0.11.4","app_version":"0.11.4"},{"name":"scrutiny","namespace":"apps-scrutiny","revision":"52","updated":"2026-11-01 07:55:10.964143659 +0000 UTC","status":"deployed","chart":"scrutiny-15.1.0","app_version":"0.10.0"},{"name":"scrutiny-cors","namespace":"default","revision":"2","updated":"2026-09-23 18:53:24.856059412 +0000 UTC","status":"deployed","chart":"scrutiny-cors-v0.0.0+git-424127ea3671","app_version":""},{"name":"smokeping","namespace":"apps-smokeping","revision":"54","updated":"2026-11-04 16:13:45.418370847 +0000 UTC","status":"deployed","chart":"smokeping-15.0.7","app_version":"2.9.0"},{"name":"sonarr","namespace":"apps-sonarr","revision":"565","updated":"2026-11-03 07:46:20.679814978 +0000 UTC","status":"deployed","chart":"sonarr-28.0.15","app_version":"5.0.0.2941"},{"name":"system-upgrade-controller","namespace":"cattle-system","revision":"2","updated":"2026-09-07 15:51:27.235272076 +0000 UTC","status":"deployed","chart":"system-upgrade-controller-110.0.0","app_version":"v0.20.1"},{"name":"traefik","namespace":"kube-system","revision":"138","updated":"2026-11-05 01:36:22.019848696 +0000 UTC","status":"deployed","chart":"traefik-40.1.7+up40.1.0","app_version":"v3.7.1"},{"name":"traefik-config","namespace":"default","revision":"64","updated":"2026-09-21 18:40:49.440003539 +0000 UTC","status":"failed","chart":"traefik-config-v0.0.0+git-5de33f7399b7","app_version":""},{"name":"traefik-crd","namespace":"kube-system","revision":"2338","updated":"2026-11-05 01:36:55.269012851 +0000 UTC","status":"deployed","chart":"traefik-crd-40.1.7+up40.1.0","app_version":"v3.7.1"},{"name":"ubooquity","namespace":"apps-ubooquity","revision":"47","updated":"2026-10-29 16:05:40.398269247 +0000 UTC","status":"deployed","chart":"ubooquity-16.0.7","app_version":"3.1.0"},{"name":"ubooquity-admin-redirect","namespace":"apps-ubooquity","revision":"2","updated":"2026-10-18 14:21:07.525463831 +0000 UTC","status":"deployed","chart":"ubooquity-admin-redirect-v0.0.0+git-82635e577f4f","app_version":""},{"name":"uptime-kuma","namespace":"apps-uptime-kuma","revision":"19","updated":"2026-10-26 16:06:41.777956101 +0000 UTC","status":"deployed","chart":"uptime-kuma-15.0.4","app_version":"1.23.17"},{"name":"whisparr","namespace":"apps-whisparr","revision":"5","updated":"2026-10-31 13:56:53.411449347 +0000 UTC","status":"deployed","chart":"whisparr-16.0.4","app_version":"3.1.0.2116"},{"name":"whisparr-storage","namespace":"apps-whisparr","revision":"1","updated":"2026-10-30 16:00:57.929916619 +0000 UTC","status":"deployed","chart":"whisparr-storage-v0.0.0+git-d4b54e457ec8","app_version":""},{"name":"youtubedl-material","namespace":"apps-youtubedl-material","revision":"2110","updated":"2026-10-31 13:56:56.672126698 +0000 UTC","status":"deployed","chart":"youtubedl-material-17.0.11","app_version":"2024.10.01"},{"name":"zabbix","namespace":"apps-zabbix","revision":"13","updated":"2026-11-05 18:37:17.436198483 +0000 UTC","status":"deployed","chart":"zabbix-7.1.0","app_version":"7.0.23"}]
+[{"name":"adguard-home","namespace":"apps-adguard-home","revision":"35","updated":"2026-11-04 04:56:32.376859015 +0000 UTC","status":"deployed","chart":"adguard-home-14.0.5","app_version":"0.107.80"},{"name":"audiobookshelf","namespace":"apps-audiobookshelf","revision":"49","updated":"2026-10-26 16:06:34.258353677 +0000 UTC","status":"deployed","chart":"audiobookshelf-14.0.5","app_version":"2.37.2"},{"name":"authelia","namespace":"apps-authelia","revision":"44","updated":"2026-11-01 07:55:07.759575307 +0000 UTC","status":"deployed","chart":"authelia-34.0.10","app_version":"4.39.28"},{"name":"bazarr","namespace":"apps-bazarr","revision":"1931","updated":"2026-10-29 16:05:33.694602141 +0000 UTC","status":"deployed","chart":"bazarr-25.0.7","app_version":"1.6.2"},{"name":"bindery","namespace":"apps-bindery","revision":"5","updated":"2026-10-24 18:56:19.697341052 +0000 UTC","status":"deployed","chart":"bindery-0.9.12","app_version":"1.36.1"},{"name":"bookstack","namespace":"apps-bookstack","revision":"183","updated":"2026-10-29 16:05:45.518813723 +0000 UTC","status":"deployed","chart":"bookstack-23.0.9","app_version":"26.09.20260929"},{"name":"calibre","namespace":"apps-calibre","revision":"43","updated":"2026-10-29 16:06:46.781196734 +0000 UTC","status":"deployed","chart":"calibre-21.1.2","app_version":"9.17.0"},{"name":"calibre-cover-maintenance","namespace":"apps-calibre","revision":"23","updated":"2026-10-24 19:52:25.290698343 +0000 UTC","status":"deployed","chart":"calibre-cover-maintenance-v0.0.0+git-f580cf89d165","app_version":""},{"name":"calibre-storage","namespace":"apps-calibre","revision":"3","updated":"2026-11-05 19:55:10.466402852 +0000 UTC","status":"deployed","chart":"calibre-storage-v0.0.0+git-28375279fb74","app_version":""},{"name":"calibre-web","namespace":"apps-calibre","revision":"29","updated":"2026-10-29 16:05:35.261535076 +0000 UTC","status":"deployed","chart":"calibre-web-23.0.7","app_version":"0.6.27"},{"name":"cert-manager","namespace":"cert-manager","revision":"35","updated":"2026-11-04 20:07:39.251316984 +0000 UTC","status":"deployed","chart":"cert-manager-v1.21.3","app_version":"v1.21.3"},{"name":"cert-manager-resources","namespace":"default","revision":"4","updated":"2026-11-05 19:55:15.565656948 +0000 UTC","status":"deployed","chart":"cert-manager-resources-v0.0.0+git-28375279fb74","app_version":""},{"name":"cleanuparr","namespace":"apps-cleanuparr","revision":"102","updated":"2026-10-24 18:56:21.009869805 +0000 UTC","status":"deployed","chart":"cleanuparr-0.20.4","app_version":"2.10.12"},{"name":"cleanuparr-localdomain-ingress","namespace":"apps-cleanuparr","revision":"2","updated":"2026-09-06 14:57:57.850003337 +0000 UTC","status":"deployed","chart":"cleanuparr-localdomain-ingress-v0.0.0+git-50c4af9aa063","app_version":""},{"name":"cloudcasa","namespace":"cloudcasa-io","revision":"251","updated":"2026-11-05 20:01:04.579892164 +0000 UTC","status":"failed","chart":"cloudcasa-3.4.7","app_version":"3.1.0"},{"name":"ddclient","namespace":"apps-ddclient","revision":"85","updated":"2026-10-29 16:05:34.999043048 +0000 UTC","status":"deployed","chart":"ddclient-15.0.6","app_version":"4.0.0"},{"name":"docker-mailserver","namespace":"apps-docker-mailserver","revision":"26","updated":"2026-10-29 16:06:46.506559381 +0000 UTC","status":"deployed","chart":"docker-mailserver-6.0.0","app_version":"16.0.1"},{"name":"duckdns","namespace":"apps-duckdns","revision":"75","updated":"2026-11-04 16:13:41.389153718 +0000 UTC","status":"deployed","chart":"duckdns-14.0.8","app_version":"latest"},{"name":"emby-ingress","namespace":"apps-emby","revision":"2","updated":"2026-09-20 15:25:36.925288238 +0000 UTC","status":"deployed","chart":"emby-ingress-v0.0.0+git-93deaddbf316","app_version":""},{"name":"filebot","namespace":"apps-filebot","revision":"9","updated":"2026-10-24 17:53:00.945076528 +0000 UTC","status":"deployed","chart":"filebot-15.12.0","app_version":"26.08.2"},{"name":"flaresolverr","namespace":"apps-flaresolverr","revision":"29","updated":"2026-10-26 16:06:36.661865946 +0000 UTC","status":"deployed","chart":"flaresolverr-18.0.4","app_version":"3.5.2"},{"name":"fleet","namespace":"cattle-fleet-system","revision":"41","updated":"2026-11-03 07:49:02.437819144 +0000 UTC","status":"deployed","chart":"fleet-110.0.3+up0.16.3","app_version":"0.16.3"},{"name":"fleet-agent-local","namespace":"cattle-fleet-local-system","revision":"40","updated":"2026-09-28 22:24:48.09068405 +0000 UTC","status":"deployed","chart":"fleet-agent-local-v0.0.0+s-8485a5dc16708bb7c6c863f3d8b5710a8fba51dfddb8712ac22b4c69b6fca","app_version":""},{"name":"fleet-crd","namespace":"cattle-fleet-system","revision":"38","updated":"2026-11-03 07:49:17.705442472 +0000 UTC","status":"deployed","chart":"fleet-crd-110.0.3+up0.16.3","app_version":"0.16.3"},{"name":"homer","namespace":"apps-homer","revision":"31","updated":"2026-10-26 16:06:37.289262362 +0000 UTC","status":"deployed","chart":"homer-16.0.4","app_version":"26.08.3"},{"name":"homer-config-auth","namespace":"apps-homer","revision":"2","updated":"2026-10-04 01:22:45.096229988 +0000 UTC","status":"deployed","chart":"homer-config-auth-v0.0.0+git-89e78a371235","app_version":""},{"name":"homer-test","namespace":"apps-homer-test","revision":"20","updated":"2026-09-17 19:13:50.969944363 +0000 UTC","status":"deployed","chart":"homer-15.11.0","app_version":"26.08.3"},{"name":"homer-test-pvc-copy","namespace":"apps-homer-test","revision":"4","updated":"2026-10-09 17:27:06.221106748 +0000 UTC","status":"deployed","chart":"homer-test-pvc-copy-v0.0.0+git-a55ca36b785e","app_version":""},{"name":"homer-without-auth","namespace":"apps-homer","revision":"19","updated":"2026-10-28 16:53:30.935127317 +0000 UTC","status":"deployed","chart":"homer-16.0.4","app_version":"26.08.3"},{"name":"homer-without-auth-config-copy","namespace":"apps-homer","revision":"30","updated":"2026-10-28 18:21:35.551906607 +0000 UTC","status":"deployed","chart":"homer-without-auth-config-copy-v0.0.0+git-9182d50a5227","app_version":""},{"name":"jellyseerr","namespace":"apps-jellyseerr","revision":"28","updated":"2026-10-26 16:06:38.404013885 +0000 UTC","status":"deployed","chart":"jellyseerr-16.0.4","app_version":"2.7.3"},{"name":"jenkins","namespace":"apps-jenkins","revision":"8","updated":"2026-11-05 16:14:33.474629879 +0000 UTC","status":"deployed","chart":"jenkins-12.0.4","app_version":"2.544.0"},{"name":"jenkins-storage","namespace":"apps-jenkins","revision":"2","updated":"2026-11-01 09:43:59.37610587 +0000 UTC","status":"deployed","chart":"jenkins-storage-v0.0.0+git-d12f18461d09","app_version":""},{"name":"kavita","namespace":"apps-calibre","revision":"8","updated":"2026-10-29 16:06:49.603444992 +0000 UTC","status":"deployed","chart":"kavita-14.0.4","app_version":"0.8.8.3"},{"name":"longhorn","namespace":"longhorn-system","revision":"14","updated":"2026-10-01 16:54:50.737656752 +0000 UTC","status":"deployed","chart":"longhorn-1.13.0","app_version":"v1.13.0"},{"name":"longhorn-books-storage","namespace":"apps-openbooks","revision":"2","updated":"2026-10-24 17:53:01.872298259 +0000 UTC","status":"deployed","chart":"longhorn-books-storage-v0.0.0+git-3f6eaa06e65c","app_version":""},{"name":"longhorn-bookstack-storage","namespace":"apps-bookstack","revision":"5","updated":"2026-10-28 19:07:58.178395658 +0000 UTC","status":"deployed","chart":"longhorn-bookstack-storage-v0.0.0+git-8cad88a538a8","app_version":""},{"name":"longhorn-calibre-arr-storage","namespace":"apps-calibre","revision":"2","updated":"2026-10-24 19:52:30.963871592 +0000 UTC","status":"deployed","chart":"longhorn-calibre-arr-storage-v0.0.0+git-f580cf89d165","app_version":""},{"name":"longhorn-crypto-storage","namespace":"longhorn-system","revision":"1","updated":"2026-11-02 23:11:19.56546238 +0000 UTC","status":"deployed","chart":"longhorn-crypto-storage-v0.0.0+git-8abc5771c26c","app_version":""},{"name":"longhorn-dns-proxy-storage","namespace":"apps-ddclient","revision":"2","updated":"2026-10-24 17:53:02.19668616 +0000 UTC","status":"deployed","chart":"longhorn-dns-proxy-storage-v0.0.0+git-3f6eaa06e65c","app_version":""},{"name":"longhorn-docker-mailserver-storage","namespace":"apps-docker-mailserver","revision":"2","updated":"2026-10-26 16:06:42.095439572 +0000 UTC","status":"deployed","chart":"longhorn-docker-mailserver-storage-v0.0.0+git-d44d9c170118","app_version":""},{"name":"longhorn-filebot-storage","namespace":"apps-filebot","revision":"2","updated":"2026-10-24 17:53:02.206064076 +0000 UTC","status":"deployed","chart":"longhorn-filebot-storage-v0.0.0+git-3f6eaa06e65c","app_version":""},{"name":"longhorn-mailpile-storage","namespace":"apps-mailpile","revision":"6","updated":"2026-10-28 16:39:46.202408306 +0000 UTC","status":"deployed","chart":"longhorn-mailpile-storage-v0.0.0+git-9b1a7c654299","app_version":""},{"name":"longhorn-media-small-storage","namespace":"apps-audiobookshelf","revision":"1","updated":"2026-10-24 19:25:14.556982167 +0000 UTC","status":"deployed","chart":"longhorn-media-small-storage-v0.0.0+git-b1c0c7964e26","app_version":""},{"name":"longhorn-pilot-storage","namespace":"apps-homer","revision":"2","updated":"2026-10-24 09:58:36.174056075 +0000 UTC","status":"deployed","chart":"longhorn-pilot-storage-v0.0.0+git-b016acd889cf","app_version":""},{"name":"longhorn-sonarr-ytdl-adguard-storage","namespace":"apps-sonarr","revision":"2","updated":"2026-10-25 07:09:34.843272604 +0000 UTC","status":"deployed","chart":"longhorn-sonarr-ytdl-adguard-storage-v0.0.0+git-db864679817a","app_version":""},{"name":"longhorn-sqlite-next-storage","namespace":"apps-bindery","revision":"2","updated":"2026-10-24 18:56:24.544331709 +0000 UTC","status":"deployed","chart":"longhorn-sqlite-next-storage-v0.0.0+git-53c50ccab3f4","app_version":""},{"name":"longhorn-sqlite-small-storage","namespace":"apps-jellyseerr","revision":"2","updated":"2026-10-24 18:56:24.398070679 +0000 UTC","status":"deployed","chart":"longhorn-sqlite-small-storage-v0.0.0+git-53c50ccab3f4","app_version":""},{"name":"longhorn-zabbix-storage","namespace":"apps-zabbix","revision":"2","updated":"2026-10-25 12:01:41.555423815 +0000 UTC","status":"deployed","chart":"longhorn-zabbix-storage-v0.0.0+git-a07905f3bff5","app_version":""},{"name":"mailpile","namespace":"apps-mailpile","revision":"22","updated":"2026-10-28 16:39:53.590585439 +0000 UTC","status":"deployed","chart":"mailpile-10.0.4","app_version":"latest"},{"name":"nubile-ingress","namespace":"apps-nubile","revision":"2","updated":"2026-10-22 22:24:15.754386943 +0000 UTC","status":"deployed","chart":"nubile-ingress-v0.0.0+git-f573fe8b14ec","app_version":""},{"name":"openbooks","namespace":"apps-openbooks","revision":"18","updated":"2026-10-26 16:06:39.945175119 +0000 UTC","status":"deployed","chart":"openbooks-9.0.4","app_version":"4.5.0"},{"name":"piwigo","namespace":"apps-piwigo","revision":"3","updated":"2026-11-05 16:14:38.966054463 +0000 UTC","status":"deployed","chart":"piwigo-22.0.12","app_version":"16.4.0"},{"name":"piwigo-storage","namespace":"apps-piwigo","revision":"1","updated":"2026-11-02 23:11:24.513211376 +0000 UTC","status":"deployed","chart":"piwigo-storage-v0.0.0+git-8abc5771c26c","app_version":""},{"name":"profilarr","namespace":"apps-profilarr","revision":"270","updated":"2026-10-24 19:52:28.188263003 +0000 UTC","status":"deployed","chart":"profilarr-2.5.0","app_version":"2.3.1"},{"name":"profilarr-localdomain-ingress","namespace":"apps-profilarr","revision":"1","updated":"2026-09-06 15:03:48.949074757 +0000 UTC","status":"deployed","chart":"profilarr-localdomain-ingress-v0.0.0+git-012b399cdc71","app_version":""},{"name":"prowlarr","namespace":"apps-prowlarr","revision":"65","updated":"2026-11-04 04:56:36.186171834 +0000 UTC","status":"deployed","chart":"prowlarr-23.1.3","app_version":"2.7.0.5723"},{"name":"radarr","namespace":"apps-radarr","revision":"53","updated":"2026-11-03 07:46:19.730515813 +0000 UTC","status":"deployed","chart":"radarr-29.0.2","app_version":"7.0.1.10859"},{"name":"rancher","namespace":"cattle-system","revision":"30","updated":"2026-11-03 08:46:10.760627118 +0100 CET","status":"deployed","chart":"rancher-2.15.3","app_version":"v2.15.3"},{"name":"rancher-turtles","namespace":"cattle-turtles-system","revision":"5","updated":"2026-11-03 07:49:50.989181631 +0000 UTC","status":"deployed","chart":"rancher-turtles-110.0.4+up0.27.4","app_version":"0.27.4"},{"name":"rancher-webhook","namespace":"cattle-system","revision":"6","updated":"2026-11-03 07:49:31.862750957 +0000 UTC","status":"deployed","chart":"rancher-webhook-110.0.4+up0.11.4","app_version":"0.11.4"},{"name":"scrutiny","namespace":"apps-scrutiny","revision":"52","updated":"2026-11-01 07:55:10.964143659 +0000 UTC","status":"deployed","chart":"scrutiny-15.1.0","app_version":"0.10.0"},{"name":"scrutiny-cors","namespace":"default","revision":"2","updated":"2026-09-23 18:53:24.856059412 +0000 UTC","status":"deployed","chart":"scrutiny-cors-v0.0.0+git-424127ea3671","app_version":""},{"name":"smokeping","namespace":"apps-smokeping","revision":"54","updated":"2026-11-04 16:13:45.418370847 +0000 UTC","status":"deployed","chart":"smokeping-15.0.7","app_version":"2.9.0"},{"name":"sonarr","namespace":"apps-sonarr","revision":"565","updated":"2026-11-03 07:46:20.679814978 +0000 UTC","status":"deployed","chart":"sonarr-28.0.15","app_version":"5.0.0.2941"},{"name":"system-upgrade-controller","namespace":"cattle-system","revision":"2","updated":"2026-09-07 15:51:27.235272076 +0000 UTC","status":"deployed","chart":"system-upgrade-controller-110.0.0","app_version":"v0.20.1"},{"name":"traefik","namespace":"kube-system","revision":"138","updated":"2026-11-05 01:36:22.019848696 +0000 UTC","status":"deployed","chart":"traefik-40.1.7+up40.1.0","app_version":"v3.7.1"},{"name":"traefik-config","namespace":"default","revision":"64","updated":"2026-09-21 18:40:49.440003539 +0000 UTC","status":"failed","chart":"traefik-config-v0.0.0+git-5de33f7399b7","app_version":""},{"name":"traefik-crd","namespace":"kube-system","revision":"2338","updated":"2026-11-05 01:36:55.269012851 +0000 UTC","status":"deployed","chart":"traefik-crd-40.1.7+up40.1.0","app_version":"v3.7.1"},{"name":"ubooquity","namespace":"apps-ubooquity","revision":"47","updated":"2026-10-29 16:05:40.398269247 +0000 UTC","status":"deployed","chart":"ubooquity-16.0.7","app_version":"3.1.0"},{"name":"ubooquity-admin-redirect","namespace":"apps-ubooquity","revision":"2","updated":"2026-10-18 14:21:07.525463831 +0000 UTC","status":"deployed","chart":"ubooquity-admin-redirect-v0.0.0+git-82635e577f4f","app_version":""},{"name":"uptime-kuma","namespace":"apps-uptime-kuma","revision":"19","updated":"2026-10-26 16:06:41.777956101 +0000 UTC","status":"deployed","chart":"uptime-kuma-15.0.4","app_version":"1.23.17"},{"name":"whisparr","namespace":"apps-whisparr","revision":"5","updated":"2026-10-31 13:56:53.411449347 +0000 UTC","status":"deployed","chart":"whisparr-16.0.4","app_version":"3.1.0.2116"},{"name":"whisparr-storage","namespace":"apps-whisparr","revision":"1","updated":"2026-10-30 16:00:57.929916619 +0000 UTC","status":"deployed","chart":"whisparr-storage-v0.0.0+git-d4b54e457ec8","app_version":""},{"name":"youtubedl-material","namespace":"apps-youtubedl-material","revision":"2110","updated":"2026-10-31 13:56:56.672126698 +0000 UTC","status":"deployed","chart":"youtubedl-material-17.0.11","app_version":"2024.10.01"},{"name":"zabbix","namespace":"apps-zabbix","revision":"13","updated":"2026-11-05 18:37:17.436198483 +0000 UTC","status":"deployed","chart":"zabbix-7.1.0","app_version":"7.0.23"}]
 
 exit status: 0
 
@@ -530,11 +479,15 @@ metadata:
   annotations:
     kubectl.kubernetes.io/last-applied-configuration: |
       {"apiVersion":"longhorn.io/v1beta2","kind":"RecurringJob","metadata":{"annotations":{},"name":"nas-daily-backup","namespace":"longhorn-system"},"spec":{"concurrency":1,"cron":"0 1 * * *","groups":["nas-backup"],"name":"nas-daily-backup","parameters":{"full-backup-interval":"7"},"retain":14,"retentionPolicy":"count-based","task":"backup"}}
+    meta.helm.sh/release-name: longhorn-backups
+    meta.helm.sh/release-namespace: longhorn-system
   creationTimestamp: "2026-10-08T18:31:31Z"
   generation: 1
+  labels:
+    app.kubernetes.io/managed-by: Helm
   name: nas-daily-backup
   namespace: longhorn-system
-  resourceVersion: "38992780"
+  resourceVersion: "39654265"
   uid: c126b0c6-f090-4d78-a669-68ac92d5f585
 spec:
   concurrency: 1
@@ -603,13 +556,16 @@ items:
     annotations:
       kubectl.kubernetes.io/last-applied-configuration: |
         {"addressType":"IPv4","apiVersion":"discovery.k8s.io/v1","endpoints":[{"addresses":["10.0.0.72"]}],"kind":"EndpointSlice","metadata":{"annotations":{},"labels":{"kubernetes.io/service-name":"pve-api"},"name":"pve-api-ipv4","namespace":"pve-proxy"},"ports":[{"name":"https","port":8006,"protocol":"TCP"}]}
+      meta.helm.sh/release-name: traefik-resources
+      meta.helm.sh/release-namespace: fleet-local
     creationTimestamp: "2026-09-18T17:40:41Z"
-    generation: 1
+    generation: 2
     labels:
+      app.kubernetes.io/managed-by: Helm
       kubernetes.io/service-name: pve-api
     name: pve-api-ipv4
     namespace: pve-proxy
-    resourceVersion: "8003475"
+    resourceVersion: "39654282"
     uid: 11e83896-22cb-4108-b1b6-9a4c37be88f5
   ports:
   - name: https
@@ -621,6 +577,8 @@ items:
     annotations:
       kubectl.kubernetes.io/last-applied-configuration: |
         {"apiVersion":"traefik.io/v1alpha1","kind":"ServersTransport","metadata":{"annotations":{},"name":"pve-backend","namespace":"pve-proxy"},"spec":{"insecureSkipVerify":true}}
+      meta.helm.sh/release-name: traefik-resources
+      meta.helm.sh/release-namespace: fleet-local
       objectset.rio.cattle.io/id: default-traefik-config-cattle-fleet-local-system
     creationTimestamp: "2026-09-18T17:40:41Z"
     generation: 1
@@ -629,7 +587,7 @@ items:
       objectset.rio.cattle.io/hash: 972f3924eb7ed9fe2fee4da0b1bd60ba50743f71
     name: pve-backend
     namespace: pve-proxy
-    resourceVersion: "9907665"
+    resourceVersion: "39654283"
     uid: 60627331-c64d-4430-8342-c62738f03094
   spec:
     insecureSkipVerify: true
@@ -639,6 +597,8 @@ items:
     annotations:
       kubectl.kubernetes.io/last-applied-configuration: |
         {"apiVersion":"traefik.io/v1alpha1","kind":"Middleware","metadata":{"annotations":{},"name":"pve-api-cors","namespace":"pve-proxy"},"spec":{"headers":{"accessControlAllowHeaders":["Authorization","Content-Type"],"accessControlAllowMethods":["GET","OPTIONS"],"accessControlAllowOriginList":["https://homer.rancher.tailscale.bnowakowski.pl","https://homer.rancher.localdomain.bnowakowski.pl"],"accessControlMaxAge":600,"addVaryHeader":true}}}
+      meta.helm.sh/release-name: traefik-resources
+      meta.helm.sh/release-namespace: fleet-local
       objectset.rio.cattle.io/id: default-traefik-config-cattle-fleet-local-system
     creationTimestamp: "2026-09-21T16:12:46Z"
     generation: 1
@@ -647,7 +607,7 @@ items:
       objectset.rio.cattle.io/hash: 972f3924eb7ed9fe2fee4da0b1bd60ba50743f71
     name: pve-api-cors
     namespace: pve-proxy
-    resourceVersion: "9907666"
+    resourceVersion: "39654284"
     uid: ef50e71e-e0f9-43cc-815c-0f4df55c53ad
   spec:
     headers:
@@ -668,6 +628,8 @@ items:
     annotations:
       kubectl.kubernetes.io/last-applied-configuration: |
         {"apiVersion":"cert-manager.io/v1","kind":"Certificate","metadata":{"annotations":{},"name":"pve-ui","namespace":"pve-proxy"},"spec":{"dnsNames":["proxmox2-old.localdomain.bnowakowski.pl","proxmox2-old.tailscale.bnowakowski.pl"],"issuerRef":{"kind":"ClusterIssuer","name":"letsencrypt"},"secretName":"pve-ui-tls"}}
+      meta.helm.sh/release-name: traefik-resources
+      meta.helm.sh/release-namespace: fleet-local
       objectset.rio.cattle.io/id: default-traefik-config-cattle-fleet-local-system
     creationTimestamp: "2026-09-18T17:40:41Z"
     generation: 1
@@ -676,7 +638,7 @@ items:
       objectset.rio.cattle.io/hash: 972f3924eb7ed9fe2fee4da0b1bd60ba50743f71
     name: pve-ui
     namespace: pve-proxy
-    resourceVersion: "9907668"
+    resourceVersion: "39654285"
     uid: 7ddb080a-0568-45ee-929a-90a9b1573ffa
   spec:
     dnsNames:
@@ -704,6 +666,8 @@ items:
     annotations:
       kubectl.kubernetes.io/last-applied-configuration: |
         {"apiVersion":"traefik.io/v1alpha1","kind":"IngressRoute","metadata":{"annotations":{},"name":"pve-ui","namespace":"pve-proxy"},"spec":{"entryPoints":["websecure"],"routes":[{"kind":"Rule","match":"(Host(`proxmox2-old.localdomain.bnowakowski.pl`) || Host(`proxmox2-old.tailscale.bnowakowski.pl`)) \u0026\u0026 PathPrefix(`/api2/`)","middlewares":[{"name":"pve-api-cors"}],"priority":100,"services":[{"name":"pve-api","port":8006,"scheme":"https","serversTransport":"pve-backend"}]},{"kind":"Rule","match":"Host(`proxmox2-old.localdomain.bnowakowski.pl`) || Host(`proxmox2-old.tailscale.bnowakowski.pl`)","services":[{"name":"pve-api","port":8006,"scheme":"https","serversTransport":"pve-backend"}]}],"tls":{"secretName":"pve-ui-tls"}}}
+      meta.helm.sh/release-name: traefik-resources
+      meta.helm.sh/release-namespace: fleet-local
       objectset.rio.cattle.io/id: default-traefik-config-cattle-fleet-local-system
     creationTimestamp: "2026-09-18T17:40:41Z"
     generation: 2
@@ -712,7 +676,7 @@ items:
       objectset.rio.cattle.io/hash: 972f3924eb7ed9fe2fee4da0b1bd60ba50743f71
     name: pve-ui
     namespace: pve-proxy
-    resourceVersion: "9907669"
+    resourceVersion: "39654286"
     uid: ca8223af-ac9f-43a9-a8c8-6076095c7ac6
   spec:
     entryPoints:
@@ -760,7 +724,7 @@ items:
       app.kubernetes.io/managed-by: Helm
       objectset.rio.cattle.io/hash: 5c5099861e6e33d169fdb03708578bba78fc0a67
     name: letsencrypt
-    resourceVersion: "33584603"
+    resourceVersion: "39651901"
     uid: 521dd8cf-441a-48fd-b1a8-03a993f3f0b3
   spec:
     acme:

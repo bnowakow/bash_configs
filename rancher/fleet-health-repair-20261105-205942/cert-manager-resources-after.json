@@ -1,0 +1,84 @@
+{
+  "apiVersion": "fleet.cattle.io/v1alpha1",
+  "kind": "Bundle",
+  "metadata": {
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"fleet.cattle.io/v1alpha1\",\"kind\":\"Bundle\",\"metadata\":{\"annotations\":{},\"labels\":{\"fleet.cattle.io/commit\":\"28375279fb74b542c92e4dd02502a7d8fbb1083a\",\"fleet.cattle.io/repo-name\":\"rancher-cluster\"},\"name\":\"cert-manager-resources\",\"namespace\":\"fleet-local\"},\"spec\":{\"dependsOn\":[{\"name\":\"cert-manager\"}],\"forceSyncGeneration\":7,\"resources\":[{\"content\":\"# cert-manager resources\\n\\nPlace the non-secret cert-manager resources managed by Fleet in this directory, for\\nexample ClusterIssuers and test Certificates.\\n\\nThe Cloudflare API token must be supplied as a secret through a secret-management process\\nor applied separately. Do not commit the token to this directory.\\n\\nThe existing files in `../../../../cert-manager/` are retained as migration references for\\nnow. They are not automatically included in this Fleet bundle.\\n\",\"name\":\"README.md\"},{\"content\":\"apiVersion: cert-manager.io/v1\\nkind: ClusterIssuer\\nmetadata:\\n  name: letsencrypt\\nspec:\\n  acme:\\n    email: dobrowolski.nowakowski@gmail.com\\n    server: https://acme-v02.api.letsencrypt.org/directory\\n    privateKeySecretRef:\\n      name: le-prod-issuer-acct-key\\n    solvers:\\n      - dns01:\\n          cloudflare:\\n            email: dobrowolski.nowakowski@gmail.com\\n            apiTokenSecretRef:\\n              name: cloudflare-api-token-secret\\n              key: api-token\\n        selector:\\n          dnsZones:\\n            - rancher.localdomain.bnowakowski.pl\\n            - '*.rancher.localdomain.bnowakowski.pl'\\n            - proxmox3.localdomain.bnowakowski.pl\\n            - proxmox4.localdomain.bnowakowski.pl\\n            - rancher.tailscale.bnowakowski.pl\\n            - '*.rancher.tailscale.bnowakowski.pl'\\n            - proxmox3.tailscale.bnowakowski.pl\\n            - proxmox4.tailscale.bnowakowski.pl\\n            - proxmox2-old.localdomain.bnowakowski.pl\\n            - proxmox2-old.tailscale.bnowakowski.pl\\n---\\napiVersion: cert-manager.io/v1\\nkind: ClusterIssuer\\nmetadata:\\n  name: letsencrypt-stag\\nspec:\\n  acme:\\n    email: dobrowolski.nowakowski@gmail.com\\n    server: https://acme-staging-v02.api.letsencrypt.org/directory\\n    privateKeySecretRef:\\n      name: le-issuer-acct-key\\n    solvers:\\n      - dns01:\\n          cloudflare:\\n            email: dobrowolski.nowakowski@gmail.com\\n            apiTokenSecretRef:\\n              name: cloudflare-api-token-secret\\n              key: api-token\\n        selector:\\n          dnsZones:\\n            - rancher.localdomain.bnowakowski.pl\\n            - '*.rancher.localdomain.bnowakowski.pl'\\n            - rancher.tailscale.bnowakowski.pl\\n            - '*.rancher.tailscale.bnowakowski.pl'\\n\",\"name\":\"clusterissuers.yaml\"}],\"targetCustomizationMode\":\"FirstMatch\",\"targetRestrictions\":[{\"clusterGroup\":\"default\",\"name\":\"default\"}],\"targets\":[{\"clusterGroup\":\"default\",\"name\":\"default\"}]}}\n"
+    },
+    "creationTimestamp": "2026-09-05T18:00:12Z",
+    "finalizers": [
+      "fleet.cattle.io/bundle-finalizer"
+    ],
+    "generation": 7,
+    "labels": {
+      "fleet.cattle.io/commit": "28375279fb74b542c92e4dd02502a7d8fbb1083a",
+      "fleet.cattle.io/repo-name": "rancher-cluster"
+    },
+    "name": "cert-manager-resources",
+    "namespace": "fleet-local",
+    "resourceVersion": "39654294",
+    "uid": "063fa33b-3203-4b8d-9e85-102975f72148"
+  },
+  "spec": {
+    "dependsOn": [
+      {
+        "name": "cert-manager"
+      }
+    ],
+    "forceSyncGeneration": 7,
+    "resources": [
+      {
+        "content": "# cert-manager resources\n\nPlace the non-secret cert-manager resources managed by Fleet in this directory, for\nexample ClusterIssuers and test Certificates.\n\nThe Cloudflare API token must be supplied as a secret through a secret-management process\nor applied separately. Do not commit the token to this directory.\n\nThe existing files in `../../../../cert-manager/` are retained as migration references for\nnow. They are not automatically included in this Fleet bundle.\n",
+        "name": "README.md"
+      },
+      {
+        "content": "apiVersion: cert-manager.io/v1\nkind: ClusterIssuer\nmetadata:\n  name: letsencrypt\nspec:\n  acme:\n    email: dobrowolski.nowakowski@gmail.com\n    server: https://acme-v02.api.letsencrypt.org/directory\n    privateKeySecretRef:\n      name: le-prod-issuer-acct-key\n    solvers:\n      - dns01:\n          cloudflare:\n            email: dobrowolski.nowakowski@gmail.com\n            apiTokenSecretRef:\n              name: cloudflare-api-token-secret\n              key: api-token\n        selector:\n          dnsZones:\n            - rancher.localdomain.bnowakowski.pl\n            - '*.rancher.localdomain.bnowakowski.pl'\n            - proxmox3.localdomain.bnowakowski.pl\n            - proxmox4.localdomain.bnowakowski.pl\n            - rancher.tailscale.bnowakowski.pl\n            - '*.rancher.tailscale.bnowakowski.pl'\n            - proxmox3.tailscale.bnowakowski.pl\n            - proxmox4.tailscale.bnowakowski.pl\n            - proxmox2-old.localdomain.bnowakowski.pl\n            - proxmox2-old.tailscale.bnowakowski.pl\n---\napiVersion: cert-manager.io/v1\nkind: ClusterIssuer\nmetadata:\n  name: letsencrypt-stag\nspec:\n  acme:\n    email: dobrowolski.nowakowski@gmail.com\n    server: https://acme-staging-v02.api.letsencrypt.org/directory\n    privateKeySecretRef:\n      name: le-issuer-acct-key\n    solvers:\n      - dns01:\n          cloudflare:\n            email: dobrowolski.nowakowski@gmail.com\n            apiTokenSecretRef:\n              name: cloudflare-api-token-secret\n              key: api-token\n        selector:\n          dnsZones:\n            - rancher.localdomain.bnowakowski.pl\n            - '*.rancher.localdomain.bnowakowski.pl'\n            - rancher.tailscale.bnowakowski.pl\n            - '*.rancher.tailscale.bnowakowski.pl'\n",
+        "name": "clusterissuers.yaml"
+      }
+    ],
+    "targetCustomizationMode": "FirstMatch",
+    "targetRestrictions": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ],
+    "targets": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ]
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastUpdateTime": "2026-11-05T19:55:16Z",
+        "status": "True",
+        "type": "Ready"
+      }
+    ],
+    "display": {
+      "readyClusters": "1/1"
+    },
+    "maxUnavailable": 1,
+    "observedGeneration": 7,
+    "partitions": [
+      {
+        "count": 1,
+        "maxUnavailable": 1,
+        "name": "All",
+        "summary": {
+          "desiredReady": 1,
+          "ready": 1
+        }
+      }
+    ],
+    "resourcesSha256Sum": "e9b0643745b8d22641d0fc90aecb752e055adaca14e2f96e2ed3d85ef09976ca",
+    "summary": {
+      "desiredReady": 1,
+      "ready": 1
+    },
+    "unavailable": 0
+  }
+}

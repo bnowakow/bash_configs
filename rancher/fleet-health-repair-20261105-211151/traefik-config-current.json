@@ -1,0 +1,72 @@
+{
+  "apiVersion": "fleet.cattle.io/v1alpha1",
+  "kind": "Bundle",
+  "metadata": {
+    "creationTimestamp": "2026-09-05T18:00:12Z",
+    "finalizers": [
+      "fleet.cattle.io/bundle-finalizer"
+    ],
+    "generation": 16,
+    "labels": {
+      "fleet.cattle.io/commit": "28375279fb74b542c92e4dd02502a7d8fbb1083a",
+      "fleet.cattle.io/repo-name": "rancher-cluster"
+    },
+    "name": "traefik-config",
+    "namespace": "fleet-local",
+    "resourceVersion": "39651859",
+    "uid": "c829a939-f3e2-48bd-9708-82069e922fd3"
+  },
+  "spec": {
+    "forceSyncGeneration": 7,
+    "resources": [
+      {
+        "content": "apiVersion: helm.cattle.io/v1\nkind: HelmChartConfig\nmetadata:\n  name: traefik\n  namespace: kube-system\nspec:\n  valuesContent: |-\n    dashboard:\n      enabled: true\n    ports:\n      web:\n        hostPort: 80\n      websecure:\n        hostPort: 443\n      traefik:\n        expose:\n          default: true\n    logs:\n      access:\n        enabled: true\n    deployment:\n      podAnnotations:\n        prometheus.io/port: \"8082\"\n        prometheus.io/scrape: \"true\"\n    affinity:\n      podAntiAffinity:\n        preferredDuringSchedulingIgnoredDuringExecution:\n          - weight: 100\n            podAffinityTerm:\n              topologyKey: kubernetes.io/hostname\n              labelSelector:\n                matchLabels:\n                  app.kubernetes.io/name: traefik\n                  app.kubernetes.io/instance: traefik-kube-system\n    topologySpreadConstraints:\n      - maxSkew: 1\n        topologyKey: kubernetes.io/hostname\n        whenUnsatisfiable: ScheduleAnyway\n        labelSelector:\n          matchLabels:\n            app.kubernetes.io/name: traefik\n            app.kubernetes.io/instance: traefik-kube-system\n    tolerations:\n      - key: CriticalAddonsOnly\n        operator: Exists\n      - key: node-role.kubernetes.io/control-plane\n        operator: Exists\n        effect: NoSchedule\n    priorityClassName: system-cluster-critical\n    image:\n      repository: rancher/mirrored-library-traefik\n      tag: \"3.7.8\"\n    providers:\n      kubernetesIngress:\n        publishedService:\n          enabled: true\n",
+        "name": "traefik-config.yaml"
+      }
+    ],
+    "targetCustomizationMode": "FirstMatch",
+    "targetRestrictions": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ],
+    "targets": [
+      {
+        "clusterGroup": "default",
+        "name": "default"
+      }
+    ]
+  },
+  "status": {
+    "conditions": [
+      {
+        "lastUpdateTime": "2026-09-21T18:44:15Z",
+        "status": "True",
+        "type": "Ready"
+      }
+    ],
+    "display": {
+      "readyClusters": "1/1"
+    },
+    "maxUnavailable": 1,
+    "observedGeneration": 16,
+    "partitions": [
+      {
+        "count": 1,
+        "maxUnavailable": 1,
+        "name": "All",
+        "summary": {
+          "desiredReady": 1,
+          "ready": 1
+        }
+      }
+    ],
+    "resourcesSha256Sum": "feaaaebe6c6b0e243d9619bb68449993addba4f0e9a2d558b72983ddca724d74",
+    "summary": {
+      "desiredReady": 1,
+      "ready": 1
+    },
+    "unavailable": 0
+  }
+}
