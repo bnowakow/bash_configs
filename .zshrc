@@ -85,9 +85,14 @@ fi
 
 # https://www.cyberciti.biz/faq/perl-warning-setting-locale-failed-in-debian-ubuntu/
 #export LC_CTYPE=pl_PL.UTF-8
-export LC_CTYPE=en_US.UTF-8
 #export LC_ALL=pl_PL.UTF-8
-export LC_ALL=en_US.UTF-8
+# TrueNAS (NAS) ships only C.utf8; an unavailable locale breaks ansible and
+# makes bash warn, so fall back to C.UTF-8 where en_US.UTF-8 is missing.
+if locale -a 2>/dev/null | grep -qix 'en_US\.utf-\?8'; then
+  export LC_CTYPE=en_US.UTF-8 LC_ALL=en_US.UTF-8
+else
+  export LC_CTYPE=C.UTF-8 LC_ALL=C.UTF-8
+fi
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
