@@ -31,10 +31,10 @@ if [ "$repo_name" = "medihunter" ]; then
     dir="medihunter-kasia"
 fi
 if [ "$repo_name" = "truecharts-charts" ]; then
-    dir="bash_configs/repos/truecharts"
+    dir="homelab/repos/truecharts"
 fi
 if [ "$repo_name" = "truenas-charts" ]; then
-    dir="bash_configs/repos/truenas"
+    dir="homelab/repos/truenas"
 fi
 
 sha_remote_master=$(gh api -H "Accept: application/vnd.github+json" /repos/bnowakow/$repo_name/branches/$source_branch --jq .commit.sha)

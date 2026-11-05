@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ~/code/bash_configs/home-assistant
+cd ~/code/homelab/home-assistant
 
 while true; do
 	curl "https://ovh.bnowakowski.pl:8123" &>/dev/null;

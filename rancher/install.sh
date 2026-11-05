@@ -15,7 +15,7 @@ export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 # first node - check k3s version!
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.34.5%2Bk3s1" sh -s - server
 # TODO currently installed without datastore: sh -s - server --datastore-endpoint="<DATASTORE_ENDPOINT>"
-cp /home/sup/code/bash_configs/rancher/config.yaml /etc/rancher/k3s/config.yaml 
+cp /home/sup/code/homelab/rancher/config.yaml /etc/rancher/k3s/config.yaml 
 chmod 644 /etc/rancher/k3s/config.yaml
 systemctl stop k3s
 systemctl start k3s

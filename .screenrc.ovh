@@ -124,11 +124,11 @@ screen -t dzban-commit 2
 
 chdir /home/sup/docker
 screen -t docker 3
-stuff "~/code/bash_configs/ovh/upgrade-docker-images.sh^M"
+stuff "~/code/homelab/ovh/upgrade-docker-images.sh^M"
 screen -t docker-codex 4
 stuff "codex^M"
 
-chdir /home/sup/code/bash_configs
-screen -t bash-configs 5
+chdir /home/sup/code/homelab
+screen -t homelab 5
 
 select 0

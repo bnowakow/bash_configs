@@ -15,7 +15,7 @@ if [ -f "$repositories_file" ]; then
 
     chart_repo_resolver="$script_dir/zabbix/lib/helm-chart-repo-dir.sh"
     if [ ! -x "$chart_repo_resolver" ]; then
-        chart_repo_resolver="/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-chart-repo-dir.sh"
+        chart_repo_resolver="/etc/zabbix/zabbix_agent2.d/homelab/rancher/zabbix/lib/helm-chart-repo-dir.sh"
     fi
     chart_repo_dir="$($chart_repo_resolver "$name" 2>/dev/null || true)"
 
@@ -65,7 +65,7 @@ if [ "$name" = "zabbix" ]; then
     fi
 fi
 
-chart_repo_dir=$(/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-chart-repo-dir.sh $name) 
+chart_repo_dir=$(/etc/zabbix/zabbix_agent2.d/homelab/rancher/zabbix/lib/helm-chart-repo-dir.sh $name) 
 
 if [ "$chart_repo_dir" == "" ]; then
     # there's no repo on disk, so we'll be checking helm repos

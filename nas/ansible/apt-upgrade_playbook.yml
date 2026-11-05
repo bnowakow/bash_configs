@@ -250,7 +250,7 @@
   tasks:
     - name: Check that the kernel status script exists
       ansible.builtin.stat:
-        path: /home/sup/code/bash_configs/proxmox/zabbix/is-proxmox-kernel-up-to-date.sh
+        path: /home/sup/code/homelab/proxmox/zabbix/is-proxmox-kernel-up-to-date.sh
       register: kernel_status_script
 
     - name: Decide whether the kernel check applies
@@ -271,7 +271,7 @@
       when: not kernel_check_available
 
     - name: Check whether the running kernel is up to date
-      ansible.builtin.command: /home/sup/code/bash_configs/proxmox/zabbix/is-proxmox-kernel-up-to-date.sh
+      ansible.builtin.command: /home/sup/code/homelab/proxmox/zabbix/is-proxmox-kernel-up-to-date.sh
       register: kernel_status_before_reboot
       changed_when: false
       check_mode: false
@@ -317,7 +317,7 @@
         - reboot_confirmation.user_input | lower in ['yes', 'y']
 
     - name: Check kernel status after reboot
-      ansible.builtin.command: /home/sup/code/bash_configs/proxmox/zabbix/is-proxmox-kernel-up-to-date.sh
+      ansible.builtin.command: /home/sup/code/homelab/proxmox/zabbix/is-proxmox-kernel-up-to-date.sh
       register: kernel_status_after_reboot
       changed_when: false
       failed_when: false

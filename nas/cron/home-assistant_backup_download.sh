@@ -2,7 +2,7 @@
 
 home_assistant_running_in_vagrant=false
 
-cd /mnt/MargokPool/home/sup/code/bash_configs/home-assistant/zabbix;
+cd /mnt/MargokPool/home/sup/code/homelab/home-assistant/zabbix;
 source lib/ha-running-in-vagrant-on-in-proxmox.sh
 
 echo ssh_port=$ssh_port

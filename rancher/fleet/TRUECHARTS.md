@@ -99,7 +99,7 @@ Always apply the bundles to the cluster so the change can be tested before any
 commit or push (see `AGENTS.md`). Run from the repository root, storage first:
 
 ```sh
-cd ~/code/bash_configs
+cd ~/code/homelab
 K=/etc/rancher/k3s/k3s.yaml
 fleet apply --kubeconfig $K --namespace fleet-local \
   --label fleet.cattle.io/repo-name=rancher-cluster \

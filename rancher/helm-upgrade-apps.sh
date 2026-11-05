@@ -10,7 +10,7 @@ export ESCDELAY
 
 kubeconfig_path="/etc/rancher/k3s/k3s.yaml"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-bash_configs_root="$(cd "$script_dir/.." && pwd)"
+homelab_root="$(cd "$script_dir/.." && pwd)"
 source "$script_dir/helm-repositories.sh"
 log_dir="$script_dir/logs"
 if [ ! -d "$log_dir" ] && ! mkdir -p "$log_dir" 2>/dev/null; then
@@ -85,7 +85,7 @@ is_up_to_date_helper="$script_dir/zabbix/is-helm-image-up-to-date.sh"
 current_version_helper="$script_dir/zabbix/lib/helm-current-version-of-chart.sh"
 rancher_upgrade_script="$script_dir/upgrade-k3s-rancher.sh"
 rancher_ansible_vars_file="$script_dir/ansible/group_vars/all.yml"
-chart_repo_helper="/etc/zabbix/zabbix_agent2.d/bash_configs/rancher/zabbix/lib/helm-chart-repo-dir-or-helm-repo.sh"
+chart_repo_helper="/etc/zabbix/zabbix_agent2.d/homelab/rancher/zabbix/lib/helm-chart-repo-dir-or-helm-repo.sh"
 if [ ! -x "$chart_repo_helper" ]; then
   chart_repo_helper="$script_dir/zabbix/lib/helm-chart-repo-dir-or-helm-repo.sh"
 fi
@@ -974,7 +974,7 @@ apply_fleet_bundle_with_repair() {
 
   error_file="$(mktemp "${TMPDIR:-/tmp}/fleet-apply-error.XXXXXX")" || return 1
   for attempt in 1 2; do
-    if (cd "$bash_configs_root" && fleet apply "$@") >"$error_file" 2>&1; then
+    if (cd "$homelab_root" && fleet apply "$@") >"$error_file" 2>&1; then
       cat "$error_file" >>"$log_file"
       rm -f "$error_file"
       return 0
@@ -1031,7 +1031,7 @@ generate_fleet_bundle() {
   local error_file generation_error attempt
   error_file="$(mktemp "${TMPDIR:-/tmp}/fleet-generation.XXXXXX.log")" || return 1
   for attempt in 1 2 3; do
-    if (cd "$bash_configs_root" && fleet apply \
+    if (cd "$homelab_root" && fleet apply \
       --kubeconfig "$kubeconfig_path" --namespace fleet-local \
       --output "$output_file" "$bundle_name" "$relative_fleet_dir") >"$error_file" 2>&1; then
       cat "$error_file" >>"$log_file"
@@ -1096,7 +1096,7 @@ apply_fleet_bundle() {
     return 1
   }
 
-  relative_fleet_dir="${fleet_dir#"$bash_configs_root/"}"
+  relative_fleet_dir="${fleet_dir#"$homelab_root/"}"
   if [ "$relative_fleet_dir" = "$fleet_dir" ]; then
     record_failure_and_maybe_abort "Fleet path is outside repository ($app)" \
       "Fleet CLI requires a repository-relative path for $fleet_dir."
@@ -1559,8 +1559,8 @@ stage_fleet_file() {
   local fleet_file="$1"
   local relative_file
 
-  relative_file="${fleet_file#"$bash_configs_root/"}"
-  if ! git -C "$bash_configs_root" add -- "$relative_file" >>"$log_file" 2>&1; then
+  relative_file="${fleet_file#"$homelab_root/"}"
+  if ! git -C "$homelab_root" add -- "$relative_file" >>"$log_file" 2>&1; then
     record_failure_and_maybe_abort "Unable to stage Fleet file" "git add failed for $relative_file."
     return 1
   fi
@@ -2287,7 +2287,7 @@ process_rancher_upgrade() {
     log "$app: postchecks did not pass; Ansible vars were not staged"
     return 1
   fi
-  if ! git -C "$bash_configs_root" diff --quiet -- "$rancher_ansible_vars_file" 2>>"$log_file"; then
+  if ! git -C "$homelab_root" diff --quiet -- "$rancher_ansible_vars_file" 2>>"$log_file"; then
     if stage_fleet_file "$rancher_ansible_vars_file"; then
       staged_fleet_count=$((staged_fleet_count + 1))
     fi
@@ -2306,13 +2306,13 @@ ask_run_codex_commit() {
     --clear \
     --title "Commit Fleet upgrades" \
     --defaultno \
-    --yesno "Fleet upgrades passed their rollout and ingress checks and were staged.\n\nRun:\nmake -C $bash_configs_root codex-commit\n\nRun it now?" 14 90; then
+    --yesno "Fleet upgrades passed their rollout and ingress checks and were staged.\n\nRun:\nmake -C $homelab_root codex-commit\n\nRun it now?" 14 90; then
     log "User chose not to run make codex-commit; staged Fleet files were left in place."
     return 0
   fi
 
-  log "Running make -C $bash_configs_root codex-commit"
-  if ! make -C "$bash_configs_root" codex-commit >>"$log_file" 2>&1; then
+  log "Running make -C $homelab_root codex-commit"
+  if ! make -C "$homelab_root" codex-commit >>"$log_file" 2>&1; then
     record_failure_and_maybe_abort "codex-commit failed" "make codex-commit returned a failure."
     return 1
   fi

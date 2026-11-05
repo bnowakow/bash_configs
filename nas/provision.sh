@@ -46,7 +46,7 @@ sudo /usr/local/libexec/disable-rootfs-protection
 
 sudo chmod +x /bin/apt /bin/apt-key /bin/apt-get /bin/apt-cache /bin/apt-config /usr/bin/dpkg
 
-#sudo ~/code/bash_configs/nas/change-iptables-bridge-docker-settings.sh
+#sudo ~/code/homelab/nas/change-iptables-bridge-docker-settings.sh
 
 sudo apt-get update
 apt_install -y software-properties-common
@@ -107,12 +107,12 @@ sudo chsh -s /usr/bin/zsh "$USER" < /dev/tty
 sudo cp /mnt/MargokPool/home/sup/code/apfs-fuse/build/apfs-* /usr/local/bin
 
 if ! crontab -l | grep ovh_backup_download; then
-    { crontab -l; echo '01 01 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/proxmox_backup_download.sh'; } | crontab -
-    { crontab -l; echo '01 06 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/ovh_backup_download.sh'; } | crontab -
-    { crontab -l; echo '01 15 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/reolink-rotate-videos.sh'; } | crontab -
-    { crontab -l; echo '20 01 * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/proxmox_vm_backups_rotate.sh'; } | crontab -
-    { crontab -l; echo '*/10 * * * * /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/git-pull.sh'; } | crontab -
-    { crontab -l; echo '* */1 * * * /mnt/MargokPool/home/sup/code/bash_configs/repos/truecharts/update-with-only-git-merge.sh'; } | crontab -
+    { crontab -l; echo '01 01 * * * /mnt/MargokPool/home/sup/code/homelab/nas/cron/proxmox_backup_download.sh'; } | crontab -
+    { crontab -l; echo '01 06 * * * /mnt/MargokPool/home/sup/code/homelab/nas/cron/ovh_backup_download.sh'; } | crontab -
+    { crontab -l; echo '01 15 * * * /mnt/MargokPool/home/sup/code/homelab/nas/cron/reolink-rotate-videos.sh'; } | crontab -
+    { crontab -l; echo '20 01 * * * /mnt/MargokPool/home/sup/code/homelab/nas/cron/proxmox_vm_backups_rotate.sh'; } | crontab -
+    { crontab -l; echo '*/10 * * * * /mnt/MargokPool/home/sup/code/homelab/nas/cron/git-pull.sh'; } | crontab -
+    { crontab -l; echo '* */1 * * * /mnt/MargokPool/home/sup/code/homelab/repos/truecharts/update-with-only-git-merge.sh'; } | crontab -
 fi
 # truetool is depricated. using now heavy tool in truenas cron interface
 #if ! sudo crontab -l | grep truetool; then
@@ -152,9 +152,9 @@ ansible-playbook -i "$provision_dir/ansible/inventory/nas-local.yml" \
 sudo usermod -a -G docker zabbix
 sudo mkdir -p /var/lib/zabbix/
 sudo chown zabbix:zabbix /var/lib/zabbix
-sudo ./bash_configs/zabbix/update-zabbix-metadata.sh
+sudo ./homelab/zabbix/update-zabbix-metadata.sh
 # TODO check why zabbix-add-to-sudoers.sh isn't called
-sudo ~/code/bash_configs/nas/zabbix-add-to-sudoers.sh
+sudo ~/code/homelab/nas/zabbix-add-to-sudoers.sh
 
 apt_install unison -y
 
@@ -182,13 +182,13 @@ source ~/.sdkman/src/sdkman-main.sh
 yes | sdk update
 yes | sdk install kotlin
 
-cd ~/code/bash_configs/nas/zabbix
+cd ~/code/homelab/nas/zabbix
 sudo chown sup:zabbix sie-pomaga
 sudo chown sup:zabbix sie-pomaga/*
 sudo chmod 774 sie-pomaga
-cd ~/code/bash_configs/home-assistant/zabbix
+cd ~/code/homelab/home-assistant/zabbix
 sudo chown sup:zabbix *
-cd ~/code/bash_configs/nas/zabbix/archived/is-plex-running
+cd ~/code/homelab/nas/zabbix/archived/is-plex-running
 sudo chown sup:zabbix *
 
 # 1password
@@ -211,10 +211,10 @@ echo
 
 sudo chown -R zabbix:zabbix /var/log/zabbix
 sudo chown -R zabbix:zabbix /var/run/zabbix
-sudo chown sup:zabbix -R /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga
+sudo chown sup:zabbix -R /mnt/MargokPool/home/sup/code/homelab/nas/zabbix/sie-pomaga
 sudo chown -R zabbix:zabbix /mnt/MargokPool/home/zabbix
 
-cd /mnt/MargokPool/home/sup/code/bash_configs/nas
+cd /mnt/MargokPool/home/sup/code/homelab/nas
 source bin/activate
 pip install gpustat
 

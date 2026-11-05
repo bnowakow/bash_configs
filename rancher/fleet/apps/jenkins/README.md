@@ -68,7 +68,7 @@ Both bundles were applied with the Fleet CLI and the `rancher-cluster` GitRepo
 ownership label before commit:
 
 ```sh
-cd ~/code/bash_configs
+cd ~/code/homelab
 fleet apply --kubeconfig /etc/rancher/k3s/k3s.yaml --namespace fleet-local \
   --label fleet.cattle.io/repo-name=rancher-cluster \
   jenkins-storage rancher/fleet/infrastructure/jenkins-storage

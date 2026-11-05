@@ -26,7 +26,7 @@ entryPoints:
 
 providers:
   file:
-    filename: /home/sup/code/bash_configs/transmission/traefik/dynamic/transmission.yml
+    filename: /home/sup/code/homelab/transmission/traefik/dynamic/transmission.yml
     watch: true
 
 certificatesResolvers:

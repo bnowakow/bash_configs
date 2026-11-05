@@ -7,7 +7,7 @@ name="${1:-duckdns}"
 
 #helm pull TrueCharts/duckdns
 
-charts_repo_dir=/etc/zabbix/zabbix_agent2.d/bash_configs/repos
+charts_repo_dir=/etc/zabbix/zabbix_agent2.d/homelab/repos
 charts_repo_truenas_name=truenas
 charts_repo_truecharts_name=truecharts
 cd $charts_repo_dir

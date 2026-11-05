@@ -39,7 +39,7 @@ Vagrant.configure("2") do |config|
 
 # TODO add shared dir for volume to be presisted
   config.vm.provision "configure transmission gui", type: "shell", inline: <<-SHELL
-    cd /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga/
+    cd /mnt/MargokPool/home/sup/code/homelab/nas/zabbix/sie-pomaga/
     docker compose pull
     docker compose up -d
   SHELL

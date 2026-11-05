@@ -1,6 +1,6 @@
 #!/bin/bash
 
-backup_prefix_dir="/home/sup/code/bash_configs/ovh/cron/etc-backup";
+backup_prefix_dir="/home/sup/code/homelab/ovh/cron/etc-backup";
 
 last_backup_date=$(ls --full-time -t $backup_prefix_dir/*tar.gz | head -1 | awk '{print $6}')
 curent_date=$(date +%Y-%m-%d)

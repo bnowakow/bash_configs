@@ -1,3 +1,3 @@
 # for zabbix user
-*/10 *  * * * /home/sup/code/bash_configs/rancher/cron/git-pull.sh
+*/10 *  * * * /home/sup/code/homelab/rancher/cron/git-pull.sh
 

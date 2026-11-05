@@ -10,7 +10,7 @@ After=network-online.target
 [Service]
 Type=simple
 EnvironmentFile=/etc/traefik/traefik.env
-ExecStart=/usr/local/bin/traefik --configFile=/home/sup/code/bash_configs/proxmox/traefik/traefik.yml
+ExecStart=/usr/local/bin/traefik --configFile=/home/sup/code/homelab/proxmox/traefik/traefik.yml
 Restart=on-failure
 RestartSec=5s
 NoNewPrivileges=true

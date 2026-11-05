@@ -11,7 +11,7 @@ apt-get update && apt-get install sysstat
 In one root shell on the destination node, start monitoring and leave it running:
 
 ```bash
-cd /home/sup/code/bash_configs/proxmox
+cd /home/sup/code/homelab/proxmox
 ./monitor-proxmox-vm-migration.sh -v 700 -i 2
 ```
 

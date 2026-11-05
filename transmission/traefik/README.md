@@ -19,7 +19,7 @@ still applies to requests from these origins.
 ## Source and symbolic links
 
 These files reuse the native service design from
-/home/sup/code/bash_configs/proxmox/traefik (relative path:
+/home/sup/code/homelab/proxmox/traefik (relative path:
 [../../proxmox/traefik](../../proxmox/traefik)). That directory's deployment
 claims describe its Proxmox configuration, not this Transmission host.
 
@@ -41,7 +41,7 @@ configuration. Credentials and certificates remain outside the repository.
 Traefik v3.7.13 was installed from the official release after SHA256
 verification, and traefik.service is enabled and running. python3-yaml was
 installed and all YAML inputs and route references were verified. Use one native Traefik service for ports 80 and 443. The service here
-selects /home/sup/code/bash_configs/transmission/traefik/traefik.yml.
+selects /home/sup/code/homelab/transmission/traefik/traefik.yml.
 The shared installation guide is
 [PROXMOX_VE_TRAEFIK_INSTALL.md](../../proxmox/traefik/PROXMOX_VE_TRAEFIK_INSTALL.md);
 reuse its native installation and Cloudflare credential instructions, using this

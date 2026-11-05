@@ -1,6 +1,6 @@
 #!/bin/bash -x
 
-cd /home/sup/code/bash_configs/ovh
+cd /home/sup/code/homelab/ovh
 directory="dool"
 mkdir -p $directory
 

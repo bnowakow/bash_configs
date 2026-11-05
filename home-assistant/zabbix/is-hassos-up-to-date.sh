@@ -2,7 +2,7 @@
 
 home_assistant_running_in_vagrant=false
 
-cd /mnt/MargokPool/home/sup/code/bash_configs/home-assistant/zabbix;
+cd /mnt/MargokPool/home/sup/code/homelab/home-assistant/zabbix;
 source lib/ha-running-in-vagrant-on-in-proxmox.sh
 
 # when we're running ha in supervised or in contenerized we're logging into vm/host and exacuting command against docker container

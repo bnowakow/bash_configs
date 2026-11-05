@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SIE_POMAGA_DIR="/mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga"
+SIE_POMAGA_DIR="/mnt/MargokPool/home/sup/code/homelab/nas/zabbix/sie-pomaga"
 SIE_POMAGA_SLUG="raczka-kuby"
 SIE_POMAGA_CAUSE_ID="eAtDlJ"
 SIE_POMAGA_TARGET_TYPE="Cause"

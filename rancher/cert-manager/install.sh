@@ -5,7 +5,7 @@ echo run as root, export kubeconfig
 
 # https://k3s.rocks/https-cert-manager-letsencrypt/
 
-cd /home/sup/code/bash_configs/rancher/cert-manager
+cd /home/sup/code/homelab/rancher/cert-manager
 
 cat cloudflare-api-token.yaml | envsubst | kubectl apply -f - \
     && cat cert-clusterissuer-prod.yaml | envsubst | kubectl apply -f - \

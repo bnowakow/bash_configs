@@ -2,7 +2,7 @@
 
 # possible conflicts while pulling: crashplan, docker-mailserver (docker-compose, Makefile), homer (config), medihunter, zabbix-scripts (.gitignore)
 
-dirs=("/home/sup/code/bash_configs/repos/bindery"
+dirs=("/home/sup/code/homelab/repos/bindery"
 )
 
 for dir in ${dirs[@]}; do

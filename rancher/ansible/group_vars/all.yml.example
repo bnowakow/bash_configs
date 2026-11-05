@@ -28,7 +28,7 @@ rancher_bootstrap_password: "{{ lookup('env', 'RANCHER_BOOTSTRAP_PASSWORD') }}"
 # This is the current repository. HTTPS + GitHub PAT is created as a Fleet Secret
 # from environment variables by the bootstrap. SSH is also supported; set
 # fleet_git_auth_type to ssh and pre-create the Secret instead.
-fleet_git_repo_url: https://github.com/bnowakow/bash_configs.git
+fleet_git_repo_url: https://github.com/bnowakow/homelab.git
 fleet_git_branch: master
 fleet_git_path: rancher/fleet
 fleet_git_client_secret_name: gitcredential

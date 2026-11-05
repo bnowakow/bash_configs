@@ -125,11 +125,11 @@ screen -t medi-kasia
 #screen -t crashplan
 
 #
-#chdir /etc/zabbix/zabbix_agent2.d/bash_configs/nas/zabbix
+#chdir /etc/zabbix/zabbix_agent2.d/homelab/nas/zabbix
 #screen -t zabbix1
 
 # 
-#chdir /etc/zabbix/zabbix_agent2.d/bash_configs/nas/zabbix
+#chdir /etc/zabbix/zabbix_agent2.d/homelab/nas/zabbix
 #screen -t zabbix2
 
 # 1
@@ -153,11 +153,11 @@ screen -t facebook1
 #screen -t basebox
 
 #
-#chdir /mnt/MargokPool/home/sup/code/bash_configs/home-assistant
+#chdir /mnt/MargokPool/home/sup/code/homelab/home-assistant
 #screen -t ha
 
 #
-#chdir /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga
+#chdir /mnt/MargokPool/home/sup/code/homelab/nas/zabbix/sie-pomaga
 #screen -t kibana
 
 # 
@@ -165,7 +165,7 @@ screen -t facebook1
 #screen -t heavy_script
 
 #
-#chdir /mnt/MargokPool/home/sup/code/bash_configs/nas/zabbix/sie-pomaga
+#chdir /mnt/MargokPool/home/sup/code/homelab/nas/zabbix/sie-pomaga
 #screen -t figlet
 
 # 2
@@ -173,7 +173,7 @@ chdir /mnt/PlexPool/plex
 screen -t plex-mc
 
 # 3
-chdir /mnt/MargokPool/home/sup/code/bash_configs/nas
+chdir /mnt/MargokPool/home/sup/code/homelab/nas
 screen -t plex-clean
 
 # 4
@@ -181,7 +181,7 @@ chdir /mnt/MargokPool/home/sup/code/meshcommander-scripts
 screen -t meshcmd-web
 
 #
-#chdir /mnt/MargokPool/home/sup/code/bash_configs/nas/cron/
+#chdir /mnt/MargokPool/home/sup/code/homelab/nas/cron/
 #screen -t git-pull
 
 # 
@@ -197,7 +197,7 @@ screen -t meshcmd-web
 #screen -t zfs-snapshots
 
 #
-#chdir /mnt/MargokPool/home/sup/code/bash_configs/nas
+#chdir /mnt/MargokPool/home/sup/code/homelab/nas
 #screen -t s3-tunnel
 
 chdir /mnt/MargokPool/archive/

@@ -1,7 +1,7 @@
 ## Refactor Status: `helm-upgrade-apps.sh` ncurses TUI (`dialog`)
 
 ### Summary
-The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup/code/bash_configs/rancher/helm-upgrade-apps.sh) with:
+The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup/code/homelab/rancher/helm-upgrade-apps.sh) with:
 - `dialog`-based ncurses interaction.
 - Per-app decision modal and summary modal (final log dialog removed).
 - Interactive failure handling (`Continue` / `Abort`).
@@ -11,7 +11,7 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 - Lowercase variable naming throughout.
 - Colorized terminal output with improved contrast.
 - Helper status labels (no magic-number-only output) and consistent status/return_code coloring.
-- Added usage documentation in [`rancher/README.md`](/Users/sup/code/bash_configs/rancher/README.md).
+- Added usage documentation in [`rancher/README.md`](/Users/sup/code/homelab/rancher/README.md).
 - Added Debian logrotate support with installer script.
 
 ### Implemented Behavior
@@ -128,10 +128,10 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 - A certificate/TLS-related curl failure should now prompt for `--insecure` retry before the generic `Precheck HTTP failed` or `Postcheck HTTP failed` dialog appears.
 
 ### Git and Retention Additions
-- Added `@logs/` entry to [`.gitignore`](/Users/sup/code/bash_configs/.gitignore).
+- Added `@logs/` entry to [`.gitignore`](/Users/sup/code/homelab/.gitignore).
 - Added Debian logrotate files:
-  - template: [`rancher/logrotate-helm-upgrade-apps.conf`](/Users/sup/code/bash_configs/rancher/logrotate-helm-upgrade-apps.conf)
-  - installer: [`rancher/install-logrotate-helm-upgrade-apps.sh`](/Users/sup/code/bash_configs/rancher/install-logrotate-helm-upgrade-apps.sh)
+  - template: [`rancher/logrotate-helm-upgrade-apps.conf`](/Users/sup/code/homelab/rancher/logrotate-helm-upgrade-apps.conf)
+  - installer: [`rancher/install-logrotate-helm-upgrade-apps.sh`](/Users/sup/code/homelab/rancher/install-logrotate-helm-upgrade-apps.sh)
 - Installer behavior:
   - is self-contained (does not require template file at runtime),
   - uses repo-relative resolution (`script_dir`) to build the log glob,
@@ -143,7 +143,7 @@ The refactor is fully implemented in [`rancher/helm-upgrade-apps.sh`](/Users/sup
 - `rc` terminology replaced with `return_code` in user-facing output and helper variable names.
 
 ### Documentation Added
-- [`rancher/README.md`](/Users/sup/code/bash_configs/rancher/README.md) includes:
+- [`rancher/README.md`](/Users/sup/code/homelab/rancher/README.md) includes:
   - requirements,
   - command examples,
   - timeout override usage,
