@@ -50,3 +50,11 @@ workload:
   main:
     replicas: 1
     strategy: Recreate
+    podSpec:
+      containers:
+        main:
+          env:
+            # Trust forwarded HTTPS headers from the cluster pod networks used by Traefik.
+            RADARR__SERVER__TRUSTEDNETWORKS: "10.42.0.0/24,10.42.2.0/24"
+            # Keep login required when forwarded client addresses become trusted.
+            RADARR__AUTH__REQUIRED: Enabled

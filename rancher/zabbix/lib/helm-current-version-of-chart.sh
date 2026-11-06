@@ -7,6 +7,24 @@ do_not_update_helm="${2:-}"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 repositories_file="$script_dir/helm-repositories.sh"
 
+# Zabbix is published in the community HTTP Helm repository, not in the
+# configured TrueCharts OCI registry. Refresh only its exact repository before
+# searching; a stale checkout or cached index must not hide a newer release.
+if [ "$name" = "zabbix" ]; then
+    if [ -z "$do_not_update_helm" ]; then
+        if ! timeout 15s helm repo update zabbix-community \
+            --fail-on-repo-update-fail >/dev/null 2>&1; then
+            exit 1
+        fi
+    fi
+    repository_charts="$(helm search repo zabbix-community/zabbix \
+        --versions --output json 2>/dev/null)" || exit 1
+    printf '%s\n' "$repository_charts" | jq -er '
+        [.[] | select(.name == "zabbix-community/zabbix") |
+         .version | select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$"))][0] // empty'
+    exit $?
+fi
+
 # OCI charts are not returned by `helm search repo`; resolve their configured
 # reference directly and ask Helm for the chart metadata instead.
 if [ -f "$repositories_file" ]; then
@@ -43,24 +61,6 @@ if [ -f "$repositories_file" ]; then
         fi
         printf '%s\n' "$chart_metadata" |
             awk -F': *' '$1 == "version" { print $2; exit }'
-        exit 0
-    fi
-fi
-
-# The local Zabbix checkout can lag behind the configured Helm repository.
-# Prefer the repository's chart version when it has an exact Zabbix chart.
-if [ "$name" = "zabbix" ]; then
-    repository_version="$(helm search repo "$name" --versions 2>/dev/null | awk '
-        NR > 1 {
-            chart=$1
-            sub(/^.*\//, "", chart)
-            if (chart == "zabbix") {
-                print $2
-                exit
-            }
-        }')"
-    if [ -n "$repository_version" ]; then
-        printf '%s\n' "$repository_version"
         exit 0
     fi
 fi
