@@ -26,6 +26,35 @@ main() {
   fi
 
   # Reverse provisioning order. Leave each marker until its undo succeeds.
+  if [[ -f "$state_dir/ansible-formulae" ]]; then
+    local brew_bin formula installed
+    local formulae=()
+    brew_bin=$(command -v brew || true)
+    if [[ -z "$brew_bin" ]]; then
+      if [[ -x /opt/homebrew/bin/brew ]]; then
+        brew_bin=/opt/homebrew/bin/brew
+      elif [[ -x /usr/local/bin/brew ]]; then
+        brew_bin=/usr/local/bin/brew
+      else
+        echo 'Homebrew is unavailable; cannot undo the recorded Ansible installation.' >&2
+        return 1
+      fi
+    fi
+    installed=$("$brew_bin" list --formula)
+    while IFS= read -r formula; do
+      [[ -n "$formula" ]] || continue
+      if [[ $'\n'"$installed"$'\n' == *$'\n'"$formula"$'\n'* ]]; then
+        formulae+=("$formula")
+      fi
+    done < "$state_dir/ansible-formulae"
+    if [[ ${#formulae[@]} -gt 0 ]]; then
+      echo "Removing Ansible formulae installed by provisioning: ${formulae[*]}"
+      HOMEBREW_NO_AUTOREMOVE=1 "$brew_bin" uninstall --formula --force "${formulae[@]}"
+    fi
+    rm "$state_dir/ansible-formulae"
+  fi
+  rm -f "$state_dir/ansible-formulae.tmp"
+
   if [[ -f "$state_dir/homebrew-installed" ]]; then
     echo 'Uninstalling Homebrew installed by provisioning...'
     uninstaller=$(/usr/bin/curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)

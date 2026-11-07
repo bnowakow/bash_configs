@@ -3,8 +3,14 @@
 On a new Mac, run this command in Terminal as your normal user, without `sudo`:
 
 ```sh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/bnowakow/homelab/master/taerar/ansible/provision.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/bnowakow/homelab/master/taerar/ansible/provision.sh)" -- --unattended
 ```
+
+The examples use `--unattended` to automatically proceed past installation
+confirmations such as `Do you want to proceed with the installation? [y/n]`.
+Omit `--unattended` to keep interactive prompts. The Homebrew installer requires
+existing sudo authorization for unattended installation; if necessary, run
+`sudo -v` first. Passwords and macOS permission dialogs cannot be auto-answered.
 
 It runs the provisioning script from `master`, creates `~/code` if needed,
 clones this repository into `~/code/homelab` over HTTPS if missing, and installs

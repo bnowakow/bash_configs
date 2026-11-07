@@ -1,5 +1,17 @@
 # Provisioning and temporary rollback
 
+- Show `--unattended` in the bootstrap command at the top of `provision.sh` and
+  in both `taerar/README.md` and this directory's README. The switch must select
+  the installation-progressing answer for confirmation prompts using each tool's
+  supported noninteractive options. Without it, preserve interactive prompts.
+  Apply this rule to every future bootstrap command and Ansible playbook task;
+  pass the selected mode into playbooks when they are introduced. Do not pipe
+  blanket `yes` into commands or attempt to auto-answer passwords or OS dialogs.
+- Keep shell provisioning limited to bootstrap: creating the code directory,
+  cloning the repository, and installing Homebrew and Ansible. After Ansible is
+  installed, implement all subsequent provisioning actions as Ansible playbook
+  tasks, invoked by `provision.sh`. This includes the planned dotfile installation
+  (`make install-dotfiles`); do not add it as a direct shell provisioning step.
 - Whenever `provision.sh` gains or changes a persistent action, update
   `undo-provision.sh` in the same change to reverse it in the opposite order.
 - Record changes in `~/.homelab-provision-state` outside the checkout. Track only

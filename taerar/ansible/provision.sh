@@ -1,11 +1,26 @@
 #!/bin/bash
 # Bootstrap from master (copy and run in Terminal):
-# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/bnowakow/homelab/master/taerar/ansible/provision.sh)"
+# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/bnowakow/homelab/master/taerar/ansible/provision.sh)" -- --unattended
 set -euo pipefail
 
-if [[ $# -ne 0 ]]; then
-  echo "Usage: $0" >&2
-  exit 2
+unattended=false
+for argument in "$@"; do
+  case "$argument" in
+    --unattended) unattended=true ;;
+    --help|-h)
+      echo "Usage: $0 [--unattended]"
+      echo 'Without --unattended, installation confirmations remain interactive.'
+      exit 0
+      ;;
+    *) echo "Usage: $0 [--unattended]" >&2; exit 2 ;;
+  esac
+done
+
+# Use each installer's native confirmation controls, never a blanket yes pipe.
+if [[ "$unattended" == true ]]; then
+  export NONINTERACTIVE=1 HOMEBREW_NO_ASK=1
+else
+  unset NONINTERACTIVE HOMEBREW_NO_ASK
 fi
 
 if [[ $(uname -s) != Darwin ]]; then
@@ -70,3 +85,30 @@ fi
 # Make Homebrew available to subsequent provisioning steps in this process.
 eval "$("$brew_bin" shellenv)"
 brew --version
+
+if command -v ansible-playbook >/dev/null 2>&1; then
+  echo "Ansible is already installed: $(command -v ansible-playbook)"
+else
+  echo 'Installing Ansible with Homebrew...'
+  # Record missing formulae before installation, including partial failures.
+  # Retain the original list across repeated runs until undo completes.
+  if [[ ! -f "$state_dir/ansible-formulae" ]]; then
+    missing_dependencies=$(brew deps --missing --formula ansible)
+    installed_formulae=$(brew list --formula)
+    {
+      if [[ $'\n'"$installed_formulae"$'\n' != *$'\nansible\n'* ]]; then
+        echo ansible
+      fi
+      if [[ -n "$missing_dependencies" ]]; then
+        printf '%s\n' "$missing_dependencies"
+      fi
+    } > "$state_dir/ansible-formulae.tmp"
+    mv "$state_dir/ansible-formulae.tmp" "$state_dir/ansible-formulae"
+  fi
+  HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 \
+    HOMEBREW_NO_INSTALL_UPGRADE=1 HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 \
+    brew install --formula ansible
+fi
+ansible-playbook --version
+
+# All subsequent provisioning actions belong in Ansible playbooks.
