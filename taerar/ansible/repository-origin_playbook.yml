@@ -1,0 +1,38 @@
+- name: Use SSH for the homelab origin
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    repo_dir: "{{ lookup('env', 'HOME') }}/code/homelab"
+    state_dir: "{{ lookup('env', 'HOME') }}/.homelab-provision-state"
+  tasks:
+    - name: Record original origin URLs and switch to SSH
+      ansible.builtin.shell: |
+        set -euo pipefail
+        umask 077
+        urls=$(git config --local --get-all remote.origin.url)
+        push_urls=$(git config --local --get-all remote.origin.pushurl || [[ $? == 1 ]])
+        ssh_url=git@github.com:bnowakow/homelab.git
+        if [[ "$urls" == "$ssh_url" && ( -z "$push_urls" || "$push_urls" == "$ssh_url" ) ]]; then
+          echo already-ssh
+          exit 0
+        fi
+        if [[ ! -d "$STATE_DIR/repo-origin" ]]; then
+          snapshot=$(mktemp -d "$STATE_DIR/repo-origin-pending.XXXXXX")
+          printf '%s\n' "$urls" > "$snapshot/urls"
+          if [[ -n "$push_urls" ]]; then
+            printf '%s\n' "$push_urls" > "$snapshot/push-urls"
+          fi
+          mv "$snapshot" "$STATE_DIR/repo-origin"
+        fi
+        git config --local --replace-all remote.origin.url "$ssh_url"
+        if [[ -n "$push_urls" ]]; then
+          git config --local --replace-all remote.origin.pushurl "$ssh_url"
+        fi
+      args:
+        executable: /bin/bash
+        chdir: "{{ repo_dir }}"
+      environment:
+        STATE_DIR: "{{ state_dir }}"
+      register: origin_update
+      changed_when: "'already-ssh' not in origin_update.stdout"

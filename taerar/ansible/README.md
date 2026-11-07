@@ -6,8 +6,9 @@ for Linux servers.
 
 This document records the manual preparation required before running Ansible.
 `provision.sh` currently creates `~/code`, clones this repository if missing, and
-ensures Homebrew and Ansible are installed, then runs a local Ansible playbook
-to install GitHub CLI and log in through the browser. Dotfile installation will
+ensures Homebrew and Ansible are installed, then runs local Ansible playbooks
+to install GitHub CLI, log in through the browser, and switch the repository
+origin to SSH. Dotfile installation will
 be added as a subsequent playbook step.
 
 ## Manual steps before running Ansible
@@ -42,8 +43,8 @@ GitHub link, open the `homelab` repository, and browse to
 
 The script creates `~/code` if needed and clones
 `https://github.com/bnowakow/homelab.git` into `~/code/homelab` if that path is
-missing. Existing checkouts are reused without changing their remote. Switching
-`origin` to SSH will be added later. Git must be available to clone; on a fresh
+missing. Existing checkouts are reused. After GitHub login, an Ansible playbook changes
+`origin` to `git@github.com:bnowakow/homelab.git`. Git must be available to clone; on a fresh
 Mac, complete any macOS Command Line Tools installation prompt and rerun the
 script if needed.
 
@@ -92,7 +93,7 @@ Or download and run the version from `master`:
 ```
 
 Provisioning records its changes in `~/.homelab-provision-state`, including
-attempts that may fail partway through. Undo reverses them in order: undo the
+attempts that may fail partway through. Undo reverses them in order: restore the original origin URLs, undo the
 GitHub login unless retained, remove GitHub CLI and its new dependencies, remove
 Ansible and its newly installed dependencies, uninstall Homebrew using the
 official uninstaller without confirmation, remove the cloned
@@ -118,4 +119,8 @@ the `--unattended` setting. It installs `gh` using Homebrew and checks
 The device code and browser instructions appear directly in Terminal; browser
 authorization still requires your participation with `--unattended`. Existing
 credentials that fail validation stop provisioning rather than being overwritten.
-The repository's HTTPS origin is unchanged. Dotfile installation remains pending.
+It then runs `repository-origin_playbook.yml` to switch `origin` fetch and any
+explicit push URLs to `git@github.com:bnowakow/homelab.git`. The original URLs
+are saved once and restored by undo, including with `--keep-gh-login`. Other
+remote settings are preserved. This step does not create or upload SSH keys;
+SSH access requires a key configured on GitHub. Dotfile installation remains pending.

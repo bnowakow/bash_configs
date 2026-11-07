@@ -125,3 +125,6 @@ export HOMELAB_PROVISION_TTY="$provision_tty"
 ansible-playbook -i localhost, -c local \
   "$repo_dir/taerar/ansible/github-cli_playbook.yml" \
   --extra-vars "{\"provision_unattended\": $unattended}"
+ansible-playbook -i localhost, -c local \
+  "$repo_dir/taerar/ansible/repository-origin_playbook.yml" \
+  --extra-vars "{\"provision_unattended\": $unattended}"

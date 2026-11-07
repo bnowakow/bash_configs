@@ -15,7 +15,7 @@ existing sudo authorization for unattended installation; if necessary, run
 It runs the provisioning script from `master`, creates `~/code` if needed,
 clones this repository into `~/code/homelab` over HTTPS if missing, and installs
 Homebrew and Ansible if needed, then uses Ansible to install GitHub CLI and open
-browser login when required. Use `undo-provision.sh --keep-gh-login` to retain
+browser login when required, then switch the repository origin to SSH. Use `undo-provision.sh --keep-gh-login` to retain
 authentication between test runs. See [the provisioning documentation](ansible/README.md) for
 details and manual prerequisites.
 

@@ -29,6 +29,39 @@ main() {
     return 0
   fi
 
+  # Restore origin before undoing login or removing the checkout.
+  if [[ -d "$state_dir/repo-origin" ]]; then
+    if [[ -e "$repo_dir/.git" ]]; then
+      local key url status
+      for key in url pushurl; do
+        if git -C "$repo_dir" config --local --unset-all "remote.origin.$key"; then
+          :
+        else
+          status=$?
+          [[ $status == 5 ]] || return "$status"
+        fi
+        local original_urls="$state_dir/repo-origin/urls"
+        if [[ "$key" == pushurl ]]; then
+          original_urls="$state_dir/repo-origin/push-urls"
+        fi
+        if [[ -f "$original_urls" ]]; then
+          while IFS= read -r url; do
+            git -C "$repo_dir" config --local --add "remote.origin.$key" "$url"
+          done < "$original_urls"
+        fi
+      done
+      echo 'Restored the original homelab origin URLs.'
+    else
+      echo 'Homelab checkout is absent; no origin to restore.'
+    fi
+    rm -rf -- "$state_dir/repo-origin"
+  fi
+  local origin_pending
+  for origin_pending in "$state_dir"/repo-origin-pending.*; do
+    [[ -d "$origin_pending" ]] || continue
+    rm -rf -- "$origin_pending"
+  done
+
   # Undo browser login while gh is still installed. Credentials remain in the
   # macOS keychain/config directory when --keep-gh-login is selected.
   if [[ -d "$state_dir/gh-login" && "$keep_gh_login" == false ]]; then
