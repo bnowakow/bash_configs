@@ -1,3 +1,16 @@
+# macOS provisioning
+
+On a new Mac, run this command in Terminal as your normal user, without `sudo`:
+
+```sh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/bnowakow/homelab/master/taerar/ansible/provision.sh)"
+```
+
+It runs the provisioning script from `master`, creates `~/code` if needed,
+clones this repository into `~/code/homelab` over HTTPS if missing, and installs
+Homebrew if needed. See [the provisioning documentation](ansible/README.md) for
+details and manual prerequisites.
+
 # IndexNow URL submission
 
 `submit-indexnow.py` takes one URL and submits it to all discoverable IndexNow
