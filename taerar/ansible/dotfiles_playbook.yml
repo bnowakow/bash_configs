@@ -1,0 +1,13 @@
+- name: Install repository dotfiles on this Mac
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Apply make install-dotfiles with provisioning rollback snapshots
+      ansible.builtin.command: make install-dotfiles
+      args:
+        chdir: "{{ lookup('env', 'HOME') }}/code/homelab"
+      environment:
+        HOMELAB_DOTFILES_ROLLBACK_DIR: "{{ lookup('env', 'HOME') }}/.homelab-provision-state/dotfiles"
+      register: dotfiles_install
+      changed_when: "'Installed ~/' in dotfiles_install.stdout"

@@ -8,8 +8,7 @@ This document records the manual preparation required before running Ansible.
 `provision.sh` currently creates `~/code`, clones this repository if missing, and
 ensures Homebrew and Ansible are installed, then runs local Ansible playbooks
 to install GitHub CLI, log in through the browser, and switch the repository
-origin to SSH. Dotfile installation will
-be added as a subsequent playbook step.
+origin to SSH, and install repository dotfiles into the home directory.
 
 ## Manual steps before running Ansible
 
@@ -93,7 +92,7 @@ Or download and run the version from `master`:
 ```
 
 Provisioning records its changes in `~/.homelab-provision-state`, including
-attempts that may fail partway through. Undo reverses them in order: restore the original origin URLs, undo the
+attempts that may fail partway through. Undo reverses them in order: restore dotfiles, restore the original origin URLs, undo the
 GitHub login unless retained, remove GitHub CLI and its new dependencies, remove
 Ansible and its newly installed dependencies, uninstall Homebrew using the
 official uninstaller without confirmation, remove the cloned
@@ -123,4 +122,14 @@ It then runs `repository-origin_playbook.yml` to switch `origin` fetch and any
 explicit push URLs to `git@github.com:bnowakow/homelab.git`. The original URLs
 are saved once and restored by undo, including with `--keep-gh-login`. Other
 remote settings are preserved. This step does not create or upload SSH keys;
-SSH access requires a key configured on GitHub. Dotfile installation remains pending.
+SSH access requires a key configured on GitHub.
+
+Finally, `dotfiles_playbook.yml` runs `make install-dotfiles` from `~/code/homelab`.
+It uses the existing shared file list and hostname-specific `.screenrc` mapping.
+During provisioning, changed dotfiles are snapshotted under
+`~/.homelab-provision-state/dotfiles` before replacement. Undo restores original
+files (including symlinks and permissions) and removes files that were originally
+absent. Repeated runs keep the original snapshots. As with other test rollback,
+changes you make to installed dotfiles afterward are replaced by undo.
+Standalone `make install-dotfiles` retains its usual `~/.homelab-dotfiles-backup.*`
+backups and does not participate in provisioning rollback.

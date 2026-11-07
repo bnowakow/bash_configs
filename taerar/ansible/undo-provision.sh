@@ -29,6 +29,27 @@ main() {
     return 0
   fi
 
+  # Restore dotfiles first, before restoring any pre-login Git configuration.
+  if [[ -d "$state_dir/dotfiles" ]]; then
+    local snapshot name
+    for snapshot in "$state_dir"/dotfiles/file-*; do
+      [[ -d "$snapshot" ]] || continue
+      name=${snapshot##*/file-}
+      rm -f -- "$HOME/$name"
+      if [[ -e "$snapshot/original" || -L "$snapshot/original" ]]; then
+        cp -pP "$snapshot/original" "$HOME/$name"
+      fi
+      rm -rf -- "$snapshot"
+      echo "Restored pre-provisioning state of ~/$name"
+    done
+    # Incomplete snapshots were never published and never modified a dotfile.
+    for snapshot in "$state_dir"/dotfiles/pending.*; do
+      [[ -d "$snapshot" ]] || continue
+      rm -rf -- "$snapshot"
+    done
+    rmdir "$state_dir/dotfiles"
+  fi
+
   # Restore origin before undoing login or removing the checkout.
   if [[ -d "$state_dir/repo-origin" ]]; then
     if [[ -e "$repo_dir/.git" ]]; then
