@@ -14,6 +14,11 @@
   (`make install-dotfiles`); do not add it as a direct shell provisioning step.
 - Whenever `provision.sh` gains or changes a persistent action, update
   `undo-provision.sh` in the same change to reverse it in the opposite order.
+- Keep `undo-provision.sh --keep-gh-login` usable for repeated development tests:
+  retain GitHub CLI credentials and their rollback snapshot, even when removing
+  gh/Homebrew. A later normal provisioning run must reuse the login, and a full
+  undo without the switch must remove only the login created by provisioning.
+  Never print or copy tokens into logs, playbook output, or the repository.
 - Record changes in `~/.homelab-provision-state` outside the checkout. Track only
   resources created or modified by provisioning; preserve pre-existing resources.
   Record intent before operations that can partially fail and keep markers until

@@ -6,8 +6,9 @@ for Linux servers.
 
 This document records the manual preparation required before running Ansible.
 `provision.sh` currently creates `~/code`, clones this repository if missing, and
-ensures Homebrew and Ansible are installed. Subsequent provisioning actions will
-be implemented as Ansible playbooks, including dotfile installation.
+ensures Homebrew and Ansible are installed, then runs a local Ansible playbook
+to install GitHub CLI and log in through the browser. Dotfile installation will
+be added as a subsequent playbook step.
 
 ## Manual steps before running Ansible
 
@@ -63,6 +64,21 @@ formulae are recorded before installation so partial installs can be undone.
 
 ## Undoing provisioning during testing
 
+To keep the GitHub login between development runs:
+
+```sh
+./taerar/ansible/undo-provision.sh --keep-gh-login
+```
+
+This retains the credentials in GitHub CLI's configuration/macOS keychain and
+the original configuration snapshot in `~/.homelab-provision-state/gh-login`.
+GitHub CLI itself can still be uninstalled. Provision again to reinstall it and
+reuse the login. For the final full test, run undo without `--keep-gh-login`
+while `gh` is installed; this logs out the provisioning-created account and
+restores the original GitHub CLI and global Git configuration (interactive login
+can configure Git's credential helper). Pre-existing valid logins are preserved.
+Configuration changes made after the snapshot will be replaced during full undo.
+
 Run as your normal user, without `sudo`:
 
 ```sh
@@ -76,7 +92,8 @@ Or download and run the version from `master`:
 ```
 
 Provisioning records its changes in `~/.homelab-provision-state`, including
-attempts that may fail partway through. Undo reverses them in order: remove
+attempts that may fail partway through. Undo reverses them in order: undo the
+GitHub login unless retained, remove GitHub CLI and its new dependencies, remove
 Ansible and its newly installed dependencies, uninstall Homebrew using the
 official uninstaller without confirmation, remove the cloned
 `~/code/homelab` checkout **including any local changes**, then remove `~/code`
@@ -94,6 +111,11 @@ formula, Homebrew may refuse removal; resolve that dependency before retrying.
 
 ## Running Ansible
 
-Ansible installation is implemented. Playbook execution will be added next;
-dotfile installation is deferred to a playbook rather than called directly from
-the bootstrap shell script.
+After bootstrap, `provision.sh` runs `github-cli_playbook.yml` locally, forwarding
+the `--unattended` setting. It installs `gh` using Homebrew and checks
+`gh auth status --hostname github.com`. If no login exists, it runs
+`gh auth login --hostname github.com --web --git-protocol https --skip-ssh-key`.
+The device code and browser instructions appear directly in Terminal; browser
+authorization still requires your participation with `--unattended`. Existing
+credentials that fail validation stop provisioning rather than being overwritten.
+The repository's HTTPS origin is unchanged. Dotfile installation remains pending.

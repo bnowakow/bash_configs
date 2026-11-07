@@ -1,0 +1,97 @@
+- name: Install GitHub CLI and authenticate this Mac
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    state_dir: "{{ lookup('env', 'HOME') }}/.homelab-provision-state"
+    gh_config_dir: "{{ lookup('env', 'GH_CONFIG_DIR') or (lookup('env', 'XDG_CONFIG_HOME') or lookup('env', 'HOME') + '/.config') + '/gh' }}"
+  tasks:
+    - name: Install GitHub CLI and record newly installed formulae for rollback
+      ansible.builtin.shell: |
+        set -euo pipefail
+        if [[ "$UNATTENDED" != true ]]; then
+          unset HOMEBREW_NO_ASK
+        fi
+        if brew list --formula | grep -qx gh; then
+          echo 'already-installed'
+          exit 0
+        fi
+        if [[ ! -f "$STATE_DIR/gh-formulae" ]]; then
+          dependencies=$(brew deps --missing --formula gh)
+          { echo gh; [[ -z "$dependencies" ]] || printf '%s\n' "$dependencies"; } > "$STATE_DIR/gh-formulae.tmp"
+          mv "$STATE_DIR/gh-formulae.tmp" "$STATE_DIR/gh-formulae"
+        fi
+        brew install --formula gh < "$PROVISION_TTY" > "$PROVISION_TTY" 2>&1
+      args:
+        executable: /bin/bash
+      environment:
+        STATE_DIR: "{{ state_dir }}"
+        UNATTENDED: "{{ provision_unattended | bool | lower }}"
+        PROVISION_TTY: "{{ lookup('env', 'HOMELAB_PROVISION_TTY') }}"
+        HOMEBREW_NO_ASK: "{{ '1' if provision_unattended | bool else '' }}"
+        HOMEBREW_NO_AUTO_UPDATE: '1'
+        HOMEBREW_NO_INSTALL_CLEANUP: '1'
+        HOMEBREW_NO_INSTALL_UPGRADE: '1'
+        HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: '1'
+      register: gh_install
+      changed_when: "'already-installed' not in gh_install.stdout"
+
+    - name: Check existing GitHub authentication
+      ansible.builtin.command: gh auth status --hostname github.com
+      register: gh_auth
+      changed_when: false
+      failed_when: gh_auth.rc not in [0, 1]
+      no_log: true
+
+    - name: Authenticate through the browser when not logged in
+      when: gh_auth.rc != 0
+      block:
+        - name: Refuse to overwrite an existing invalid or unreachable GitHub login
+          ansible.builtin.shell: |
+            if [[ -f "$GH_CONFIG_DIR/hosts.yml" ]] && grep -q '^github.com:' "$GH_CONFIG_DIR/hosts.yml"; then
+              echo 'Existing github.com credentials failed validation. Resolve gh auth status before provisioning.' >&2
+              exit 1
+            fi
+          args:
+            executable: /bin/bash
+          environment:
+            GH_CONFIG_DIR: "{{ gh_config_dir }}"
+          changed_when: false
+
+        - name: Save existing GitHub CLI configuration before login
+          ansible.builtin.shell: |
+            set -euo pipefail
+            if [[ ! -d "$STATE_DIR/gh-login" ]]; then
+              snapshot=$(mktemp -d "$STATE_DIR/gh-login-pending.XXXXXX")
+              printf '%s\n' "$GH_CONFIG_DIR" > "$snapshot/config-path"
+              if [[ -e "$GH_CONFIG_DIR" ]]; then
+                cp -pR "$GH_CONFIG_DIR" "$snapshot/config"
+              fi
+              # Interactive gh login may offer to configure the Git credential helper.
+              git_config=${GIT_CONFIG_GLOBAL:-$HOME/.gitconfig}
+              if [[ -z "${GIT_CONFIG_GLOBAL:-}" && ! -e "$HOME/.gitconfig" && -e "${XDG_CONFIG_HOME:-$HOME/.config}/git/config" ]]; then
+                git_config="${XDG_CONFIG_HOME:-$HOME/.config}/git/config"
+              fi
+              printf '%s\n' "$git_config" > "$snapshot/git-config-path"
+              if [[ -e "$git_config" || -L "$git_config" ]]; then
+                cp -pP "$git_config" "$snapshot/git-config"
+              fi
+              mv "$snapshot" "$STATE_DIR/gh-login"
+            fi
+          args:
+            executable: /bin/bash
+          environment:
+            STATE_DIR: "{{ state_dir }}"
+            GH_CONFIG_DIR: "{{ gh_config_dir }}"
+          changed_when: true
+
+        - name: Open GitHub browser login (complete the device authorization in the browser)
+          ansible.builtin.shell: >-
+            gh auth login --hostname github.com --web --git-protocol https --skip-ssh-key
+            < {{ '/dev/null' if provision_unattended | bool else lookup('env', 'HOMELAB_PROVISION_TTY') | quote }}
+            > {{ lookup('env', 'HOMELAB_PROVISION_TTY') | quote }} 2>&1
+          environment:
+            GH_CONFIG_DIR: "{{ gh_config_dir }}"
+            GH_PROMPT_DISABLED: "{{ '1' if provision_unattended | bool else '' }}"
+          changed_when: true
+          no_log: true

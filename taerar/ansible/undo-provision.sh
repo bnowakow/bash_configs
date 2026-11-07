@@ -4,10 +4,14 @@
 set -euo pipefail
 
 main() {
-  if [[ $# -ne 0 ]]; then
-    echo "Usage: $0" >&2
-    return 2
-  fi
+  local keep_gh_login=false argument
+  for argument in "$@"; do
+    case "$argument" in
+      --keep-gh-login) keep_gh_login=true ;;
+      --help|-h) echo "Usage: $0 [--keep-gh-login]"; return 0 ;;
+      *) echo "Usage: $0 [--keep-gh-login]" >&2; return 2 ;;
+    esac
+  done
   if [[ $(uname -s) != Darwin ]]; then
     echo 'This script requires macOS.' >&2
     return 1
@@ -25,35 +29,88 @@ main() {
     return 0
   fi
 
-  # Reverse provisioning order. Leave each marker until its undo succeeds.
-  if [[ -f "$state_dir/ansible-formulae" ]]; then
-    local brew_bin formula installed
-    local formulae=()
-    brew_bin=$(command -v brew || true)
-    if [[ -z "$brew_bin" ]]; then
-      if [[ -x /opt/homebrew/bin/brew ]]; then
-        brew_bin=/opt/homebrew/bin/brew
-      elif [[ -x /usr/local/bin/brew ]]; then
-        brew_bin=/usr/local/bin/brew
-      else
-        echo 'Homebrew is unavailable; cannot undo the recorded Ansible installation.' >&2
+  # Undo browser login while gh is still installed. Credentials remain in the
+  # macOS keychain/config directory when --keep-gh-login is selected.
+  if [[ -d "$state_dir/gh-login" && "$keep_gh_login" == false ]]; then
+    local gh_config_dir
+    IFS= read -r gh_config_dir < "$state_dir/gh-login/config-path"
+    if [[ -z "$gh_config_dir" || "$gh_config_dir" == / || "$gh_config_dir" == "$HOME" ]]; then
+      echo 'Refusing to restore an unsafe GitHub CLI config path.' >&2
+      return 1
+    fi
+    if [[ -f "$gh_config_dir/hosts.yml" ]] && grep -q '^github.com:' "$gh_config_dir/hosts.yml"; then
+      local gh_bin
+      gh_bin=$(command -v gh || true)
+      if [[ -z "$gh_bin" ]]; then
+        if [[ -x /opt/homebrew/bin/gh ]]; then
+          gh_bin=/opt/homebrew/bin/gh
+        elif [[ -x /usr/local/bin/gh ]]; then
+          gh_bin=/usr/local/bin/gh
+        else
+          echo 'Reinstall gh or rerun provisioning before undoing the retained login.' >&2
+          return 1
+        fi
+      fi
+      GH_CONFIG_DIR="$gh_config_dir" "$gh_bin" auth logout --hostname github.com </dev/null
+    fi
+    rm -rf -- "$gh_config_dir"
+    if [[ -e "$state_dir/gh-login/config" ]]; then
+      mkdir -p "$(dirname "$gh_config_dir")"
+      cp -pR "$state_dir/gh-login/config" "$gh_config_dir"
+    fi
+    if [[ -f "$state_dir/gh-login/git-config-path" ]]; then
+      local git_config
+      IFS= read -r git_config < "$state_dir/gh-login/git-config-path"
+      if [[ -z "$git_config" || "$git_config" == / || "$git_config" == "$HOME" || -d "$git_config" ]]; then
+        echo 'Refusing to restore an unsafe Git config path.' >&2
         return 1
       fi
-    fi
-    installed=$("$brew_bin" list --formula)
-    while IFS= read -r formula; do
-      [[ -n "$formula" ]] || continue
-      if [[ $'\n'"$installed"$'\n' == *$'\n'"$formula"$'\n'* ]]; then
-        formulae+=("$formula")
+      rm -f -- "$git_config"
+      if [[ -e "$state_dir/gh-login/git-config" || -L "$state_dir/gh-login/git-config" ]]; then
+        mkdir -p "$(dirname "$git_config")"
+        cp -pP "$state_dir/gh-login/git-config" "$git_config"
       fi
-    done < "$state_dir/ansible-formulae"
-    if [[ ${#formulae[@]} -gt 0 ]]; then
-      echo "Removing Ansible formulae installed by provisioning: ${formulae[*]}"
-      HOMEBREW_NO_AUTOREMOVE=1 "$brew_bin" uninstall --formula --force "${formulae[@]}"
     fi
-    rm "$state_dir/ansible-formulae"
+    rm -rf -- "$state_dir/gh-login"
   fi
-  rm -f "$state_dir/ansible-formulae.tmp"
+  # Snapshots left before a login attempt made any changes.
+  local pending
+  for pending in "$state_dir"/gh-login-pending.*; do
+    [[ -d "$pending" ]] || continue
+    rm -rf -- "$pending"
+  done
+
+  # Reverse formula installations in order, preserving pre-existing packages.
+  local package brew_bin formula installed
+  for package in gh ansible; do
+    if [[ -f "$state_dir/$package-formulae" ]]; then
+      local formulae=()
+      brew_bin=$(command -v brew || true)
+      if [[ -z "$brew_bin" ]]; then
+        if [[ -x /opt/homebrew/bin/brew ]]; then
+          brew_bin=/opt/homebrew/bin/brew
+        elif [[ -x /usr/local/bin/brew ]]; then
+          brew_bin=/usr/local/bin/brew
+        else
+          echo "Homebrew is unavailable; cannot undo the recorded $package installation." >&2
+          return 1
+        fi
+      fi
+      installed=$("$brew_bin" list --formula)
+      while IFS= read -r formula; do
+        [[ -n "$formula" ]] || continue
+        if [[ $'\n'"$installed"$'\n' == *$'\n'"$formula"$'\n'* ]]; then
+          formulae+=("$formula")
+        fi
+      done < "$state_dir/$package-formulae"
+      if [[ ${#formulae[@]} -gt 0 ]]; then
+        echo "Removing $package formulae installed by provisioning: ${formulae[*]}"
+        HOMEBREW_NO_AUTOREMOVE=1 "$brew_bin" uninstall --formula --force "${formulae[@]}"
+      fi
+      rm "$state_dir/$package-formulae"
+    fi
+    rm -f "$state_dir/$package-formulae.tmp"
+  done
 
   if [[ -f "$state_dir/homebrew-installed" ]]; then
     echo 'Uninstalling Homebrew installed by provisioning...'
@@ -81,7 +138,11 @@ main() {
     rm "$state_dir/code-created"
   fi
 
-  rmdir "$state_dir"
+  if [[ "$keep_gh_login" == true && -d "$state_dir/gh-login" ]]; then
+    echo 'GitHub login retained. Its rollback snapshot is kept for a later full undo.'
+  else
+    rmdir "$state_dir"
+  fi
   echo 'Recorded provisioning changes have been undone.'
 }
 

@@ -112,3 +112,16 @@ fi
 ansible-playbook --version
 
 # All subsequent provisioning actions belong in Ansible playbooks.
+# Ansible workers do not retain a controlling terminal; pass its device path
+# explicitly so confirmations and the browser device code remain visible.
+terminal_name=$(ps -p $$ -o tty=)
+terminal_name=${terminal_name//[[:space:]]/}
+provision_tty="/dev/${terminal_name#/dev/}"
+if [[ -z "$terminal_name" || "$terminal_name" == '??' || ! -c "$provision_tty" ]]; then
+  echo 'Run provisioning from an interactive Terminal for GitHub browser login.' >&2
+  exit 1
+fi
+export HOMELAB_PROVISION_TTY="$provision_tty"
+ansible-playbook -i localhost, -c local \
+  "$repo_dir/taerar/ansible/github-cli_playbook.yml" \
+  --extra-vars "{\"provision_unattended\": $unattended}"
