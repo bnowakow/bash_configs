@@ -11,6 +11,8 @@ repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 config="$repo_root/nas/ansible/vars/sup-dotfiles.yml"
 host=$(hostname -s)
 backup_dir=
+# Set only by provisioning; ordinary make runs retain their standalone backups.
+rollback_dir=${HOMELAB_DOTFILES_ROLLBACK_DIR:-}
 
 read_list() {
   awk -v key="$1" '
@@ -38,7 +40,24 @@ install_file() {
     printf '  %s up to date\n' "$2"
     return
   fi
-  if [[ -e "$destination" || -L "$destination" ]]; then
+  if [[ -n "$rollback_dir" ]]; then
+    if [[ -d "$destination" && ! -L "$destination" ]]; then
+      printf 'Refusing to replace directory: %s\n' "$destination" >&2
+      return 1
+    fi
+    local snapshot
+    if [[ ! -d "$rollback_dir/file-$2" ]]; then
+      # Publish the original state atomically before modifying the destination.
+      # Repeated runs must retain the first snapshot, including symlinks/modes.
+      (umask 077; mkdir -p "$rollback_dir")
+      snapshot=$(mktemp -d "$rollback_dir/pending.XXXXXX")
+      if [[ -e "$destination" || -L "$destination" ]]; then
+        cp -pP "$destination" "$snapshot/original"
+      fi
+      mv -- "$snapshot" "$rollback_dir/file-$2"
+    fi
+    rm -f -- "$destination"
+  elif [[ -e "$destination" || -L "$destination" ]]; then
     if [[ -z "$backup_dir" ]]; then
       backup_dir=$(mktemp -d "$HOME/.homelab-dotfiles-backup.XXXXXX")
       printf 'Backing up existing dotfiles to %s\n' "$backup_dir"
